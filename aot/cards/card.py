@@ -1,4 +1,4 @@
-from aot.color import Color
+from aot.board import Color
 
 
 def _line_move(board, origin, number_movements_left, possible_squares, color):

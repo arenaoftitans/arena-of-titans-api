@@ -1,7 +1,7 @@
 import json
 from aot.board import Board
-from aot.card import Card
-from aot.color import Color
+from aot.cards import Card
+from aot.board import Color
 
 
 class Game:

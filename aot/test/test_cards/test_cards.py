@@ -2,7 +2,7 @@ import pytest
 import json
 from aot.board import Board
 from aot.board import Square
-from aot.card import Card
+from aot.cards import Card
 
 
 @pytest.fixture()
