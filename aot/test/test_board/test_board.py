@@ -19,24 +19,66 @@ def test_number_squares(board):
 def test_square_coords(board):
     assert board[0, 0] == Square(0, 0, 'yellow')
     assert board[7, 2] == Square(7, 2, 'yellow')
+    assert board[-1, 0] == Square(31, 0, 'yellow')
 
 
-def test_get_line_squares(board):
-    assert board.get_line_squares(board[0, 0], 'blue') == set([
+def test_get_lines_squares(board):
+    assert board.get_line_squares(board[0, 0], set(['blue'])) == set([
         Square(0, 1, 'blue')
     ])
-    assert board.get_line_squares(board[7, 0], 'yellow') == set([
+    assert board.get_line_squares(board[7, 0], set(['yellow'])) == set([
         Square(6, 0, 'yellow'),
         Square(8, 0, 'yellow'),
     ])
 
 
-def test_get_diagonal_square(board):
-    assert board.get_diagonal_squares(board[0, 0], 'blue') == set([
+def test_get_line_squares_multiple_colors(board):
+    colors = set(['blue', 'yellow'])
+    assert board.get_line_squares(board[0, 0], colors) == set([
+        Square(0, 1, 'blue'),
+        Square(1, 0, 'yellow'),
+        Square(31, 0, 'yellow'),
+    ])
+
+
+def test_get_line_squares_all_colors(board):
+    assert board.get_line_squares(board[0, 0], set(['all'])) == set([
+        Square(0, 1, 'blue'),
+        Square(1, 0, 'yellow'),
+        Square(31, 0, 'yellow'),
+    ])
+
+
+def test_get_diagonal_squares(board):
+    assert board.get_diagonal_squares(board[0, 0], set(['blue'])) == set([
         Square(1, 1, 'blue'),
         Square(31, 1, 'blue'),
     ])
-    assert board.get_diagonal_squares(board[7, 0], 'blue') == set([
+    assert board.get_diagonal_squares(board[7, 0], set(['blue'])) == set([
         Square(8, 1, 'blue'),
         Square(6, 1, 'blue'),
+    ])
+
+
+def test_get_line_squares_occupied_square(board):
+    board[0, 1].occupied = True
+    assert board.get_line_squares(board[0, 0], set(['blue'])) == set()
+
+
+def test_get_diagonal_squares_multiple_colors(board):
+    colors = set(['black', 'yellow'])
+    assert board.get_diagonal_squares(board[0, 1], colors) == set([
+        Square(31, 0, 'yellow'),
+        Square(1, 0, 'yellow'),
+        Square(1, 2, 'black'),
+        Square(31, 2, 'yellow'),
+    ])
+
+def test_get_diagonal_squares_all_colors(board):
+    colors = set(['all'])
+    assert board.get_diagonal_squares(board[0, 1], colors) == set([
+        Square(31, 0, 'yellow'),
+        Square(1, 0, 'yellow'),
+        Square(1, 2, 'black'),
+        Square(31, 2, 'yellow'),
     ])

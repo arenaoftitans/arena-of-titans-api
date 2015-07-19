@@ -64,16 +64,16 @@ class Board:
             self._board.append(line_board)
             y += 1
 
-    def get_line_squares(self, square, color):
-        squares = SquareSet(color)
+    def get_line_squares(self, square, colors):
+        squares = SquareSet(colors)
         squares.add(self[square.x - 1, square.y])
         squares.add(self[square.x + 1, square.y])
         squares.add(self[square.x, square.y - 1])
         squares.add(self[square.x, square.y + 1])
         return squares
 
-    def get_diagonal_squares(self, square, color):
-        squares = SquareSet(color)
+    def get_diagonal_squares(self, square, colors):
+        squares = SquareSet(colors)
         squares.add(self[square.x - 1, square.y - 1])
         squares.add(self[square.x + 1, square.y - 1])
         squares.add(self[square.x - 1, square.y + 1])
@@ -98,7 +98,6 @@ class Board:
             return (x, y)
         else:
             return x
-
 
     def __len__(self):
         return len(self._board) * len(self._board[0])

@@ -5,6 +5,7 @@ class Square:
     _x = 0
     _y = 0
     _color = None
+    _occupied = False
 
     def __init__(self, x, y, color):
         self._x = x
@@ -21,6 +22,14 @@ class Square:
     @property
     def y(self):
         return self._y
+
+    @property
+    def occupied(self):
+        return self._occupied
+
+    @occupied.setter
+    def occupied(self, occupied):
+        self._occupied = occupied
 
     @property
     def color(self):
@@ -43,13 +52,18 @@ class Square:
 
 
 class SquareSet(set):
-    def __init__(self, color):
-        super()
-        if isinstance(color, str):
-            self._color = Color[color.upper()]
-        else:
-            self._color = color
+    _colors = set()
 
-    def add(self, element):
-        if element is not None and element.color == self._color:
-            super().add(element)
+    def __init__(self, colors):
+        super()
+        self._colors = set()
+        for color in colors:
+            if isinstance(color, str):
+                self._colors.add(Color[color.upper()])
+            else:
+                self._colors.add(color)
+
+    def add(self, square):
+        if square is not None and not square.occupied and \
+                (square.color in self._colors or Color.ALL in self._colors):
+            super().add(square)
