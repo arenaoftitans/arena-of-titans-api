@@ -5,7 +5,7 @@ from aot.board.square import (
 from aot.board.color import Color
 
 
-def get_color_disposition(arms_colors, inner_circle_colors, number_arms):
+def get_colors_disposition(arms_colors, inner_circle_colors, number_arms):
     disposition = []
     for partial_line in inner_circle_colors:
         number_times_repeat_line = int(number_arms / 2 - 1)
@@ -51,7 +51,7 @@ class Board:
 
     def _create_board(self, board_description):
         x, y = 0, 0
-        disposition = get_color_disposition(
+        disposition = get_colors_disposition(
             board_description['arms_colors'],
             board_description['inner_circle_colors'],
             board_description['number_arms'])

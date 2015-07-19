@@ -90,12 +90,12 @@
       "RED,BLUE,YELLOW,BLACK"
     ],
     "svg": {
-      "rotationCenter": "985,985",
-      "fillOrigin": "808,1516",
+      "rotation_center": [985, 985],
+      "fill_origin": [808, 1516],
       "fill": {
         "tag": "rect",
-        "height": "90",
-        "width": "89"
+        "height": 90,
+        "width": 89
       },
       "lines": [
         [

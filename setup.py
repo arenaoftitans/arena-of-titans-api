@@ -20,7 +20,7 @@ setup(
     name='aot',
     version='0.1',
     packages=find_packages(),
-    install_requires=['autobahn', 'redis'],
+    install_requires=['autobahn', 'redis', 'lxml'],
     tests_require=['pytest', 'pytest-cov'],
     cmdclass={'test': PyTest},
     author='jenselme',
