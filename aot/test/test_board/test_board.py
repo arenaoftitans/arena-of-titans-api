@@ -79,6 +79,7 @@ def test_get_diagonal_squares_multiple_colors(board):
         Square(31, 2, 'yellow'),
     ])
 
+
 def test_get_diagonal_squares_all_colors(board):
     colors = set(['all'])
     assert board.get_diagonal_squares(board[0, 1], colors) == set([

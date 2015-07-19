@@ -1,9 +1,9 @@
 from aot.board import Color
 
 
-def _line_move(board, origin, number_movements_left, possible_squares, color):
+def _line_move(board, origin, number_movements_left, possible_squares, colors):
     if number_movements_left > 0:
-        new_squares = board.get_line_squares(origin, color)
+        new_squares = board.get_line_squares(origin, colors)
         for new_square in new_squares:
             if new_square not in possible_squares:
                 _line_move(
@@ -11,7 +11,7 @@ def _line_move(board, origin, number_movements_left, possible_squares, color):
                     new_square,
                     number_movements_left - 1,
                     possible_squares,
-                    color
+                    colors
                 )
         possible_squares.update(new_squares)
 
@@ -21,9 +21,10 @@ def _diagonal_move(
         origin,
         number_movements_left,
         possible_squares,
-        color):
+        colors):
     if number_movements_left > 0:
-        new_squares = board.get_diagonal_squares(origin, color)
+        new_squares = board.get_diagonal_squares(origin, colors)
+        print(new_squares)
         for new_square in new_squares:
             if new_square not in possible_squares:
                 _diagonal_move(
@@ -31,7 +32,7 @@ def _diagonal_move(
                     new_square,
                     number_movements_left - 1,
                     possible_squares,
-                    color
+                    colors
                 )
         possible_squares.update(new_squares)
 
@@ -40,6 +41,7 @@ class Card:
     _board = None
     _number_movements = 0
     _color = None
+    _colors = set()
     _name = ''
     _movements = []
     movements_methods = {
@@ -52,12 +54,15 @@ class Card:
         board,
         number_movements=1,
         color=Color['ALL'],
+        complementary_colors=set(),
         name='',
         movements_types=list()
     ):
         self._board = board
         self._number_movements = number_movements
         self._color = color
+        self._colors = set(complementary_colors)
+        self._colors.add(color)
         self._name = name
         self._movements = [
             self.movements_methods[mvt] for mvt in movements_types
@@ -73,7 +78,7 @@ class Card:
                 origin,
                 number_movements_left,
                 possible_squares,
-                self._color
+                self._colors
             )
         return possible_squares
 
