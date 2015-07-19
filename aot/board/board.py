@@ -66,18 +66,18 @@ class Board:
 
     def get_line_squares(self, square, colors):
         squares = SquareSet(colors)
-        squares.add(self[square.x - 1, square.y])
-        squares.add(self[square.x + 1, square.y])
+        squares.add(self[square.x - 1, square.y, 'left'])
+        squares.add(self[square.x + 1, square.y, 'right'])
         squares.add(self[square.x, square.y - 1])
         squares.add(self[square.x, square.y + 1])
         return squares
 
     def get_diagonal_squares(self, square, colors):
         squares = SquareSet(colors)
-        squares.add(self[square.x - 1, square.y - 1])
-        squares.add(self[square.x + 1, square.y - 1])
-        squares.add(self[square.x - 1, square.y + 1])
-        squares.add(self[square.x + 1, square.y + 1])
+        squares.add(self[square.x - 1, square.y - 1, 'left'])
+        squares.add(self[square.x + 1, square.y - 1, 'right'])
+        squares.add(self[square.x - 1, square.y + 1, 'left'])
+        squares.add(self[square.x + 1, square.y + 1, 'right'])
         return squares
 
     def _correct_x(self, x):
@@ -90,21 +90,46 @@ class Board:
         coords = None
         if isinstance(x, tuple):
             coords = x
-            x, y = coords
+            if len(coords) == 2:
+                x, y = coords
+                x_direction = None
+            elif len(coords) == 3:
+                x, y, x_direction = coords
         while x < 0:
             x += self._x_max
         x = x % self._x_max
         if coords is not None:
-            return (x, y)
+            return (x, y, x_direction)
         else:
             return x
+
+    def _on_arm_edge(self, x, y, x_direction):
+        on_arm = y > self._inner_circle_higher_y
+        if x_direction == 'left':
+            # When going left, x from original square is x + 1
+            return (x + 1) % self._arms_width == 0 and on_arm
+        elif x_direction == 'right':
+            # When going right, x from original square is x - 1
+            return (x - 1) % self._arms_width == self._arms_width - 1 \
+                and on_arm
+        else:
+            return False
 
     def __len__(self):
         return len(self._board) * len(self._board[0])
 
     def __getitem__(self, coords):
-        x, y = self._correct_x(coords)
-        if 0 <= y and y < self._y_max:
+        """Return the square at the given coordonates
+
+        **PARAMTERS**
+
+        * *coords* - tuple of coordonates. Use a third optional element to
+          indicate horizontal direction (among 'left', 'right')
+        """
+        x, y, x_direction = self._correct_x(coords)
+
+        if not self._on_arm_edge(x, y, x_direction) and \
+                0 <= y and y < self._y_max:
             return self._board[y][x]
 
     @property

@@ -65,6 +65,11 @@ def test_get_line_squares_occupied_square(board):
     assert board.get_line_squares(board[0, 0], set(['blue'])) == set()
 
 
+def test_get_line_squares_arm(board):
+    assert board.get_line_squares(board[0, 7], set(['black'])) == set()
+    assert board.get_line_squares(board[3, 7], set(['red'])) == set()
+
+
 def test_get_diagonal_squares_multiple_colors(board):
     colors = set(['black', 'yellow'])
     assert board.get_diagonal_squares(board[0, 1], colors) == set([
@@ -81,4 +86,17 @@ def test_get_diagonal_squares_all_colors(board):
         Square(1, 0, 'yellow'),
         Square(1, 2, 'black'),
         Square(31, 2, 'yellow'),
+    ])
+
+
+def test_get_diagonal_squares_on_arm(board):
+    assert board.get_diagonal_squares(board[0, 7], set(['black'])) == set()
+    assert board.get_diagonal_squares(board[3, 7], set(['red'])) == set()
+    assert board.get_diagonal_squares(board[0, 3], set(['yellow'])) == set([
+        Square(31, 2, 'yellow'),
+        Square(1, 4, 'yellow'),
+    ])
+    assert board.get_diagonal_squares(board[3, 3], set(['blue'])) == set([
+        Square(2, 4, 'blue'),
+        Square(4, 2, 'blue'),
     ])
