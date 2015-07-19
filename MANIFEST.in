@@ -1,0 +1,2 @@
+include aot/resources/templates/*.svg
+include aot/resources/games/*.json

@@ -11,6 +11,8 @@ class Square:
         self._y = y
         if isinstance(color, str):
             self._color = Color[color.upper()]
+        else:
+            self._color = color
 
     @property
     def x(self):
