@@ -9,7 +9,7 @@ class Game:
     _player = None
 
     def create(self, player_name):
-        with open('games.json') as games:
+        with open('aot/resources/games/standard.json') as games:
             game = json.load(games)
         self._board = Board(game['board'])
         deck = Deck(self._board, game)
