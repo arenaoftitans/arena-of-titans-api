@@ -13,7 +13,7 @@ class Game:
             game = json.load(games)
         self._board = Board(game['board'])
         deck = Deck(self._board, game)
-        self._player = Player(player_name, deck, self._board[0][0])
+        self._player = Player(player_name, deck, self._board[0, 0])
 
     def view_possible_squares(self, card):
         return self._player.view_possible_squares(card)
@@ -42,7 +42,7 @@ class Player:
     def play(self, card, square):
         possible_squares = self.view_possible_squares(card)
         x, y = square
-        dest_square = self._deck.board[y][x]
+        dest_square = self._deck.board[x, y]
         if dest_square in possible_squares:
             self._position = dest_square
             return dest_square
@@ -65,7 +65,7 @@ class Deck:
         for color in game['colors']:
             for card in game['cards']:
                 self._deck.append(
-                    Card(self._board, color=Color[color.lower()], **card)
+                    Card(self._board, color=Color[color.upper()], **card)
                 )
 
     def view_possible_squares(self, card, position):

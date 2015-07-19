@@ -41,6 +41,7 @@ class Card:
     _number_movements = 0
     _color = None
     _name = ''
+    _movements = []
     movements_methods = {
         'line': _line_move,
         'diagonal': _diagonal_move
@@ -50,7 +51,7 @@ class Card:
         self,
         board,
         number_movements=1,
-        color=Color['all'],
+        color=Color['ALL'],
         name='',
         movements_types=list()
     ):

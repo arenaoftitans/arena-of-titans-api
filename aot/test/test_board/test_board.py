@@ -22,15 +22,21 @@ def test_square_coords(board):
 
 
 def test_get_line_squares(board):
-    expected = set([Square(0, 1, "blue")])
-    assert board.get_line_squares(Square(0, 0, "yellow"), "blue") == expected
-    expected = set([Square(0, 0, "yellow"), Square(6, 0, "yellow")])
-    assert board.get_line_squares(Square(7, 0, "yellow"), "yellow") == expected
+    assert board.get_line_squares(Square(0, 0, "yellow"), "blue") == set([
+        Square(0, 1, "blue")
+    ])
+    assert board.get_line_squares(Square(7, 0, "yellow"), "yellow") == set([
+        Square(0, 0, "yellow"),
+        Square(6, 0, "yellow")
+    ])
 
 
 def test_get_diagonal_square(board):
-    expected = set([Square(1, 1, "blue"), Square(7, 1, "blue")])
-    squares = board.get_diagonal_squares(Square(0, 0, "yellow"), "blue")
-    assert squares == expected
-    expected = set([Square(0, 1, "blue"), Square(6, 1, "blue")])
-    assert board.get_diagonal_squares(Square(7, 0, "blue"), "blue") == expected
+    assert board.get_diagonal_squares(Square(0, 0, "yellow"), "blue") == set([
+        Square(1, 1, "blue"),
+        Square(7, 1, "blue")
+    ])
+    assert board.get_diagonal_squares(Square(7, 0, "blue"), "blue") == set([
+        Square(0, 1, "blue"),
+        Square(6, 1, "blue")
+    ])

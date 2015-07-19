@@ -12,14 +12,14 @@ def game():
 
 def test_view_possible_squares(game):
     assert game.player_name == 'moi'
-    assert game.view_possible_squares(('King', 'blue')) == set([
-        Square(0, 1, 'blue'),
-        Square(0, 2, 'blue'),
-        Square(1, 1, 'blue'),
-        Square(7, 1, 'blue'),
-        Square(6, 1, 'blue')
+    assert game.view_possible_squares(('King', 'BLUE')) == set([
+        Square(0, 1, 'BLUE'),
+        Square(0, 2, 'BLUE'),
+        Square(1, 1, 'BLUE'),
+        Square(7, 1, 'BLUE'),
+        Square(6, 1, 'BLUE')
     ])
 
 
 def test_play(game):
-    assert game.play(('King', 'blue'), (0, 1)) == game._board[0, 1]
+    assert game.play(('King', 'BLUE'), (0, 1)) == game._board[0, 1]

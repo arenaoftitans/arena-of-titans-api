@@ -1,18 +1,7 @@
 import asyncio
 from autobahn.asyncio.websocket import WebSocketServerFactory
+
 from aot.api import Api
-
-
-def list_opt():
-    """Do some operations on list"""
-    # get the 1st number > 100
-    a = [12, 34, 89, 700]
-    b = [n for n in a if n > 100][0]
-    print(b)
-    # Multiply all number by 2
-    print([n*2 for n in a])
-    # Mulitply number > 100  by 3
-    print([n*3 for n in a if n > 100])
 
 
 if __name__ == "__main__":

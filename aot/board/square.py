@@ -10,7 +10,7 @@ class Square:
         self._x = x
         self._y = y
         if isinstance(color, str):
-            self._color = Color[color.lower()]
+            self._color = Color[color.upper()]
 
     @property
     def x(self):
@@ -38,3 +38,16 @@ class Square:
 
     def __hash__(self):
         return self._x * 10 + self._y * 100 + hash(self._color.name)
+
+
+class SquareSet(set):
+    def __init__(self, color):
+        super()
+        if isinstance(color, str):
+            self._color = Color[color.upper()]
+        else:
+            self._color = color
+
+    def add(self, element):
+        if element is not None and element.color == self._color:
+            super().add(element)

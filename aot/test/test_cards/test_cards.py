@@ -14,43 +14,43 @@ def board():
 
 
 def test_line_card(board):
-    card = Card(board, 1, "blue", None, ['line'])
-    expected = set([Square(0, 1, "blue")])
-    assert card.move(Square(0, 0, "blue")) == expected
-    card = Card(board, 1, "yellow", None, ['line'])
-    expected = set([Square(0, 0, "yellow"), Square(6, 0, "yellow")])
-    assert card.move(Square(7, 0, "yellow")) == expected
+    card = Card(board, 1, 'BLUE', None, ['line'])
+    assert card.move(Square(0, 0, 'BLUE')) == set([Square(0, 1, 'BLUE')])
+    card = Card(board, 1, 'YELLOW', None, ['line'])
+    assert card.move(Square(7, 0, 'YELLOW')) == set([
+        Square(0, 0, 'YELLOW'),
+        Square(6, 0, 'YELLOW')
+    ])
 
 
 def test_line_card_two_moves(board):
-    card = Card(board, 2, "blue", None, ['line'])
-    expected = set([
-        Square(0, 1, "blue"),
-        Square(1, 1, "blue"),
-        Square(7, 1, "blue"),
-        Square(0, 2, "blue")
+    card = Card(board, 2, 'BLUE', None, ['line'])
+    assert card.move(Square(0, 0, 'BLUE')) == set([
+        Square(0, 1, 'BLUE'),
+        Square(1, 1, 'BLUE'),
+        Square(7, 1, 'BLUE'),
+        Square(0, 2, 'BLUE')
     ])
-    assert card.move(Square(0, 0, "blue")) == expected
 
 
 def test_diagonal_card(board):
-    card = Card(board, 1, "blue", None, ['diagonal'])
-    expected = set([Square(1, 1, "blue"), Square(7, 1, "blue")])
-    assert card.move(Square(0, 0, "blue")) == expected
-    card = Card(board, 2, "blue", None, ['diagonal'])
-    expected = set([
-        Square(1, 1, "blue"),
-        Square(7, 1, "blue"),
-        Square(0, 2, "blue")
+    card = Card(board, 1, 'BLUE', None, ['diagonal'])
+    assert card.move(Square(0, 0, 'BLUE')) == set([
+        Square(1, 1, 'BLUE'),
+        Square(7, 1, 'BLUE')
     ])
-    assert card.move(Square(0, 0, "blue")) == expected
+    card = Card(board, 2, 'BLUE', None, ['diagonal'])
+    assert card.move(Square(0, 0, 'BLUE')) == set([
+        Square(1, 1, 'BLUE'),
+        Square(7, 1, 'BLUE'),
+        Square(0, 2, 'BLUE')
+    ])
 
 
 def test_line_diagonal_card(board):
-    card = Card(board, 1, "blue", None, ['line', 'diagonal'])
-    expected = set([
-        Square(0, 1, "blue"),
-        Square(1, 1, "blue"),
-        Square(7, 1, "blue")
+    card = Card(board, 1, 'BLUE', None, ['line', 'diagonal'])
+    assert card.move(Square(0, 0, 'BLUE')) == set([
+        Square(0, 1, 'BLUE'),
+        Square(1, 1, 'BLUE'),
+        Square(7, 1, 'BLUE')
     ])
-    assert card.move(Square(0, 0, "blue")) == expected

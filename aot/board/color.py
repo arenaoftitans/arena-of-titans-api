@@ -2,8 +2,8 @@ from enum import Enum
 
 
 class Color(Enum):
-    black = "black"
-    blue = "blue"
-    red = "red"
-    yellow = "yellow"
-    all = 'all'
+    BLACK = 'BLACK'
+    BLUE = 'BLUE'
+    RED = 'RED'
+    YELLOW = 'YELLOW'
+    ALL = 'all'
