@@ -4,6 +4,7 @@ import json
 from aot.board import Board
 from aot.board import Square
 from aot.board import Color
+from aot.board import ColorSet
 from aot.board.square import SquareSet
 
 
@@ -108,3 +109,7 @@ def test_get_diagonal_squares_on_arm(board):
 
 def test_square_set_from_color():
     assert Color['BLUE'] in SquareSet([Color['BLUE']]).colors
+
+
+def test_color_set():
+    assert Color['BLUE'] in ColorSet([Color['BLUE']])
