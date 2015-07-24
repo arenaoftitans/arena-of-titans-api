@@ -1,7 +1,10 @@
 import pytest
 import json
+
 from aot.board import Board
 from aot.board import Square
+from aot.board import Color
+from aot.board.square import SquareSet
 
 
 @pytest.fixture()
@@ -101,3 +104,7 @@ def test_get_diagonal_squares_on_arm(board):
         Square(2, 4, 'blue'),
         Square(4, 2, 'blue'),
     ])
+
+
+def test_square_set_from_color():
+    assert Color['BLUE'] in SquareSet([Color['BLUE']]).colors

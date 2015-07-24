@@ -83,9 +83,9 @@ class Card:
         return possible_squares
 
     @property
-    def color(self):
+    def color(self): # pragma: no cover
         return self._color
 
     @property
-    def name(self):
+    def name(self): # pragma: no cover
         return self._name
