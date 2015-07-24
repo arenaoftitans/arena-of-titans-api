@@ -40,6 +40,7 @@ def test_paws(svg_board):
         namespaces=SvgBoardCreator.NS)[0]
     assert len(pawn_layer) == 8
 
+
 def test_str(svg_board):
     assert str(svg_board)
     assert '&gt;' not in str(svg_board)

@@ -29,7 +29,7 @@ class Square:
 
     @occupied.setter
     def occupied(self, occupied):
-        self._occupied = occupied
+        self._occupied = bool(occupied)
 
     @property
     def color(self):
@@ -41,10 +41,10 @@ class Square:
             other._y == self._y and\
             other._color == self._color
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return 'Square({}, {}, {})'.format(self._x, self._y, self._color)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return str(self)
 
     def __hash__(self):

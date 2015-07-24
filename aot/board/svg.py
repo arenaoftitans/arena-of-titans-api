@@ -142,7 +142,7 @@ class SvgBoardCreator:
             .decode('utf-8')\
             .replace('&gt;', '>')
 
-    def __repr__(self): # pragma: no cover
+    def __repr__(self):  # pragma: no cover
         return etree.tostring(self._svg, pretty_print=True)\
             .decode('utf-8')\
             .replace('&gt;', '>')
