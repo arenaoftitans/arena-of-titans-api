@@ -1,6 +1,5 @@
 from aot.board import Color
 from aot.board import ColorSet
-from aot.board import Square
 
 
 def _line_move(board, origin, number_movements_left, possible_squares, colors):
@@ -44,46 +43,71 @@ def _knight_move(
         number_movements_left,
         possible_squares,
         colors):
-    if number_movements_left > 0:
-        temporary_vertical_squares = set([
-            Square(origin.x, origin.y + 2, 'all'),
-            Square(origin.x, origin.y - 2, 'all'),
-        ])
+    possible_squares.update(
+        __knight_get_vertical_squares(board, origin, colors))
 
-        probable_squares = set()
-        for square in temporary_vertical_squares:
-            right_square = board[square.x + 1, square.y, 'right']
-            left_square = board[square.x - 1, square.y, 'left']
-            if right_square:
-                probable_squares.add(right_square)
-            if left_square:
-                probable_squares.add(left_square)
+    possible_squares.update(
+        __knigt_get_horizontal_square(board, origin, colors))
 
-        possible_squares.update([square for square in probable_squares
-                                 if square.color in colors
-                                 and not square.occupied])
 
-        square_left = board[origin.x - 1, origin.y, 'left']
-        square_right = board[origin.x + 1, origin.y, 'right']
-        temporary_horizontal_squares = set()
-        if square_left:
-            temporary_horizontal_squares.add(board[square_left.x - 1, square_left.y, 'left'])
-        if square_right:
-            temporary_horizontal_squares.add(board[square_right.x + 1, square_right.y, 'right'])
-        probable_squares = set()
-        for square in temporary_horizontal_squares:
-            if not square:
-                continue
-            up_square = board[square.x, square.y + 1]
-            down_square = board[square.x, square.y - 1]
-            if up_square:
-                probable_squares.add(up_square)
-            if down_square:
-                probable_squares.add(down_square)
+def __knight_get_vertical_squares(board, origin, colors):
+    temporary_vertical_squares = set([
+        board[origin.x, origin.y + 2],
+        board[origin.x, origin.y - 2],
+    ])
 
-        possible_squares.update([square for square in probable_squares
-                                 if square.color in colors
-                                 and not square.occupied])
+    probable_squares = set()
+    for square in temporary_vertical_squares:
+        # Squares in temporary_vertical_squares are added by board[] so they
+        # can be None.
+        if not square:
+            continue
+        right_square = board[square.x + 1, square.y, 'right']
+        left_square = board[square.x - 1, square.y, 'left']
+        if right_square:
+            probable_squares.add(right_square)
+        if left_square:
+            probable_squares.add(left_square)
+
+    return [square for square in probable_squares
+            if square.color in colors and not square.occupied]
+
+
+def __knigt_get_horizontal_square(board, origin, colors):
+    temporary_horizontal_squares = __knight_get_temporary_horizontal_square(
+        board, origin)
+
+    probable_squares = set()
+    for square in temporary_horizontal_squares:
+        # Squares in temporary_horizontal_squares are added by board[] so they
+        # can be None.
+        if not square:
+            continue
+        up_square = board[square.x, square.y + 1]
+        down_square = board[square.x, square.y - 1]
+        if up_square:
+            probable_squares.add(up_square)
+        if down_square:
+            probable_squares.add(down_square)
+
+    return [square for square in probable_squares
+            if square.color in colors and not square.occupied]
+
+
+def __knight_get_temporary_horizontal_square(board, origin):
+    # We must get horizontal squares one step at a time to avoid switching
+    # board
+    square_left = board[origin.x - 1, origin.y, 'left']
+    square_right = board[origin.x + 1, origin.y, 'right']
+    temporary_horizontal_squares = set()
+    if square_left:
+        temporary_horizontal_squares.add(
+            board[square_left.x - 1, square_left.y, 'left'])
+    if square_right:
+        temporary_horizontal_squares.add(
+            board[square_right.x + 1, square_right.y, 'right'])
+
+    return temporary_horizontal_squares
 
 
 class Card:
