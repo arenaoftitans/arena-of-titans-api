@@ -1,15 +1,14 @@
 import json
 import pytest
 
+from aot import get_board_description
 from aot.board import SvgBoardCreator
 
 
 @pytest.fixture()
 def svg_board():
-    with open('aot/resources/games/standard.json') as games:
-        game = json.load(games)
-        board_description = game['board']
-        return SvgBoardCreator(board_description)
+    board_description = get_board_description()
+    return SvgBoardCreator(board_description)
 
 
 @pytest.fixture()

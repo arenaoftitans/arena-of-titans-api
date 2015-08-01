@@ -1,19 +1,9 @@
-import pytest
-import json
-
-from aot.board import Board
 from aot.board import Square
 from aot.board import Color
 from aot.board import ColorSet
 from aot.board.square import SquareSet
-
-
-@pytest.fixture()
-def board():
-    with open('aot/resources/games/standard.json') as games:
-        game = json.load(games)
-        board_description = game['board']
-        return Board(board_description)
+# board is a fixture, ignore the unsued import warnig
+from aot.test import board
 
 
 def test_number_squares(board):
