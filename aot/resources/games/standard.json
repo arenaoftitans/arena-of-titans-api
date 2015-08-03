@@ -1,44 +1,44 @@
 {
   "colors": ["BLACK", "BLUE", "RED", "YELLOW"],
-  "movementsCards": {
-    "numberCardsPerColor": 1,
+  "movements_cards": {
+    "number_cards_per_color": 1,
     "cards": [
       {
         "name": "Assassin",
-        "numberOfMovements": 2,
-        "movementsType": "lineAndDiagonal"
+        "number_of_movements": 2,
+        "movements_type": ["line", "diagonal"]
       },
       {
         "name": "King",
-        "numberOfMovements": 3,
-        "movementsType": "line"
+        "number_of_movements": 3,
+        "movements_type": ["line"]
       },
       {
         "name": "Queen",
-        "numberOfMovements": 2,
-        "movementsType": "lineAndDiagonal"
+        "number_of_movements": 2,
+        "movements_type": ["line", "diagonal"]
       },
       {
         "name": "Knight",
-        "numberOfMovements": 1,
-        "movementsType": "knight"
+        "number_of_movements": 1,
+        "movements_type": ["knight"]
       },
       {
         "name": "Wizard",
-        "numberOfMovements": 1,
-        "movementsType": "lineAndDiagonal",
-        "additionalMovementsColors": ["ALL"]
+        "number_of_movements": 1,
+        "movements_type": ["line", "diagonal"],
+        "additional_movements_colors": ["ALL"]
       },
       {
         "name": "Warrior",
-        "numberOfMovements": 1,
-        "movementsType": "line"
+        "number_of_movements": 1,
+        "movements_type": ["line"]
       },
       {
         "name": "Bishop",
-        "numberOfMovements": 2,
-        "movementsType": "diagonal",
-        "complementaryColors": {
+        "number_of_movements": 2,
+        "movements_type": ["diagonal"],
+        "complementary_colors": {
           "BLACK": ["BLUE"],
           "BLUE": ["YELLOW"],
           "RED": ["BLACK"],

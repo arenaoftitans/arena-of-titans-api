@@ -6,7 +6,7 @@ class Color(Enum):
     BLUE = 'BLUE'
     RED = 'RED'
     YELLOW = 'YELLOW'
-    ALL = 'all'
+    ALL = 'ALL'
 
 
 class ColorSet(set):

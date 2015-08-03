@@ -163,3 +163,10 @@ class Card:
     @property
     def name(self):  # pragma: no cover
         return self._name
+
+    def __str__(self):  # pragma: no cover
+        return "Card(name={name}, color={color})"\
+            .format(name=self.name, color=self.color)
+
+    def __repr__(self):  # pragma: no cover
+        return str(self)
