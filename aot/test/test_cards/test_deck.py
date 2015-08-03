@@ -1,22 +1,13 @@
-import pytest
-
-from aot import get_cards_list
 from aot.cards import Card
-from aot.cards import Deck
-# board is a fixture, ignore the unsued import warnig
+# fixtures, ignore the unsued import warnig
 from aot.test import board
+from aot.test import deck
 
 
 NUMBER_COLORS = 4
 NUMBER_CARD_TYPES = 7
 NUMBER_CARDS_HAND = 5
 NUMBER_TOTAL_CARDS = NUMBER_CARD_TYPES * NUMBER_COLORS
-
-
-@pytest.fixture
-def deck(board):
-    cards = get_cards_list(board)
-    return Deck(cards)
 
 
 def test_get_card(deck):
