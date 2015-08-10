@@ -2,8 +2,10 @@ import pytest
 
 from aot import get_board_description
 from aot import get_cards_list
+from aot import get_number_players
 from aot.board import Board
 from aot.cards import Deck
+from aot.game import Game
 from aot.game import Player
 
 
@@ -24,3 +26,12 @@ def player(board, deck):
     player = Player(None, None, 0)
     player.set(board, deck)
     return player
+
+
+@pytest.fixture
+def game(board):
+    players = []
+    for i in range(get_number_players()):
+        players.append(Player('Player {}'.format(i), None, i))
+    game = Game(board, players)
+    return game

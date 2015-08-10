@@ -35,7 +35,7 @@ class Deck:
 
     def view_possible_squares(self, card, position):
         card_name, card_color = card
-        game_card = self._get_card(card_name, card_color)
+        game_card = self.get_card(card_name, card_color)
         return game_card.move(position)
 
     def play(self, card):

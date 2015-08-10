@@ -2,6 +2,7 @@ import json
 
 from aot.board import Color
 from aot.cards import Card
+from aot.cards import Deck
 
 
 def get_game_description(name='standard'):
@@ -11,6 +12,14 @@ def get_game_description(name='standard'):
 
 def get_board_description(name='standard'):
     return get_game_description(name)['board']
+
+
+def get_number_players(name='standard'):
+    return get_game_description(name)['number_players']
+
+
+def get_deck(board, name='standard'):
+    return Deck(get_cards_list(board, name=name))
 
 
 def get_cards_list(board, name='standard'):

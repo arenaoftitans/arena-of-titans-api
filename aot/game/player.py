@@ -119,6 +119,10 @@ class Player:
         return self._deck
 
     @property
+    def index(self):
+        return self._index
+
+    @property
     def last_square_previous_turn(self):
         return self._last_square_previous_turn
 
