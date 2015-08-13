@@ -1,5 +1,3 @@
-from aot.game import Game
-from aot.board import Square
 # fixtures, ignore the unsued import warnig
 from aot.test import board
 from aot.test import game
@@ -13,12 +11,18 @@ def test_game_one_player_left(game):
 
 
 def test_play_turn_winning_player(game):
+    player1 = game.players[0]
+    player2 = game.players[1]
+
+    assert player1 is game.active_player
     game.play_card(None, (16, 8), check_move=False)
+    assert player1 is game.active_player
     assert not game.players[0].has_won
     assert not game.is_over
 
     # Same turn
     game.play_card(None, (16, 8), check_move=False)
+    assert player2 is game.active_player
     assert not game.players[0].has_won
     assert not game.is_over
 
@@ -113,9 +117,11 @@ def test_game_over_simultanous_winners(game):
 
 def test_play_missing_players(game):
     game.players[1] = None
-    game.play_card(None, (16, 8))
-    game.play_card(None, (16, 8))
-    assert 2 == game.active_player.index
+    player3 = game.players[2]
+
+    game.play_card(None, (16, 8), check_move=False)
+    game.play_card(None, (16, 8), check_move=False)
+    assert player3 is game.active_player
 
 
 def test_pass_turn(game):

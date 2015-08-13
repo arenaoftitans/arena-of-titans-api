@@ -4,6 +4,7 @@ class Player:
     MAX_NUMBER_MOVE_TO_PLAY = 2
 
     _aim = set()
+    _affecting_trumps = []
     _board = None
     _can_play = False
     _current_square = None
@@ -22,10 +23,11 @@ class Player:
         self._id = id
         self._index = index
 
+        self._affecting_trumps = []
+
     def set(self, board, deck):
         self._aim = self._generate_aim(board)
         self._board = board
-        self._can_play = False
         self._current_square = board[
            self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
             self.BOARD_ARM_LENGTH_AND_MAX_Y]
@@ -89,6 +91,29 @@ class Player:
         self._number_moves_played = 0
         self._can_play = True
         self._last_square_previous_turn = self._current_square
+        self._enable_trumps()
+
+    def _enable_trumps(self):
+        for trump in self._affecting_trumps:
+            trump.affect(self)
+
+    def complete_turn(self):
+        self._revert_to_default()
+        for trump in self._affecting_trumps:
+            trump.consume()
+            if trump.duration == 0:
+                self._affecting_trumps.remove(trump)
+
+    def _revert_to_default(self):
+        self._number_move_to_play = self.MAX_NUMBER_MOVE_TO_PLAY
+
+    def modify_number_moves(self, delta):
+        self._number_move_to_play += delta
+
+    def affect_by(self, trump):
+        self._affecting_trumps.append(trump)
+        if self._can_play:
+            trump.affect(self)
 
     @property
     def _is_on_last_line(self):

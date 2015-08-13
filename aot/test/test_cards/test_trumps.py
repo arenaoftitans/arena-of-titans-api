@@ -1,0 +1,52 @@
+from aot.cards.trumps import ModifyNumberMoves
+# fixtures, ignore the unsued import warnig
+from aot.test import board
+from aot.test import game
+
+
+def test_affect_modify_number_moves(game):
+    player1 = game.players[0]
+    player2 = game.players[1]
+    trump = ModifyNumberMoves(delta_moves=1, duration=1)
+    player1.affect_by(trump)
+
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player2 is game.active_player
+
+    for _ in game.players[1:]:
+        game.pass_turn()
+
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player2 is game.active_player
+
+
+def test_affect_modify_number_moves_middle_turn(game):
+    player1 = game.players[0]
+    player2 = game.players[1]
+    trump = ModifyNumberMoves(delta_moves=1, duration=1)
+
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    player1.affect_by(trump)
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player2 is game.active_player
+
+    for _ in game.players[1:]:
+        game.pass_turn()
+
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player1 is game.active_player
+    game.play_card(None, (0, 0), check_move=False)
+    assert player2 is game.active_player

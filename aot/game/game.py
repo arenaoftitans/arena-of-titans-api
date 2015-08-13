@@ -14,6 +14,7 @@ class Game:
 
     def __init__(self, board, players):
         self._active_player = players[0]
+        self._active_player.init_turn()
         self._board = board
         self._is_over = False
         self._players = players
@@ -44,6 +45,7 @@ class Game:
         if self._active_player.can_play:
             return self._active_player
         else:
+            self._active_player.complete_turn()
             return self._get_next_player()
 
     def _get_next_player(self):
