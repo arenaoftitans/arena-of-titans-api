@@ -105,6 +105,7 @@ class Player:
                 self._affecting_trumps.remove(trump)
 
     def _revert_to_default(self):
+        self._deck.revert_to_default()
         self._number_moves_to_play = self.MAX_NUMBER_MOVE_TO_PLAY
 
     def modify_number_moves(self, delta):

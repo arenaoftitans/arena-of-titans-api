@@ -112,6 +112,7 @@ def __knight_get_temporary_horizontal_square(board, origin):
 
 class Card:
     _board = None
+    _default_colors = set()
     _number_movements = 0
     _color = None
     _colors = set()
@@ -137,6 +138,7 @@ class Card:
         self._color = color
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
+        self._default_colors = set(self._colors)
         self._name = name
         self._movements = [
             self.movements_methods[mvt] for mvt in movements_types
@@ -156,9 +158,22 @@ class Card:
             )
         return possible_squares
 
+    def remove_color_from_possible_colors(self, color):
+        if color == Color['ALL']:
+            self._colors = set()
+        elif color in self._colors:
+            self._colors.remove(color)
+
+    def revert_to_default(self):
+        self._colors = set(self._default_colors)
+
     @property
-    def color(self):  # pragma: no cover
+    def color(self):
         return self._color
+
+    @property
+    def colors(self):
+        return self._colors
 
     @property
     def name(self):  # pragma: no cover

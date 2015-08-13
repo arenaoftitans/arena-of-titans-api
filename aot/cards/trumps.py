@@ -1,3 +1,6 @@
+from aot.board import Color
+
+
 class Trump:
     _name = ''
     _duration = 0
@@ -43,3 +46,37 @@ class ModifyNumberMoves(Trump):
     def affect(self, player):
         if player and self._duration > 0:
             player.modify_number_moves(self._delta_moves)
+
+
+class RemoveColor(Trump):
+    _colors = set()
+
+    def __init__(
+            self,
+            name='',
+            duration=0,
+            description='',
+            must_target_player=False,
+            color=None,
+            colors=None):
+        super().__init__(
+            name=name,
+            duration=duration,
+            description=description,
+            must_target_player=must_target_player)
+        self._colors = set()
+        if colors is not None:
+            for color in colors:
+                self._add_color(color)
+        if color is not None:
+            self._add_color(color)
+
+    def _add_color(self, color):
+        if isinstance(color, str):
+            self._colors.add(Color[color.upper()])
+        else:
+            self._colors.add(color)
+
+    def affect(self, player):
+        for color in self._colors:
+            player.deck.remove_color_from_possible_colors(color)

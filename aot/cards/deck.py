@@ -40,8 +40,17 @@ class Deck:
 
     def play(self, card):
         if card is not None and card in self._hand:
+            card.revert_to_default()
             self._hand.remove(card)
             self._graveyard.append(card)
+
+    def remove_color_from_possible_colors(self, color):
+        for card in self._hand:
+            card.remove_color_from_possible_colors(color)
+
+    def revert_to_default(self):
+        for card in self._hand:
+            card.revert_to_default()
 
     @property
     def first_card_in_hand(self):
