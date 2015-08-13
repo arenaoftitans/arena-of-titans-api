@@ -14,7 +14,7 @@ class Player:
     _index = -1
     _last_square_previous_turn = None
     _name = ''
-    _number_move_to_play = 2
+    _number_moves_to_play = 2
     _rank = -1
     
 
@@ -65,7 +65,7 @@ class Player:
 
     def _complete_action(self):
         self._number_moves_played += 1
-        self._can_play = self._number_moves_played < self._number_move_to_play
+        self._can_play = self._number_moves_played < self._number_moves_to_play
 
     def discard(self, card):
         self._deck.play(card)
@@ -105,10 +105,10 @@ class Player:
                 self._affecting_trumps.remove(trump)
 
     def _revert_to_default(self):
-        self._number_move_to_play = self.MAX_NUMBER_MOVE_TO_PLAY
+        self._number_moves_to_play = self.MAX_NUMBER_MOVE_TO_PLAY
 
     def modify_number_moves(self, delta):
-        self._number_move_to_play += delta
+        self._number_moves_to_play += delta
 
     def affect_by(self, trump):
         self._affecting_trumps.append(trump)
