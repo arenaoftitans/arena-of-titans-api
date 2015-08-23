@@ -1,2 +1,3 @@
 include aot/resources/templates/boards/*.svg
 include aot/resources/games/*.json
+include config.dist.toml

@@ -1,7 +1,4 @@
-import json
-
-from aot import get_deck
-from aot.board import Board
+import aot
 
 
 class Game:
@@ -21,7 +18,7 @@ class Game:
         self._next_rank_available = 1
         self._winners = []
         for player in self._players:
-            deck = get_deck(board)
+            deck = aot.get_deck(board)
             player.set(board, deck)
 
     def view_possible_squares(self, card):

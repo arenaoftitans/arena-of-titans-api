@@ -20,7 +20,7 @@ setup(
     name='aot',
     version='0.1',
     packages=find_packages(),
-    install_requires=['aiohttp', 'autobahn', 'redis', 'lxml'],
+    install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml'],
     tests_require=['pytest', 'pytest-asyncio', 'pytest-cov'],
     cmdclass={'test': PyTest},
     author='jenselme',

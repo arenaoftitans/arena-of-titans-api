@@ -1,10 +1,15 @@
 import json
+import toml
 
 from aot.board import Board
 from aot.board import Color
 from aot.cards import Card
 from aot.cards import Deck
 from aot.game import Player
+
+
+with open('config.toml', 'r') as config_file:
+    config = toml.load(config_file)
 
 
 def get_game_description(name='standard'):

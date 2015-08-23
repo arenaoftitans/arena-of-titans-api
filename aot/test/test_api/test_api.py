@@ -2,7 +2,6 @@ import json
 import pytest
 
 from aot.api import get_board
-from aot.api import new_id
 
 
 class MockRequest:

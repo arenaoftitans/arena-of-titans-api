@@ -1,0 +1,3 @@
+[cache]
+server_host = 'localhost'
+server_port = 6379

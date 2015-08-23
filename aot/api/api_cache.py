@@ -1,6 +1,7 @@
 import pickle
 import redis
 
+import aot
 from aot.api.utils import SlotState
 
 
@@ -19,10 +20,7 @@ class ApiCache:
     #: Time in seconds after which the game is deleted (48h).
     GAME_EXPIRE = 2*24*60*60
 
-    SERVER_HOST = 'localhost'
-    SERVER_PORT = 6379
-
-    _redis = redis.Redis(host=ApiCache.SERVER_HOST, port=ApiCache.SERVER_PORT)
+    _redis = redis.Redis(host=aot.config['cache']['server_host'], port=aot.config['cache']['server_port'])
 
     def get_match(self, game_id):
         game_data = self._redis.get(GAME_KEY_TEMPLATE.format(game_id))
