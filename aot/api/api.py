@@ -143,7 +143,7 @@ class Api(WebSocketServerProtocol):
                 'index': player.index,
                 'name': player.name
             } for player in game.players],
-            'trumps': [{
+            'active_trumps': [{
                 'player_index': player.index,
                 'player_name': player.name,
                 'trumps_names': [trump.name for trump in player.affecting_trumps]
@@ -160,14 +160,87 @@ class Api(WebSocketServerProtocol):
             }
             self._send_to(message, player.id)
 
-    def onClose(self, wasClean, code, reason):
-        del Api._clients[self.id]
-
-    def _save_game(self, game):
-        Api._redis.set('python-game', pickle.dumps(game))
+    def _process_play_request(self):
+        game = self._load_game()
+        if _is_player_id_correct(game):
+            self._play_game(game)
+            self._save_game(game)
+        else:
+            self._send_error_to_display('Not Your Turn')
 
     def _load_game(self):
-        return pickle.loads(Api._redis.get('python-game'))
+        return self._cache.get_match(self._game_id)
+
+    def _is_player_id_correct(self, game):
+        return self.id is not None and self.id == game.active_player.id
+
+    def _play_game(self, game):
+        rt = self.message['rt']
+        play_request = self.message.get('play_request', {})
+        if rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
+            card = self._get_card(play_request)
+            self.sendMessage(game.view_possible_square(card))
+        if rt == RequestTypes.PLAY:
+            this_player = game.active_player
+            self._play_card(game, play_request)
+            self._send_message_current_player(this_player, game.active_player)
+
+    def _send_message_current_player(self, this_player, active_player):
+        player_id = active_player.id
+        this_player_message = self._get_play_message(this_player)
+        self.sendMessage(this_player_message)
+        if player_id in self._clients:
+            active_player_message = self._get_play_message(active_player)
+            active_player_message['your_turn'] = True
+            self._clients[player_id].sendMessage(active_player_message)
+
+    def _get_play_message(self, player):
+        return {
+            'rt': RequestTypes.PLAY,
+            'your_turn': player.id == self.id,
+            'new_square': {
+                'x': player.current_square.x,
+                'y': player.current_square.y
+            },
+            'cards': [{
+                'name': card.name,
+                'color': card.color
+            } for card in player.hand],
+            'game_over': game.is_over,
+            'winners': game.winners,
+            'active_trumps': [{
+                'player_index': player.index,
+                'player_name': player.name,
+                'trumps_names': [trump.name for trump in player.affecting_trumps]
+            } for player in game.players]
+        }
+
+    def _get_card(self, play_request):
+        card_name = play_request.get('card_name', None)
+        card_color = play_request.get('card_color', None)
+        return card_name, card_color
+
+    def _play_card(self, game, play_request):
+        if play_request.get('pass', False):
+            game.pass_turn()
+        elif play_request.get('discard', False):
+            card = self._get_card(play_request)
+            game.discard(card)
+        else:
+            card = self._get_card(play_request)
+            square = self._get_square(play_request)
+            game.play_card(card, square)
+
+    def _get_square(self, play_request):
+        x = play_request.get('x', None)
+        y = play_request.get('y', None)
+        return x, y
+
+    def _save_game(self, game):
+        self._cache.save_match(game, self._game_id)
+
+    def onClose(self, wasClean, code, reason):
+        del Api._clients[self.id]
 
     def _get_card(self, msg):
         if 'value' in msg:
