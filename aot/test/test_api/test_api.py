@@ -19,15 +19,3 @@ def test_get_board():
     assert len(resp.text) > 1
     resp2 = yield from get_board(request)
     assert resp.text == resp2.text
-
-
-@pytest.mark.asyncio
-def test_new_id():
-    request = MockRequest()
-    resp = yield from new_id(request)
-    id = json.loads(resp.text)
-    assert resp.headers['Content-Type'] == 'application/json'
-    assert len(id['id']) > 1
-    resp = yield from new_id(request)
-    id2 = json.loads(resp.text)
-    assert id != id2

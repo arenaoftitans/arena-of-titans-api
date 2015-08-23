@@ -1,8 +1,10 @@
 import json
 
+from aot.board import Board
 from aot.board import Color
 from aot.cards import Card
 from aot.cards import Deck
+from aot.game import Player
 
 
 def get_game_description(name='standard'):
@@ -84,3 +86,14 @@ def _get_additionnal_colors(color,
     additional_colors.update([Color[col]
                               for col in complementary_colors.get(color, [])])
     return additional_colors
+
+
+def get_game(players_description, name='standard'):
+    board = get_board(name=name)
+    players = []
+    for player in players_description:
+        players.append(Player(player['name'], player['id'], player['index']))
+    return Game(board, players)
+
+def get_board(name='standard'):
+    return Board(get_board_description(name=name))

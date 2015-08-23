@@ -125,6 +125,10 @@ class Player:
         return self._last_square_previous_turn in self._aim
 
     @property
+    def affecting_trumps(self):
+        return self._affecting_trumps
+
+    @property
     def aim(self):
         return self._aim
 
@@ -167,3 +171,48 @@ class Player:
     @property
     def rank(self):
         return self._rank
+
+    @property
+    def trumps(self):
+        return [
+           {
+               "name":"Reinforcements",
+               "description":"Allow the player to play one more move.",
+               "duration":0,
+               "cost":0,
+               "repeatForEachColor":False,
+               "mustTargetPlayer":False
+           },
+           {
+               "name":"Tower BLACK",
+               "description":"Prevent the player to move on some colors.",
+               "duration":0,
+               "cost":0,
+               "repeatForEachColor":False,
+               "mustTargetPlayer":True
+           },
+           {
+               "name":"Tower BLUE",
+               "description":"Prevent the player to move on some colors.",
+               "duration":0,
+               "cost":0,
+               "repeatForEachColor":False,
+               "mustTargetPlayer":True
+           },
+           {
+               "name":"Tower RED",
+               "description":"Prevent the player to move on some colors.",
+               "duration":0,
+               "cost":0,
+               "repeatForEachColor":False,
+               "mustTargetPlayer":True
+           },
+           {
+               "name":"Tower YELLOW",
+               "description":"Prevent the player to move on some colors.",
+               "duration":0,
+               "cost":0,
+               "repeatForEachColor":False,
+               "mustTargetPlayer":True
+           }
+        ]
