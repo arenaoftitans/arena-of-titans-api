@@ -7,9 +7,3 @@ http_port = 9001
 [cache]
 server_host = '127.0.0.1'
 server_port = 6379
-
-
-[test]
-host = '127.0.0.1'
-player1_port = 9090
-player2_port = 9091

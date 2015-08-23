@@ -1,3 +1,5 @@
+include config.dist.toml
 include aot/resources/templates/boards/*.svg
 include aot/resources/games/*.json
-include config.dist.toml
+include doc/api/requests/*.json
+include doc/api/responses/*.json

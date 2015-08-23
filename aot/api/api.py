@@ -1,14 +1,12 @@
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 import base64
 import json
-import pickle
 import uuid
 
 from aot import get_game
 from aot import get_number_players
 from aot.api.api_cache import ApiCache
 from aot.api.utils import RequestTypes
-from aot.api.utils import Slot
 
 
 class Api(WebSocketServerProtocol):
@@ -30,20 +28,18 @@ class Api(WebSocketServerProtocol):
 
     def onOpen(self):
         Api._clients[self.id] = self
-        if not self._initialize_game():
-            self.sendClose()
 
     def onMessage(self, payload, isBinary):
         self.message = json.loads(payload.decode('utf-8'))
         if self._game_id is None:
-            if not self._initialize_game():
+            if not self._initialize_connection():
                 self.sendClose()
         elif self._creating_game():
             self._process_create_game_request()
         else:
             self._process_play_request()
 
-    def _initialize_game(self):
+    def _initialize_connection(self):
         must_close_session = False
         self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
             .replace(b'=', b'')\
@@ -65,7 +61,7 @@ class Api(WebSocketServerProtocol):
     def _initialize_cache(self):
         initiliazed_game = {
             'player_id': self.id,
-            'rt': RequestTypes.GAME_INITIALIZED,
+            'rt': RequestTypes.GAME_INITIALIZED.value,
             'is_game_master': False
         }
         if self._cache.is_new_game(self._game_id):
@@ -76,7 +72,7 @@ class Api(WebSocketServerProtocol):
             initiliazed_game['slots'] = self._cache.get_slots(self._game_id)
 
         initiliazed_game['index'] = self._affect_current_slot()
-        return json.dumps(initiliazed_game).encode('utf-8')
+        return initiliazed_game
 
     def _affect_current_slot(self):
         return self._cache.affect_next_slot(self._game_id, self.id)
@@ -95,9 +91,9 @@ class Api(WebSocketServerProtocol):
         rt = self.message.rt
         response = ''
         if rt in (RequestTypes.ADD_SLOT, RequestTypes.SLOT_UPDATED):
-            slot = Slot(self.message.slot_updated)
+            slot = self.message['slot_updated']
             if rt == RequestTypes.ADD_SLOT:
-                self._cache.add_slot(slot, from_json=True)
+                self._cache.add_slot(slot)
             else:
                 self._cache.update_slot(self.game_id, self.id, slot)
             slot.player_id = None

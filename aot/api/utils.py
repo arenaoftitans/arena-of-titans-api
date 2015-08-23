@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class RequestTypes(Enum):
+    INIT_GAME = 'INIT_GAME'
     CREATE_GAME = 'CREATE_GAME'
     GAME_INITIALIZED = 'GAME_INITIALIZED'
     ADD_SLOT = 'ADD_SLOT'
@@ -16,18 +17,3 @@ class SlotState(Enum):
     CLOSED = 1
     RESERVED = 2
     TAKEN = 3
-
-
-class Slot:
-    rt = None
-    player_name = ''
-    player_id = ''
-    index = -1
-    state = SlotState.OPEN
-
-    def __init__(self, data=None):
-        if isinstance(data, dict):
-            self.rt = data['rt']
-            self.player_name = data['player_name']
-            self.index = data['index']
-            self.state = SlotState[data['state']]
