@@ -3,6 +3,10 @@ import logging
 from aiohttp import web
 from autobahn.asyncio.websocket import WebSocketServerFactory
 
+import coverage
+cov = coverage.coverage()
+cov.start()
+
 import aot
 from aot.api import Api
 from aot.api import get_board
@@ -35,3 +39,7 @@ if __name__ == "__main__":
         wsserver.close()
         httpserver.close()
         loop.close()
+        cov.report(omit=['/usr/lib/*'])
+        cov.stop()
+        cov.save()
+        cov.html_report(directory='htmlcovapi')
