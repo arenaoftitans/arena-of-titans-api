@@ -1,9 +1,13 @@
 import asyncio
+import logging
 import pytest
 import redis
 
 import aot
 from aot.test.integration import PlayerWs
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.yield_fixture(autouse=True)
@@ -34,4 +38,14 @@ def test_game_init(player1):
     # player_id is a random string, removing before testing equality
     del response['player_id']
     del expected_response['player_id']
-    yield from player1.close()
+    yield from asyncio.wait([player1.close()])
+
+
+@pytest.mark.asyncio
+def test_add_slot(player1):
+    yield from asyncio.wait([player1.connect()])
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    response, expected_response = yield from player1.recv('add_slot')
+    assert response == expected_response
+    yield from asyncio.wait([player1.close()])

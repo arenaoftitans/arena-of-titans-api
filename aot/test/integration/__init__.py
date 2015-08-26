@@ -17,7 +17,7 @@ def get_response(request_type):
 
 class PlayerWs:
     def __init__(self):
-        self.recieve_index = 0
+        self.recieve_index = 1
 
     @asyncio.coroutine
     def connect(self):
@@ -35,7 +35,7 @@ class PlayerWs:
 
     @asyncio.coroutine
     def recv(self, response_name):
-        for _ in range(self.recieve_index):
+        for i in range(self.recieve_index):
             resp = yield from self.ws.recv()
         return json.loads(resp), get_response(response_name)
 

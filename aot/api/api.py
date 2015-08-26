@@ -88,21 +88,21 @@ class Api(WebSocketServerProtocol):
             self._do_create_game_request()
 
     def _do_create_game_request(self):
-        rt = self.message.rt
+        rt = self.message['rt']
         response = ''
-        if rt in (RequestTypes.ADD_SLOT, RequestTypes.SLOT_UPDATED):
+        if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
             slot = self.message['slot_updated']
-            if rt == RequestTypes.ADD_SLOT:
-                self._cache.add_slot(slot)
+            if rt == RequestTypes.ADD_SLOT.value:
+                self._cache.add_slot(self._game_id, slot)
             else:
                 self._cache.update_slot(self.game_id, self.id, slot)
-            slot.player_id = None
-            self._send_all(slot, excluded_players=[self.id])
+            slot['player_id'] = None
+            self._send_all(slot)
         elif rt == RequestTypes.CREATE_GAME:
             players_description = self.message['create_game_request']
             self._send_all(self._initialize_game(players_description))
         else:
-            self._send_all_error(self._format_error('Unknown request'))
+            self._send_all_error('Unknown request')
 
         return response
 
@@ -262,7 +262,7 @@ class Api(WebSocketServerProtocol):
         self._send_all(self._format_error_to_display(message))
 
     def _format_error_to_display(self, message):
-        return json.dumps({'error_to_display': message}).encode('utf-8')
+        return {'error_to_display': message}
 
     def _send_error(self, message):
         self.sendMessage(self._format_error(message))
@@ -271,7 +271,7 @@ class Api(WebSocketServerProtocol):
         self._send_all(self._format_error(message))
 
     def _format_error(self, message):
-        return json.dumps({'error': message}).encode('utf-8')
+        return{'error': message}
 
     @property
     def id(self):

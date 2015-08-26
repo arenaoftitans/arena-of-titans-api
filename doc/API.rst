@@ -40,47 +40,25 @@ controller du jeu en JavaScript dans l’objet rt.
 Sans précision, les requêtes sont faîtes du client vers le serveur. Les requêtes
 sont ici décrite dans l'ordre dans lequel elles se passent lors d'un jeu.
 
-INIT_GAME
----------
+INIT_GAME/GAME_INITIALIZED
+--------------------------
 
 Requête permettant d'initialiser le jeu. Le client fait cette requête afin
 d'obtenir un nouvel identifiant de jeu généré par le serveur.
 
-- Contenu
+1. Client
 
   .. literalinclude:: api/requests/init_game.json
      :language: json
      :linenos:
 
-- Réponse
+2. Serveur
 
   .. literalinclude:: api/responses/init_game.json
      :language: json
      :linenos:
 
-
-
-GAME_INITIALIZED (initiée par le serveur)
------------------------------------------
-
-Cette requête est envoyée au client par le serveur dès que le jeu est
-initialisé. Le client se crée une nouvelle partie en allant sur ``/game``.  Il
-est redirigé sur ``/game/`` et le serveur initialise la partie. Quand il a fini,
-il envoie les informations dont a besoin le client pour afficher le formulaire
-de jeu.
-
--  Contenu
-
-   .. sourcecode:: json
-
-      {
-          "rt": "GAME_INITIALIZED",
-	  "player_id": "253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	  "index": 0,
-	  "is_game_master": true
-      }
-
--  Réponse du client : ADD_SLOT.
+3.  Réponse du client : ADD_SLOT.
 
 ADD_SLOT
 --------
@@ -89,21 +67,17 @@ Une fois le jeu initialisé, le client ajoute les 2 slots initiaux avec des
 requêtes ADD_SLOT. Cette requête est aussi faite lorsque l’utilisateur clique
 sur ajouter un joueur.
 
--  contenu :
+1. Client
 
-   .. sourcecode:: json
-
-      {
-          "rt": "ADD_SLOT",
-	  "player_id": "253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	  "slot_updated": {
-	     "index": 0,
-	     "state": "CLOSED",
-	     "player_name": ""
-	  }
-      }
+   .. literalinclude:: api/requests/add_slot.json
+      :language: json
+      :linenos:
 
 -  Réponse du serveur : SLOT_UPDATED
+
+   .. literalinclude:: api/responses/add_slot.json
+      :language: json
+      :linenos:
 
 SLOT_UPDATED (client ou serveur)
 --------------------------------
@@ -114,7 +88,8 @@ SLOT_UPDATED (client ou serveur)
    …), il fait cette requête au serveur. Les autres reçoivent une requête de
    même type avec les paramètres mis à jour.
 
-#. Client vers serveur
+Client vers serveur
+~~~~~~~~~~~~~~~~~~~
 
    -  Ajout du nom
 
@@ -143,7 +118,8 @@ SLOT_UPDATED (client ou serveur)
 	     }
 	 }
 
-#. Serveur vers clients (sauf l’initiateur de la requête)
+Serveur vers clients (sauf l’initiateur de la requête)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
    -  Joueur rejoins
 

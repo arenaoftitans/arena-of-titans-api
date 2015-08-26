@@ -30,14 +30,18 @@ class ApiCache:
         game_data = pickle.dumps(game)
         self._cache.set(self.GAME_KEY_TEMPLATE.format(game_id), game_data)
 
-    def _get_players_ids(self, game_id):
-        return self._cache.smembers(self.PLAYERS_KEY_TEMPLATE.format(game_id))
+    def get_players_ids(self, game_id):
+        return [id.decode('utf-8') for id in self._cache.smembers(self.PLAYERS_KEY_TEMPLATE.format(game_id))]
 
     def has_opened_slots(self, game_id):
         return len(self._get_opened_slots(game_id)) > 0
 
     def is_new_game(self, game_id):
-        return len(self._get_players_ids(game_id)) == 0
+        return len(self.get_players_ids(game_id)) == 0
+
+    def is_game_master(self, game_id, session_id):
+        return self._cache.hget(self.GAME_KEY_TEMPLATE.format(game_id), self.GAME_MASTER_KEY).decode('utf-8') ==\
+            session_id
 
     def init(self, game_id, session_id):
         self._cache.hset(
@@ -86,7 +90,6 @@ class ApiCache:
     
     def _get_opened_slots(self, game_id):
         slots = self.get_slots(game_id)
-        print(slots)
         return [slot for slot in slots  if slot['state'] == SlotState.OPEN]
 
     def get_slots(self, game_id):
