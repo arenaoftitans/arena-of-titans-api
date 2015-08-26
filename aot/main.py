@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from aiohttp import web
 from autobahn.asyncio.websocket import WebSocketServerFactory
 
@@ -8,7 +9,9 @@ from aot.api import get_board
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     loop = asyncio.get_event_loop()
+    loop.set_debug(True)
 
     host = aot.config['api']['host']
     ws_endpoint = 'ws://{host}:{port}'.format(
