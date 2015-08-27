@@ -1,0 +1,10 @@
+[run]
+omit =
+     aot/test/*
+     aot/main.py
+     aot/api/api.py
+     aot/api/api_cache.py
+
+
+[html]
+directory = htmlcov

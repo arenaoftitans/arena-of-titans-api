@@ -7,7 +7,16 @@ from setuptools.command.test import test as TestCommand
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = ['--cov', 'aot', '--cov-report', 'html']
+        self.test_args = [
+            '--cov',
+            'aot',
+            '--cov-report',
+            'html',
+            '--cov-config',
+            '.coveragerc',
+            '--ignore',
+            'aot/test/integration/test_api.py'
+        ]
         self.test_suite = True
 
     def run_tests(self):
@@ -20,8 +29,8 @@ setup(
     name='aot',
     version='0.1',
     packages=find_packages(),
-    install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml', 'websockets'],
-    tests_require=['pytest', 'pytest-asyncio', 'pytest-cov'],
+    install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml'],
+    tests_require=['pytest', 'pytest-asyncio', 'pytest-cov', 'websockets'],
     cmdclass={'test': PyTest},
     author='jenselme',
     author_email='',

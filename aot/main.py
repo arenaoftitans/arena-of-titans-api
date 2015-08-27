@@ -1,27 +1,21 @@
 import asyncio
-import logging
 from aiohttp import web
 from autobahn.asyncio.websocket import WebSocketServerFactory
-
-import coverage
-cov = coverage.coverage()
-cov.start()
 
 import aot
 from aot.api import Api
 from aot.api import get_board
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+def main(debug=False):
     loop = asyncio.get_event_loop()
-    loop.set_debug(True)
+    loop.set_debug(debug)
 
     host = aot.config['api']['host']
     ws_endpoint = 'ws://{host}:{port}'.format(
         host=host,
         port=aot.config['api']['ws_port'])
-    factory = WebSocketServerFactory(ws_endpoint, debug=True)
+    factory = WebSocketServerFactory(ws_endpoint, debug=debug)
     factory.protocol = Api
     server = loop.create_server(factory, host, aot.config['api']['ws_port'])
     wsserver = loop.run_until_complete(server)
@@ -39,7 +33,7 @@ if __name__ == "__main__":
         wsserver.close()
         httpserver.close()
         loop.close()
-        cov.report(omit=['/usr/lib/*'])
-        cov.stop()
-        cov.save()
-        cov.html_report(directory='htmlcovapi')
+
+
+if __name__ == "__main__":
+    main()
