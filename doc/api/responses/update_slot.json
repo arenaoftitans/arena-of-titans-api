@@ -1,0 +1,8 @@
+{
+    "rt": "SLOT_UPDATED",
+    "slot": {
+	"index": 0,
+	"player_name": "Player 1",
+        "state": "TAKEN"
+    }
+}

@@ -60,9 +60,9 @@ class Api(WebSocketServerProtocol):
 
     def _initialize_cache(self):
         initiliazed_game = {
-            'player_id': self.id,
             'rt': RequestTypes.GAME_INITIALIZED.value,
-            'is_game_master': False
+            'is_game_master': False,
+            'game_id': self._game_id
         }
         if self._cache.is_new_game(self._game_id):
             self._cache.init(self._game_id, self.id)
@@ -91,13 +91,21 @@ class Api(WebSocketServerProtocol):
         rt = self.message['rt']
         response = ''
         if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
-            slot = self.message['slot_updated']
+            slot = self.message['slot']
             if rt == RequestTypes.ADD_SLOT.value:
                 self._cache.add_slot(self._game_id, slot)
             else:
-                self._cache.update_slot(self.game_id, self.id, slot)
-            slot['player_id'] = None
-            self._send_all(slot)
+                self._cache.update_slot(self._game_id, self.id, slot)
+            # The player_id is stored in the cache so we can know to which player which slot is
+            # associated. We don't pass this information to the frontend. If the slot is new, it
+            # doesn't have a player_id yet
+            if 'player_id' in slot:
+                del slot['player_id']
+            response = {
+                'rt': RequestTypes.SLOT_UPDATED.value,
+                'slot': slot
+            }
+            self._send_all(response)
         elif rt == RequestTypes.CREATE_GAME:
             players_description = self.message['create_game_request']
             self._send_all(self._initialize_game(players_description))

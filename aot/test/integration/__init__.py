@@ -3,6 +3,7 @@ import json
 import websockets
 
 import aot
+from aot.api.utils import RequestTypes
 
 
 def get_request(request_type):
@@ -18,6 +19,8 @@ def get_response(request_type):
 class PlayerWs:
     def __init__(self):
         self.recieve_index = 1
+        self.number_asked = 0
+        self.game_id = None
 
     @asyncio.coroutine
     def connect(self):
@@ -34,10 +37,20 @@ class PlayerWs:
         yield from self.ws.send(message)
 
     @asyncio.coroutine
-    def recv(self, response_name):
-        for i in range(self.recieve_index):
+    def recv(self, response_name=None):
+        for i in range(self.number_asked, self.recieve_index):
+            self.number_asked += 1
             resp = yield from self.ws.recv()
-        return json.loads(resp), get_response(response_name)
+            resp = json.loads(resp)
+            if resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
+                self.game_id = resp['game_id']
+
+        if response_name:
+            expected_response = get_response(response_name)
+        else:
+            expected_response = None
+
+        return resp, expected_response
 
     @asyncio.coroutine
     def close(self):

@@ -1,6 +1,6 @@
 {
     "rt": "GAME_INITIALIZED",
-    "player_id": "RQI2+elYRTmCG04GtWuwXA==",
     "index": 0,
-    "is_game_master": true
+    "is_game_master": true,
+    "game_id": "the_game_id"
 }

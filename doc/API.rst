@@ -85,41 +85,23 @@ SLOT_UPDATED (client ou serveur)
 #. Lorsque le joueur ajoute un slot, le serveur lui renvoie les paramètres du
    nouveau slot si tout c’est bien passé.
 #. Lorque qu’un joueur modifie un slot (modification du status, ajout du nom,
-   …), il fait cette requête au serveur. Les autres reçoivent une requête de
-   même type avec les paramètres mis à jour.
+   …), il fait cette requête au serveur. Tous reçoivent une requête de même type
+   avec les paramètres mis à jour. Cela permet à l'investigateur de la requête
+   qu'elle est correctement passée par le serveur.
 
 Client vers serveur
 ~~~~~~~~~~~~~~~~~~~
 
-   -  Ajout du nom
+   -  Ajout du nom ou changement de statut : le client renvoie tout le JSON et
+      le serveur répond ce même JSON à tous.
 
-      .. sourcecode:: json
+      .. literalinclude:: api/requests/update_slot.json
+         :language: json
+         :linenos:
 
-	 {
-	     "rt": "SLOT_UPDATED",
-	     "player_id": "253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	     "slot_updated": {
-		"index": 0,
-		"player_name": "Player 1"
-	     }
-	 }
 
-   -  Changement de status
-
-      .. sourcecode:: json
-
-	 {
-	     "rt": "SLOT_UPDATED",
-	     "player_id": "253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	     "slot_updated": {
-	         "index": 1,
-		 "state": "OPEN",
-		 "player_name": ""
-	     }
-	 }
-
-Serveur vers clients (sauf l’initiateur de la requête)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Serveur vers clients
+~~~~~~~~~~~~~~~~~~~~
 
    -  Joueur rejoins
 

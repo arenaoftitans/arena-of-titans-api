@@ -57,16 +57,15 @@ class ApiCache:
 
     def _init_first_slot(self, game_id, session_id):
         slot = {
-            'rt': None,
-            'player_name': None,
+            'player_name': '',
             'player_id': session_id,
             'index': 0,
-            'state': SlotState.OPEN
+            'state': SlotState.OPEN.value
         }
         self.add_slot(game_id, slot)
 
     def add_slot(self, game_id, slot):
-        self._cache.lpush(self.SLOTS_KEY_TEMPLATE.format(game_id), pickle.dumps(slot))
+        self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(game_id), pickle.dumps(slot))
 
     def save_session_id(self, game_id, session_id):
         self._cache.sadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
@@ -82,27 +81,31 @@ class ApiCache:
     def affect_next_slot(self, game_id, session_id):
         opened_slots = self._get_opened_slots(game_id)
         next_available_slot = opened_slots[0]
-        next_available_slot['player'] = session_id
-        next_available_slot['state'] = SlotState.TAKEN
+        next_available_slot['player_id'] = session_id
+        next_available_slot['state'] = SlotState.TAKEN.value
         self.update_slot(game_id, session_id, next_available_slot)
 
         return next_available_slot['index']
     
     def _get_opened_slots(self, game_id):
         slots = self.get_slots(game_id)
-        return [slot for slot in slots  if slot['state'] == SlotState.OPEN]
+        return [slot for slot in slots  if slot['state'] == SlotState.OPEN.value]
 
     def get_slots(self, game_id):
         return [pickle.loads(slot) for slot in self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)]
 
     def update_slot(self, game_id, session_id, slot):
-        current_slot = self._get_slot(game_id, slot['index'])
-        if current_slot['player_id'] == session_id:
+        current_slot = self.get_slot(game_id, slot['index'])
+        if current_slot.get('player_id', '') == session_id:
+            slot['player_id'] = session_id
             self._save_slot(game_id, slot)
-        elif current_slot.state != SlotState.TAKEN:
+        elif self.is_game_master(game_id, session_id) and current_slot['state'] != SlotState.TAKEN.value:
+            self._save_slot(game_id, slot)
+        elif current_slot.state != SlotState.TAKEN.value and slot['state'] == SlotState.TAKEN.value:
+            slot['player_id'] = session_id
             self._save_slot(game_id, slot)
 
-    def _get_slot(self, game_id, index):
+    def get_slot(self, game_id, index):
         data = self._cache.lindex(self.SLOTS_KEY_TEMPLATE.format(game_id), index)
         return pickle.loads(data)
 
