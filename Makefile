@@ -19,11 +19,12 @@ test:
 
 .PHONY:
 testintegration: redis
-	PYTHONPATH=$PYTHONPATH:$(pwd) forever start -w -c python3 --uid test_aot --watchDirectory aot aot/test_main.py --watchIgnore aot/test --watchIgnore \*.pyc
+	PYTHONPATH="${PYTHONPATH}:$(pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
 	# Wait for the process to start
 	sleep 10
 	py.test-3.4 aot/test/integration/test_api.py
-	forever stop test_aot
+	forever stop test_aot --killSignal=SIGINT
+
 
 .PHONY:
 testall: test testintegration

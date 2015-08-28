@@ -2,7 +2,7 @@ import coverage
 import logging
 
 
-cov = coverage.coverage()
+cov = coverage.coverage(config_file=False)
 cov.start()
 
 
