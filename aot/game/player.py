@@ -149,6 +149,14 @@ class Player:
         return self._deck
 
     @property
+    def hand(self):
+        return self._deck.hand
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
     def index(self):
         return self._index
 
@@ -180,39 +188,39 @@ class Player:
                "description":"Allow the player to play one more move.",
                "duration":0,
                "cost":0,
-               "repeatForEachColor":False,
-               "mustTargetPlayer":False
+               "repeat_for_each_color":False,
+               "must_target_player":False
            },
            {
                "name":"Tower BLACK",
                "description":"Prevent the player to move on some colors.",
                "duration":0,
                "cost":0,
-               "repeatForEachColor":False,
-               "mustTargetPlayer":True
+               "repeat_for_each_color":False,
+               "must_target_player":True
            },
            {
                "name":"Tower BLUE",
                "description":"Prevent the player to move on some colors.",
                "duration":0,
                "cost":0,
-               "repeatForEachColor":False,
-               "mustTargetPlayer":True
+               "repeat_for_each_color":False,
+               "must_target_player":True
            },
            {
                "name":"Tower RED",
                "description":"Prevent the player to move on some colors.",
                "duration":0,
                "cost":0,
-               "repeatForEachColor":False,
-               "mustTargetPlayer":True
+               "repeat_for_each_color":False,
+               "must_target_player":True
            },
            {
                "name":"Tower YELLOW",
                "description":"Prevent the player to move on some colors.",
                "duration":0,
                "cost":0,
-               "repeatForEachColor":False,
-               "mustTargetPlayer":True
+               "repeat_for_each_color":False,
+               "must_target_player":True
            }
         ]

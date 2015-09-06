@@ -5,6 +5,7 @@ from aot.board import Board
 from aot.board import Color
 from aot.cards import Card
 from aot.cards import Deck
+from aot.game import Game
 from aot.game import Player
 
 

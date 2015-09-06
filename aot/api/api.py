@@ -7,6 +7,7 @@ import uuid
 from aot import get_game
 from aot import get_number_players
 from aot.api.api_cache import ApiCache
+from aot.api.utils import to_json
 from aot.api.utils import RequestTypes
 
 
@@ -23,7 +24,7 @@ class Api(WebSocketServerProtocol):
         if isinstance(message, str):
             message = message.encode('utf-8')
         else:
-            message = json.dumps(message).encode('utf-8')
+            message = json.dumps(message, default=to_json).encode('utf-8')
         if isinstance(message, bytes):
             super().sendMessage(message)
 
@@ -97,7 +98,7 @@ class Api(WebSocketServerProtocol):
 
     def _process_create_game_request(self):
         if not self._cache.is_game_master(self._game_id, self.id) and \
-                self.message['rt'] != RequestTypes.SLOT_UPDATED:
+                self.message['rt'] != RequestTypes.SLOT_UPDATED.value:
             self._send_error('Only the game master can create the game')
         else:
             self._do_create_game_request()
@@ -121,7 +122,7 @@ class Api(WebSocketServerProtocol):
                 'slot': slot
             }
             self._send_all(response)
-        elif rt == RequestTypes.CREATE_GAME:
+        elif rt == RequestTypes.CREATE_GAME.value:
             players_description = self.message['create_game_request']
             self._send_all(self._initialize_game(players_description))
         else:
@@ -137,40 +138,37 @@ class Api(WebSocketServerProtocol):
             self._send_all_error_to_display('To many players. 8 Players max.')
         else:
             self._create_game(players_description)
-            self._cache.game_has_started(self.game_id)
+            self._cache.game_has_started(self._game_id)
 
     def _create_game(self, players_description):
-        players_ids = self._cache.get_players_ids(self.game_id)
+        players_ids = self._cache.get_players_ids(self._game_id)
         for player in players_description:
             index = player['index']
             player['id'] = players_ids[index]
 
         game = get_game(players_description)
-        self._cache.save_game(game, self.game_id)
+        self._cache.save_game(game, self._game_id)
         self._send_game_created_message(game)
 
     def _send_game_created_message(self, game):
-        game_created = {
-            'rt': RequestTypes.CREATE_GAME,
-            'next_player': {
-                'index': 0,
-                'name': game.players[0].name
-            },
-            'game_over': False,
-            'winners': [],
-            'players': [{
-                'index': player.index,
-                'name': player.name
-            } for player in game.players],
-            'active_trumps': [{
-                'player_index': player.index,
-                'player_name': player.name,
-                'trumps_names': [trump.name for trump in player.affecting_trumps]
-            } for player in game.players]
-        }
-        self._send_all(game_created)
         for player in game.players:
             message = {
+                'rt': RequestTypes.CREATE_GAME.value,
+                'next_player': {
+                    'index': 0,
+                    'name': game.players[0].name
+                },
+                'game_over': False,
+                'winners': [],
+                'players': [{
+                    'index': player.index,
+                    'name': player.name
+                } for player in game.players],
+                'active_trumps': [{
+                    'player_index': player.index,
+                    'player_name': player.name,
+                    'trumps_names': [trump.name for trump in player.affecting_trumps]
+                } for player in game.players],
                 'hand': [{
                     'name': card.name,
                     'color': card.color

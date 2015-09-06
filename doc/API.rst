@@ -80,6 +80,12 @@ Requête permettant de rejoindre le jeu.
       :language: json
       :linenos:
 
+3. Autres joueurs
+
+   .. literalinclude:: api/response/join_game_other_players.json
+      :language: json
+      :linenos:
+
 ADD_SLOT
 --------
 
@@ -120,156 +126,23 @@ Client vers serveur
          :linenos:
 
 
-Serveur vers clients
-~~~~~~~~~~~~~~~~~~~~
-
-   -  Joueur rejoins
-
-      .. sourcecode:: json
-
-	 {
-	     "rt": "SLOT_UPDATED",
-	     "player_name": "Player 2",
-	     "player_id": "ac0f2fa7-9d1f-400f-8f5f-c7be0cb050ce",
-	     "index": 1,
-	     "state": "TAKEN"
-	 }
-
-   -  Changement de status
-
-      .. sourcecode:: json
-
-	 {
-	     "rt": "SLOT_UPDATED",
-	     "player_name": "",
-	     "index": 3,
-	     "state": "RESERVED"
-	 }
-
-CREATE\_GAME
-------------
+CREATE_GAME
+-----------
 
 Cette requête est effectuée quand le joueur principal décide de créer la partie
 avec les joueurs présents.
 
-#. Client vers serveur
+1. Client vers serveur
 
-   .. sourcecode:: json
+   .. literalinclude:: api/requests/create_game.json
+      :language: json
+      :linenos:
 
-      {
-          "rt": "CREATE_GAME",
-	  "player_id": "253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	  "create_game_request": [
-	     {
-	         "name": "Player 1",
-		 "index": 0
-	     },
-	     {
-	         "name": "Player 2",
-		 "index": 1
-	     }
-	  ]
-      }
 
-#. Serveur vers clients (tous, y compris celui qui a fait la requête)
+2. Serveur vers clients : chaque client reçoit une réponse personnalisée avec
+   ses cartes et ses atouts.
 
-   .. sourcecode:: json
-
-      {
-          "rt": "CREATE_GAME",
-	  "nextPlayer": {
-	      "index": 0,
-	      "name": "Player 1"
-	  },
-	  "possibleCardsNextPlayer": [
-	      {
-	          "color": "BLUE",
-		  "name": "Queen"
-	      },
-	      {
-	          "color": "RED",
-		  "name": "Wizard"
-	      },
-	      {
-                  "color":"YELLOW",
-		  "name":"Queen"
-	      },
-	      {
-                  "color":"BLUE",
-		  "name":"Wizard"
-	     },
-	     {
-	         "color":"BLUE",
-		 "name":"Warrior"
-	     }
-	  ],
-	  "gameOver":false,
-	  "winners":[],
-	  "trumpsNextPlayer":[
-	     {
-	         "name":"Reinforcements",
-		 "description":"Allow the player to play one more move.",
-		 "duration":0,
-		 "cost":0,
-		 "repeatForEachColor":false,
-		 "mustTargetPlayer":false
-	     },
-	     {
-                 "name":"Tower BLACK",
-		 "description":"Prevent the player to move on some colors.",
-		 "duration":0,
-		 "cost":0,
-		 "repeatForEachColor":false,
-		 "mustTargetPlayer":true
-	     },
-	     {
-	         "name":"Tower BLUE",
-		 "description":"Prevent the player to move on some colors.",
-		 "duration":0,
-		 "cost":0,
-		 "repeatForEachColor":false,
-		 "mustTargetPlayer":true
-	     },
-	     {
-                 "name":"Tower RED",
-		 "description":"Prevent the player to move on some colors.",
-		 "duration":0,
-		 "cost":0,
-		 "repeatForEachColor":false,
-		 "mustTargetPlayer":true
-	     },
-	     {
-                 "name":"Tower YELLOW",
-		 "description":"Prevent the player to move on some colors.",
-		 "duration":0,
-		 "cost":0,
-		 "repeatForEachColor":false,
-		 "mustTargetPlayer":true
-	     }
-	  ],
-	  "players": [
-	     {
-                 "index":0,
-		 "name":"Player 1"
-	     },
-	     {
-                 "index":1,
-		 "name":"Player 2"
-	     }
-	  ],
-	  "trumps": [
-	     {
-                 "playerIndex":0,
-		 "playerName":"Player 1",
-		 "trumpNames": []
-	     },
-	     {
-                 "playerIndex":1,
-		 "playerName":"Player 2",
-		 "trumpNames":[]
-	     }
-	  ]
-      }
+   .. literalinclude:: api/responses/create_game.json
 
 
 VIEW_POSSIBLE_SQUARES

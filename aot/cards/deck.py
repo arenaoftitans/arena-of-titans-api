@@ -77,6 +77,10 @@ class Deck:
         return card in self._graveyard
 
     @property
+    def hand(self):
+        return self._hand
+
+    @property
     def number_cards_in_stock(self):
         return len(self._stock)
 
