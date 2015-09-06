@@ -50,7 +50,7 @@ check: testall lint
 
 .PHONY:
 debug:
-	PYTHONPATH=$PYTHONPATH:$(pwd) forever -w -c python3 --watchDirectory aot aot/test_main.py --watchIgnore aot/test --watchIgnore \*.pyc
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w -c python3 --watchDirectory aot aot/test_main.py
 
 
 .PHONY:
