@@ -2,7 +2,7 @@
     "rt": "SLOT_UPDATED",
     "slot": {
 	"index": 0,
-	"player_name": "Player 1",
+	"player_name": "Me",
         "state": "TAKEN"
     }
 }

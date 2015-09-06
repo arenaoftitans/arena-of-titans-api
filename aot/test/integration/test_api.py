@@ -25,7 +25,13 @@ def flush(cache):
 
 @pytest.fixture
 def player1():
-    player = PlayerWs()
+    player = PlayerWs(1)
+    return player
+
+
+@pytest.fixture
+def player2():
+    player = PlayerWs(2)
     return player
 
 
@@ -39,11 +45,7 @@ def test_game_init(player1):
     yield from asyncio.wait([player1.connect()])
     yield from player1.send('init_game')
     response, expected_response = yield from player1.recv('init_game')
-    assert 'game_id' in response
-    assert len(response['game_id']) > 0
-    # game_id is random, values from response and expected_response cannot be equal
-    del response['game_id']
-    del expected_response['game_id']
+    expected_response['game_id'] = yield from player1.get_game_id()
     assert response == expected_response
     yield from asyncio.wait([player1.close()])
 
@@ -63,12 +65,12 @@ def test_update_slot(player1, cache):
     # Update his/her slot
     yield from asyncio.wait([player1.connect()])
     yield from player1.send('init_game')
-    yield from player1.recv()
     yield from player1.send('update_slot')
     response, expected_response = yield from player1.recv('update_slot')
     assert response == expected_response
     # Check object in db. Player 1 took the slot, so it must have its id
-    saved_slot0 = cache.get_slot(player1.game_id, 0)
+    game_id = yield from player1.get_game_id()
+    saved_slot0 = cache.get_slot(game_id, 0)
     assert 'player_id' in saved_slot0
     assert len(saved_slot0['player_id']) > 0
     # Player id never appears during communications
@@ -83,8 +85,38 @@ def test_update_slot(player1, cache):
     assert response == expected_response
     # Check in db
     saved_slot0['player_id'] = player1_id
-    assert saved_slot0 == cache.get_slot(player1.game_id, 0)
-    saved_slot1 = cache.get_slot(player1.game_id, 1)
+    assert saved_slot0 == cache.get_slot(game_id, 0)
+    saved_slot1 = cache.get_slot(game_id, 1)
     assert 'player_id' not in saved_slot1
     assert saved_slot1 == response['slot']
     yield from asyncio.wait([player1.close()])
+
+
+@pytest.mark.asyncio
+def test_player2_join(player1, player2, cache):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    response, expected_response = yield from player2.recv('join_game')
+
+    # Correct expected_response
+    expected_response['game_id'] = game_id
+
+    # Check in db
+    slot1 = cache.get_slot(game_id, 1)
+    del slot1['player_id']
+    assert slot1 == expected_response['slots'][1]
+
+    assert response == expected_response
+
+    # Check player 1 received update slot
+    player1.recieve_index += 1
+    response, expected_response = yield from player1.recv('join_game_other_players')
+    assert response == expected_response
+
+    yield from asyncio.wait([player1.close(), player2.close()])

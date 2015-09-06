@@ -43,6 +43,9 @@ sont ici décrite dans l'ordre dans lequel elles se passent lors d'un jeu.
 INIT_GAME/GAME_INITIALIZED
 --------------------------
 
+Création du jeu
++++++++++++++++
+
 Requête permettant d'initialiser le jeu. Le client fait cette requête afin
 d'obtenir un nouvel identifiant de jeu généré par le serveur.
 
@@ -59,6 +62,23 @@ d'obtenir un nouvel identifiant de jeu généré par le serveur.
      :linenos:
 
 3.  Réponse du client : ADD_SLOT.
+
+Rejoindre le jeu
+++++++++++++++++
+
+Requête permettant de rejoindre le jeu.
+
+1. Client
+
+   .. literalinclude:: api/requests/join_game.json
+      :language: json
+      :linenos:
+
+2. Serveur
+
+   .. literalinclude:: api/responses/join_game.json
+      :language: json
+      :linenos:
 
 ADD_SLOT
 --------

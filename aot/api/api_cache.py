@@ -26,9 +26,8 @@ class ApiCache:
         game_data = self._cache.get(self.GAME_KEY_TEMPLATE.format(game_id))
         return pickle.loads(game_data)
     
-    def save_match(self, game, game_id):
-        game_data = pickle.dumps(game)
-        self._cache.set(self.GAME_KEY_TEMPLATE.format(game_id), game_data)
+    def save_session(self, game_id, session_id):
+        self._cache.sadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
 
     def get_players_ids(self, game_id):
         return [id.decode('utf-8') for id in self._cache.smembers(self.PLAYERS_KEY_TEMPLATE.format(game_id))]
@@ -78,21 +77,33 @@ class ApiCache:
             self.GAME_KEY_TEMPLATE.format(game_id),
             self.GAME_MASTER_KEY) is not None
 
-    def affect_next_slot(self, game_id, session_id):
+    def affect_next_slot(self, game_id, session_id, player_name):
         opened_slots = self._get_opened_slots(game_id)
         next_available_slot = opened_slots[0]
         next_available_slot['player_id'] = session_id
         next_available_slot['state'] = SlotState.TAKEN.value
+        next_available_slot['player_name'] = player_name
         self.update_slot(game_id, session_id, next_available_slot)
 
         return next_available_slot['index']
     
     def _get_opened_slots(self, game_id):
         slots = self.get_slots(game_id)
-        return [slot for slot in slots  if slot['state'] == SlotState.OPEN.value]
+        return [slot for slot in slots if slot['state'] == SlotState.OPEN.value]
 
-    def get_slots(self, game_id):
-        return [pickle.loads(slot) for slot in self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)]
+    def get_slots(self, game_id, include_player_id=True):
+        slots = [pickle.loads(slot) for slot in self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)]
+        if not include_player_id:
+            slots = self._remove_player_id(slots)
+        return slots
+
+    def _remove_player_id(self, slots):
+        corrected_slots = []
+        for slot in slots:
+            if 'player_id' in slot:
+                del slot['player_id']
+            corrected_slots.append(slot)
+        return corrected_slots
 
     def update_slot(self, game_id, session_id, slot):
         current_slot = self.get_slot(game_id, slot['index'])
@@ -101,7 +112,7 @@ class ApiCache:
             self._save_slot(game_id, slot)
         elif self.is_game_master(game_id, session_id) and current_slot['state'] != SlotState.TAKEN.value:
             self._save_slot(game_id, slot)
-        elif current_slot.state != SlotState.TAKEN.value and slot['state'] == SlotState.TAKEN.value:
+        elif current_slot['state'] != SlotState.TAKEN.value and slot['state'] == SlotState.TAKEN.value:
             slot['player_id'] = session_id
             self._save_slot(game_id, slot)
 

@@ -1,11 +1,15 @@
 {
     "rt": "GAME_INITIALIZED",
-    "index": 0,
-    "is_game_master": true,
+    "index": 1,
+    "is_game_master": false,
     "game_id": "the_game_id",
     "slots": [{
         "index": 0,
         "player_name": "Player 1",
+        "state": "TAKEN"
+    }, {
+        "index": 1,
+        "player_name": "Player 2",
         "state": "TAKEN"
     }]
 }

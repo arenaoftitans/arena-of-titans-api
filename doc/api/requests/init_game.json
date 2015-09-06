@@ -1,3 +1,4 @@
 {
-    "rt": "INIT_GAME"
+    "rt": "INIT_GAME",
+    "player_name": "Player 1"
 }

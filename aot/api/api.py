@@ -1,5 +1,6 @@
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 import base64
+import copy
 import json
 import uuid
 
@@ -41,9 +42,12 @@ class Api(WebSocketServerProtocol):
 
     def _initialize_connection(self):
         must_close_session = False
-        self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
-            .replace(b'=', b'')\
-            .decode('ascii')
+        if self.message['rt'] == RequestTypes.INIT_GAME.value and 'game_id' in self.message:
+            self._game_id = self.message['game_id']
+        else:
+            self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
+                .replace(b'=', b'')\
+                .decode('ascii')
         if self._can_join():
             response = self._initialize_cache()
             self.sendMessage(response)
@@ -69,13 +73,24 @@ class Api(WebSocketServerProtocol):
             initiliazed_game['is_game_master'] = True
         else:
             self._cache.save_session(self._game_id, self.id)
-            initiliazed_game['slots'] = self._cache.get_slots(self._game_id)
 
-        initiliazed_game['index'] = self._affect_current_slot()
+        index = self._affect_current_slot()
+        initiliazed_game['index'] = index
+        initiliazed_game['slots'] = self._cache.get_slots(self._game_id, include_player_id=False)
+        self._send_updated_slot_new_player(
+            initiliazed_game['slots'][index],
+            initiliazed_game['is_game_master'])
         return initiliazed_game
 
     def _affect_current_slot(self):
-        return self._cache.affect_next_slot(self._game_id, self.id)
+        return self._cache.affect_next_slot(self._game_id, self.id, self.message.get('player_name', ''))
+
+    def _send_updated_slot_new_player(self, slot, is_game_master):
+        # The game master is the first player, no other players to send to
+        if not is_game_master:
+            updated_slot = copy.deepcopy(slot)
+            updated_slot['rt'] = RequestTypes.SLOT_UPDATED.value
+            self._send_all_others(updated_slot)
 
     def _creating_game(self):
         return not self._cache.has_game_started(self._game_id)
@@ -261,6 +276,9 @@ class Api(WebSocketServerProtocol):
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
                 player.sendMessage(message)
+
+    def _send_all_others(self, message):
+        self._send_all(message, excluded_players=set([self.id]))
 
     def _send_to(self, message, id):
         if id in self._clients:

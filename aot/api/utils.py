@@ -13,7 +13,7 @@ class RequestTypes(Enum):
 
 
 class SlotState(Enum):
-    OPEN = 0
-    CLOSED = 1
-    RESERVED = 2
-    TAKEN = 3
+    OPEN = 'OPEN'
+    CLOSED = 'CLOSED'
+    RESERVED = 'RESERVED'
+    TAKEN = 'TAKEN'
