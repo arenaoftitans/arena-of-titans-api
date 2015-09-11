@@ -26,11 +26,14 @@ class ApiCache:
         game_data = self._cache.get(self.GAME_KEY_TEMPLATE.format(game_id))
         return pickle.loads(game_data)
     
-    def save_session(self, game_id, session_id):
-        self._cache.sadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
+    def save_session(self, game_id, session_id, player_index):
+        self._cache.zadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id, player_index)
+
+    def remove_session_id(self, game_id, session_id):
+        self._cache.zrem(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
 
     def get_players_ids(self, game_id):
-        return [id.decode('utf-8') for id in self._cache.smembers(self.PLAYERS_KEY_TEMPLATE.format(game_id))]
+        return [id.decode('utf-8') for id in self._cache.zrange(self.PLAYERS_KEY_TEMPLATE.format(game_id), 0, -1)]
 
     def has_opened_slots(self, game_id):
         return len(self._get_opened_slots(game_id)) > 0
@@ -47,7 +50,6 @@ class ApiCache:
             self.GAME_KEY_TEMPLATE.format(game_id),
             self.GAME_MASTER_KEY,
             session_id)
-        self.save_session_id(game_id, session_id)
         self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(game_id),
             self.STARTED_KEY,
@@ -65,12 +67,6 @@ class ApiCache:
 
     def add_slot(self, game_id, slot):
         self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(game_id), pickle.dumps(slot))
-
-    def save_session_id(self, game_id, session_id):
-        self._cache.sadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
-
-    def remove_session_id(self, game_id, session_id):
-        self._cache.srem(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
 
     def game_exists(self, game_id):
         return self._cache.hget(

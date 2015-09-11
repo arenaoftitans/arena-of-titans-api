@@ -18,6 +18,7 @@ class Api(WebSocketServerProtocol):
 
     # Instance variables
     _game_id = None
+    _id = None
     _message = None
 
     def sendMessage(self, message):
@@ -29,6 +30,7 @@ class Api(WebSocketServerProtocol):
             super().sendMessage(message)
 
     def onOpen(self):
+        self.id = self._wskey
         Api._clients[self.id] = self
 
     def onMessage(self, payload, isBinary):
@@ -72,10 +74,9 @@ class Api(WebSocketServerProtocol):
         if self._cache.is_new_game(self._game_id):
             self._cache.init(self._game_id, self.id)
             initiliazed_game['is_game_master'] = True
-        else:
-            self._cache.save_session(self._game_id, self.id)
 
         index = self._affect_current_slot()
+        self._cache.save_session(self._game_id, self.id, index)
         initiliazed_game['index'] = index
         initiliazed_game['slots'] = self._cache.get_slots(self._game_id, include_player_id=False)
         self._send_updated_slot_new_player(
@@ -299,4 +300,9 @@ class Api(WebSocketServerProtocol):
 
     @property
     def id(self):
-        return self._wskey
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        if self._id is None:
+            self._id = value
