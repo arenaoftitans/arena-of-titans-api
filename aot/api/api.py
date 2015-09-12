@@ -63,7 +63,8 @@ class Api(WebSocketServerProtocol):
         return not must_close_session
 
     def _can_join(self):
-        return self._cache.is_new_game(self._game_id) or self._cache.has_opened_slots(self._game_id)
+        return self._cache.is_new_game(self._game_id) or \
+            (self._cache.game_exists(self._game_id) and self._cache.has_opened_slots(self._game_id))
 
     def _initialize_cache(self):
         initiliazed_game = {
@@ -100,13 +101,15 @@ class Api(WebSocketServerProtocol):
     def _process_create_game_request(self):
         if not self._cache.is_game_master(self._game_id, self.id) and \
                 self.message['rt'] != RequestTypes.SLOT_UPDATED.value:
-            self._send_error('Only the game master can create the game')
+            self._send_error_to_display('Only the game master can create the game.')
         else:
             self._do_create_game_request()
 
     def _do_create_game_request(self):
         rt = self.message['rt']
-        response = ''
+        response = self._format_error_to_display('Unknown error.')
+        if rt not in RequestTypes.__members__:
+            self._send_all_error('Unknown request.')
         if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
             slot = self.message['slot']
             if rt == RequestTypes.ADD_SLOT.value:
@@ -124,22 +127,27 @@ class Api(WebSocketServerProtocol):
             }
             self._send_all(response)
         elif rt == RequestTypes.CREATE_GAME.value:
-            players_description = self.message['create_game_request']
-            self._send_all(self._initialize_game(players_description))
-        else:
-            self._send_all_error('Unknown request')
+            number_players = self._cache.number_taken_slots(self._game_id)
+            players_description = [player for player in self.message['create_game_request'] if player['name']]
+            if self._good_number_player_registered(number_players) and \
+                    self._good_number_players_description(number_players, players_description):
+                self._send_all(self._initialize_game(players_description))
+            elif number_players < 2 or len(players_description) < 2:
+                self._send_all_error_to_display('Not enough player to create game. 2 Players are at least required to start a game.')
+            elif number_players > get_number_players() or len(players_description) > get_number_players():
+                self._send_all_error_to_display('Too many players. 8 Players max.')
 
         return response
 
+    def _good_number_player_registered(self, number_players):
+        return number_players >= 2 and number_players <= get_number_players()
+
+    def _good_number_players_description(self, number_players, players_description):
+        return number_players == len(players_description)
+
     def _initialize_game(self, players_description):
-        players_description = [player for player in players_description if player['name']]
-        if len(players_description) < 2:
-            self._send_all_error_to_display('Not enough players. 2 Players are at least required to start a game')
-        elif len(players_description) > get_number_players():
-            self._send_all_error_to_display('To many players. 8 Players max.')
-        else:
-            self._create_game(players_description)
-            self._cache.game_has_started(self._game_id)
+        self._create_game(players_description)
+        self._cache.game_has_started(self._game_id)
 
     def _create_game(self, players_description):
         players_ids = self._cache.get_players_ids(self._game_id)
@@ -185,7 +193,7 @@ class Api(WebSocketServerProtocol):
             self._play_game(game)
             self._save_game(game)
         else:
-            self._send_error_to_display('Not Your Turn')
+            self._send_error_to_display('Not your turn.')
 
     def _load_game(self):
         return self._cache.get_game(self._game_id)
@@ -297,6 +305,9 @@ class Api(WebSocketServerProtocol):
 
     def _send_error(self, message):
         self.sendMessage(self._format_error(message))
+
+    def _send_error_to_display(self, message):
+        self.sendMessage(self._format_error_to_display(message))
 
     def _send_all_error(self, message):
         self._send_all(self._format_error(message))

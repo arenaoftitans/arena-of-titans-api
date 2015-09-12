@@ -26,7 +26,7 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='Arena of Titans — API',
+    name='Arena of Titans - API',
     version='0.1',
     packages=find_packages(),
     install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml'],

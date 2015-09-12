@@ -42,6 +42,9 @@ class ApiCache:
         return self._cache.hget(self.GAME_KEY_TEMPLATE.format(game_id), self.GAME_MASTER_KEY).decode('utf-8') ==\
             session_id
 
+    def number_taken_slots(self, game_id):
+        return len(self._get_taken_slots(game_id))
+
     def init(self, game_id, session_id):
         self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(game_id),
@@ -83,6 +86,10 @@ class ApiCache:
     def _get_opened_slots(self, game_id):
         slots = self.get_slots(game_id)
         return [slot for slot in slots if slot['state'] == SlotState.OPEN.value]
+
+    def _get_taken_slots(self, game_id):
+        slots = self.get_slots(game_id)
+        return [slot for slot in slots if slot['state'] == SlotState.TAKEN.value]
 
     def get_slots(self, game_id, include_player_id=True):
         slots = [pickle.loads(slot) for slot in self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)]
