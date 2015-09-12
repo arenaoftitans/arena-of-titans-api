@@ -153,27 +153,15 @@ réponse du serveur.
 
 #. Client
 
-   .. sourcecode:: json
-
-      {
-          "rt":"VIEW_POSSIBLE_SQUARES",
-	  "player_id":"39272e3f-2616-493a-a1a1-fed24a355f22",
-	  "play_request": {
-	     "card_name":"King",
-	     "card_color":"RED"
-	  }
-      }
+   .. sourcecode:: api/requests/view_possible_squares.json
+      :language: json
+      :linenos:
 
 #. Réponse serveur (à tous)
 
-   .. sourcecode:: json
-
-      {
-          "possible_squares": [
-	     "square-0-7"
-	  ],
-	  "rt":"VIEW_POSSIBLE_SQUARES"
-      }
+   .. sourcecode:: api/responses/view_possible_squares.json
+      :language: json
+      :linenos:
 
 PLAY
 ----
@@ -185,16 +173,9 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Client
 
-      .. sourcecode:: api/res {
-	      "rt": "PLAY",
-	      "player_id":"39272e3f-2616-493a-a1a1-fed24a355f22",
-	      "play_request": {
-	          "card_name": "King",
-		  "card_color": "RED",
-		  "x": 0,
-		  "y": 7
-	      }
-	 }
+      .. literalinclude:: api/requests/play_card.json
+         :language: json
+         :linenos:
 
    #. Réponse serveur
 

@@ -240,3 +240,68 @@ def test_discard_card(player1, player2):
     assert response == expected_response
 
     yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_view_squares(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    player1.recieve_index += 1
+
+    yield from player1.send('create_game')
+    response, expected_response = yield from player1.recv()
+    first_card = response['hand'][0]
+    yield from player1.send('view_possible_squares', message_override={'play_request': {'card_name': first_card['name'], 'card_color': first_card['color']}})
+    response, expected_response = yield from player1.recv('view_possible_squares')
+    assert response['rt'] == expected_response['rt']
+    assert isinstance(response['possible_squares'], list)
+
+    yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_play_card(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    player1.recieve_index += 1
+
+    yield from player1.send('create_game')
+    response, expected_response = yield from player1.recv()
+    for card in response['hand']:
+        yield from player1.send('view_possible_squares', message_override={'play_request': {'card_name': card['name'], 'card_color': card['color']}})
+        response, expected_response = yield from player1.recv()
+        if len(response['possible_squares']) > 0:
+            break
+
+    new_square = response['possible_squares'][0]
+    msg = {'play_request': {
+        'card_name': card['name'],
+        'card_color': card['color'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('play_card', message_override=msg)
+    response, expected_response = yield from player1.recv('play_card')
+    expected_response['your_turn'] = True
+    expected_response['new_square'] = {
+        'x': new_square['x'],
+        'y': new_square['y']
+    }
+    del expected_response['hand']
+    assert len(response['hand']) == 4
+    del response['hand']
+    assert response == expected_response
+
+    yield from asyncio.wait([player1.close(), player2.close()])

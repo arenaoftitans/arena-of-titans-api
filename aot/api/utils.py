@@ -1,5 +1,7 @@
 from enum import Enum
 
+from aot.board import Square
+
 
 class RequestTypes(Enum):
     INIT_GAME = 'INIT_GAME'
@@ -22,4 +24,11 @@ class SlotState(Enum):
 def to_json(python_object):
     if isinstance(python_object, Enum):
         return python_object.value
-    raise TypeError(repr(python_object) + ' is not JSON serializable')
+    elif isinstance(python_object, Square):
+        return {
+            'x': python_object.x,
+            'y': python_object.y
+        }
+    elif isinstance(python_object, set):
+        return [to_json(element) for element in python_object]
+    raise TypeError(str(python_object) + ' is not JSON serializable')

@@ -198,7 +198,11 @@ class Api(WebSocketServerProtocol):
         play_request = self.message.get('play_request', {})
         if rt == RequestTypes.VIEW_POSSIBLE_SQUARES.value:
             card = self._get_card(play_request)
-            self.sendMessage(game.view_possible_square(card))
+            possible_squares = game.view_possible_squares(card)
+            self.sendMessage({
+                'rt': RequestTypes.VIEW_POSSIBLE_SQUARES.value,
+                'possible_squares': possible_squares
+            })
         if rt == RequestTypes.PLAY.value:
             this_player = game.active_player
             self._play_card(game, play_request)
