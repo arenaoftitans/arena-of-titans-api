@@ -26,11 +26,11 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='aot',
+    name='Arena of Titans — API',
     version='0.1',
     packages=find_packages(),
     install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml'],
-    tests_require=['pytest', 'pytest-asyncio', 'pytest-cov', 'websockets'],
+    tests_require=['pytest', 'pytest-asyncio', 'pytest-cov', 'requests', 'websockets'],
     cmdclass={'test': PyTest},
     author='jenselme',
     author_email='',

@@ -134,7 +134,7 @@ class SvgBoardCreator:
                 square.set('ng-class', ng_class)
 
     @property
-    def svg(self):
+    def svg(self):  # pragma: no cover
         return self._svg
 
     def __str__(self):
