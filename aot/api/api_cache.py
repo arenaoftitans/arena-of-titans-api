@@ -29,9 +29,6 @@ class ApiCache:
     def save_session(self, game_id, session_id, player_index):
         self._cache.zadd(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id, player_index)
 
-    def remove_session_id(self, game_id, session_id):
-        self._cache.zrem(self.PLAYERS_KEY_TEMPLATE.format(game_id), session_id)
-
     def get_players_ids(self, game_id):
         return [id.decode('utf-8') for id in self._cache.zrange(self.PLAYERS_KEY_TEMPLATE.format(game_id), 0, -1)]
 
