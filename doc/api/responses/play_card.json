@@ -1,0 +1,41 @@
+{
+    "rt": "PLAY",
+    "your_turn": false,
+    "new_square": {
+        "x": 0,
+        "y": 8
+    },
+    "next_player": 0,
+    "winners": [],
+    "hand": [
+        {
+            "color": "RED",
+            "name": "Bishop"
+        },
+        {
+            "color": "BLACK",
+            "name": "Bishop"
+        },
+        {
+            "color": "BLUE",
+            "name": "Knight"
+        },
+        {
+            "color": "RED",
+            "name": "Warrior"
+        }
+    ],
+    "game_over": false,
+    "active_trumps": [
+        {
+            "player_index": 0,
+            "player_name": "Player 1",
+            "trumps_names": []
+        },
+        {
+            "player_index": 1,
+            "player_name": "Player 2",
+            "trumps_names": []
+        }
+    ]
+}

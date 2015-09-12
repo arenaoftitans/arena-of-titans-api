@@ -155,6 +155,7 @@ class Api(WebSocketServerProtocol):
         for player in game.players:
             message = {
                 'rt': RequestTypes.CREATE_GAME.value,
+                'your_turn': game.active_player.id == player.id,
                 'next_player': {
                     'index': 0,
                     'name': game.players[0].name
@@ -180,14 +181,14 @@ class Api(WebSocketServerProtocol):
 
     def _process_play_request(self):
         game = self._load_game()
-        if _is_player_id_correct(game):
+        if self._is_player_id_correct(game):
             self._play_game(game)
             self._save_game(game)
         else:
             self._send_error_to_display('Not Your Turn')
 
     def _load_game(self):
-        return self._cache.get_match(self._game_id)
+        return self._cache.get_game(self._game_id)
 
     def _is_player_id_correct(self, game):
         return self.id is not None and self.id == game.active_player.id
@@ -195,32 +196,36 @@ class Api(WebSocketServerProtocol):
     def _play_game(self, game):
         rt = self.message['rt']
         play_request = self.message.get('play_request', {})
-        if rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
+        if rt == RequestTypes.VIEW_POSSIBLE_SQUARES.value:
             card = self._get_card(play_request)
             self.sendMessage(game.view_possible_square(card))
-        if rt == RequestTypes.PLAY:
+        if rt == RequestTypes.PLAY.value:
             this_player = game.active_player
             self._play_card(game, play_request)
-            self._send_message_current_player(this_player, game.active_player)
+            self._send_play_message(this_player, game)
 
-    def _send_message_current_player(self, this_player, active_player):
-        player_id = active_player.id
-        this_player_message = self._get_play_message(this_player)
-        self.sendMessage(this_player_message)
-        if player_id in self._clients:
-            active_player_message = self._get_play_message(active_player)
+    def _send_play_message(self, this_player, game):
+        # Send play message to the player who just played.
+        active_player_id = game.active_player.id
+        this_player_message = self._get_play_message(this_player, game)
+        self._clients[self.id].sendMessage(this_player_message)
+
+        # Send to the next player if it is not the player who just played.
+        if this_player.id != active_player_id and active_player_id in self._clients:
+            active_player_message = self._get_play_message(game.active_player, game)
             active_player_message['your_turn'] = True
-            self._clients[player_id].sendMessage(active_player_message)
+            self._clients[active_player_id].sendMessage(active_player_message)
 
-    def _get_play_message(self, player):
+    def _get_play_message(self, player, game):
         return {
             'rt': RequestTypes.PLAY,
-            'your_turn': player.id == self.id,
+            'your_turn': player.id == game.active_player.id,
             'new_square': {
                 'x': player.current_square.x,
                 'y': player.current_square.y
             },
-            'cards': [{
+            'next_player': game.active_player.index,
+            'hand': [{
                 'name': card.name,
                 'color': card.color
             } for card in player.hand],
@@ -255,17 +260,14 @@ class Api(WebSocketServerProtocol):
         return x, y
 
     def _save_game(self, game):
-        self._cache.save_match(game, self._game_id)
+        self._cache.save_game(game, self._game_id)
 
     def onClose(self, wasClean, code, reason):
         del Api._clients[self.id]
 
     def _get_card(self, msg):
-        if 'value' in msg:
-            card = msg['value']
-        else:
-            card = msg['card']
-        color, name = card.split('_')
+        color = msg['card_color']
+        name = msg['card_name']
         color = color.lower()
         name = name.lower().title()
         return name, color

@@ -123,7 +123,7 @@ def test_player2_join(player1, player2, cache):
 
 
 @pytest.mark.asyncio
-def test_create_game(player1, player2, cache):
+def test_create_game(player1, player2):
     yield from player1.connect()
     yield from player1.send('init_game')
     yield from player1.send('add_slot')
@@ -157,6 +157,7 @@ def test_create_game(player1, player2, cache):
         assert trump.keys() == trump_element_keys
 
     response, expected_response = yield from player2.recv('create_game')
+    expected_response['your_turn'] = False
     hand_response = response['hand']
     trumps_response = response['trumps']
     del response['hand']
@@ -168,3 +169,74 @@ def test_create_game(player1, player2, cache):
         assert card.keys() == hand_element_keys
     for trump in trumps_response:
         assert trump.keys() == trump_element_keys
+
+    yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_pass_turn(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+
+    yield from player1.send('create_game')
+    player1.recieve_index += 1
+    response, expected_response = yield from player1.recv()
+    player2.recieve_index += 2
+
+    yield from player1.send('pass_turn')
+    #yield from asyncio.sleep(3)
+    response, expected_response = yield from player1.recv('play_card')
+    expected_response['next_player'] = 1
+    del expected_response['hand']
+    assert len(response['hand']) == 5
+    del response['hand']
+    assert response == expected_response
+
+    response, expected_response = yield from player2.recv('play_card')
+    expected_response['next_player'] = 1
+    expected_response['your_turn'] = True
+    expected_response['new_square'] = {
+        'x': 4,
+        'y': 8
+    }
+    del expected_response['hand']
+    assert len(response['hand']) == 5
+    del response['hand']
+    assert response == expected_response
+
+    yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_discard_card(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    player1.recieve_index += 1
+
+    yield from player1.send('create_game')
+    response, expected_response = yield from player1.recv()
+    player2.recieve_index += 2
+
+    first_card = response['hand'][0]
+    yield from player1.send('discard_card', message_override={'play_request': {'card_name': first_card['name'], 'card_color': first_card['color'], 'discard': True}})
+    response, expected_response = yield from player1.recv('play_card')
+    expected_response['next_player'] = 0
+    expected_response['your_turn'] = True
+    del expected_response['hand']
+    assert len(response['hand']) == 4
+    del response['hand']
+    assert response == expected_response
+
+    yield from asyncio.wait([player1.close(), player2.close()])

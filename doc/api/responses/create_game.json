@@ -1,5 +1,6 @@
 {
     "rt": "CREATE_GAME",
+    "your_turn": true,
     "next_player": {
 	"index": 0,
 	"name": "Player 1"

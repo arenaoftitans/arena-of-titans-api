@@ -116,6 +116,13 @@ class Player:
         if self._can_play:
             trump.affect(self)
 
+    def __str__(self):  # pragma: no cover
+        return 'Player(id={id}, name={name}, index={index})'\
+            .format(id=self.id, name=self.name, index=self.index)
+
+    def __repr__(self):  # pragma: no cover
+        return str(self)
+
     @property
     def _is_on_last_line(self):
         return self._current_square in self._aim

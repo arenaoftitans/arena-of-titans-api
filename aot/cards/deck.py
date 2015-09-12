@@ -1,6 +1,7 @@
 import random
 
 from aot.board import Color
+from aot.cards import Card
 
 
 class Deck:
@@ -39,6 +40,8 @@ class Deck:
         return game_card.move(position)
 
     def play(self, card):
+        if not isinstance(card, Card):
+            card = self.get_card(*card)
         if card is not None and card in self._hand:
             card.revert_to_default()
             self._hand.remove(card)
@@ -59,7 +62,7 @@ class Deck:
     def get_card(self, card_name, card_color):
         if isinstance(card_color, str):
             card_color = card_color.upper()
-            card_color = Color[card_color] if card_color in Color else None
+            card_color = Color[card_color] if card_color in Color.__members__ else None
         matching_cards = [card for card in self._hand
                           if card.name == card_name and
                           card.color == card_color]

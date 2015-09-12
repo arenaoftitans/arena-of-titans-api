@@ -185,9 +185,7 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Client
 
-      .. sourcecode:: json
-
-	 {
+      .. sourcecode:: api/res {
 	      "rt": "PLAY",
 	      "player_id":"39272e3f-2616-493a-a1a1-fed24a355f22",
 	      "play_request": {
@@ -200,126 +198,18 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Réponse serveur
 
-      .. sourcecode:: json
+      .. sourcecode:: api/responses/play_card.json
+         :language: json
+         :linenos:
 
-	 {
-	     "newSquare": {
-	         "x": 0,
-		 "y": 7
-	     },
-	     "nextPlayer": {
-	          "index": 0,
-		  "name": "Player 1"
-	     },
-	     "possibleCardsNextPlayer": [
-		{
-		    "color": "RED",
-		    "name": "Bishop"
-		},
-		{
-		    "color": "BLACK",
-		    "name": "Bishop"
-		},
-		{
-		    "color": "BLUE",
-		    "name": "Knight"
-		},
-		{
-		    "color": "RED",
-		    "name": "Warrior"
-		}
-	     ],
-	     "gameOver": false,
-	     "winners": [],
-	     "trumpsNextPlayer":[
-		{
-                   "name": "Reinforcements",
-		   "description": "Allow the player to play one more move.",
-		   "duration": 0,
-		   "cost": 0,
-		   "repeatForEachColor": false,
-		   "mustTargetPlayer": false
-		},
-		{
-         	   "name":"Tower BLACK",
-		   "description":"Prevent the player to move on some colors.",
-		   "duration":0,
-		   "cost":0,
-		   "repeatForEachColor":false,
-		   "mustTargetPlayer":true
-		},
-		{
-	          "name":"Tower BLUE",
-		  "description":"Prevent the player to move on some colors.",
-		  "duration":0,
-		  "cost":0,
-		  "repeatForEachColor":false,
-		  "mustTargetPlayer":true
-		},
-		{
-		  "name":"Tower RED",
-	          "description":"Prevent the player to move on some colors.",
-		  "duration":0,
-		  "cost":0,
-		  "repeatForEachColor":false,
-		  "mustTargetPlayer":true
-		},
-		{
-		  "name":"Tower YELLOW",
-		  "description":"Prevent the player to move on some colors.",
-		  "duration":0,
-		  "cost":0,
-		  "repeatForEachColor":false,
-		  "mustTargetPlayer":true
-		}
-	     ],
-	     "players":[
-		{
-		  "index":0,
-		  "name":"Player 1"
-		},
-		{
-		  "index":1,
-		  "name":"Player 2"
-		},
-		{
-	          "index":2,
-		  "name":"Player 3"
-		}
-	     ],
-	     "trumps": [
-		{
-		  "playerIndex":0,
-		  "playerName":"Player 1",
-		  "trumpNames":[]
-		},
-		{
-		  "playerIndex":1,
-		  "playerName":"Player 2",
-		  "trumpNames":[]
-		},
-		{
-		  "playerIndex":2,
-		  "playerName":"Player 3",
-		  "trumpNames":[]
-		}
-	     ],
-	     "rt":"PLAY"
-	 }
 
 -  Passe son tour
 
    #. Client
 
-      .. sourcecode:: json
-
-	 {
-		"rt":"PLAY",
-		"player_id":"253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-		"play_request":{
-		    "pass":true
-		}
-	 }
+      .. literalinclude:: api/requests/pass_turn.json
+         :language: json
+         :linenos:
 
    #. Réponse serveur : idem
 
@@ -327,17 +217,9 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Client
 
-      .. sourcecode:: json
-
-	 {
-		"rt":"PLAY",
-		"player_id":"39272e3f-2616-493a-a1a1-fed24a355f22",
-		"play_request": {
-		    "discard":true,
-		    "card_name":"Warrior",
-		    "card_color":"RED"
-		}
-	 }
+      .. literalinclude:: api/requests/discard_card.json
+         :language: json
+         :linenos:
 
    #. Réponse server : idem
 

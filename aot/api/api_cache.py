@@ -15,15 +15,15 @@ class ApiCache:
     GAME_KEY = 'game'
     STARTED_KEY = 'started'
 
-    GAME_STARTED = 'true'
-    GAME_NOT_STARTED = 'false'
+    GAME_STARTED = b'true'
+    GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
     GAME_EXPIRE = 2*24*60*60
 
     _cache = redis.Redis(host=aot.config['cache']['server_host'], port=aot.config['cache']['server_port'])
 
-    def get_match(self, game_id):
-        game_data = self._cache.get(self.GAME_KEY_TEMPLATE.format(game_id))
+    def get_game(self, game_id):
+        game_data = self._cache.hget(self.GAME_KEY_TEMPLATE.format(game_id), self.GAME_KEY)
         return pickle.loads(game_data)
     
     def save_session(self, game_id, session_id, player_index):
