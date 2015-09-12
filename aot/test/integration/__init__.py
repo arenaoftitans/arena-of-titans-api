@@ -41,12 +41,12 @@ class PlayerWs:
 
     @asyncio.coroutine
     def recv(self, response_name=None):
-        resp = None
         for i in range(self.number_asked, self.recieve_index):
             self.number_asked += 1
-            resp = yield from self.ws.recv()
-            # resp can be None
-            resp = json.loads(resp) if resp else dict()
+            resp = None
+            while resp is None:
+                resp = yield from self.ws.recv()
+                resp = json.loads(resp) if resp else dict()
             if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
                 self._game_id = resp['game_id']
             # If at this stage, _game_id is still None, something went wrong and resp is most
