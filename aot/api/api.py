@@ -14,6 +14,25 @@ from aot.api.utils import RequestTypes
 class Api(WebSocketServerProtocol):
     # Class variables.
     _clients = {}
+    _error_messages = {
+        'add_slot_exists': 'Trying to add a slot that already exists.',
+        'cannot_join': 'You cannot join this game. No slots opened.',
+        'game_master_request': 'Only the game master can use {rt} request.',
+        'inexistant_slot': 'Trying to update non existant slot.',
+        'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
+        'missing_trump_target': 'You must specify a target player.',
+        'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
+                               'to start a game.',
+        'not_your_turn': 'Not your turn.',
+        'registered_different_description': 'Number of registered players differs with number of '
+                                            'players descriptions.',
+        'unknown_error': 'Unknown error.',
+        'unknown_request': 'Unknown request: {rt}.',
+        'wrong_card': 'This card doesn\'t exist or is not in your hand.',
+        'wrong_square': 'This square doesn\'t exist or you cannot move there yet.',
+        'wrong_trump': 'Unknown trump.',
+        'wrong_trump_target': 'Wrong target player index.',
+    }
 
     # Instance variables
     _game_id = None
@@ -56,8 +75,7 @@ class Api(WebSocketServerProtocol):
             self.sendMessage(response)
         else:
             must_close_session = True
-            response = self._format_error_to_display(
-                'You cannot join this game. No slots opened.')
+            response = self._format_error_to_display('cannot_join')
 
         self.sendMessage(response)
 
@@ -104,28 +122,29 @@ class Api(WebSocketServerProtocol):
         if not self._cache.is_game_master() and \
                 self.message['rt'] != RequestTypes.SLOT_UPDATED.value:
             rt = self.message['rt']
-            self._send_error_to_display('Only the game master can use {} request.'.format(rt))
+            self._send_error_to_display('game_master_request', {'rt': rt})
         else:
             self._do_create_game_request()
 
     def _do_create_game_request(self):
         rt = self.message['rt']
         if rt not in RequestTypes.__members__:
-            self._send_all_error('Unknown request.')
+            self._send_error('unknown_request', {'rt': rt})
         if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
             self._modify_slots(rt)
         elif rt == RequestTypes.CREATE_GAME.value:
             number_players = self._cache.number_taken_slots()
-            players_description = [player for player in self.message['create_game_request'] if player['name']]
+            players_description = [player for player in self.message['create_game_request']
+                                   if player['name']]
             if self._good_number_player_registered(number_players) and \
                     self._good_number_players_description(number_players, players_description):
                 self._initialize_game(players_description)
             elif not self._good_number_players_description(number_players, players_description):
-                self._send_error('Number of registered players differs with number of players descriptions.')
+                self._send_error('registered_different_description')
             elif number_players < 2 or len(players_description) < 2:
-                self._send_error_to_display('Not enough player to create game. 2 Players are at least required to start a game.')
+                self._send_error_to_display('not_enought_players')
         else:
-            self._send_error_to_display('Unknown error.')
+            self._send_error_to_display('unknown_error')
 
     def _modify_slots(self, rt):
         slot = self.message['slot']
@@ -133,14 +152,14 @@ class Api(WebSocketServerProtocol):
             if not self._max_number_slots_reached() and not self._cache.slot_exists(slot):
                 self._cache.add_slot(slot)
             elif self._cache.slot_exists(slot):
-                self._send_error_to_display('Trying to add a slot that already exists.')
+                self._send_error_to_display('add_slot_exists')
             else:
-                self._send_error_to_display('Max number of slots reached. You cannot add more slots.')
+                self._send_error_to_display('max_number_slots_reached')
                 return
         elif self._cache.slot_exists(slot):
             self._cache.update_slot(slot)
         else:
-            self._send_error_to_display('Trying to update non existant slot.')
+            self._send_error_to_display('inexistant_slot')
             return
         # The player_id is stored in the cache so we can know to which player which slot is
         # associated. We don't pass this information to the frontend. If the slot is new, it
@@ -210,7 +229,7 @@ class Api(WebSocketServerProtocol):
             self._play_game(game)
             self._save_game(game)
         else:
-            self._send_error_to_display('Not your turn.')
+            self._send_error_to_display('not_your_turn')
 
     def _load_game(self):
         return self._cache.get_game()
@@ -228,7 +247,7 @@ class Api(WebSocketServerProtocol):
         elif rt == RequestTypes.PLAY_TRUMP.value:
             self._play_trump(game, play_request)
         else:
-            return self._send_error('Wrong request type.')
+            return self._send_error('unknown_request', {'rt': rt})
 
     def _view_possible_squares(self, game, play_request):
         card = self._get_card(play_request, game)
@@ -239,7 +258,7 @@ class Api(WebSocketServerProtocol):
                 'possible_squares': possible_squares
             })
         else:
-            self._send_error_to_display('This card doesn\'t exist or is not in your hand.')
+            self._send_error_to_display('wrong_card')
 
     def _get_card(self, play_request, game):
         name = play_request.get('card_name', None)
@@ -261,10 +280,10 @@ class Api(WebSocketServerProtocol):
                 game.play_card(card, square)
             elif card is None:
                 error = True
-                self._send_error_to_display('This card doesn\'t exist or is not in your hand.')
+                self._send_error_to_display('wrong_card')
             elif square is None or not game.can_move(card, square):
                 error = True
-                self._send_error_to_display('This square doesn\'t exist or you cannot move there yet.')
+                self._send_error_to_display('wrong_square')
 
         if not error:
             self._send_play_message(this_player, game)
@@ -312,9 +331,9 @@ class Api(WebSocketServerProtocol):
         trump = self._get_trump(game, play_request.get('name', ''))
         targeted_player_index = play_request.get('target_index', None)
         if trump is None:
-            self._send_error_to_display('Unknown trump.')
+            self._send_error_to_display('wrong_trump')
         elif trump.must_target_player and targeted_player_index is None:
-            self._send_error('You must specify a target player.')
+            self._send_error('missing_trump_target')
         elif trump.must_target_player:
             self._play_trump_with_target(game, trump, targeted_player_index)
         else:
@@ -326,7 +345,7 @@ class Api(WebSocketServerProtocol):
             message = self._get_play_message(game.active_player, game)
             self._send_all(message)
         else:
-            self._send_error_to_display('Wrong target player index.')
+            self._send_error_to_display('wrong_trump_target')
 
     def _play_trump_without_target(self, game, trump):
         self._play_trump_with_target(game, trump, game.active_player.index)
@@ -353,20 +372,23 @@ class Api(WebSocketServerProtocol):
         if id in self._clients:
             self._clients[id].sendMessage(message)
 
-    def _format_error_to_display(self, message):
-        return {'error_to_display': message}
+    def _format_error_to_display(self, message, format_opt={}):
+        return {'error_to_display': self._get_error(message, format_opt)}
 
-    def _send_error(self, message):
-        self.sendMessage(self._format_error(message))
+    def _get_error(self, message, format_opt):
+        return self._error_messages.get(message, message).format(**format_opt)
 
-    def _send_error_to_display(self, message):
-        self.sendMessage(self._format_error_to_display(message))
+    def _send_error(self, message, format_opt={}):
+        self.sendMessage(self._format_error(message, format_opt))
 
-    def _send_all_error(self, message):
-        self._send_all(self._format_error(message))
+    def _send_error_to_display(self, message, format_opt={}):
+        self.sendMessage(self._format_error_to_display(message, format_opt))
 
-    def _format_error(self, message):
-        return{'error': message}
+    def _send_all_error(self, message, format_opt={}):
+        self._send_all(self._format_error(message, format_opt))
+
+    def _format_error(self, message, format_opt={}):
+        return {'error': self._get_error(message, format_opt)}
 
     @property
     def id(self):
