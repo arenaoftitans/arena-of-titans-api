@@ -1,3 +1,6 @@
+from aot.board import Square
+
+
 class Player:
     BOARD_ARM_WIDTH_AND_MODULO = 4
     BOARD_ARM_LENGTH_AND_MAX_Y = 8
@@ -52,6 +55,9 @@ class Player:
     def get_card(self, card_name, card_color):
         return self._deck.get_card(card_name, card_color)
 
+    def can_move(self, card, square):
+        return square in self._deck.view_possible_squares(card, self._current_square)
+
     def play_card(self, card, square, check_move=True):
         if card and check_move:
             possible_squares = self.view_possible_squares(card)
@@ -59,8 +65,11 @@ class Player:
             return
         else:
             possible_squares = set()
-        x, y = square
-        dest_square = self._board[x, y]
+        if not isinstance(square, Square):
+            x, y = square
+            dest_square = self._board[x, y]
+        else:
+            dest_square = square
         if dest_square in possible_squares or not check_move:
             self._deck.play(card)
             self.move(dest_square)

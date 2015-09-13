@@ -95,11 +95,14 @@ class Board:
                 x_direction = None
             elif len(coords) == 3:
                 x, y, x_direction = coords
-        while x < 0:
-            x += self._x_max
-        x = x % self._x_max
-        if coords is not None:
+
+        if coords is not None and x is not None:
+            while x < 0:
+                x += self._x_max
+            x = x % self._x_max
             return (x, y, x_direction)
+        else:
+            return None, None, None
 
     def _on_arm_edge(self, x, y, x_direction):
         on_arm = y > self._inner_circle_higher_y

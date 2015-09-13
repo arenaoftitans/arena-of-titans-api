@@ -235,22 +235,23 @@ class Api(WebSocketServerProtocol):
             game.discard(card)
         else:
             card = self._get_card(play_request, game)
-            square = self._get_square(play_request)
-            if card is not None and square is not None:
+            square = self._get_square(play_request, game)
+            if card is not None and square is not None and game.can_move(card, square):
                 game.play_card(card, square)
             elif card is None:
                 error = True
                 self._send_error_to_display('This card doesn\'t exist or is not in your hand.')
-            elif square is None:
+            elif square is None or not game.can_move(card, square):
+                error = True
                 self._send_error_to_display('This square doesn\'t exist or you cannot move there yet.')
 
         if not error:
             self._send_play_message(this_player, game)
 
-    def _get_square(self, play_request):
+    def _get_square(self, play_request, game):
         x = play_request.get('x', None)
         y = play_request.get('y', None)
-        return x, y
+        return game.get_square(x, y)
 
     def _send_play_message(self, this_player, game):
         # Send play message to the player who just played.

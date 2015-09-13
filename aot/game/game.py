@@ -28,6 +28,12 @@ class Game:
         self._active_player.play_card(card, square, check_move=check_move)
         self._continue_game_if_enough_players()
 
+    def can_move(self, card, square):
+        return self._active_player.can_move(card, square)
+
+    def get_square(self, x, y):
+        return self._board[x, y]
+
     def _continue_game_if_enough_players(self):
         if self._has_enough_players_to_continue():
             self._active_player = self._find_next_player()
