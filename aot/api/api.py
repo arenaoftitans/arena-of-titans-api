@@ -101,7 +101,8 @@ class Api(WebSocketServerProtocol):
     def _process_create_game_request(self):
         if not self._cache.is_game_master(self._game_id, self.id) and \
                 self.message['rt'] != RequestTypes.SLOT_UPDATED.value:
-            self._send_error_to_display('Only the game master can create the game.')
+            rt = self.message['rt']
+            self._send_error_to_display('Only the game master can use {} request.'.format(rt))
         else:
             self._do_create_game_request()
 
@@ -126,19 +127,19 @@ class Api(WebSocketServerProtocol):
 
     def _modify_slots(self, rt):
         slot = self.message['slot']
-        import logging
-        logging.debug('**************')
-        logging.debug(rt)
-        logging.debug(slot)
-        logging.debug(rt == RequestTypes.ADD_SLOT.value)
         if rt == RequestTypes.ADD_SLOT.value:
-            if not self._max_number_slots_reached():
+            if not self._max_number_slots_reached() and not self._cache.slot_exists(self._game_id, slot):
                 self._cache.add_slot(self._game_id, slot)
+            elif self._cache.slot_exists(self._game_id, slot):
+                self._send_error_to_display('Trying to add a slot that already exists.')
             else:
                 self._send_error_to_display('Max number of slots reached. You cannot add more slots.')
                 return
-        else:
+        elif self._cache.slot_exists(self._game_id, slot):
             self._cache.update_slot(self._game_id, self.id, slot)
+        else:
+            self._send_error_to_display('Trying to update non existant slot.')
+            return
         # The player_id is stored in the cache so we can know to which player which slot is
         # associated. We don't pass this information to the frontend. If the slot is new, it
         # doesn't have a player_id yet

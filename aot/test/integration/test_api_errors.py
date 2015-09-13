@@ -2,6 +2,7 @@ import logging
 import pytest
 
 from aot.test.integration import (
+    flush_cache,
     create_game,
     player1,
     player2,
@@ -18,8 +19,8 @@ def test_no_enough_players(player1):
     yield from player1.send('create_game')
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'Not enough player to create game. '
-                            '2 Players are at least required to start a game.'
+        'error': 'Number of registered players differs with number of players '
+                            'descriptions.'
     }
 
 
@@ -88,7 +89,45 @@ def test_only_game_master_can_create_game(player1, player2):
     yield from player2.send('create_game')
     response = yield from player2.recv()
 
-    assert response == {'error_to_display': 'Only the game master can create the game.'}
+    assert response == {'error_to_display': 'Only the game master can use CREATE_GAME request.'}
+
+
+@pytest.mark.asyncio
+def test_only_game_master_add_slot(player1, player2):
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    slot = {
+        "index": 2,
+        "state": "CLOSED",
+        "player_name": ""
+    }
+    yield from player2.send('add_slot', message_override={'slot': slot})
+    response = yield from player2.recv()
+
+    assert response == {'error_to_display': 'Only the game master can use ADD_SLOT request.'}
+
+
+@pytest.mark.asyncio
+def test_update_wrong_slot(player1):
+    yield from player1.send('init_game')
+    yield from player1.send('update_slot2')
+    response = yield from player1.recv()
+
+    assert response == {'error_to_display': 'Trying to update non existant slot.'}
+
+
+@pytest.mark.asyncio
+def test_add_existing_slot(player1):
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('add_slot')
+    response = yield from player1.recv()
+
+    assert response == {'error_to_display': 'Trying to add a slot that already exists.'}
 
 
 @pytest.mark.asyncio

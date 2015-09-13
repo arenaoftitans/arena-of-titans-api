@@ -116,8 +116,17 @@ class ApiCache:
             slot['player_id'] = session_id
             self._save_slot(game_id, slot)
 
+    def slot_exists(self, game_id, slot):
+        return self._get_raw_slot(game_id, slot['index']) is not None
+
+    def _get_raw_slot(self, game_id, index):
+        import logging
+        logging.debug('************')
+        logging.debug(self._cache.lindex(self.SLOTS_KEY_TEMPLATE.format(game_id), index))
+        return self._cache.lindex(self.SLOTS_KEY_TEMPLATE.format(game_id), index)
+
     def get_slot(self, game_id, index):
-        data = self._cache.lindex(self.SLOTS_KEY_TEMPLATE.format(game_id), index)
+        data = self._get_raw_slot(game_id, index)
         return pickle.loads(data)
 
     def _save_slot(self, game_id, slot):
