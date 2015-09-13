@@ -351,3 +351,72 @@ def test_play_wrong_square(player1, player2):
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+
+@pytest.mark.asyncio
+def test_play_wrong_trump_without_target(player1, player2):
+    yield from create_game(player1, player2)
+
+    # Unknown
+    play_request = {
+        'name': 'TOTO'
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'Unknown trump.'}
+
+    # Missing
+    play_request = {
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'Unknown trump.'}
+
+
+@pytest.mark.asyncio
+def test_play_wrong_trump_with_target(player1, player2):
+    yield from create_game(player1, player2)
+
+    # Unknown
+    play_request = {
+        'name': 'TOTO'
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'Unknown trump.'}
+
+    # Wrong index
+    play_request = {
+        'name': 'Tower Black',
+        'target_index': 78
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'Wrong target player index.'}
+
+    # Missing index
+    play_request = {
+        'name': 'Tower Black'
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error': 'You must specify a target player.'}
+
+    # Missing
+    play_request = {
+    }
+    yield from player1.send(
+        'play_trump_with_target',
+        message_override={'play_request': play_request})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'Unknown trump.'}

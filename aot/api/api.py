@@ -324,7 +324,7 @@ class Api(WebSocketServerProtocol):
             message = self._get_play_message(game.active_player, game)
             self._send_all(message)
         else:
-            self._send_error('Wrong target player index')
+            self._send_error_to_display('Wrong target player index.')
 
     def _play_trump_without_target(self, game, trump):
         self._play_trump_with_target(game, trump, game.active_player.index)

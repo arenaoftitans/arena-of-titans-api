@@ -21,7 +21,7 @@ def test_get_card(deck):
 
 def test_init_deck(deck):
     assert NUMBER_TOTAL_CARDS == deck.number_cards_in_hand + \
-        deck.number_cards_in_stock +\
+        deck.number_cards_in_stock + \
         deck.number_cards_in_graveyard
     assert deck.number_cards_in_graveyard == 0
     assert NUMBER_CARDS_HAND == deck.number_cards_in_hand
