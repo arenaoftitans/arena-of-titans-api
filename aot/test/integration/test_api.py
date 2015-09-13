@@ -231,3 +231,27 @@ def test_play_card(player1, player2):
     assert len(response['hand']) == 4
     del response['hand']
     assert response == expected_response
+
+
+@pytest.mark.asyncio
+def test_play_trump_no_target(player1, player2):
+    yield from create_game(player1, player2)
+    yield from player1.send('play_trump_no_target')
+
+    response, expected_response = yield from player1.recv('play_trump_no_target')
+    assert response['active_trumps'] == expected_response['active_trumps']
+
+    response, expected_response = yield from player2.recv('play_trump_no_target')
+    assert response['active_trumps'] == expected_response['active_trumps']
+
+
+@pytest.mark.asyncio
+def test_play_trump_with_target(player1, player2):
+    yield from create_game(player1, player2)
+    yield from player1.send('play_trump_with_target')
+
+    response, expected_response = yield from player1.recv('play_trump_with_target')
+    assert response['active_trumps'] == expected_response['active_trumps']
+
+    response, expected_response = yield from player2.recv('play_trump_with_target')
+    assert response['active_trumps'] == expected_response['active_trumps']

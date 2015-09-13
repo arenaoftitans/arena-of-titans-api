@@ -5,6 +5,7 @@ from aot.board import Board
 from aot.board import Color
 from aot.cards import Card
 from aot.cards import Deck
+from aot.cards.trumps import trump_type_to_class
 from aot.game import Game
 from aot.game import Player
 
@@ -92,6 +93,34 @@ def _get_additionnal_colors(color,
     additional_colors.update([Color[col]
                               for col in complementary_colors.get(color, [])])
     return additional_colors
+
+
+def get_trumps_list(name='standard'):
+    trumps_descriptions = get_trumps_descriptions(name=name)
+    trumps = []
+    for trump_description in trumps_descriptions:
+        repeat_for_each_color = trump_description['repeat_for_each_color']
+        del trump_description['repeat_for_each_color']
+        trump_type = trump_description['parameters']['type']
+        del trump_description['parameters']['type']
+        trump_description.update(trump_description['parameters'])
+        del trump_description['parameters']
+        if repeat_for_each_color:
+            name = trump_description['name']
+            for color in Color:
+                if color == Color.ALL:
+                    continue
+                trump_description['name'] = '{name} {color}'.format(name=name, color=color.value.title())
+                trump_description['color'] = color
+                trumps.append(trump_type_to_class[trump_type](**trump_description))
+        else:
+            trumps.append(trump_type_to_class[trump_type](**trump_description))
+
+    return trumps
+
+
+def get_trumps_descriptions(name='standard'):
+    return get_game_description(name)['trumps']
 
 
 def get_game(players_description, name='standard'):

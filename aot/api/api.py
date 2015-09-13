@@ -221,8 +221,12 @@ class Api(WebSocketServerProtocol):
         play_request = self.message.get('play_request', {})
         if rt == RequestTypes.VIEW_POSSIBLE_SQUARES.value:
             self._view_possible_squares(game, play_request)
-        if rt == RequestTypes.PLAY.value:
+        elif rt == RequestTypes.PLAY.value:
             self._play_card(game, play_request)
+        elif rt == RequestTypes.PLAY_TRUMP.value:
+            self._play_trump(game, play_request)
+        else:
+            return self._send_error('Wrong request type.')
 
     def _view_possible_squares(self, game, play_request):
         card = self._get_card(play_request, game)
@@ -301,6 +305,32 @@ class Api(WebSocketServerProtocol):
                 'trumps_names': [trump.name for trump in player.affecting_trumps]
             } for player in game.players]
         }
+
+    def _play_trump(self, game, play_request):
+        trump = self._get_trump(game, play_request.get('name', ''))
+        targeted_player_index = play_request.get('target_index', None)
+        if trump is None:
+            self._send_error_to_display('Unknown trump.')
+        elif trump.must_target_player and targeted_player_index is None:
+            self._send_error('You must specify a target player.')
+        elif trump.must_target_player:
+            self._play_trump_with_target(game, trump, targeted_player_index)
+        else:
+            self._play_trump_without_target(game, trump)
+
+    def _play_trump_with_target(self, game, trump, targeted_player_index):
+        if targeted_player_index < len(game.players):
+            game.players[targeted_player_index].affect_by(trump)
+            message = self._get_play_message(game.active_player, game)
+            self._send_all(message)
+        else:
+            self._send_error('Wrong target player index')
+
+    def _play_trump_without_target(self, game, trump):
+        self._play_trump_with_target(game, trump, game.active_player.index)
+
+    def _get_trump(self, game, play_request):
+        return game.active_player.get_trump(play_request.title())
 
     def _save_game(self, game):
         self._cache.save_game(game, self._game_id)

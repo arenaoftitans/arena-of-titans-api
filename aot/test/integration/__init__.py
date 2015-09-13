@@ -94,7 +94,7 @@ class Players:
 
     @asyncio.coroutine
     def close(self):
-        return asyncio.wait([player.close() for player in self._players])
+        return [player.close() for player in self._players]
 
     @property
     def players(self):

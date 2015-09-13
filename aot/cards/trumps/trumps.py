@@ -9,10 +9,12 @@ class Trump:
 
     def __init__(
             self,
+            cost=5,
             name='',
             description='',
             duration=0,
             must_target_player=False):
+        self._cost = cost
         self._description = description
         self._duration = duration
         self._must_target_player = must_target_player
@@ -22,8 +24,24 @@ class Trump:
         self._duration -= 1
 
     @property
+    def cost(self):
+        return self._cost
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
     def duration(self):
         return self._duration
+
+    @property
+    def must_target_player(self):
+        return self._must_target_player
+
+    @property
+    def name(self):
+        return self._name
 
 
 class ModifyNumberMoves(Trump):
@@ -31,12 +49,14 @@ class ModifyNumberMoves(Trump):
 
     def __init__(
             self,
+            cost=5,
             name='',
             duration=0,
             description='',
             must_target_player=False,
             delta_moves=0):
         super().__init__(
+            cost=cost,
             name=name,
             duration=duration,
             description=description,
@@ -53,6 +73,7 @@ class RemoveColor(Trump):
 
     def __init__(
             self,
+            cost=5,
             name='',
             duration=0,
             description='',
@@ -60,6 +81,7 @@ class RemoveColor(Trump):
             color=None,
             colors=None):
         super().__init__(
+            cost=cost,
             name=name,
             duration=duration,
             description=description,

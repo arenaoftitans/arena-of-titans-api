@@ -54,10 +54,10 @@
       "cost": 5,
       "description": "Prevent the player to move on some colors.",
       "duration": 2,
-      "repeatForEachColor": true,
-      "mustTargetPlayer": true,
+      "repeat_for_each_color": true,
+      "must_target_player": true,
       "parameters": {
-        "type": "RemovingColorTrump"
+        "type": "RemoveColor"
       }
     },
     {
@@ -65,11 +65,11 @@
       "cost": 5,
       "description": "Allow the player to play one more move.",
       "duration": 1,
-      "repeatForEachColor": false,
-      "mustTargetPlayer": false,
+      "repeat_for_each_color": false,
+      "must_target_player": false,
       "parameters": {
-        "type": "ModifyNumberOfMovesInATurnTrump",
-        "deltaOfMoves": 1
+        "type": "ModifyNumberMoves",
+        "delta_moves": 1
       }
     }
   ],

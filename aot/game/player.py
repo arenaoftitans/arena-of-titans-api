@@ -1,3 +1,4 @@
+import aot
 from aot.board import Square
 
 
@@ -8,6 +9,7 @@ class Player:
 
     _aim = set()
     _affecting_trumps = []
+    _available_trumps = []
     _board = None
     _can_play = False
     _current_square = None
@@ -27,6 +29,7 @@ class Player:
         self._index = index
 
         self._affecting_trumps = []
+        self._available_trumps = aot.get_trumps_list()
 
     def set(self, board, deck):
         self._aim = self._generate_aim(board)
@@ -128,6 +131,11 @@ class Player:
         if self._can_play:
             trump.affect(self)
 
+    def get_trump(self, trump_name):
+        for trump in self._available_trumps:
+            if trump.name == trump_name:
+                return trump
+
     def __str__(self):  # pragma: no cover
         return 'Player(id={id}, name={name}, index={index})'\
             .format(id=self.id, name=self.name, index=self.index)
@@ -203,43 +211,9 @@ class Player:
     def trumps(self):
         return [
            {
-               "name":"Reinforcements",
-               "description":"Allow the player to play one more move.",
-               "duration":0,
-               "cost":0,
-               "repeat_for_each_color":False,
-               "must_target_player":False
-           },
-           {
-               "name":"Tower BLACK",
-               "description":"Prevent the player to move on some colors.",
-               "duration":0,
-               "cost":0,
-               "repeat_for_each_color":False,
-               "must_target_player":True
-           },
-           {
-               "name":"Tower BLUE",
-               "description":"Prevent the player to move on some colors.",
-               "duration":0,
-               "cost":0,
-               "repeat_for_each_color":False,
-               "must_target_player":True
-           },
-           {
-               "name":"Tower RED",
-               "description":"Prevent the player to move on some colors.",
-               "duration":0,
-               "cost":0,
-               "repeat_for_each_color":False,
-               "must_target_player":True
-           },
-           {
-               "name":"Tower YELLOW",
-               "description":"Prevent the player to move on some colors.",
-               "duration":0,
-               "cost":0,
-               "repeat_for_each_color":False,
-               "must_target_player":True
-           }
-        ]
+               "name": trump.name,
+               "description": trump.description,
+               "duration": trump.duration,
+               "cost": trump.cost,
+               "must_target_player": trump.must_target_player
+           } for trump in self._available_trumps]

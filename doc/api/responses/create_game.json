@@ -32,7 +32,6 @@
         "description": "Prevents a player to move on red squares.",
         "cost": 0,
         "duration": 1,
-        "must_target_player": true,
-        "repeat_for_each_color": true
+        "must_target_player": true
     }]
 }
