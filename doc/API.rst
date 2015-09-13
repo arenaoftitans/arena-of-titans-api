@@ -1,3 +1,6 @@
+API
+===
+
 Le but de cette page est de décrire comment fonctionne l’API du projet,
 c’est-à-dire de donner :
 
@@ -9,7 +12,7 @@ c’est-à-dire de donner :
 
 
 Généralités
-===========
+-----------
 
 L’API utilise un websocket pour toutes ses requêtes. Il est situé à l’adresse
 suivante : ``api.arenaoftitans.com``. Toutes les informations sont transmises
@@ -21,7 +24,7 @@ affichées sont celles susceptibles d’avoir été provoquées par l’utilisat
 
 
 Liste des types de requêtes
-===========================
+---------------------------
 
 ::
 
@@ -41,7 +44,7 @@ Sans précision, les requêtes sont faîtes du client vers le serveur. Les requ�
 sont ici décrite dans l'ordre dans lequel elles se passent lors d'un jeu.
 
 INIT_GAME/GAME_INITIALIZED
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Création du jeu
 +++++++++++++++
@@ -87,7 +90,7 @@ Requête permettant de rejoindre le jeu.
       :linenos:
 
 ADD_SLOT
---------
+~~~~~~~~
 
 Une fois le jeu initialisé, le client ajoute les 2 slots initiaux avec des
 requêtes ADD_SLOT. Cette requête est aussi faite lorsque l’utilisateur clique
@@ -106,7 +109,7 @@ sur ajouter un joueur.
       :linenos:
 
 SLOT_UPDATED (client ou serveur)
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Lorsque le joueur ajoute un slot, le serveur lui renvoie les paramètres du
    nouveau slot si tout c’est bien passé.
@@ -127,7 +130,7 @@ Client vers serveur
 
 
 CREATE_GAME
------------
+~~~~~~~~~~~
 
 Cette requête est effectuée quand le joueur principal décide de créer la partie
 avec les joueurs présents.
@@ -164,7 +167,7 @@ réponse du serveur.
       :linenos:
 
 PLAY
-----
+~~~~
 
 Cette requête est effectuée lorsqu’un joueur clique sur une case sur laquelle il
 peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
@@ -205,7 +208,7 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
    #. Réponse server : idem
 
 PLAY_TRUMP
-----------
+~~~~~~~~~~
 
 Cette requête est effectuée lorsqu’un joueur joue un atout et pour la réponse du
 serveur.

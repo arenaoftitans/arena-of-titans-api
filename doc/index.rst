@@ -11,6 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   API
+   classement
+   game_description
+   hierarchy
+   screen_size
+
 
 
 Indices and tables
@@ -19,4 +25,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
