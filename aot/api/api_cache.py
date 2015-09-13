@@ -31,7 +31,8 @@ class ApiCache:
 
     @classmethod
     def _get_players_ids(cls, game_id):
-        return [id.decode('utf-8') for id in cls._cache.zrange(cls.PLAYERS_KEY_TEMPLATE.format(game_id), 0, -1)]
+        ids = cls._cache.zrange(cls.PLAYERS_KEY_TEMPLATE.format(game_id), 0, -1)
+        return [id.decode('utf-8') for id in ids]
 
     @classmethod
     def game_exists(cls, game_id):
@@ -50,7 +51,8 @@ class ApiCache:
 
     @classmethod
     def _get_slots(cls, game_id, include_player_id=True):
-        slots = [pickle.loads(slot) for slot in cls._cache.lrange(cls.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)]
+        raw_slots = cls._cache.lrange(cls.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)
+        slots = [pickle.loads(slot) for slot in raw_slots]
         if not include_player_id:
             slots = cls._remove_player_id(slots)
         return slots
@@ -99,7 +101,9 @@ class ApiCache:
         return pickle.loads(game_data)
     
     def save_session(self, player_index):
-        self._cache.zadd(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self._player_id, player_index)
+        self._cache.zadd(
+            self.PLAYERS_KEY_TEMPLATE.format(self._game_id),
+            self._player_id, player_index)
 
     def get_players_ids(self):
         return ApiCache._get_players_ids(self._game_id)
@@ -108,8 +112,10 @@ class ApiCache:
         return ApiCache._get_slots(self._game_id, include_player_id=include_player_id)
 
     def is_game_master(self):
-        return self._cache.hget(self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_MASTER_KEY).decode('utf-8') ==\
-            self._player_id
+        game_master_id = self._cache.hget(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.GAME_MASTER_KEY).decode('utf-8')
+        return game_master_id == self._player_id
 
     def number_taken_slots(self):
         return len(self._get_taken_slots())
@@ -135,12 +141,16 @@ class ApiCache:
             self._save_slot(slot)
         elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN.value:
             self._save_slot(slot)
-        elif current_slot['state'] != SlotState.TAKEN.value and slot['state'] == SlotState.TAKEN.value:
+        elif current_slot['state'] != SlotState.TAKEN.value and \
+                slot['state'] == SlotState.TAKEN.value:
             slot['player_id'] = self._player_id
             self._save_slot(slot)
 
     def _save_slot(self, slot):
-        self._cache.lset(self.SLOTS_KEY_TEMPLATE.format(self._game_id), slot['index'], pickle.dumps(slot))
+        self._cache.lset(
+            self.SLOTS_KEY_TEMPLATE.format(self._game_id),
+            slot['index'],
+            pickle.dumps(slot))
 
     def slot_exists(self, slot):
         return self._get_raw_slot(slot['index'], self._game_id) is not None
@@ -159,11 +169,19 @@ class ApiCache:
         return pickle.loads(data)
 
     def has_game_started(self):
-        return self._cache.hget(self.GAME_KEY_TEMPLATE.format(self._game_id), self.STARTED_KEY) == \
-            self.GAME_STARTED
+        game_started = self._cache.hget(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.STARTED_KEY)
+        return game_started == self.GAME_STARTED
 
     def game_has_started(self):
-        self._cache.hset(self.GAME_KEY_TEMPLATE.format(self._game_id), self.STARTED_KEY, self.GAME_STARTED)
+        self._cache.hset(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.STARTED_KEY,
+            self.GAME_STARTED)
 
     def save_game(self, game):
-        self._cache.hset(self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY, pickle.dumps(game))
+        self._cache.hset(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.GAME_KEY,
+            pickle.dumps(game))
