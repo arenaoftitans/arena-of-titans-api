@@ -11,15 +11,16 @@ class Game:
 
     def __init__(self, board, players):
         self._active_player = players[0]
-        self._active_player.init_turn()
         self._board = board
         self._is_over = False
         self._players = players
         self._next_rank_available = 1
         self._winners = []
+
         for player in self._players:
             deck = aot.get_deck(board)
             player.set(board, deck)
+        self._active_player.init_turn()
 
     def view_possible_squares(self, card):
         return self._active_player.view_possible_squares(card)
@@ -41,8 +42,9 @@ class Game:
             self._is_over = True
 
     def _has_enough_players_to_continue(self):
-        return len([player for player in self._players
-            if player is not None and not player.has_won]) > 1
+        remaining_players = [player for player in self._players
+                             if player is not None and not player.has_won]
+        return len(remaining_players) > 1
 
     def _find_next_player(self):
         if self._active_player.can_play:
@@ -74,6 +76,7 @@ class Game:
             index_next_player = current_index + 1
         else:
             index_next_player = current_index
+
         while index_next_player < len(self._players):
             player = self._players[index_next_player]
             if player is not None and not player.has_won:

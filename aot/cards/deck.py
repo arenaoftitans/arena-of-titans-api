@@ -5,16 +5,18 @@ from aot.cards import Card
 
 
 class Deck:
+    CARDS_IN_HAND = 5
+
+    _cards = []
+    _graveyard = []
     _hand = []
     _stock = []
-    _graveyard = []
-    _cards = []
-    CARDS_IN_HAND = 5
 
     def __init__(self, cards):
         self._cards = cards
-        self._hand = []
         self._graveyard = []
+        self._hand = []
+
         self._init_stock()
         self.init_turn()
 
@@ -30,16 +32,17 @@ class Deck:
             self._init_stock()
             for card in self._hand:
                 self._stock.remove(card)
+
         drawn_card = self._stock[0]
         self._stock.remove(drawn_card)
         return drawn_card
 
     def view_possible_squares(self, card, position):
         if card is not None and not isinstance(card, Card):
-            card_name, card_color = card
-            game_card = self.get_card(card_name, card_color)
+            game_card = self.get_card(*card)
         else:
             game_card = card
+
         if game_card is not None and position is not None:
             return game_card.move(position)
         else:
@@ -48,6 +51,7 @@ class Deck:
     def play(self, card):
         if card is not None and not isinstance(card, Card):
             card = self.get_card(*card)
+
         if card is not None and card in self._hand:
             card.revert_to_default()
             self._hand.remove(card)
@@ -69,6 +73,7 @@ class Deck:
         if isinstance(card_color, str):
             card_color = card_color.upper()
             card_color = Color[card_color] if card_color in Color.__members__ else None
+
         matching_cards = [card for card in self._hand
                           if card.name == card_name and
                           card.color == card_color]

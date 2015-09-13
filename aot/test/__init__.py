@@ -1,9 +1,11 @@
 import pytest
 
-from aot import get_board
-from aot import get_game
-from aot import get_cards_list
-from aot import get_number_players
+from aot import (
+    get_board,
+    get_game,
+    get_cards_list,
+    get_number_players,
+)
 from aot.board import Board
 from aot.cards import Deck
 from aot.game import Player

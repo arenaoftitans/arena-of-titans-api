@@ -9,11 +9,11 @@ class Trump:
 
     def __init__(
             self,
-            cost=5,
-            name='',
-            description='',
             duration=0,
-            must_target_player=False):
+            cost=5,
+            description='',
+            must_target_player=False,
+            name=''):
         self._cost = cost
         self._description = description
         self._duration = duration
@@ -50,17 +50,17 @@ class ModifyNumberMoves(Trump):
     def __init__(
             self,
             cost=5,
-            name='',
-            duration=0,
+            delta_moves=0,
             description='',
-            must_target_player=False,
-            delta_moves=0):
+            duration=0,
+            name='',
+            must_target_player=False):
         super().__init__(
             cost=cost,
-            name=name,
-            duration=duration,
             description=description,
-            must_target_player=must_target_player)
+            duration=duration,
+            must_target_player=must_target_player,
+            name=name)
         self._delta_moves = delta_moves
 
     def affect(self, player):
@@ -73,19 +73,19 @@ class RemoveColor(Trump):
 
     def __init__(
             self,
-            cost=5,
-            name='',
-            duration=0,
-            description='',
-            must_target_player=False,
             color=None,
-            colors=None):
+            colors=None,
+            cost=5,
+            description='',
+            duration=0,
+            name='',
+            must_target_player=False):
         super().__init__(
             cost=cost,
-            name=name,
-            duration=duration,
             description=description,
-            must_target_player=must_target_player)
+            duration=duration,
+            must_target_player=must_target_player,
+            name=name)
         self._colors = set()
         if colors is not None:
             for color in colors:

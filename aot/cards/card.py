@@ -112,12 +112,12 @@ def __knight_get_temporary_horizontal_square(board, origin):
 
 class Card:
     _board = None
-    _default_colors = set()
-    _number_movements = 0
     _color = None
     _colors = set()
+    _default_colors = set()
     _name = ''
     _movements = []
+    _number_movements = 0
     movements_methods = {
         'line': _line_move,
         'diagonal': _diagonal_move,
@@ -127,14 +127,13 @@ class Card:
     def __init__(
         self,
         board,
-        number_movements=1,
         color=Color['ALL'],
         complementary_colors=set(),
         name='',
-        movements_types=list()
+        movements_types=list(),
+        number_movements=1
     ):
         self._board = board
-        self._number_movements = number_movements
         self._color = color
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
@@ -143,6 +142,7 @@ class Card:
         self._movements = [
             self.movements_methods[mvt] for mvt in movements_types
         ]
+        self._number_movements = number_movements
 
     def move(self, origin):
         return self._move(origin, self._number_movements, set())

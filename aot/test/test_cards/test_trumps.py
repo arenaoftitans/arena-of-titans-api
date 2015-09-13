@@ -1,9 +1,13 @@
 from aot.board import Color
-from aot.cards.trumps import ModifyNumberMoves
-from aot.cards.trumps import RemoveColor
+from aot.cards.trumps import (
+    ModifyNumberMoves,
+    RemoveColor,
+)
 # fixtures, ignore the unsued import warnig
-from aot.test import board
-from aot.test import game
+from aot.test import (
+    board,
+    game,
+)
 
 
 def test_affect_modify_number_moves(game):

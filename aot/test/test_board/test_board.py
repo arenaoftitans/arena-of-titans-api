@@ -1,5 +1,7 @@
-from aot.board import Square
-from aot.board import Color
+from aot.board import (
+    Square,
+    Color,
+)
 from aot.board import ColorSet
 from aot.board.square import SquareSet
 # board is a fixture, ignore the unsued import warnig

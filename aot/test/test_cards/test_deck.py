@@ -1,7 +1,9 @@
 from aot.cards import Card
 # fixtures, ignore the unsued import warnig
-from aot.test import board
-from aot.test import deck
+from aot.test import (
+    board,
+    deck
+)
 
 
 NUMBER_COLORS = 4

@@ -1,6 +1,8 @@
 # fixtures, ignore the unsued import warnig
-from aot.test import board
-from aot.test import game
+from aot.test import (
+    board,
+    game,
+)
 from aot.board import Square
 
 

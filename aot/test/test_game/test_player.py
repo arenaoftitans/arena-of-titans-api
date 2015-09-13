@@ -1,9 +1,11 @@
 from aot.game import Player
 from aot.cards.trumps import Trump
 # fixtures, ignore the unsued import warnig
-from aot.test import board
-from aot.test import deck
-from aot.test import player
+from aot.test import (
+    board,
+    deck,
+    player,
+)
 
 
 def test_move(player, board):

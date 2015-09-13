@@ -1,13 +1,19 @@
 import json
 import toml
 
-from aot.board import Board
-from aot.board import Color
-from aot.cards import Card
-from aot.cards import Deck
+from aot.board import (
+    Board,
+    Color,
+)
+from aot.cards import (
+    Card,
+    Deck,
+)
 from aot.cards.trumps import trump_type_to_class
-from aot.game import Game
-from aot.game import Player
+from aot.game import (
+    Game,
+    Player,
+)
 
 
 with open('config.toml', 'r') as config_file:
@@ -74,13 +80,14 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
             additional_movements_color,
             complementary_colors)
         for _ in range(number_cards_per_color):
-            cards.append(Card(
+            card = Card(
                 board,
                 number_movements=number_movements,
                 color=color,
                 complementary_colors=additional_colors,
                 name=name,
-                movements_types=movements_types))
+                movements_types=movements_types)
+            cards.append(card)
     return cards
 
 

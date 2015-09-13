@@ -37,9 +37,9 @@ class Square:
         return self._color
 
     def __eq__(self, other):  # pragma: no cover
-        return type(other) == Square and\
-            other._x == self._x and\
-            other._y == self._y and\
+        return type(other) == Square and \
+            other._x == self._x and \
+            other._y == self._y and \
             other._color == self._color
 
     def __str__(self):  # pragma: no cover
@@ -53,6 +53,8 @@ class Square:
 
 
 class SquareSet(set):
+    """Set that can only contains square of a given set of colors
+    """
     _colors = set()
 
     def __init__(self, colors):

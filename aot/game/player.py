@@ -62,21 +62,29 @@ class Player:
         return square in self._deck.view_possible_squares(card, self._current_square)
 
     def play_card(self, card, square, check_move=True):
-        if card and check_move:
-            possible_squares = self.view_possible_squares(card)
-        elif not card and check_move:
+        if not card and check_move:
             return
-        else:
-            possible_squares = set()
-        if square is not None and not isinstance(square, Square):
-            x, y = square
-            dest_square = self._board[x, y]
-        else:
-            dest_square = square
+
+        possible_squares = self._get_possible_squares(card, check_move)
+        dest_square = self._get_dest_square(square)
+
         if dest_square in possible_squares or not check_move:
             self._deck.play(card)
             self.move(dest_square)
         self._complete_action()
+
+    def _get_possible_squares(self, card, check_move):
+        if card and check_move:
+            return self.view_possible_squares(card)
+        else:
+            return set()
+
+    def _get_dest_square(self, square):
+        if square is not None and not isinstance(square, Square):
+            x, y = square
+            return self._board[x, y]
+        else:
+            return square
 
     def _complete_action(self):
         self._number_moves_played += 1

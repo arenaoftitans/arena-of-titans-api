@@ -3,8 +3,10 @@ from aiohttp import web
 from autobahn.asyncio.websocket import WebSocketServerFactory
 
 import aot
-from aot.api import Api
-from aot.api import get_board
+from aot.api import (
+    Api,
+    get_board,
+)
 
 
 def main(debug=False):

@@ -24,11 +24,7 @@ def get_colors_disposition(arms_colors, inner_circle_colors, number_arms):
     return disposition
 
 
-def _append_line_disposition(
-    disposition,
-    partial_line,
-    number_times_repeat_line
-):
+def _append_line_disposition(disposition, partial_line, number_times_repeat_line):
     complete_line = partial_line
     for _ in range(0, number_times_repeat_line):
         complete_line += ',' + partial_line
@@ -38,15 +34,16 @@ def _append_line_disposition(
 
 
 class Board:
+    _arms_width = 0
     _board = []
     _inner_circle_higher_y = 0
-    _arms_width = 0
 
     def __init__(self, board_description):
-        self._board = []
         self._arms_width = board_description['arms_width']
+        self._board = []
         self._inner_circle_higher_y = len(
             board_description['inner_circle_colors']) - 1
+
         self._create_board(board_description)
 
     def _create_board(self, board_description):
