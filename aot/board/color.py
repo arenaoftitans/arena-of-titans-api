@@ -23,6 +23,7 @@ class ColorSet(set):
             self.add(color)
 
     def add(self, color):
-        if isinstance(color, str):
+        # To ease unit testing
+        if isinstance(color, str):  # pragma: no cover
             color = Color[color.upper()]
         super().add(color)

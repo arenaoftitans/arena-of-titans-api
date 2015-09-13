@@ -1,18 +1,17 @@
 import pytest
 
-from aot import get_board_description
+from aot import get_board
+from aot import get_game
 from aot import get_cards_list
 from aot import get_number_players
 from aot.board import Board
 from aot.cards import Deck
-from aot.game import Game
 from aot.game import Player
 
 
 @pytest.fixture
 def board():
-    board_description = get_board_description()
-    return Board(board_description)
+    return get_board()
 
 
 @pytest.fixture
@@ -30,8 +29,9 @@ def player(board, deck):
 
 @pytest.fixture
 def game(board):
-    players = []
-    for i in range(get_number_players()):
-        players.append(Player('Player {}'.format(i), None, i))
-    game = Game(board, players)
-    return game
+    players_description = [{
+        'name': 'Player {}'.format(i),
+        'index': i,
+        'id': i
+    } for i in range(get_number_players())]
+    return get_game(players_description)

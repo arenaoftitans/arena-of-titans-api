@@ -14,13 +14,19 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio
-def test_no_enough_players(player1):
+def test_not_enough_players(player1):
     yield from player1.send('init_game')
-    yield from player1.send('create_game')
+    create_game_request = [{
+        "name": "Player 1",
+        "index": 0
+    }]
+    yield from player1.send(
+        'create_game',
+        message_override={'create_game_request': create_game_request})
     response = yield from player1.recv()
     assert response == {
-        'error': 'Number of registered players differs with number of players '
-                            'descriptions.'
+        'error_to_display': 'Not enough player to create game. 2 Players are at least required to '
+                 'start a game.'
     }
 
 

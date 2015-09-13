@@ -55,7 +55,7 @@ debug:
 
 .PHONY:
 testdebug:
-	py.test-3.4 aot/test/integration/test_api.py -sv
+	py.test-3.4 aot/test/integration/ -sv
 
 
 redis:

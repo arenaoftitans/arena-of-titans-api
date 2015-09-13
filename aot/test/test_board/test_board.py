@@ -10,6 +10,14 @@ def test_number_squares(board):
     assert len(board) == 288
 
 
+def test_get_wrong_squares(board):
+    assert board[None] is None
+    assert board[None, None] is None
+    assert board[None, None, None] is None
+    assert board[None, 0] is None
+    assert board[0, None] is None
+
+
 def test_square_coords(board):
     assert board[0, 0] == Square(0, 0, 'yellow')
     assert board[7, 2] == Square(7, 2, 'yellow')

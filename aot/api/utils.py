@@ -31,4 +31,5 @@ def to_json(python_object):
         }
     elif isinstance(python_object, set):
         return [to_json(element) for element in python_object]
-    raise TypeError(str(python_object) + ' is not JSON serializable')
+    # Normally, this is unreachable
+    raise TypeError(str(python_object) + ' is not JSON serializable')  # pragma: no cover

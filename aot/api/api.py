@@ -22,10 +22,9 @@ class Api(WebSocketServerProtocol):
     _message = None
 
     def sendMessage(self, message):
-        if isinstance(message, str):
-            message = message.encode('utf-8')
-        else:
-            message = json.dumps(message, default=to_json).encode('utf-8')
+        if isinstance(message, dict):
+            message = json.dumps(message, default=to_json)
+        message = message.encode('utf-8')
         if isinstance(message, bytes):
             super().sendMessage(message)
 
@@ -117,7 +116,7 @@ class Api(WebSocketServerProtocol):
             players_description = [player for player in self.message['create_game_request'] if player['name']]
             if self._good_number_player_registered(number_players) and \
                     self._good_number_players_description(number_players, players_description):
-                self._send_all(self._initialize_game(players_description))
+                self._initialize_game(players_description)
             elif not self._good_number_players_description(number_players, players_description):
                 self._send_error('Number of registered players differs with number of players descriptions.')
             elif number_players < 2 or len(players_description) < 2:
@@ -350,9 +349,6 @@ class Api(WebSocketServerProtocol):
     def _send_to(self, message, id):
         if id in self._clients:
             self._clients[id].sendMessage(message)
-
-    def _send_all_error_to_display(self, message):
-        self._send_all(self._format_error_to_display(message))
 
     def _format_error_to_display(self, message):
         return {'error_to_display': message}

@@ -8,6 +8,7 @@ class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = [
+            'aot/test',
             '--cov',
             'aot',
             '--cov-report',
@@ -15,7 +16,7 @@ class PyTest(TestCommand):
             '--cov-config',
             '.coveragerc',
             '--ignore',
-            'aot/test/integration/test_api.py'
+            'aot/test/integration/'
         ]
         self.test_suite = True
 

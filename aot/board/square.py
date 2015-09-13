@@ -10,7 +10,8 @@ class Square:
     def __init__(self, x, y, color):
         self._x = x
         self._y = y
-        if isinstance(color, str):
+        # To ease testing
+        if isinstance(color, str):  # pragma: no cover
             self._color = Color[color.upper()]
         else:
             self._color = color
@@ -35,7 +36,7 @@ class Square:
     def color(self):
         return self._color
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pragma: no cover
         return type(other) == Square and\
             other._x == self._x and\
             other._y == self._y and\
@@ -58,7 +59,8 @@ class SquareSet(set):
         super()
         self._colors = set()
         for color in colors:
-            if isinstance(color, str):
+            # To ease testing
+            if isinstance(color, str):  # pragma: no cover
                 self._colors.add(Color[color.upper()])
             else:
                 self._colors.add(color)
@@ -69,5 +71,5 @@ class SquareSet(set):
             super().add(square)
 
     @property
-    def colors(self):
+    def colors(self):  # pragma: no cover
         return self._colors

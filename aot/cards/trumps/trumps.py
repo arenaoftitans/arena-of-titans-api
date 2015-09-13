@@ -24,23 +24,23 @@ class Trump:
         self._duration -= 1
 
     @property
-    def cost(self):
+    def cost(self):  # pragma: no cover
         return self._cost
 
     @property
-    def description(self):
+    def description(self):  # pragma: no cover
         return self._description
 
     @property
-    def duration(self):
+    def duration(self):  # pragma: no cover
         return self._duration
 
     @property
-    def must_target_player(self):
+    def must_target_player(self):  # pragma: no cover
         return self._must_target_player
 
     @property
-    def name(self):
+    def name(self):  # pragma: no cover
         return self._name
 
 
@@ -94,7 +94,7 @@ class RemoveColor(Trump):
             self._add_color(color)
 
     def _add_color(self, color):
-        if isinstance(color, str):
+        if isinstance(color, str):  # pragma: no cover
             self._colors.add(Color[color.upper()])
         else:
             self._colors.add(color)

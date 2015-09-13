@@ -1,4 +1,5 @@
 from aot.game import Player
+from aot.cards.trumps import Trump
 # fixtures, ignore the unsued import warnig
 from aot.test import board
 from aot.test import deck
@@ -19,6 +20,9 @@ def test_move(player, board):
     assert square != start_square
     assert 8 == square.x
     assert 0 == square.y
+
+    player.move(None)
+    assert square is player.current_square
 
 
 def test_wins(player):
@@ -85,9 +89,9 @@ def test_reach_aim(player):
     assert player.has_reached_aim
 
 
-def test_play(player):
+def test_play_card(player):
     start_square = player.current_square
-    card = player.deck.first_card_in_hand
+    card = player.hand[0]
     player.play_card(card, (0, 0), check_move=False)
     end_square = player.current_square
 
@@ -96,7 +100,14 @@ def test_play(player):
     assert start_square != end_square
     assert 0 == start_square.x
     assert 0 == end_square.y
-    assert not player.deck.card_in_hand(card)
+    assert card not in player.deck.hand
+
+
+def test_play_wrong_card(player):
+    # None of these tests must throw.
+    player.play_card(None, None)
+    player.play_card(player.hand[0], None)
+    player.play_card(None, (0, 0))
 
 
 def test_pass(player):
@@ -108,12 +119,47 @@ def test_pass(player):
 
 def test_discard(player):
     player.init_turn()
-    card = player.deck.first_card_in_hand
+    card = player.hand[0]
     player.discard(card)
     assert player.can_play
-    assert not player.deck.card_in_hand(card)
+    assert card not in player.deck.hand
 
-    card = player.deck.first_card_in_hand
+    card = player.hand[0]
     player.discard(card)
     assert not player.can_play
-    assert not player.deck.card_in_hand(card)
+    assert card not in player.deck.hand
+
+
+def test_get_card(player):
+    assert player.get_card(None, None) is None
+    card = player.hand[0]
+    assert player.get_card(None, card.color) is None
+    assert player.get_card(card.name, None) is None
+    assert player.get_card(card.name, card.color) is card
+
+
+def test_get_trump(player):
+    assert player.get_trump(None) is None
+    assert player.get_trump('wrong_trump') is None
+    assert isinstance(player.get_trump('Reinforcements'), Trump)
+
+
+def test_trumps_property(player):
+    assert len(player.trumps) == 5
+    trump = player.trumps[0]
+    assert 'name' in trump
+    assert 'description' in trump
+    assert 'cost' in trump
+    assert 'duration' in trump
+    assert 'must_target_player' in trump
+
+
+def test_affecting_trumps(player):
+    trump = player.get_trump('Reinforcements')
+    player.affect_by(trump)
+    player.init_turn()
+    assert len(player.affecting_trumps) == 1
+    assert player.affecting_trumps[0] is trump
+
+    player.complete_turn()
+    assert len(player.affecting_trumps) == 0

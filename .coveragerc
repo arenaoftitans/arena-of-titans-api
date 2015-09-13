@@ -1,9 +1,9 @@
 [run]
 omit =
-     aot/test/*
-     aot/main.py
-     aot/api/api.py
-     aot/api/api_cache.py
+    aot/test/*
+    aot/main.py
+    aot/test_main.py
+    aot/api/*
 
 
 [html]

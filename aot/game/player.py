@@ -68,7 +68,7 @@ class Player:
             return
         else:
             possible_squares = set()
-        if not isinstance(square, Square):
+        if square is not None and not isinstance(square, Square):
             x, y = square
             dest_square = self._board[x, y]
         else:
@@ -180,7 +180,7 @@ class Player:
         return self._deck.hand
 
     @property
-    def id(self):
+    def id(self):  # pragma: no cover
         return self._id
 
     @property

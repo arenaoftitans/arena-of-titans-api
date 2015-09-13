@@ -35,18 +35,18 @@ class Deck:
         return drawn_card
 
     def view_possible_squares(self, card, position):
-        if not isinstance(card, Card):
+        if card is not None and not isinstance(card, Card):
             card_name, card_color = card
             game_card = self.get_card(card_name, card_color)
         else:
             game_card = card
-        if game_card is not None:
+        if game_card is not None and position is not None:
             return game_card.move(position)
         else:
             return set()
 
     def play(self, card):
-        if not isinstance(card, Card):
+        if card is not None and not isinstance(card, Card):
             card = self.get_card(*card)
         if card is not None and card in self._hand:
             card.revert_to_default()
@@ -76,14 +76,9 @@ class Deck:
         if len(matching_cards) == 1:
             return matching_cards[0]
 
-    def card_in_hand(self, card):
-        return card in self._hand
-
-    def card_in_stock(self, card):
-        return card in self._stock
-
-    def card_in_graveyard(self, card):
-        return card in self._graveyard
+    @property
+    def graveyard(self):
+        return self._graveyard
 
     @property
     def hand(self):
@@ -100,3 +95,7 @@ class Deck:
     @property
     def number_cards_in_hand(self):
         return len(self._hand)
+
+    @property
+    def stock(self):
+        return self._stock

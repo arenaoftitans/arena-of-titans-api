@@ -116,7 +116,7 @@ class Board:
         else:
             return False
 
-    def __len__(self):
+    def __len__(self):  # pragma: no cover
         return len(self._board) * len(self._board[0])
 
     def __getitem__(self, coords):

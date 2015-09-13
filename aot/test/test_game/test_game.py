@@ -1,6 +1,7 @@
 # fixtures, ignore the unsued import warnig
 from aot.test import board
 from aot.test import game
+from aot.board import Square
 
 
 def test_game_one_player_left(game):
@@ -136,7 +137,7 @@ def test_discard(game):
     card = deck.first_card_in_hand
     game.discard(card)
     assert first_player.can_play
-    assert not deck.card_in_hand(card)
+    assert card not in deck.hand
 
 
 def test_view_possible_square(game):
@@ -144,3 +145,16 @@ def test_view_possible_square(game):
     card = game.active_player.deck.first_card_in_hand
     card_properties = (card.name, card.color)
     game.view_possible_squares(card_properties)
+
+
+def test_get_square(game):
+    assert isinstance(game.get_square(0, 0), Square)
+    assert game.get_square(None, 0) is None
+    assert game.get_square(0, None) is None
+    assert game.get_square(None, None) is None
+
+
+def test_can_move(game):
+    assert not game.can_move(None, None)
+    assert not game.can_move(None, game.get_square(4, 0))
+    assert not game.can_move(game.active_player.deck.first_card_in_hand, None)

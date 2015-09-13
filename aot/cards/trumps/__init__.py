@@ -1,4 +1,5 @@
 from aot.cards.trumps.trumps import (
+    Trump,
     ModifyNumberMoves,
     RemoveColor
 )
