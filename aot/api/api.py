@@ -205,16 +205,52 @@ class Api(WebSocketServerProtocol):
         rt = self.message['rt']
         play_request = self.message.get('play_request', {})
         if rt == RequestTypes.VIEW_POSSIBLE_SQUARES.value:
-            card = self._get_card(play_request)
+            self._view_possible_squares(game, play_request)
+        if rt == RequestTypes.PLAY.value:
+            self._play_card(game, play_request)
+
+    def _view_possible_squares(self, game, play_request):
+        card = self._get_card(play_request, game)
+        if card is not None:
             possible_squares = game.view_possible_squares(card)
             self.sendMessage({
                 'rt': RequestTypes.VIEW_POSSIBLE_SQUARES.value,
                 'possible_squares': possible_squares
             })
-        if rt == RequestTypes.PLAY.value:
-            this_player = game.active_player
-            self._play_card(game, play_request)
+        else:
+            self._send_error_to_display('This card doesn\'t exist or is not in your hand.')
+
+    def _get_card(self, play_request, game):
+        name = play_request.get('card_name', None)
+        color = play_request.get('card_color', None)
+        return game.active_player.get_card(name, color)
+
+    def _play_card(self, game, play_request):
+        this_player = game.active_player
+        error = False
+        if play_request.get('pass', False):
+            game.pass_turn()
+        elif play_request.get('discard', False):
+            card = self._get_card(play_request, game)
+            game.discard(card)
+        else:
+            card = self._get_card(play_request, game)
+            square = self._get_square(play_request)
+            if card is not None and square is not None:
+                game.play_card(card, square)
+            elif card is None:
+                error = True
+                self._send_error_to_display('This card doesn\'t exist or is not in your hand.')
+            elif square is None:
+                self._send_error_to_display('This square doesn\'t exist or you cannot move there yet.')
+
+        if not error:
             self._send_play_message(this_player, game)
+
+    def _get_square(self, play_request):
+        x = play_request.get('x', None)
+        y = play_request.get('y', None)
+        return x, y
 
     def _send_play_message(self, this_player, game):
         # Send play message to the player who just played.
@@ -250,39 +286,11 @@ class Api(WebSocketServerProtocol):
             } for player in game.players]
         }
 
-    def _get_card(self, play_request):
-        card_name = play_request.get('card_name', None)
-        card_color = play_request.get('card_color', None)
-        return card_name, card_color
-
-    def _play_card(self, game, play_request):
-        if play_request.get('pass', False):
-            game.pass_turn()
-        elif play_request.get('discard', False):
-            card = self._get_card(play_request)
-            game.discard(card)
-        else:
-            card = self._get_card(play_request)
-            square = self._get_square(play_request)
-            game.play_card(card, square)
-
-    def _get_square(self, play_request):
-        x = play_request.get('x', None)
-        y = play_request.get('y', None)
-        return x, y
-
     def _save_game(self, game):
         self._cache.save_game(game, self._game_id)
 
     def onClose(self, wasClean, code, reason):
         del Api._clients[self.id]
-
-    def _get_card(self, msg):
-        color = msg['card_color']
-        name = msg['card_name']
-        color = color.lower()
-        name = name.lower().title()
-        return name, color
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids(self._game_id):

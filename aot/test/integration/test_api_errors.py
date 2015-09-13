@@ -81,3 +81,143 @@ def test_not_your_turn(player1, player2):
     assert response == {'error_to_display': 'Not your turn.'}
 
     yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_view_squares_wrong_card(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    yield from player1.send('create_game')
+    player1.recieve_index += 1
+
+    response, expected_response = yield from player1.recv()
+    for card in response['hand']:
+        yield from player1.send('view_possible_squares', message_override={'play_request': {'card_name': card['name'], 'card_color': card['color']}})
+        response, expected_response = yield from player1.recv()
+        if len(response['possible_squares']) > 0:
+            break
+
+    # Wrong card to play.
+    # Wrong color
+    new_square = response['possible_squares'][0]
+    msg = {'play_request': {
+        'card_name': card['name'],
+        'card_color': 'wrong_color',
+    }}
+    yield from player1.send('view_possible_squares', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Missing color
+    msg = {'play_request': {
+        'card_name': card['name'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('view_possible_squares', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Wrong name
+    msg = {'play_request': {
+        'card_name': 'wrong_name',
+        'card_color': card['color'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('view_possible_squares', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Missing name
+    msg = {'play_request': {
+        'card_color': card['color'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('view_possible_squares', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    yield from asyncio.wait([player1.close(), player2.close()])
+
+
+@pytest.mark.asyncio
+def test_play_wrong_card(player1, player2):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    yield from player1.send('add_slot')
+    yield from player1.send('update_slot2')
+
+    yield from player2.connect()
+    game_id = yield from player1.get_game_id()
+    yield from player2.send('join_game', message_override={'game_id': game_id})
+    yield from player1.send('create_game')
+    player1.recieve_index += 1
+
+    response, expected_response = yield from player1.recv()
+    for card in response['hand']:
+        yield from player1.send('view_possible_squares', message_override={'play_request': {'card_name': card['name'], 'card_color': card['color']}})
+        response, expected_response = yield from player1.recv()
+        if len(response['possible_squares']) > 0:
+            break
+
+    # Wrong card to play.
+    # Wrong color
+    new_square = response['possible_squares'][0]
+    msg = {'play_request': {
+        'card_name': card['name'],
+        'card_color': 'wrong_color',
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('play_card', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Missing color
+    msg = {'play_request': {
+        'card_name': card['name'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('play_card', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Wrong name
+    msg = {'play_request': {
+        'card_name': 'wrong_name',
+        'card_color': card['color'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('play_card', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    # Missing name
+    msg = {'play_request': {
+        'card_color': card['color'],
+        'x': new_square['x'],
+        'y': new_square['y']
+    }}
+    yield from player1.send('play_card', message_override=msg)
+
+    response, expected_response = yield from player1.recv()
+    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+
+    yield from asyncio.wait([player1.close(), player2.close()])

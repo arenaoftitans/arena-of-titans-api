@@ -35,9 +35,15 @@ class Deck:
         return drawn_card
 
     def view_possible_squares(self, card, position):
-        card_name, card_color = card
-        game_card = self.get_card(card_name, card_color)
-        return game_card.move(position)
+        if not isinstance(card, Card):
+            card_name, card_color = card
+            game_card = self.get_card(card_name, card_color)
+        else:
+            game_card = card
+        if game_card is not None:
+            return game_card.move(position)
+        else:
+            return set()
 
     def play(self, card):
         if not isinstance(card, Card):
