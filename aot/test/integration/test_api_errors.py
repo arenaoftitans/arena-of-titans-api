@@ -67,6 +67,14 @@ def test_wrong_request(player1):
 
 
 @pytest.mark.asyncio
+def test_wrong_play_request(player1, player2):
+    yield from create_game(player1, player2)
+    yield from player1.send('pass_turn', message_override={'rt': 'TOTO'})
+    response = yield from player1.recv()
+    assert response == {'error': 'Wrong request type.'}
+
+
+@pytest.mark.asyncio
 def test_cannot_join(player1, player2):
     yield from player1.send('init_game')
 
