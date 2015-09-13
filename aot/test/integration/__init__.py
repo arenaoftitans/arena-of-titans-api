@@ -96,6 +96,10 @@ class Players:
     def close(self):
         return asyncio.wait([player.close() for player in self._players])
 
+    @property
+    def players(self):
+        return self._players
+
     def __getitem__(self, index):
         return self._players[index]
 

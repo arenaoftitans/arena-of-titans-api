@@ -24,6 +24,40 @@ def test_no_enough_players(player1):
 
 
 @pytest.mark.asyncio
+def test_too_many_players(player1, players):
+    yield from player1.connect()
+    yield from player1.send('init_game')
+    msg = {
+        'index': -1,
+        'state': 'OPEN',
+        'player_name': ''
+    }
+    for i in range(1, 8):
+        msg['index'] = i
+        yield from player1.send('add_slot', message_override={'slot': msg})
+    # Max number of slots reach, try to add one
+    msg['index'] = i + 1
+    yield from player1.send('add_slot', message_override={'slot': msg})
+    response = yield from player1.recv()
+    assert response == {
+        'error_to_display': 'Max number of slots reached. You cannot add more slots.'
+    }
+
+    game_id = yield from player1.get_game_id()
+
+    # Number of registered players differs number of players descriptions
+    msg = [{
+        'name': 'P{}'.format(i),
+        'index': i
+    } for i in range(9)]
+    yield from player1.send('create_game', message_override={'create_game_request': msg})
+    response = yield from player1.recv()
+    assert response == {
+        'error': 'Number of registered players differs with number of players descriptions.'
+    }
+
+
+@pytest.mark.asyncio
 def test_wrong_request(player1):
     yield from player1.send('init_game')
     yield from player1.send('create_game', message_override={'rt': 'TOTO'})

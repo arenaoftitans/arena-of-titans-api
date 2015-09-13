@@ -107,37 +107,51 @@ class Api(WebSocketServerProtocol):
 
     def _do_create_game_request(self):
         rt = self.message['rt']
-        response = self._format_error_to_display('Unknown error.')
         if rt not in RequestTypes.__members__:
             self._send_all_error('Unknown request.')
         if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
-            slot = self.message['slot']
-            if rt == RequestTypes.ADD_SLOT.value:
-                self._cache.add_slot(self._game_id, slot)
-            else:
-                self._cache.update_slot(self._game_id, self.id, slot)
-            # The player_id is stored in the cache so we can know to which player which slot is
-            # associated. We don't pass this information to the frontend. If the slot is new, it
-            # doesn't have a player_id yet
-            if 'player_id' in slot:
-                del slot['player_id']
-            response = {
-                'rt': RequestTypes.SLOT_UPDATED.value,
-                'slot': slot
-            }
-            self._send_all(response)
+            self._modify_slots(rt)
         elif rt == RequestTypes.CREATE_GAME.value:
             number_players = self._cache.number_taken_slots(self._game_id)
             players_description = [player for player in self.message['create_game_request'] if player['name']]
             if self._good_number_player_registered(number_players) and \
                     self._good_number_players_description(number_players, players_description):
                 self._send_all(self._initialize_game(players_description))
+            elif not self._good_number_players_description(number_players, players_description):
+                self._send_error('Number of registered players differs with number of players descriptions.')
             elif number_players < 2 or len(players_description) < 2:
-                self._send_all_error_to_display('Not enough player to create game. 2 Players are at least required to start a game.')
-            elif number_players > get_number_players() or len(players_description) > get_number_players():
-                self._send_all_error_to_display('Too many players. 8 Players max.')
+                self._send_error_to_display('Not enough player to create game. 2 Players are at least required to start a game.')
+        else:
+            self._send_error_to_display('Unknown error.')
 
-        return response
+    def _modify_slots(self, rt):
+        slot = self.message['slot']
+        import logging
+        logging.debug('**************')
+        logging.debug(rt)
+        logging.debug(slot)
+        logging.debug(rt == RequestTypes.ADD_SLOT.value)
+        if rt == RequestTypes.ADD_SLOT.value:
+            if not self._max_number_slots_reached():
+                self._cache.add_slot(self._game_id, slot)
+            else:
+                self._send_error_to_display('Max number of slots reached. You cannot add more slots.')
+                return
+        else:
+            self._cache.update_slot(self._game_id, self.id, slot)
+        # The player_id is stored in the cache so we can know to which player which slot is
+        # associated. We don't pass this information to the frontend. If the slot is new, it
+        # doesn't have a player_id yet
+        if 'player_id' in slot:
+            del slot['player_id']
+        response = {
+            'rt': RequestTypes.SLOT_UPDATED.value,
+            'slot': slot
+        }
+        self._send_all(response)
+
+    def _max_number_slots_reached(self):
+        return len(self._cache.get_slots(self._game_id)) == get_number_players()
 
     def _good_number_player_registered(self, number_players):
         return number_players >= 2 and number_players <= get_number_players()
