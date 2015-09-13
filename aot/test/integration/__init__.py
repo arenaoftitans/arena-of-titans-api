@@ -5,7 +5,6 @@ import redis
 import websockets
 
 import aot
-from aot.api.api_cache import ApiCache
 from aot.api.utils import RequestTypes
 
 
@@ -31,11 +30,6 @@ def flush_cache():
 
 def flush(cache):
     cache.execute_command('FLUSHALL')
-
-
-@pytest.fixture
-def cache():
-    return ApiCache()
 
 
 @pytest.yield_fixture

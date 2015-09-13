@@ -2,13 +2,13 @@ import logging
 import pytest
 
 from aot.test.integration import (
-    cache,
     create_game,
     flush_cache,
     player1,
     player2,
     players,
 )
+from aot.api.api_cache import ApiCache
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -35,7 +35,7 @@ def test_add_slot(player1):
 
 
 @pytest.mark.asyncio
-def test_update_slot(player1, cache):
+def test_update_slot(player1):
     # Update his/her slot
     yield from player1.send('init_game')
     yield from player1.send('update_slot')
@@ -45,7 +45,7 @@ def test_update_slot(player1, cache):
 
     # Check object in db. Player 1 took the slot, so it must have its id
     game_id = yield from player1.get_game_id()
-    saved_slot0 = cache.get_slot(game_id, 0)
+    saved_slot0 = ApiCache.get_slot_from_game_id(0, game_id)
     assert 'player_id' in saved_slot0
     assert len(saved_slot0['player_id']) > 0
 
@@ -62,14 +62,14 @@ def test_update_slot(player1, cache):
 
     # Check in db
     saved_slot0['player_id'] = player1_id
-    assert saved_slot0 == cache.get_slot(game_id, 0)
-    saved_slot1 = cache.get_slot(game_id, 1)
+    assert saved_slot0 == ApiCache.get_slot_from_game_id(0, game_id)
+    saved_slot1 = ApiCache.get_slot_from_game_id(1, game_id)
     assert 'player_id' not in saved_slot1
     assert saved_slot1 == response['slot']
 
 
 @pytest.mark.asyncio
-def test_player2_join(player1, player2, cache):
+def test_player2_join(player1, player2):
     yield from player1.send('init_game')
     yield from player1.send('add_slot')
     yield from player1.send('update_slot2')
@@ -82,7 +82,7 @@ def test_player2_join(player1, player2, cache):
     expected_response['game_id'] = game_id
 
     # Check in db
-    slot1 = cache.get_slot(game_id, 1)
+    slot1 = ApiCache.get_slot_from_game_id(1, game_id)
     del slot1['player_id']
     assert slot1 == expected_response['slots'][1]
 
