@@ -1,3 +1,7 @@
+FLAKE8_CMD ?= python3-flake8
+PEP8_CMD ?= python3-pep8
+
+
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
@@ -31,17 +35,9 @@ testall: test testintegration
 
 
 .PHONY:
-pep8:
-	pep8 --max-line-length 99 aot
-
-
-.PHONY:
-pyflakes:
-	python3-pyflakes aot
-
-
-.PHONY:
-lint: pep8 pyflakes
+lint:
+	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
+	${PEP8_CMD} --max-line-length 99 aot/test
 
 
 .PHONY:

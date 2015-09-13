@@ -40,7 +40,7 @@ def test_play_existing_card(deck):
     assert NUMBER_CARDS_HAND - 1 == deck.number_cards_in_hand
 
     deck.init_turn()
-    assert nb_remaining_cards_before_play -1 == deck.number_cards_in_stock
+    assert nb_remaining_cards_before_play - 1 == deck.number_cards_in_stock
     assert NUMBER_CARDS_HAND == deck.number_cards_in_hand
     assert 1 == deck.number_cards_in_graveyard
     assert played_card not in deck.hand

@@ -26,7 +26,7 @@ def test_not_enough_players(player1):
     response = yield from player1.recv()
     assert response == {
         'error_to_display': 'Not enough player to create game. 2 Players are at least required to '
-                 'start a game.'
+                            'start a game.'
     }
 
 

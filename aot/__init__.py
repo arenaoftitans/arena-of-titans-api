@@ -117,7 +117,8 @@ def get_trumps_list(name='standard'):
             for color in Color:
                 if color == Color.ALL:
                     continue
-                trump_description['name'] = '{name} {color}'.format(name=name, color=color.value.title())
+                trump_description['name'] = \
+                    '{name} {color}'.format(name=name, color=color.value.title())
                 trump_description['color'] = color
                 trumps.append(trump_type_to_class[trump_type](**trump_description))
         else:
@@ -136,6 +137,7 @@ def get_game(players_description, name='standard'):
     for player in players_description:
         players.append(Player(player['name'], player['id'], player['index']))
     return Game(board, players)
+
 
 def get_board(name='standard'):
     return Board(get_board_description(name=name))

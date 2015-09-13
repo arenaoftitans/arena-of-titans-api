@@ -85,10 +85,10 @@ class Game:
 
         return index_next_player
 
-    def _add_to_winners(self, player):
-        player.wins(rank=self._next_rank_available)
+    def _add_to_winners(self, winner):
+        winner.wins(rank=self._next_rank_available)
         self._next_rank_available += 1
-        self._winners.append(player)
+        self._winners.append(winner)
         if not self._has_enough_players_to_continue():
             self._is_over = True
             # If we are here, there is only one or zero player left. If the
@@ -96,7 +96,7 @@ class Game:
             # more player who has not won. This is the easiest the remainding
             # player.
             self._winners.extend([player for player in self._players
-                if player is not None and not player.has_won])
+                                  if player is not None and not player.has_won])
 
     def pass_turn(self):
         self._active_player.pass_turn()

@@ -8,3 +8,6 @@ from aot.board.color import (
 )
 from aot.board.square import Square
 from aot.board.svg import SvgBoardCreator
+
+
+__all__ = ['Board', 'Color', 'ColorSet', 'get_colors_disposition', 'Square', 'SvgBoardCreator']

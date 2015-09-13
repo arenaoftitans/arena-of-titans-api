@@ -21,7 +21,6 @@ class Player:
     _name = ''
     _number_moves_to_play = 2
     _rank = -1
-    
 
     def __init__(self, name, id, index):
         self._name = name
@@ -35,7 +34,7 @@ class Player:
         self._aim = self._generate_aim(board)
         self._board = board
         self._current_square = board[
-           self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
+            self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
             self.BOARD_ARM_LENGTH_AND_MAX_Y]
         self._current_square.occupied = True
         self._deck = deck
@@ -218,10 +217,10 @@ class Player:
     @property
     def trumps(self):
         return [
-           {
-               "name": trump.name,
-               "description": trump.description,
-               "duration": trump.duration,
-               "cost": trump.cost,
-               "must_target_player": trump.must_target_player
-           } for trump in self._available_trumps]
+            {
+                "name": trump.name,
+                "description": trump.description,
+                "duration": trump.duration,
+                "cost": trump.cost,
+                "must_target_player": trump.must_target_player
+            } for trump in self._available_trumps]

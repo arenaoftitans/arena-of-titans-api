@@ -84,6 +84,7 @@ def test_init_turn(player):
     assert player.can_play
     assert player.current_square == player.last_square_previous_turn
 
+
 def test_reach_aim(player):
     player.play_card(None, (16, 8), check_move=False)
     player.init_turn()

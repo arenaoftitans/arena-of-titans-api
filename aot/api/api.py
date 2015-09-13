@@ -321,10 +321,10 @@ class Api(WebSocketServerProtocol):
             'game_over': game.is_over,
             'winners': game.winners,
             'active_trumps': [{
-                'player_index': player.index,
-                'player_name': player.name,
-                'trumps_names': [trump.name for trump in player.affecting_trumps]
-            } for player in game.players]
+                'player_index': game_player.index,
+                'player_name': game_player.name,
+                'trumps_names': [trump.name for trump in game_player.affecting_trumps]
+            } for game_player in game.players]
         }
 
     def _play_trump(self, game, play_request):
