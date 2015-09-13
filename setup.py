@@ -26,12 +26,20 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
+with open('requires.txt', 'r') as requires:
+    install_requires = requires.read().split('\n')
+
+
+with open('tests_require.txt', 'r') as requires:
+    tests_require = requires.read().split('\n')
+
+
 setup(
     name='Arena of Titans - API',
     version='0.1',
     packages=find_packages(),
-    install_requires=['aiohttp', 'autobahn', 'lxml', 'redis', 'toml'],
-    tests_require=['pytest', 'pytest-asyncio', 'pytest-cov', 'requests', 'websockets'],
+    install_requires=install_requires,
+    tests_require=tests_require,
     cmdclass={'test': PyTest},
     author='jenselme',
     author_email='',
