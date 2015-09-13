@@ -1,4 +1,3 @@
-import json
 import pytest
 import requests
 
@@ -16,7 +15,10 @@ def test_get_board():
     request = MockRequest()
     request.match_info['name'] = 'standard'
     url = 'http://{host}:{port}/board/{name}'\
-        .format(host=aot.config['api']['host'], port=aot.config['api']['http_port'], name='standard')
+        .format(
+            host=aot.config['api']['host'],
+            port=aot.config['api']['http_port'],
+            name='standard')
 
     resp = requests.get(url)
     assert resp.headers['Content-Type'] == 'image/svg+xml; charset=utf-8'
