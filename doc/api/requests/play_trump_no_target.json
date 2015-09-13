@@ -1,0 +1,7 @@
+{
+    "rt": "PLAY_TRUMP",
+    "trump_request ":{
+        "target_index": null,
+        "name": "Reinforcements"
+    }
+}

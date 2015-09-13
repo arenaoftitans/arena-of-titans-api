@@ -82,7 +82,7 @@ Requête permettant de rejoindre le jeu.
 
 3. Autres joueurs
 
-   .. literalinclude:: api/response/join_game_other_players.json
+   .. literalinclude:: api/responses/join_game_other_players.json
       :language: json
       :linenos:
 
@@ -116,7 +116,7 @@ SLOT_UPDATED (client ou serveur)
    qu'elle est correctement passée par le serveur.
 
 Client vers serveur
-~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++
 
    -  Ajout du nom ou changement de statut : le client renvoie tout le JSON et
       le serveur répond ce même JSON à tous.
@@ -153,13 +153,13 @@ réponse du serveur.
 
 #. Client
 
-   .. sourcecode:: api/requests/view_possible_squares.json
+   .. literalinclude:: api/requests/view_possible_squares.json
       :language: json
       :linenos:
 
 #. Réponse serveur (à tous)
 
-   .. sourcecode:: api/responses/view_possible_squares.json
+   .. literalinclude:: api/responses/view_possible_squares.json
       :language: json
       :linenos:
 
@@ -179,7 +179,7 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Réponse serveur
 
-      .. sourcecode:: api/responses/play_card.json
+      .. literalinclude:: api/responses/play_card.json
          :language: json
          :linenos:
 
@@ -214,68 +214,26 @@ serveur.
 
    #. Client
 
-      .. sourcecode:: json
-
-	 {
-		"rt":"PLAY_TRUMP",
-		"player_id":"253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-		"trump_request":{
-		    "target_index":null,
-		    "name":"Reinforcements"
-		}
-	 }
+      .. literalinclude:: api/requests/play_trump_no_target.json
+            :linenos:
+            :language: json
 
    #. Réponse du serveur
 
-      .. sourcecode:: json
-
-	 {
-		"rt":"PLAY_TRUMP",
-		"play_trump":[
-		  {
-		      "playerIndex":0,
-		      "playerName":"Player 1",
-		      "trumpNames":["Reinforcements"]
-		  },
-		  {
-		      "playerIndex":1,
-		      "playerName":"Player 2",
-		      "trumpNames":[]
-		  }
-		]
-	 }
+      .. literalinclude:: api/responses/play_trump_no_target.json
+            :linenos:
+            :language: json
 
 - Atout qui doit avoir un joueur cible
 
   #. Client
 
-     .. sourcecode:: json
+     .. literalinclude:: api/requests/play_trump_with_target.json
+            :linenos:
+            :language: json
 
-	{
-	       "rt":"PLAY_TRUMP",
-	       "player_id":"253f8902-0aa7-4c34-8f2c-f736bb5bf673",
-	       "trump_request":{
-	           "target_index":1,
-		   "name":"Tower BLACK"
-	       }
-	}
+  #. Réponse du serveur
 
-   #. Réponse du serveur
-
-      .. sourcecode:: json
-
-	 {
-		"rt":"PLAY_TRUMP",
-		"play_trump":[
-		  {
-		      "playerIndex":0,
-		      "playerName":"Player 1",
-		      "trumpNames":["Reinforcements"]
-		  },
-		  {
-		      "playerIndex":1,
-		      "playerName":"Player 2",
-		      "trumpNames":["Tower BLACK"]
-		  }
-		]
-	 }
+     .. literalinclude:: api/responses/play_trump_with_target.json
+            :linenos:
+            :language: json

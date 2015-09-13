@@ -1,0 +1,15 @@
+{
+    "rt":"PLAY_TRUMP",
+    "play_trump": [
+      {
+          "playerIndex": 0,
+          "playerName": "Player 1",
+          "trumpNames": ["Reinforcements"]
+      },
+      {
+          "playerIndex": 1,
+          "playerName": "Player 2",
+          "trumpNames": []
+      }
+    ]
+}
