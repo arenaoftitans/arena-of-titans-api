@@ -357,7 +357,8 @@ class Api(WebSocketServerProtocol):
         self._cache.save_game(game)
 
     def onClose(self, wasClean, code, reason):
-        del Api._clients[self.id]
+        if self.id in self._clients:
+            del self._clients[self.id]
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids():
