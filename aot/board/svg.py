@@ -114,6 +114,7 @@ class SvgBoardCreator:
                 element.set('y', str(y))
                 element.set('height', str(self._fill_element_height))
                 element.set('width', str(self._fill_element_width))
+                self._set_ng_click_attr(element, current_xid, self._yid)
                 self._yid += 1
                 self._board_layer.append(element)
             delta_xid += 1
@@ -125,7 +126,7 @@ class SvgBoardCreator:
                 path = './/*[@id="square-{}-{}"]'.format(x, y)
                 square = self._svg.xpath(path, namespaces=self.NS)[0]
                 color = self._colors_disposition[y][x]
-                svg_color = str(color).lower()
+                svg_color = color.value.lower()
                 square.set('class', svg_color + '-square')
                 square_id = self._get_id(x, y)
                 ng_class = '{' + \
