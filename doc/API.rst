@@ -207,6 +207,14 @@ peut se déplacer, s’il passe son tour ou s’il se défausse d’une carte.
 
    #. Réponse server : idem
 
+La requête PLAY est systématiquement suivie pour tous les joueurs d'une requête
+PLAYER_MOVED qui donne la nouvelle case du joueur qui vient de jouer.
+
+.. literalinclude:: api/responses/player_moved.json
+   :language: json
+   :linenos:
+
+
 PLAY_TRUMP
 ~~~~~~~~~~
 

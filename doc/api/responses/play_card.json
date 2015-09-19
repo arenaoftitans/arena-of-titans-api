@@ -1,10 +1,6 @@
 {
     "rt": "PLAY",
     "your_turn": false,
-    "new_square": {
-        "x": 0,
-        "y": 8
-    },
     "next_player": 0,
     "winners": [],
     "hand": [

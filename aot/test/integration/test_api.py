@@ -135,6 +135,8 @@ def test_pass_turn(player1, player2):
     yield from create_game(player1, player2)
 
     yield from player1.send('pass_turn')
+    # Player moved answer
+    yield from player1.recv()
     response, expected_response = yield from player1.recv('play_card')
     expected_response['next_player'] = 1
     del expected_response['hand']
@@ -142,13 +144,11 @@ def test_pass_turn(player1, player2):
     del response['hand']
     assert response == expected_response
 
+    # Player moved answer
+    yield from player2.recv()
     response, expected_response = yield from player2.recv('play_card')
     expected_response['next_player'] = 1
     expected_response['your_turn'] = True
-    expected_response['new_square'] = {
-        'x': 4,
-        'y': 8
-    }
     del expected_response['hand']
     assert len(response['hand']) == 5
     del response['hand']
@@ -167,6 +167,8 @@ def test_discard_card(player1, player2):
         'discard': True
     }
     yield from player1.send('discard_card', message_override={'play_request': play_request})
+    # Player moved answer
+    yield from player1.recv()
     response, expected_response = yield from player1.recv('play_card')
     expected_response['next_player'] = 0
     expected_response['your_turn'] = True
@@ -201,6 +203,7 @@ def test_play_card(player1, player2):
 
     response = yield from player1.recv()
     for card in response['hand']:
+        print('coucou')
         play_request = {
             'card_name': card['name'],
             'card_color': card['color']
@@ -221,16 +224,22 @@ def test_play_card(player1, player2):
     }
     yield from player1.send('play_card', message_override={'play_request': play_request})
 
-    response, expected_response = yield from player1.recv('play_card')
-    expected_response['your_turn'] = True
-    expected_response['new_square'] = {
+    response, player_moved_expected_response = yield from player1.recv('player_moved')
+    player_moved_expected_response['new_square'] = {
         'x': new_square['x'],
         'y': new_square['y']
     }
+    assert response == player_moved_expected_response
+
+    response, expected_response = yield from player1.recv('play_card')
+    expected_response['your_turn'] = True
     del expected_response['hand']
     assert len(response['hand']) == 4
     del response['hand']
     assert response == expected_response
+
+    response = yield from player2.recv()
+    assert response == player_moved_expected_response
 
 
 @pytest.mark.asyncio

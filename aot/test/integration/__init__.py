@@ -81,8 +81,13 @@ class Players:
         next_index = len(self._players)
         self._players.append(PlayerWs(next_index, self.on_send))
 
-    def on_send(self):
+    def on_send(self, request_name, sender_index):
         for player in self._players:
+            # view_possible_squares responses are only send to the sender, we must not increase
+            # the recieve_index for the others.
+            if request_name == 'view_possible_squares' and player.index != sender_index:
+                continue
+
             if player.has_joined_game:
                 player.recieve_index += 1
 
@@ -122,23 +127,35 @@ class PlayerWs:
             message = get_request(request_name)
         for key, value in message_override.items():
             message[key] = value
-        self.on_send()
+        self.on_send(request_name, self.index)
         yield from self.ws.send(json.dumps(message).encode('utf-8'))
 
     @asyncio.coroutine
     def recv(self, response_name=None):
+        must_increase_recieve_index = False
         for i in range(self.number_asked, self.recieve_index):
             self.number_asked += 1
             resp = None
             while resp is None:
                 resp = yield from self.ws.recv()
-                resp = json.loads(resp) if resp else dict()
+                resp = json.loads(resp)
+                print(self.index, resp)
+
             if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
                 self._game_id = resp['game_id']
+            elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_MOVED.value:
+                # Each PLAYER_MOVED request is followed by the play request which update cards,
+                # trumps, … for the current player. So we need to increase the recieve_index by
+                # one to correctly get it.
+                must_increase_recieve_index = True
+
             # If at this stage, _game_id is still None, something went wrong and resp is most
             # likely an error.
             if self._game_id is None:
                 break
+
+        if must_increase_recieve_index:
+            self.recieve_index += 1
 
         if response_name:
             return resp, get_response(response_name)
