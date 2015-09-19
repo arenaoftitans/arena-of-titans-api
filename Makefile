@@ -1,5 +1,6 @@
 FLAKE8_CMD ?= python3-flake8
 PEP8_CMD ?= python3-pep8
+PYTHON_CMD ?= python3
 
 
 .PHONY: help
@@ -7,13 +8,14 @@ help:
 	@echo "Usage: make <target>"
 	@echo
 	@echo "Possible targets:"
-	@echo "- test: launch unit tests with coverage report"
-	@echo "- testintegration: launch integration tests with coverage report"
-	@echo "- testall: launch all tests with corverage report"
-	@echo "- lint: launch pep8 and pyflakes"
 	@echo "- check: launch lint and testall"
 	@echo "- debug: launch API in debug mode"
+	@echo "- lint: launch pep8 and pyflakes"
+	@echo "- static: generate all static files for the API like SVG boards"
+	@echo "- test: launch unit tests with coverage report"
+	@echo "- testall: launch all tests with corverage report"
 	@echo "- testdebug: launch integration tests but don't launch the API"
+	@echo "- testintegration: launch integration tests with coverage report"
 
 
 .PHONY:
@@ -56,3 +58,8 @@ testdebug:
 
 redis:
 	sudo systemctl start redis
+
+
+.PHONY:
+static:
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py -i aot/resources/games/ -o static/boards

@@ -1,7 +1,6 @@
 [api]
 host = '127.0.0.1'
 ws_port = 9000
-http_port = 9001
 
 
 [cache]
