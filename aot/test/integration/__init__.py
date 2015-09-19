@@ -115,10 +115,11 @@ class PlayerWs:
         self.ws = yield from websockets.connect(ws_endpoint)
 
     @asyncio.coroutine
-    def send(self, request_name, message_override=dict()):
+    def send(self, request_name=None, message_override=dict(), message=None):
         if request_name == 'init_game' or request_name == 'join_game':
             self.has_joined_game = True
-        message = get_request(request_name)
+        if message is None:
+            message = get_request(request_name)
         for key, value in message_override.items():
             message[key] = value
         self.on_send()

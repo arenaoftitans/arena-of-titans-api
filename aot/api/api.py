@@ -21,6 +21,7 @@ class Api(WebSocketServerProtocol):
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
         'missing_trump_target': 'You must specify a target player.',
+        'no_slot': 'No slot provided.',
         'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
                                'to start a game.',
         'not_your_turn': 'Not your turn.',
@@ -147,8 +148,11 @@ class Api(WebSocketServerProtocol):
             self._send_error_to_display('unknown_error')
 
     def _modify_slots(self, rt):
-        slot = self.message['slot']
-        if rt == RequestTypes.ADD_SLOT.value:
+        slot = self.message.get('slot', None)
+        if slot is None:
+            self._send_error_to_display('no_slot')
+            return
+        elif rt == RequestTypes.ADD_SLOT.value:
             if not self._max_number_slots_reached() and not self._cache.slot_exists(slot):
                 self._cache.add_slot(slot)
             elif self._cache.slot_exists(slot):

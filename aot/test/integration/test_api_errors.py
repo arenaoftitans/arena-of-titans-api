@@ -126,6 +126,19 @@ def test_only_game_master_add_slot(player1, player2):
 
 
 @pytest.mark.asyncio
+def test_update_slot_no_solt(player1):
+    yield from player1.send('init_game')
+
+    yield from player1.send(message={'rt': 'ADD_SLOT'})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'No slot provided.'}
+
+    yield from player1.send(message={'rt': 'SLOT_UPDATED'})
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'No slot provided.'}
+
+
+@pytest.mark.asyncio
 def test_update_wrong_slot(player1):
     yield from player1.send('init_game')
     yield from player1.send('update_slot2')
