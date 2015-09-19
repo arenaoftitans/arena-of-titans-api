@@ -113,8 +113,11 @@ class Api(WebSocketServerProtocol):
         # The game master is the first player, no other players to send to
         if not is_game_master:
             updated_slot = copy.deepcopy(slot)
-            updated_slot['rt'] = RequestTypes.SLOT_UPDATED.value
-            self._send_all_others(updated_slot)
+            message = {
+                'rt': RequestTypes.SLOT_UPDATED.value,
+                'slot': updated_slot
+            }
+            self._send_all_others(message)
 
     def _creating_game(self):
         return not self._cache.has_game_started()
