@@ -12,6 +12,7 @@ help:
 	@echo "- check: launch lint and testall"
 	@echo "- config: build config file for nginx"
 	@echo "- debug: launch API in debug mode"
+	@echo "- doc: create the doc"
 	@echo "- lint: launch pep8 and pyflakes"
 	@echo "- static: generate all static files for the API like SVG boards"
 	@echo "- test: launch unit tests with coverage report"
@@ -56,6 +57,11 @@ config:
 .PHONY:
 debug:
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w -c python3 --watchDirectory aot aot/test_main.py
+
+
+.PHONY:
+doc:
+	cd doc && make html
 
 
 .PHONY:
