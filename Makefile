@@ -1,4 +1,5 @@
 FLAKE8_CMD ?= python3-flake8
+JINJA2_CLI ?= jinja2
 PEP8_CMD ?= python3-pep8
 PYTHON_CMD ?= python3
 
@@ -9,6 +10,7 @@ help:
 	@echo
 	@echo "Possible targets:"
 	@echo "- check: launch lint and testall"
+	@echo "- config: build config file for nginx"
 	@echo "- debug: launch API in debug mode"
 	@echo "- lint: launch pep8 and pyflakes"
 	@echo "- static: generate all static files for the API like SVG boards"
@@ -44,6 +46,11 @@ lint:
 
 .PHONY:
 check: testall lint
+
+
+.PHONY:
+config:
+	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
 
 
 .PHONY:

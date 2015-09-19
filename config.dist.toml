@@ -1,5 +1,7 @@
 [api]
 host = '127.0.0.1'
+root = '/home/jenselme/projects/aot-api/static'
+server_name = 'api.aot'
 ws_port = 9000
 
 
