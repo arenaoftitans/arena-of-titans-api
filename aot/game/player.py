@@ -110,6 +110,7 @@ class Player:
         self._rank = rank
 
     def init_turn(self):
+        self._deck.init_turn()
         self._number_moves_played = 0
         self._can_play = True
         self._last_square_previous_turn = self._current_square

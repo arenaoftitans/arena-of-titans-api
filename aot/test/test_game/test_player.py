@@ -85,6 +85,17 @@ def test_init_turn(player):
     assert player.current_square == player.last_square_previous_turn
 
 
+def test_init_deck_when_init_turn(player):
+    card = player.hand[0]
+    player.play_card(card, (0, 0), check_move=False)
+    assert len(player.deck.hand) == 4
+
+    player.pass_turn()
+    player.init_turn()
+
+    assert len(player.deck.hand) == 5
+
+
 def test_reach_aim(player):
     player.play_card(None, (16, 8), check_move=False)
     player.init_turn()
