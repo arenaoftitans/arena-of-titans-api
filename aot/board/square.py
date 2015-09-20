@@ -1,4 +1,7 @@
-from aot.board.color import Color
+from aot.board.color import (
+    Color,
+    ColorSet,
+)
 
 
 class Square:
@@ -55,21 +58,14 @@ class Square:
 class SquareSet(set):
     """Set that can only contains square of a given set of colors
     """
-    _colors = set()
+    _colors = ColorSet()
 
     def __init__(self, colors):
         super()
-        self._colors = set()
-        for color in colors:
-            # To ease testing
-            if isinstance(color, str):  # pragma: no cover
-                self._colors.add(Color[color.upper()])
-            else:
-                self._colors.add(color)
+        self._colors = ColorSet(colors)
 
     def add(self, square):
-        if square is not None and not square.occupied and \
-                (square.color in self._colors or Color.ALL in self._colors):
+        if square is not None and not square.occupied and square.color in self._colors:
             super().add(square)
 
     @property
