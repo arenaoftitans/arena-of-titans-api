@@ -224,10 +224,7 @@ class Api(WebSocketServerProtocol):
             message = {
                 'rt': RequestTypes.CREATE_GAME.value,
                 'your_turn': game.active_player.id == player.id,
-                'next_player': {
-                    'index': 0,
-                    'name': game.players[0].name
-                },
+                'next_player': 0,
                 'game_over': False,
                 'winners': [],
                 'players': [{
