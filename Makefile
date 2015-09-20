@@ -21,12 +21,12 @@ help:
 	@echo "- testintegration: launch integration tests with coverage report"
 
 
-.PHONY:
+.PHONY: test
 test:
 	./setup.py test
 
 
-.PHONY:
+.PHONY: testintegration
 testintegration: redis
 	PYTHONPATH="${PYTHONPATH}:$(pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
 	# Wait for the process to start
@@ -35,36 +35,36 @@ testintegration: redis
 	forever stop test_aot --killSignal=SIGINT
 
 
-.PHONY:
+.PHONY: testall
 testall: test testintegration
 
 
-.PHONY:
+.PHONY: lint
 lint:
 	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
 	${PEP8_CMD} --max-line-length 99 aot/test
 
 
-.PHONY:
+.PHONY: check
 check: testall lint
 
 
-.PHONY:
+.PHONY: config
 config:
 	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
 
 
-.PHONY:
+.PHONY: debug
 debug:
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w -c python3 --watchDirectory aot aot/test_main.py
 
 
-.PHONY:
+.PHONY: doc
 doc:
 	cd doc && make html
 
 
-.PHONY:
+.PHONY: testdebug
 testdebug:
 	py.test-3.4 aot/test/integration/ -sv
 
@@ -73,6 +73,6 @@ redis:
 	sudo systemctl start redis
 
 
-.PHONY:
+.PHONY: static
 static:
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py -i aot/resources/games/ -o static/boards
