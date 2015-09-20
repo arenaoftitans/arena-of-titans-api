@@ -98,7 +98,7 @@ def _get_additionnal_colors(color,
     additional_colors.update([Color[col]
                               for col in additional_movements_color])
     additional_colors.update([Color[col]
-                              for col in complementary_colors.get(color, [])])
+                              for col in complementary_colors.get(color.value, [])])
     return additional_colors
 
 

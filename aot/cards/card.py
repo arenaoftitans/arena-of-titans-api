@@ -180,8 +180,8 @@ class Card:
         return self._name
 
     def __str__(self):  # pragma: no cover
-        return "Card(name={name}, color={color})"\
-            .format(name=self.name, color=self.color)
+        return "Card(name={name}, color={color}, colors={colors})"\
+            .format(name=self.name, color=self.color, colors=self.colors)
 
     def __repr__(self):  # pragma: no cover
         return str(self)
