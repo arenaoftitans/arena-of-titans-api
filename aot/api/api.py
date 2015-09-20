@@ -349,12 +349,15 @@ class Api(WebSocketServerProtocol):
             } for card in player.hand],
             'game_over': game.is_over,
             'winners': game.winners,
-            'active_trumps': [{
+            'active_trumps': self._get_trump_message(game)
+        }
+
+    def _get_trump_message(self, game):
+        return [{
                 'player_index': game_player.index,
                 'player_name': game_player.name,
                 'trumps_names': [trump.name for trump in game_player.affecting_trumps]
-            } for game_player in game.players]
-        }
+                } for game_player in game.players]
 
     def _play_trump(self, game, play_request):
         trump = self._get_trump(game, play_request.get('name', ''))
@@ -371,7 +374,10 @@ class Api(WebSocketServerProtocol):
     def _play_trump_with_target(self, game, trump, targeted_player_index):
         if targeted_player_index < len(game.players):
             game.players[targeted_player_index].affect_by(trump)
-            message = self._get_play_message(game.active_player, game)
+            message = {
+                'rt': RequestTypes.PLAY_TRUMP.value,
+                'active_trumps': self._get_trump_message(game)
+            }
             self._send_all(message)
         else:
             self._send_error_to_display('wrong_trump_target')
