@@ -1,4 +1,5 @@
 from autobahn.asyncio.websocket import WebSocketServerProtocol
+import asyncio
 import base64
 import copy
 import json
@@ -40,6 +41,7 @@ class Api(WebSocketServerProtocol):
     _cache = None
     _id = None
     _message = None
+    _loop = None
 
     def sendMessage(self, message):
         if isinstance(message, dict):
@@ -51,6 +53,14 @@ class Api(WebSocketServerProtocol):
     def onOpen(self):
         self.id = self._wskey
         Api._clients[self.id] = self
+        self._loop = asyncio.get_event_loop()
+        self._set_up_connection_keep_alive()
+
+    def _set_up_connection_keep_alive(self):
+        self._loop.call_later(5, self.sendPing)
+
+    def onPong(self, payload):
+        self._set_up_connection_keep_alive()
 
     def onMessage(self, payload, isBinary):
         self.message = json.loads(payload.decode('utf-8'))
