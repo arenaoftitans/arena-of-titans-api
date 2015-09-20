@@ -83,7 +83,6 @@ class Api(WebSocketServerProtocol):
 
         if self._can_join():
             response = self._initialize_cache()
-            self.sendMessage(response)
         else:
             must_close_session = True
             response = self._format_error_to_display('cannot_join')

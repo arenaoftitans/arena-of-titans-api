@@ -108,7 +108,7 @@ class PlayerWs:
         self.index = index
         self.on_send = on_send
         self.has_joined_game = False
-        self.recieve_index = 1
+        self.recieve_index = 0
         self.number_asked = 0
         self._game_id = None
 
