@@ -27,8 +27,8 @@ test:
 
 
 .PHONY: testintegration
-testintegration: redis start
-	PYTHONPATH="${PYTHONPATH}:$(pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
+testintegration: redis
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
 	# Wait for the process to start
 	sleep 10
 	py.test-3.4 aot/test/integration/
@@ -37,7 +37,7 @@ testintegration: redis start
 
 .PHONY: start
 start: static
-	PYTHONPATH="${PYTHONPATH}:$(pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/main.py
 
 
 .PHONY: testall
