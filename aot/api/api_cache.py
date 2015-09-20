@@ -94,6 +94,8 @@ class ApiCache:
         self.add_slot(slot)
 
     def add_slot(self, slot):
+        if slot['state'] == SlotState.TAKEN.value:
+            slot['player_id'] = self._player_id
         self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(self._game_id), pickle.dumps(slot))
 
     def get_game(self):

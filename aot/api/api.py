@@ -202,17 +202,25 @@ class Api(WebSocketServerProtocol):
         self._cache.game_has_started()
 
     def _create_game(self, players_description):
-        players_ids = self._cache.get_players_ids()
+        slots = self._cache.get_slots()
         for player in players_description:
             index = player['index']
-            player['id'] = players_ids[index]
+            player['id'] = slots[index]['player_id']
 
         game = get_game(players_description)
         self._cache.save_game(game)
         self._send_game_created_message(game)
 
     def _send_game_created_message(self, game):
+        # Some session can be used for multiple players (mostly for debug purpose). We use the set
+        # below to keep track of players' id and only send the first request for these sessions.
+        # Otherwise, the list of cards for the first player to play would be overriden by the cards
+        # of the last one.
+        ids_message_sent = set()
         for player in game.players:
+            if player.id in ids_message_sent:
+                continue
+            ids_message_sent.add(player.id)
             message = {
                 'rt': RequestTypes.CREATE_GAME.value,
                 'your_turn': game.active_player.id == player.id,
@@ -312,12 +320,13 @@ class Api(WebSocketServerProtocol):
     def _send_play_message(self, this_player, game):
         # Send play message to the player who just played.
         active_player_id = game.active_player.id
+        active_player_index = game.active_player.index
         self._send_player_moved_message(this_player)
         this_player_message = self._get_play_message(this_player, game)
         self._clients[self.id].sendMessage(this_player_message)
 
         # Send to the next player if it is not the player who just played.
-        if this_player.id != active_player_id and active_player_id in self._clients:
+        if this_player.index != active_player_index and active_player_id in self._clients:
             active_player_message = self._get_play_message(game.active_player, game)
             active_player_message['your_turn'] = True
             self._clients[active_player_id].sendMessage(active_player_message)
