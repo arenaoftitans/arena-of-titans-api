@@ -2,17 +2,15 @@ from aot.board import Color
 from aot.board import ColorSet
 
 
-def _line_move(board, origin, number_movements_left, possible_squares, colors):
+def _line_move(board, origin, number_movements_left, possible_squares, colors, card_move):
     if number_movements_left > 0:
         new_squares = board.get_line_squares(origin, colors)
         for new_square in new_squares:
             if new_square not in possible_squares:
-                _line_move(
-                    board,
+                card_move(
                     new_square,
                     number_movements_left - 1,
-                    possible_squares,
-                    colors
+                    possible_squares
                 )
         possible_squares.update(new_squares)
 
@@ -22,17 +20,16 @@ def _diagonal_move(
         origin,
         number_movements_left,
         possible_squares,
-        colors):
+        colors,
+        card_move):
     if number_movements_left > 0:
         new_squares = board.get_diagonal_squares(origin, colors)
         for new_square in new_squares:
             if new_square not in possible_squares:
-                _diagonal_move(
-                    board,
+                card_move(
                     new_square,
                     number_movements_left - 1,
-                    possible_squares,
-                    colors
+                    possible_squares
                 )
         possible_squares.update(new_squares)
 
@@ -42,7 +39,8 @@ def _knight_move(
         origin,
         number_movements_left,
         possible_squares,
-        colors):
+        colors,
+        card_move):
     possible_squares.update(
         __knight_get_vertical_squares(board, origin, colors))
 
@@ -154,7 +152,8 @@ class Card:
                 origin,
                 number_movements_left,
                 possible_squares,
-                self._colors
+                self._colors,
+                self._move
             )
         return possible_squares
 
