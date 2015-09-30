@@ -1,4 +1,7 @@
-from aot.cards import Card
+from aot.cards import (
+    Card,
+    SimpleCard,
+)
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
@@ -51,8 +54,9 @@ def test_play_existing_card(deck):
 def test_play_card_from_name_color(deck):
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     played_card = deck.first_card_in_hand
+    simple_card = SimpleCard(name=played_card.name, color=played_card.color)
 
-    deck.play((played_card.name, played_card.color))
+    deck.play(simple_card)
     nb_remaining_cards_after_play = deck.number_cards_in_stock
     assert nb_remaining_cards_before_play == nb_remaining_cards_after_play
     assert NUMBER_CARDS_HAND - 1 == deck.number_cards_in_hand

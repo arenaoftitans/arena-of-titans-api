@@ -4,6 +4,7 @@ from aot.test import (
     game,
 )
 from aot.board import Square
+from aot.cards import SimpleCard
 
 
 def test_game_one_player_left(game):
@@ -145,7 +146,7 @@ def test_discard(game):
 def test_view_possible_square(game):
     # Must not throw. Correctness of the list is tested in card module
     card = game.active_player.deck.first_card_in_hand
-    card_properties = (card.name, card.color)
+    card_properties = SimpleCard(name=card.name, color=card.color)
     game.view_possible_squares(card_properties)
 
 

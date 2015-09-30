@@ -39,7 +39,7 @@ class Deck:
 
     def view_possible_squares(self, card, position):
         if card is not None and not isinstance(card, Card):
-            game_card = self.get_card(*card)
+            game_card = self.get_card(card.name, card.color)
         else:
             game_card = card
 
@@ -50,7 +50,7 @@ class Deck:
 
     def play(self, card):
         if card is not None and not isinstance(card, Card):
-            card = self.get_card(*card)
+            card = self.get_card(card.name, card.color)
 
         if card is not None and card in self._hand:
             card.revert_to_default()
