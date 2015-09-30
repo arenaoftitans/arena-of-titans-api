@@ -65,7 +65,7 @@ class SquareSet(set):
         self._colors = ColorSet(colors)
 
     def add(self, square):
-        if square is not None and not square.occupied and square.color in self._colors:
+        if square is not None and square.color in self._colors:
             super().add(square)
 
     @property

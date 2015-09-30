@@ -12,7 +12,9 @@ def _line_move(board, origin, number_movements_left, possible_squares, colors, c
                     number_movements_left - 1,
                     possible_squares
                 )
-        possible_squares.update(new_squares)
+        for square in new_squares:
+            if not square.occupied:
+                possible_squares.add(square)
 
 
 def _diagonal_move(
@@ -31,7 +33,10 @@ def _diagonal_move(
                     number_movements_left - 1,
                     possible_squares
                 )
-        possible_squares.update(new_squares)
+
+        for square in new_squares:
+            if not square.occupied:
+                possible_squares.add(square)
 
 
 def _knight_move(

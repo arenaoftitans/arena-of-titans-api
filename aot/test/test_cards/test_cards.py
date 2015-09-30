@@ -63,6 +63,20 @@ def test_line_card_occupied_square(board):
     assert card.move(board[0, 0]) == set()
 
 
+def test_line_card_over_occupied_square(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('line')
+    card_properties['number_movements'] = 2
+
+    card = Card(board, **card_properties)
+    board[0, 1].occupied = True
+    assert card.move(board[0, 0]) == set([
+        board[0, 2],
+        board[31, 1],
+        board[1, 1]
+    ])
+
+
 def test_diagonal_card(board):
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
@@ -91,6 +105,22 @@ def test_diagonal_card_occupied_square(board):
     board[1, 1].occupied = True
     board[0, 2].occupied = True
     assert card.move(Square(0, 0, 'BLUE')) == set()
+
+
+def test_diagonal_card_over_occupied_square(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('diagonal')
+    card_properties['number_movements'] = 2
+    card_properties['complementary_colors'] = ['red']
+
+    card = Card(board, **card_properties)
+    board[31, 1].occupied = True
+    board[1, 1].occupied = True
+    board[0, 2].occupied = True
+    assert card.move(Square(0, 0, 'BLUE')) == set([
+        board[30, 2],
+        board[2, 2]
+    ])
 
 
 def test_line_diagonal_card(board):

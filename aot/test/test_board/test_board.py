@@ -66,7 +66,7 @@ def test_get_diagonal_squares(board):
 
 def test_get_line_squares_occupied_square(board):
     board[0, 1].occupied = True
-    assert board.get_line_squares(board[0, 0], set(['blue'])) == set()
+    assert board.get_line_squares(board[0, 0], set(['blue'])) == set([board[0, 1]])
 
 
 def test_get_line_squares_arm(board):

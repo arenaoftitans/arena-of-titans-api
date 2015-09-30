@@ -268,3 +268,22 @@ def test_play_trump_with_target(player1, player2):
     response, expected_response = yield from player2.recv('play_trump_with_target')
     assert response['rt'] == 'PLAY_TRUMP'
     assert response['active_trumps'] == expected_response['active_trumps']
+
+
+@pytest.mark.asyncio
+def test_reconnect(player1, player2, players):
+    yield from create_game(player1, player2)
+    game_id = player1.get_game_id()
+    player_id = player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': player_id
+    }
+    response, expected_response = yield from new_player.send('join_game', message_override=msg)
+    assert response['rt'] == 'PLAY'
