@@ -23,6 +23,7 @@ class Api(WebSocketServerProtocol):
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
         'max_number_trumps': 'A player cannot be affected by {num} trump(s).',
+        'max_number_played_trumps': 'You can only play {num} trump(s) per turn',
         'missing_trump_target': 'You must specify a target player.',
         'no_slot': 'No slot provided.',
         'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
@@ -402,18 +403,27 @@ class Api(WebSocketServerProtocol):
 
     def _play_trump_with_target(self, game, trump, targeted_player_index):
         if targeted_player_index < len(game.players):
-            if game.players[targeted_player_index].affect_by(trump):
+            target = game.players[targeted_player_index]
+            if game.active_player.play_trump(trump, target=target):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
                     'active_trumps': self._get_trump_message(game)
                 }
                 self._send_all(message)
             else:
-                self._send_error_to_display(
-                    'max_number_trumps',
-                    format_opt={'num': Player.MAX_NUMBER_AFFECTING_TRUMPS})
+                self._send_trump_error(game.active_player)
         else:
             self._send_error_to_display('wrong_trump_target')
+
+    def _send_trump_error(self, active_player):
+        if not active_player.can_play_trump:
+            self._send_error_to_display(
+                'max_number_played_trumps',
+                format_opt={'num': Player.MAX_NUMBER_TRUMPS_PLAYED})
+        else:
+            self._send_error_to_display(
+                'max_number_trumps',
+                format_opt={'num': Player.MAX_NUMBER_AFFECTING_TRUMPS})
 
     def _play_trump_without_target(self, game, trump):
         self._play_trump_with_target(game, trump, game.active_player.index)

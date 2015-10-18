@@ -177,3 +177,13 @@ def test_affecting_trumps(player):
 
     player.complete_turn()
     assert len(player.affecting_trumps) == 0
+
+
+def test_play_trump(player):
+    player.init_turn()
+    trump = player.get_trump('Reinforcements')
+    assert player.play_trump(trump, target=player)
+    assert not player.play_trump(trump, target=player)
+    player.complete_turn()
+    player.init_turn()
+    assert player.play_trump(trump, target=player)

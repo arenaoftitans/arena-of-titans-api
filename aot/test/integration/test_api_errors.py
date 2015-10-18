@@ -460,6 +460,16 @@ def test_play_two_trumps_on_same_player(player1, player2):
 
 
 @pytest.mark.asyncio
+def test_play_two_trumps_on_same_player(player1, player2):
+    yield from create_game(player1, player2)
+    yield from player1.send('play_trump_with_target')
+    yield from player1.send('play_trump_with_target')
+
+    response = yield from player1.recv()
+    assert response == {'error_to_display': 'You can only play 1 trump(s) per turn'}
+
+
+@pytest.mark.asyncio
 def test_reconnect_wrong_game_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()

@@ -7,6 +7,7 @@ class Player:
     BOARD_ARM_LENGTH_AND_MAX_Y = 8
     MAX_NUMBER_AFFECTING_TRUMPS = 1
     MAX_NUMBER_MOVE_TO_PLAY = 2
+    MAX_NUMBER_TRUMPS_PLAYED = 1
 
     _aim = set()
     _affecting_trumps = []
@@ -21,6 +22,7 @@ class Player:
     _last_square_previous_turn = None
     _name = ''
     _number_moves_to_play = 2
+    _number_trumps_played = 0
     _rank = -1
 
     def __init__(self, name, id, index):
@@ -113,6 +115,7 @@ class Player:
     def init_turn(self):
         self._deck.init_turn()
         self._number_moves_played = 0
+        self._number_trumps_played = 0
         self._can_play = True
         self._last_square_previous_turn = self._current_square
         self._enable_trumps()
@@ -149,6 +152,13 @@ class Player:
             if trump.name == trump_name:
                 return trump
 
+    def play_trump(self, trump, target=None):
+        if self.can_play_trump and target is not None:
+            self._number_trumps_played += 1
+            return target.affect_by(trump)
+        else:
+            return False
+
     def __str__(self):  # pragma: no cover
         return 'Player(id={id}, name={name}, index={index})'\
             .format(id=self.id, name=self.name, index=self.index)
@@ -179,6 +189,10 @@ class Player:
     @can_play.setter
     def can_play(self, value):
         self._can_play = bool(value)
+
+    @property
+    def can_play_trump(self):
+        return self.can_play and self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED
 
     @property
     def current_square(self):
