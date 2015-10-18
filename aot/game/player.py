@@ -5,6 +5,7 @@ from aot.board import Square
 class Player:
     BOARD_ARM_WIDTH_AND_MODULO = 4
     BOARD_ARM_LENGTH_AND_MAX_Y = 8
+    MAX_NUMBER_AFFECTING_TRUMPS = 1
     MAX_NUMBER_MOVE_TO_PLAY = 2
 
     _aim = set()
@@ -135,9 +136,13 @@ class Player:
         self._number_moves_to_play += delta
 
     def affect_by(self, trump):
-        self._affecting_trumps.append(trump)
-        if self._can_play:
-            trump.affect(self)
+        if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
+            self._affecting_trumps.append(trump)
+            if self._can_play:
+                trump.affect(self)
+            return True
+        else:
+            return False
 
     def get_trump(self, trump_name):
         for trump in self._available_trumps:

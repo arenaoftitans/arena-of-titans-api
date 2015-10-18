@@ -7,6 +7,7 @@ import uuid
 
 from aot import get_game
 from aot import get_number_players
+from aot.game import Player
 from aot.api.api_cache import ApiCache
 from aot.api.utils import to_json
 from aot.api.utils import RequestTypes
@@ -21,6 +22,7 @@ class Api(WebSocketServerProtocol):
         'game_master_request': 'Only the game master can use {rt} request.',
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
+        'max_number_trumps': 'A player cannot be affected by {num} trump(s).',
         'missing_trump_target': 'You must specify a target player.',
         'no_slot': 'No slot provided.',
         'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
@@ -400,12 +402,16 @@ class Api(WebSocketServerProtocol):
 
     def _play_trump_with_target(self, game, trump, targeted_player_index):
         if targeted_player_index < len(game.players):
-            game.players[targeted_player_index].affect_by(trump)
-            message = {
-                'rt': RequestTypes.PLAY_TRUMP.value,
-                'active_trumps': self._get_trump_message(game)
-            }
-            self._send_all(message)
+            if game.players[targeted_player_index].affect_by(trump):
+                message = {
+                    'rt': RequestTypes.PLAY_TRUMP.value,
+                    'active_trumps': self._get_trump_message(game)
+                }
+                self._send_all(message)
+            else:
+                self._send_error_to_display(
+                    'max_number_trumps',
+                    format_opt={'num': Player.MAX_NUMBER_AFFECTING_TRUMPS})
         else:
             self._send_error_to_display('wrong_trump_target')
 
