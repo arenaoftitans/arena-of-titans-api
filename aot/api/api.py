@@ -81,8 +81,10 @@ class Api(WebSocketServerProtocol):
                 .replace(b'=', b'')\
                 .decode('ascii')
 
-        if self._can_join():
+        if self._can_join() and not self._is_reconnecting():
             response = self._initialize_cache()
+        elif self._is_reconnecting() and self._can_reconnect():
+            response = self._reconnect()
         else:
             must_close_session = True
             response = self._format_error_to_display('cannot_join')
@@ -96,23 +98,30 @@ class Api(WebSocketServerProtocol):
             (ApiCache.game_exists(self._game_id) and ApiCache.has_opened_slots(self._game_id))
 
     def _initialize_cache(self):
-        initiliazed_game = {
-            'rt': RequestTypes.GAME_INITIALIZED.value,
-            'is_game_master': False,
-            'game_id': self._game_id
-        }
         self._cache = ApiCache(self._game_id, self.id)
         if ApiCache.is_new_game(self._game_id):
             self._cache.create_new_game()
-            initiliazed_game['is_game_master'] = True
 
         index = self._affect_current_slot()
         self._cache.save_session(index)
-        initiliazed_game['index'] = index
-        initiliazed_game['slots'] = self._cache.get_slots(include_player_id=False)
+
+        initiliazed_game = self._get_initialiazed_game_message(index)
         self._send_updated_slot_new_player(
             initiliazed_game['slots'][index],
             initiliazed_game['is_game_master'])
+        return initiliazed_game
+
+    def _get_initialiazed_game_message(self, index):
+        initiliazed_game = {
+            'rt': RequestTypes.GAME_INITIALIZED.value,
+            'is_game_master': False,
+            'game_id': self._game_id,
+            'player_id': self.id,
+            'is_game_master': self._cache.is_game_master(),
+            'index': index,
+            'slots': self._cache.get_slots(include_player_id=False)
+        }
+
         return initiliazed_game
 
     def _affect_current_slot(self):
@@ -127,6 +136,24 @@ class Api(WebSocketServerProtocol):
                 'slot': updated_slot
             }
             self._send_all_others(message)
+
+    def _is_reconnecting(self):
+        return 'player_id' in self.message
+
+    def _can_reconnect(self):
+        return ApiCache.is_member_game(self._game_id, self.message['player_id'])
+
+    def _reconnect(self):
+        self.id = self.message['player_id']
+        self._clients[self.id] = self
+        self._cache = ApiCache(self._game_id, self.id)
+        if self._creating_game():
+            index = self._cache.get_player_index()
+            return self._get_initialiazed_game_message(index)
+        else:
+            game = self._load_game()
+            player = [player for player in game.players if player.id == self.id][0]
+            return self._get_play_message(player, game)
 
     def _creating_game(self):
         return not self._cache.has_game_started()
@@ -432,5 +459,4 @@ class Api(WebSocketServerProtocol):
 
     @id.setter
     def id(self, value):
-        if self._id is None:
-            self._id = value
+        self._id = value

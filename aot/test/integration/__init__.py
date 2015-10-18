@@ -111,6 +111,7 @@ class PlayerWs:
         self.recieve_index = 0
         self.number_asked = 0
         self._game_id = None
+        self._player_id = None
 
     @asyncio.coroutine
     def connect(self):
@@ -143,6 +144,7 @@ class PlayerWs:
 
             if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
                 self._game_id = resp['game_id']
+                self._player_id = resp['player_id']
             elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_MOVED.value:
                 # Each PLAYER_MOVED request is followed by the play request which update cards,
                 # trumps, … for the current player. So we need to increase the recieve_index by
@@ -167,6 +169,12 @@ class PlayerWs:
         if self._game_id is None:
             yield from self.recv()
         return self._game_id
+
+    @asyncio.coroutine
+    def get_player_id(self):
+        if self._player_id is None:
+            yield from self.recv()
+        return self._player_id
 
     @asyncio.coroutine
     def close(self):

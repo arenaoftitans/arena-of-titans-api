@@ -3,6 +3,7 @@
     "index": 0,
     "is_game_master": true,
     "game_id": "the_game_id",
+    "player_id": "the_player_id",
     "slots": [{
         "index": 0,
         "player_name": "Player 1",

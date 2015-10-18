@@ -66,6 +66,10 @@ class ApiCache:
             corrected_slots.append(slot)
         return corrected_slots
 
+    @classmethod
+    def is_member_game(cls, game_id, player_id):
+        return player_id in cls._get_players_ids(game_id)
+
     def __init__(self, game_id, player_id):
         self._cache = redis.Redis(
             host=aot.config['cache']['server_host'],
@@ -112,6 +116,10 @@ class ApiCache:
 
     def get_slots(self, include_player_id=True):
         return ApiCache._get_slots(self._game_id, include_player_id=include_player_id)
+
+    def get_player_index(self):
+        slot = [slot for slot in self.get_slots() if slot['player_id'] == self._player_id][0]
+        return slot['index']
 
     def is_game_master(self):
         game_master_id = self._cache.hget(

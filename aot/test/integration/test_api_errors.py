@@ -447,3 +447,45 @@ def test_play_wrong_trump_with_target(player1, player2):
         message_override={'play_request': play_request})
     response = yield from player1.recv()
     assert response == {'error_to_display': 'Unknown trump.'}
+
+
+@pytest.mark.asyncio
+def test_reconnect_wrong_game_id(player1, player2, players):
+    yield from create_game(player1, player2)
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': 'toto',
+        'player_id': player_id
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response = yield from new_player.recv()
+
+    assert response == {'error_to_display': 'You cannot join this game. No slots opened.'}
+
+
+@pytest.mark.asyncio
+def test_reconnect_wrong_player_id(player1, player2, players):
+    yield from create_game(player1, player2)
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': 'toto'
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response = yield from new_player.recv()
+
+    assert response == {'error_to_display': 'You cannot join this game. No slots opened.'}

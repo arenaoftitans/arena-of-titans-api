@@ -20,6 +20,7 @@ def test_game_init(player1):
 
     response, expected_response = yield from player1.recv('init_game')
     expected_response['game_id'] = yield from player1.get_game_id()
+    expected_response['player_id'] = yield from player1.get_player_id()
 
     assert response == expected_response
 
@@ -80,6 +81,7 @@ def test_player2_join(player1, player2):
 
     # Correct expected_response
     expected_response['game_id'] = game_id
+    expected_response['player_id'] = yield from player2.get_player_id()
 
     # Check in db
     slot1 = ApiCache.get_slot_from_game_id(1, game_id)
@@ -273,8 +275,8 @@ def test_play_trump_with_target(player1, player2):
 @pytest.mark.asyncio
 def test_reconnect(player1, player2, players):
     yield from create_game(player1, player2)
-    game_id = player1.get_game_id()
-    player_id = player1.get_player_id()
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
 
     player1.close()
     players.add()
@@ -285,5 +287,41 @@ def test_reconnect(player1, player2, players):
         'game_id': game_id,
         'player_id': player_id
     }
-    response, expected_response = yield from new_player.send('join_game', message_override=msg)
-    assert response['rt'] == 'PLAY'
+    yield from new_player.send('join_game', message_override=msg)
+    response, expected_response = yield from new_player.recv('play_card')
+
+    # Correct expected response
+    expected_response['your_turn'] = True
+    del expected_response['hand']
+
+    assert len(response['hand']) == 5
+    del response['hand']
+    assert response == expected_response
+
+
+@pytest.mark.asyncio
+def test_reconnect_game_creation(player1, player2, players):
+    yield from player1.send('init_game')
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': player_id
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response, expected_response = yield from new_player.recv('join_game')
+
+    # Correct expected response
+    expected_response['game_id'] = game_id
+    expected_response['player_id'] = player_id
+    expected_response['is_game_master'] = True
+    expected_response['index'] = 0
+    del expected_response['slots'][1]
+
+    assert response == expected_response

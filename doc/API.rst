@@ -89,6 +89,9 @@ Requête permettant de rejoindre le jeu.
       :language: json
       :linenos:
 
+Si un joueur est déconnecté, il peut reprendre sa place dans le jeu en ajoutant
+son identifiant avec la clé ``player_id`` à cette requête.
+
 ADD_SLOT
 ~~~~~~~~
 
