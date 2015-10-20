@@ -6,7 +6,7 @@ cov = coverage.coverage(config_file=False)
 cov.start()
 
 
-from aot.main import main
+from aot.__main__ import main
 
 
 logging.basicConfig(level=logging.DEBUG)

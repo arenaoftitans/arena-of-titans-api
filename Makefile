@@ -37,7 +37,7 @@ testintegration: redis
 
 .PHONY: start
 start: static
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/main.py
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot
 
 
 .PHONY: testall
