@@ -217,6 +217,19 @@ PLAYER_MOVED qui donne la nouvelle case du joueur qui vient de jouer.
    :language: json
    :linenos:
 
+Si un joueur vient de se reconnecter pendant le jeu, la clé ``reconnect`` est
+ajouté à la réponse de type ``PLAY`` afin que le frontend puisse recalculer la
+position des joueurs.
+
+.. code-block:: json
+
+   {
+      "reconnect": [
+          {"index": 0, "square": {"y": 8, "x": 0}},
+          {"index": 1, "square": {"y": 8, "x": 4}}
+      ]
+   }
+
 
 PLAY_TRUMP
 ~~~~~~~~~~

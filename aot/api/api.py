@@ -156,7 +156,12 @@ class Api(WebSocketServerProtocol):
         else:
             game = self._load_game()
             player = [player for player in game.players if player.id == self.id][0]
-            return self._get_play_message(player, game)
+            message = self._get_play_message(player, game)
+            message['reconnect'] = [{
+                'index': player.index,
+                'square': player.current_square
+            } for player in game.players]
+            return message
 
     def _creating_game(self):
         return not self._cache.has_game_started()
