@@ -138,7 +138,7 @@ class Player:
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
 
-    def affect_by(self, trump):
+    def _affect_by(self, trump):
         if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
             self._affecting_trumps.append(trump)
             if self._can_play:
@@ -154,8 +154,11 @@ class Player:
 
     def play_trump(self, trump, target=None):
         if self.can_play_trump and target is not None:
-            self._number_trumps_played += 1
-            return target.affect_by(trump)
+            if target._affect_by(trump):
+                self._number_trumps_played += 1
+                return True
+            else:
+                return False
         else:
             return False
 

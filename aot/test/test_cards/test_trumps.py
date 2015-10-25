@@ -14,7 +14,7 @@ def test_affect_modify_number_moves(game):
     player1 = game.players[0]
     player2 = game.players[1]
     trump = ModifyNumberMoves(delta_moves=1, duration=1)
-    player1.affect_by(trump)
+    player1._affect_by(trump)
 
     assert player1 is game.active_player
     game.play_card(None, (0, 0), check_move=False)
@@ -42,7 +42,7 @@ def test_affect_modify_number_moves_middle_turn(game):
     assert player1 is game.active_player
     game.play_card(None, (0, 0), check_move=False)
     assert player1 is game.active_player
-    player1.affect_by(trump)
+    player1._affect_by(trump)
     game.play_card(None, (0, 0), check_move=False)
     assert player1 is game.active_player
     game.play_card(None, (0, 0), check_move=False)
@@ -63,7 +63,7 @@ def test_remove_color(game):
     card = player1.deck.first_card_in_hand
     color = card.color
     trump = RemoveColor(color=color, duration=1)
-    player1.affect_by(trump)
+    player1._affect_by(trump)
     assert color not in card.colors
 
 
@@ -71,7 +71,7 @@ def test_remove_all_colors(game):
     player1 = game.players[0]
     card = player1.deck.first_card_in_hand
     trump = RemoveColor(color=Color['ALL'], duration=1)
-    player1.affect_by(trump)
+    player1._affect_by(trump)
     assert 0 == len(card.colors)
 
 
@@ -79,7 +79,7 @@ def test_remove_multiple_colors(game):
     player1 = game.players[0]
     card = player1.deck.first_card_in_hand
     trump = RemoveColor(colors=[card.color, Color['BLACK']], duration=1)
-    player1.affect_by(trump)
+    player1._affect_by(trump)
     assert card.color not in card.colors
     assert Color['BLACK'] not in card.colors
 
@@ -87,8 +87,8 @@ def test_remove_multiple_colors(game):
 def test_player_can_only_be_affected_by_one_trump(game):
     player1 = game.players[0]
     trump = RemoveColor(colors=[Color['BLACK']], duration=1)
-    assert player1.affect_by(trump)
+    assert player1._affect_by(trump)
     assert len(player1.affecting_trumps) == 1
     trump = RemoveColor(colors=[Color['BLACK']], duration=1)
-    assert not player1.affect_by(trump)
+    assert not player1._affect_by(trump)
     assert len(player1.affecting_trumps) == 1

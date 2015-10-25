@@ -170,7 +170,7 @@ def test_trumps_property(player):
 
 def test_affecting_trumps(player):
     trump = player.get_trump('Reinforcements')
-    player.affect_by(trump)
+    player._affect_by(trump)
     player.init_turn()
     assert len(player.affecting_trumps) == 1
     assert player.affecting_trumps[0] is trump
@@ -187,3 +187,13 @@ def test_play_trump(player):
     player.complete_turn()
     player.init_turn()
     assert player.play_trump(trump, target=player)
+
+
+def test_number_affecting_trumps(player):
+    # Check that the number of played trumps is only increased if the targeted
+    # player can be affected.
+    trump = player.get_trump('Reinforcements')
+    player._affect_by(trump)
+    player.init_turn()
+    assert not player.play_trump(trump, target=player)
+    assert player._number_trumps_played == 0
