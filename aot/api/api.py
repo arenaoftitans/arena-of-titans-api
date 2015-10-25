@@ -157,10 +157,13 @@ class Api(WebSocketServerProtocol):
             game = self._load_game()
             player = [player for player in game.players if player.id == self.id][0]
             message = self._get_play_message(player, game)
-            message['reconnect'] = [{
-                'index': player.index,
-                'square': player.current_square
-            } for player in game.players]
+            message['reconnect'] = {
+                'players': [{
+                    'index': player.index,
+                    'square': player.current_square
+                } for player in game.players],
+                'trumps': player.trumps
+            }
             return message
 
     def _creating_game(self):
@@ -266,11 +269,7 @@ class Api(WebSocketServerProtocol):
                     'index': player.index,
                     'name': player.name
                 } for player in game.players],
-                'active_trumps': [{
-                    'player_index': player.index,
-                    'player_name': player.name,
-                    'trumps_names': [trump.name for trump in player.affecting_trumps]
-                } for player in game.players],
+                'active_trumps': self._get_trump_message(game),
                 'hand': [{
                     'name': card.name,
                     'color': card.color

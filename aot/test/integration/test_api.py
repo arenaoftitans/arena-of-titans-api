@@ -292,13 +292,17 @@ def test_reconnect(player1, player2, players):
     # Correct expected response
     expected_response['your_turn'] = True
     del expected_response['hand']
-    expected_response['reconnect'] = [
-        {'index': 0, 'square': {'y': 8, 'x': 0}},
-        {'index': 1, 'square': {'y': 8, 'x': 4}}
-    ]
+    expected_response['reconnect'] = {
+        'players': [
+            {'index': 0, 'square': {'y': 8, 'x': 0}},
+            {'index': 1, 'square': {'y': 8, 'x': 4}}
+        ]
+    }
 
     assert len(response['hand']) == 5
     del response['hand']
+    assert len(response['reconnect']['trumps']) == 5
+    del response['reconnect']['trumps']
     assert response == expected_response
 
 
