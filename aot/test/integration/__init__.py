@@ -140,7 +140,6 @@ class PlayerWs:
             while resp is None:
                 resp = yield from self.ws.recv()
                 resp = json.loads(resp)
-                print(self.index, resp)
 
             if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
                 self._game_id = resp['game_id']

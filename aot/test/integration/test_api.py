@@ -205,7 +205,6 @@ def test_play_card(player1, player2):
 
     response = yield from player1.recv()
     for card in response['hand']:
-        print('coucou')
         play_request = {
             'card_name': card['name'],
             'card_color': card['color']
