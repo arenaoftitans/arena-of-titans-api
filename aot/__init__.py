@@ -1,3 +1,4 @@
+import copy
 import json
 import toml
 
@@ -108,7 +109,8 @@ def _get_additionnal_colors(color,
 def get_trumps_list(board_name='standard'):
     trumps_descriptions = get_trumps_descriptions(name=board_name)
     trumps = TrumpList()
-    for trump_description in trumps_descriptions:
+    for raw_trump_description in trumps_descriptions:
+        trump_description = copy.deepcopy(raw_trump_description)
         repeat_for_each_color = trump_description['repeat_for_each_color']
         del trump_description['repeat_for_each_color']
         trump_type = trump_description['parameters']['type']
@@ -116,15 +118,17 @@ def get_trumps_list(board_name='standard'):
         trump_description.update(trump_description['parameters'])
         del trump_description['parameters']
         if repeat_for_each_color:
-            name = trump_description['name']
             for color in Color:
+                color_trump_description = copy.deepcopy(trump_description)
                 if color == Color.ALL:
                     continue
-                trump_name = '{name} {color}'.format(name=name, color=color.value.title())
-                trump_description['name'] = trump_name
-                trump_description['color'] = color
+                trump_name = color_trump_description['name']
+                trump_name = '{name} {color}'.format(name=trump_name, color=color.value.title())
+                color_trump_description['name'] = trump_name
+                color_trump_description['color'] = color
+                color_trump_description = copy.deepcopy(color_trump_description)
                 trumps.append(
-                    SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
+                    SimpleTrump(type=trump_type, name=trump_name, args=color_trump_description))
         else:
             trump_name = trump_description['name']
             trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
