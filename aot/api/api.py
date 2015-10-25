@@ -22,7 +22,7 @@ class Api(WebSocketServerProtocol):
         'game_master_request': 'Only the game master can use {rt} request.',
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
-        'max_number_trumps': 'A player cannot be affected by {num} trump(s).',
+        'max_number_trumps': 'A player cannot be affected by more than {num} trump(s).',
         'max_number_played_trumps': 'You can only play {num} trump(s) per turn',
         'missing_trump_target': 'You must specify a target player.',
         'no_slot': 'No slot provided.',

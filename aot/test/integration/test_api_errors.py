@@ -456,7 +456,7 @@ def test_play_two_trumps_on_same_player(player1, player2):
     yield from player1.send('play_trump_with_target')
 
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'A player cannot be affected by 1 trump(s).'}
+    assert response == {'error_to_display': 'A player cannot be affected by more than 1 trump(s).'}
 
 
 @pytest.mark.asyncio
