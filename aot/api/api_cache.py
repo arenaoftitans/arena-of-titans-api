@@ -118,7 +118,8 @@ class ApiCache:
         return ApiCache._get_slots(self._game_id, include_player_id=include_player_id)
 
     def get_player_index(self):
-        slot = [slot for slot in self.get_slots() if slot['player_id'] == self._player_id][0]
+        slot = [slot for slot in self.get_slots()
+                if slot.get('player_id', None) == self._player_id][0]
         return slot['index']
 
     def is_game_master(self):
