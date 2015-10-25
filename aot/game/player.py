@@ -148,9 +148,10 @@ class Player:
             return False
 
     def get_trump(self, trump_name):
-        for trump in self._available_trumps:
-            if trump.name == trump_name:
-                return trump
+        try:
+            return self._available_trumps[trump_name]
+        except KeyError:
+            pass
 
     def play_trump(self, trump, target=None):
         if self.can_play_trump and target is not None:
@@ -241,9 +242,9 @@ class Player:
     def trumps(self):
         return [
             {
-                "name": trump.name,
-                "description": trump.description,
-                "duration": trump.duration,
-                "cost": trump.cost,
-                "must_target_player": trump.must_target_player
+                "name": trump.args['name'],
+                "description": trump.args['description'],
+                "duration": trump.args['duration'],
+                "cost": trump.args['cost'],
+                "must_target_player": trump.args['must_target_player']
             } for trump in self._available_trumps]

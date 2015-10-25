@@ -23,6 +23,18 @@ class Trump:
     def consume(self):
         self._duration -= 1
 
+    def __str__(self):  # pragma: no cover
+        return '{type}(duration={duration}, cost={cost}, must_target_player={must_target_player}, name={name})'\
+            .format(
+                type=type(self).__name__,
+                duration=self.duration,
+                cost=self.cost,
+                must_target_player=self.must_target_player,
+                name=self.name)
+
+    def __repr___(self):  # pragma: no cover
+        return str(self)
+
     @property
     def cost(self):  # pragma: no cover
         return self._cost
