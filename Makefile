@@ -9,16 +9,52 @@ help:
 	@echo "Usage: make <target>"
 	@echo
 	@echo "Possible targets:"
-	@echo "- check: launch lint and testall"
+	@echo "- doc: create the doc"
 	@echo "- config: build config file for nginx"
 	@echo "- debug: launch API in debug mode"
-	@echo "- doc: create the doc"
+	@echo "- redis: start the redis database"
+	@echo "- check: launch lint and testall"
 	@echo "- lint: launch pep8 and pyflakes"
-	@echo "- static: generate all static files for the API like SVG boards"
+	@echo "- testall: launch all tests with corverage report (equivalent to `make test && make testintegration`)"
 	@echo "- test: launch unit tests with coverage report"
-	@echo "- testall: launch all tests with corverage report"
-	@echo "- testdebug: launch integration tests but don't launch the API"
 	@echo "- testintegration: launch integration tests with coverage report"
+	@echo "- testdebug: launch integration tests but don't launch the API"
+	@echo "- start: start the API in production mode"
+	@echo "- static: generate all static files for the API like SVG boards"
+
+
+.PHONY: doc
+doc:
+	cd doc && make html
+
+
+.PHONY: config
+config:
+	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
+
+
+.PHONY: debug
+debug: redis
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w --uid debug_aot -c python3 --watchDirectory aot aot/test_main.py
+
+
+.PHONY: redis
+redis:
+	sudo systemctl start redis
+
+
+.PHONY: check
+check: lint testall
+
+
+.PHONY: lint
+lint:
+	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
+	${PEP8_CMD} --max-line-length 99 aot/test
+
+
+.PHONY: testall
+testall: test testintegration
 
 
 .PHONY: test
@@ -35,47 +71,14 @@ testintegration: redis
 	forever stop test_aot --killSignal=SIGINT
 
 
-.PHONY: start
-start: static
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot
-
-
-.PHONY: testall
-testall: test testintegration
-
-
-.PHONY: lint
-lint:
-	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
-	${PEP8_CMD} --max-line-length 99 aot/test
-
-
-.PHONY: check
-check: testall lint
-
-
-.PHONY: config
-config:
-	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
-
-
-.PHONY: debug
-debug:
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w -c python3 --watchDirectory aot aot/test_main.py
-
-
-.PHONY: doc
-doc:
-	cd doc && make html
-
-
 .PHONY: testdebug
 testdebug:
 	py.test-3.4 aot/test/integration/ -sv
 
 
-redis:
-	sudo systemctl start redis
+.PHONY: start
+start: static
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid aot --killSignal=SIGINT aot
 
 
 .PHONY: static
