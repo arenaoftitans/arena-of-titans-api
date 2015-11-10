@@ -38,7 +38,11 @@ config:
 
 .PHONY: debug
 debug: redis
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w --uid debug_aot -c python3 --watchDirectory aot aot/test_main.py
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w \
+	    --uid debug_aot \
+	    -c python3 \
+	    --watchDirectory aot \
+	    aot/test_main.py
 
 
 .PHONY: redis
@@ -67,7 +71,11 @@ test:
 
 .PHONY: testintegration
 testintegration: redis
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid test_aot --killSignal=SIGINT aot/test_main.py
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
+	    -c python3 \
+	    --uid test_aot \
+	    --killSignal=SIGINT \
+	    aot/test_main.py
 	# Wait for the process to start
 	sleep 10
 	py.test-3.4 aot/test/integration/
@@ -81,17 +89,24 @@ testdebug:
 
 .PHONY: deploy
 deploy:
+	git push aot -f && \
 	ssh aot "cd /home/aot/aot-api && make updateprod"
 
 
 .PHONY: updateprod
 updateprod:
-	git pull &&\
-	forever stop aot &&\
-	@$(MAKE) -f $(THIS_FILE) static &&\
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid aot --killSignal=SIGINT aot
+	git pull && \
+	forever stop aot && \
+	$(MAKE) -f $(THIS_FILE) static && \
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
+	    -c python3 \
+	    --uid aot \
+	    --killSignal=SIGINT \
+	    aot
 
 
 .PHONY: static
 static:
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py -i aot/resources/games/ -o static/boards
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py \
+	    -i aot/resources/games/ \
+	    -o static/boards
