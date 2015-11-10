@@ -3,6 +3,8 @@ JINJA2_CLI ?= jinja2
 PEP8_CMD ?= python3-pep8
 PYTHON_CMD ?= python3
 
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+
 
 .PHONY: help
 help:
@@ -19,7 +21,8 @@ help:
 	@echo "- test: launch unit tests with coverage report"
 	@echo "- testintegration: launch integration tests with coverage report"
 	@echo "- testdebug: launch integration tests but don't launch the API"
-	@echo "- start: start the API in production mode"
+	@echo "- deploy: launch `cd aot-api && make updateprod` on the production server"
+	@echo "- updateprod: restart the API after updating the git repo"
 	@echo "- static: generate all static files for the API like SVG boards"
 
 
@@ -76,8 +79,16 @@ testdebug:
 	py.test-3.4 aot/test/integration/ -sv
 
 
-.PHONY: start
-start: static
+.PHONY: deploy
+deploy:
+	ssh aot "cd /home/aot/aot-api && make updateprod"
+
+
+.PHONY: updateprod
+updateprod:
+	git pull &&\
+	forever stop aot &&\
+	@$(MAKE) -f $(THIS_FILE) static &&\
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a -c python3 --uid aot --killSignal=SIGINT aot
 
 
