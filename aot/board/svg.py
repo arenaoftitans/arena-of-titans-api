@@ -10,7 +10,7 @@ class SvgBoardCreator:
     _ROTATE_TEMPLATE = 'rotate({} {} {})'
     _NG_PLAY_ATTR_TEMPLATE = "play('{}', '{}', '{}')"
     _TRANSFORM = 'transform'
-    _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.svg'
+    _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
     def __init__(self, board_description):
         svg = board_description['svg']

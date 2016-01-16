@@ -30,5 +30,5 @@ if __name__ == '__main__':
         svg_board = SvgBoardCreator(board_description)
         os.makedirs(args.output, exist_ok=True)
 
-        with open(os.path.join(args.output, name + '.svg'), 'w') as svg_output:
+        with open(os.path.join(args.output, name + '.html'), 'w') as svg_output:
             svg_output.write(str(svg_board))
