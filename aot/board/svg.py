@@ -8,7 +8,7 @@ class SvgBoardCreator:
     NS = {'ns': 'http://www.w3.org/2000/svg'}
     _SQUARE_ID_TEMPLATE = 'square-{}-{}'
     _ROTATE_TEMPLATE = 'rotate({} {} {})'
-    _NG_PLAY_ATTR_TEMPLATE = "play('{}', '{}', '{}')"
+    _NG_PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
@@ -96,7 +96,7 @@ class SvgBoardCreator:
     def _set_ng_click_attr(self, element, x, y):
         square_id = self._get_id(x, y)
         ng_click_attr = self._NG_PLAY_ATTR_TEMPLATE.format(square_id, x, y)
-        element.set('ng-click', ng_click_attr)
+        element.set('click.delegate', ng_click_attr)
 
     def _fill_svg(self):
         delta_xid = 0
@@ -127,12 +127,12 @@ class SvgBoardCreator:
                 square = self._svg.xpath(path, namespaces=self.NS)[0]
                 color = self._colors_disposition[y][x]
                 svg_color = color.value.lower()
-                square.set('class', svg_color + '-square')
+                primary_class = svg_color + '-square'
                 square_id = self._get_id(x, y)
-                ng_class = '{' + \
-                    "highlightedSquare: highlightedSquares.indexOf('{}') > -1"\
-                    .format(square_id) + '}'
-                square.set('ng-class', ng_class)
+                class_template = \
+                    "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlightedSquare' : ''}}"
+                ng_class = class_template.format(primary_class, square_id)
+                square.set('class', ng_class)
 
     @property
     def svg(self):  # pragma: no cover
