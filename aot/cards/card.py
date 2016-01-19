@@ -44,48 +44,54 @@ class Card:
         self._number_movements = number_movements
 
     def move(self, origin):
-        return self._move(origin, self._number_movements, set())
+        return self._move(self._number_movements, origin)
 
-    def _move(self, origin, number_movements_left, possible_squares):
+    def _move(self, number_movements_left, origin):
+        possible_squares = set()
+        while number_movements_left > 0:
+            possible_squares_per_levels = []
+            for possible_origin in possible_squares.union({origin}):
+                possible_squares_level = self._move_level(possible_origin)
+                possible_squares_per_levels.append(possible_squares_level)
+
+            for possible_squares_per_level in possible_squares_per_levels:
+                possible_squares.update(possible_squares_per_level)
+
+            number_movements_left -= 1
+
+        return {square for square in possible_squares if not square.occupied}
+
+    def _move_level(self, origin):
+        possible_squares_level = set()
         for move in self._movements:
-            move(origin, number_movements_left, possible_squares)
+            possible_squares_move = move(origin)
+            possible_squares_level.update(possible_squares_move)
+
+        return possible_squares_level
+
+    def _line_move(self, origin):
+        possible_squares = set()
+        new_squares = self._board.get_line_squares(origin, self._colors)
+        possible_squares.update(new_squares)
+
         return possible_squares
 
-    def _line_move(self, origin, number_movements_left, possible_squares):
-        if number_movements_left > 0:
-            new_squares = self._board.get_line_squares(origin, self._colors)
-            for new_square in new_squares:
-                if new_square not in possible_squares:
-                    self._move(
-                        new_square,
-                        number_movements_left - 1,
-                        possible_squares
-                    )
-            for square in new_squares:
-                if not square.occupied:
-                    possible_squares.add(square)
+    def _diagonal_move(self, origin):
+        possible_squares = set()
+        new_squares = self._board.get_diagonal_squares(origin, self._colors)
+        possible_squares.update(new_squares)
 
-    def _diagonal_move(self, origin, number_movements_left, possible_squares):
-        if number_movements_left > 0:
-            new_squares = self._board.get_diagonal_squares(origin, self._colors)
-            for new_square in new_squares:
-                if new_square not in possible_squares:
-                    self._move(
-                        new_square,
-                        number_movements_left - 1,
-                        possible_squares
-                    )
+        return possible_squares
 
-            for square in new_squares:
-                if not square.occupied:
-                    possible_squares.add(square)
-
-    def _knight_move(self, origin, number_movements_left, possible_squares):
+    def _knight_move(self, origin):
+        possible_squares = set()
         possible_squares.update(
             self.__knight_get_vertical_squares(origin))
 
         possible_squares.update(
             self.__knigt_get_horizontal_square(origin))
+
+        return possible_squares
 
     def __knight_get_vertical_squares(self, origin):
         temporary_vertical_squares = set([

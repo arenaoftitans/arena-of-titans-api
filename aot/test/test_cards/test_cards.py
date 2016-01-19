@@ -156,6 +156,35 @@ def test_line_diagonal_card_two_moves(board):
     ])
 
 
+def test_line_diagonal_card_two_moves2(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['number_movements'] = 2
+    card_properties['movements_types'].append('diagonal')
+    card_properties['movements_types'].append('line')
+
+    card = Card(board, **card_properties)
+    assert card.move(Square(0, 7, 'RED')) == set([
+        Square(0, 6, 'BLUE'),
+        Square(0, 5, 'BLUE'),
+        Square(1, 7, 'BLUE'),
+        Square(1, 8, 'BLUE'),
+    ])
+
+
+def test_line_diagonal_card_two_moves3(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['number_movements'] = 2
+    card_properties['movements_types'].append('diagonal')
+    card_properties['movements_types'].append('line')
+
+    card = Card(board, **card_properties)
+    assert card.move(Square(0, 8, 'RED')) == set([
+        Square(0, 6, 'BLUE'),
+        Square(1, 7, 'BLUE'),
+        Square(1, 8, 'BLUE'),
+    ])
+
+
 def test_multiple_colors_card(board):
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
