@@ -224,10 +224,33 @@ position des joueurs.
 .. code-block:: json
 
    {
-      "reconnect": [
-          {"index": 0, "square": {"y": 8, "x": 0}},
-          {"index": 1, "square": {"y": 8, "x": 4}}
-      ]
+      "reconnect": {
+        "trumps": [
+            {
+                "description": "Prevent the player to move on some colors.",
+                "duration": 2,
+                "cost": 5,
+                "must_target_player": true,
+                "name": "Tower Black"
+            }
+        ],
+        "players": [
+            {
+                "square": {
+                    "x": 0,
+                    "y": 8
+                },
+                "index": 0
+            },
+            {
+                "square": {
+                    "x": 4,
+                    "y": 8
+                },
+                "index": 1
+            }
+        ]
+      }
    }
 
 
