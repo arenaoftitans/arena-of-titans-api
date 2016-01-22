@@ -294,8 +294,8 @@ def test_reconnect(player1, player2, players):
     del expected_response['hand']
     expected_response['reconnect'] = {
         'players': [
-            {'index': 0, 'square': {'y': 8, 'x': 0}},
-            {'index': 1, 'square': {'y': 8, 'x': 4}}
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}},
+            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}}
         ]
     }
 

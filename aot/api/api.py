@@ -160,6 +160,7 @@ class Api(WebSocketServerProtocol):
             message['reconnect'] = {
                 'players': [{
                     'index': player.index,
+                    'name': player.name,
                     'square': player.current_square
                 } for player in game.players],
                 'trumps': player.trumps

@@ -236,6 +236,7 @@ position des joueurs.
         ],
         "players": [
             {
+                "name": "Player 1",
                 "square": {
                     "x": 0,
                     "y": 8
@@ -243,6 +244,7 @@ position des joueurs.
                 "index": 0
             },
             {
+                "name": "Player 2",
                 "square": {
                     "x": 4,
                     "y": 8
