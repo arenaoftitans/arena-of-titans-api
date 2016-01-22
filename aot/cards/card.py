@@ -44,13 +44,11 @@ class Card:
         self._number_movements = number_movements
 
     def move(self, origin):
-        return self._move(self._number_movements, origin)
-
-    def _move(self, number_movements_left, origin):
-        possible_squares = set()
+        number_movements_left = self._number_movements
+        possible_squares = {origin}
         while number_movements_left > 0:
             possible_squares_per_levels = []
-            for possible_origin in possible_squares.union({origin}):
+            for possible_origin in possible_squares:
                 possible_squares_level = self._move_level(possible_origin)
                 possible_squares_per_levels.append(possible_squares_level)
 
@@ -59,7 +57,8 @@ class Card:
 
             number_movements_left -= 1
 
-        return {square for square in possible_squares if not square.occupied}
+        return {square for square in possible_squares
+                if not square.occupied and square is not origin}
 
     def _move_level(self, origin):
         possible_squares_level = set()
