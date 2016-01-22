@@ -1,8 +1,0 @@
-{
-    "rt": "PLAYER_MOVED",
-    "player_index": 0,
-    "new_square": {
-        "x": 1,
-        "y": 8
-    }
-}

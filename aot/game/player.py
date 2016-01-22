@@ -2,6 +2,15 @@ import aot
 from aot.board import Square
 
 
+class LastAction:
+    def __init__(self, description, card=None):
+        self.description = description
+        if card is None:
+            self.card = {}
+        else:
+            self.card = card
+
+
 class Player:
     BOARD_ARM_WIDTH_AND_MODULO = 4
     BOARD_ARM_LENGTH_AND_MAX_Y = 8
@@ -19,6 +28,7 @@ class Player:
     _has_won = False
     _id = ''
     _index = -1
+    _last_action = None
     _last_square_previous_turn = None
     _name = ''
     _number_moves_to_play = 2
@@ -73,6 +83,11 @@ class Player:
         if dest_square in possible_squares or not check_move:
             self._deck.play(card)
             self.move(dest_square)
+
+        if card is not None:
+            self._last_action = LastAction(description='played a card', card=card.infos)
+        else:
+            self._last_action = LastAction(description='A problem occured')
         self._complete_action()
 
     def _get_possible_squares(self, card, check_move):
@@ -94,9 +109,11 @@ class Player:
 
     def discard(self, card):
         self._deck.play(card)
+        self._last_action = LastAction(description='dicarded a card', card=card.infos)
         self._complete_action()
 
     def pass_turn(self):
+        self._last_action = LastAction(description='passed his/her turn')
         self._can_play = False
 
     def move(self, square):
@@ -217,6 +234,10 @@ class Player:
     @property
     def index(self):
         return self._index
+
+    @property
+    def last_action(self):
+        return self._last_action
 
     @property
     def last_square_previous_turn(self):

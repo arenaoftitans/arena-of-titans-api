@@ -144,8 +144,8 @@ class PlayerWs:
             if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
                 self._game_id = resp['game_id']
                 self._player_id = resp['player_id']
-            elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_MOVED.value:
-                # Each PLAYER_MOVED request is followed by the play request which update cards,
+            elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_PLAYED.value:
+                # Each PLAYER_PLAYED request is followed by the play request which update cards,
                 # trumps, … for the current player. So we need to increase the recieve_index by
                 # one to correctly get it.
                 must_increase_recieve_index = True

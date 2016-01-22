@@ -353,7 +353,7 @@ class Api(WebSocketServerProtocol):
         # Send play message to the player who just played.
         active_player_id = game.active_player.id
         active_player_index = game.active_player.index
-        self._send_player_moved_message(this_player)
+        self._send_player_played_message(this_player)
         this_player_message = self._get_play_message(this_player, game)
         self._clients[self.id].sendMessage(this_player_message)
 
@@ -363,13 +363,17 @@ class Api(WebSocketServerProtocol):
             active_player_message['your_turn'] = True
             self._clients[active_player_id].sendMessage(active_player_message)
 
-    def _send_player_moved_message(self, player):
+    def _send_player_played_message(self, player):
         self._send_all({
-            'rt': RequestTypes.PLAYER_MOVED.value,
+            'rt': RequestTypes.PLAYER_PLAYED.value,
             'player_index': player.index,
             'new_square': {
                 'x': player.current_square.x,
                 'y': player.current_square.y,
+            },
+            'last_action': {
+                'description': player.last_action.description,
+                'card': player.last_action.card,
             }
         })
 

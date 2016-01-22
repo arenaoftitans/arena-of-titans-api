@@ -12,7 +12,7 @@ class RequestTypes(Enum):
     PLAY = 'PLAY'
     VIEW_POSSIBLE_SQUARES = 'VIEW_POSSIBLE_SQUARES'
     PLAY_TRUMP = 'PLAY_TRUMP'
-    PLAYER_MOVED = 'PLAYER_MOVED'
+    PLAYER_PLAYED = 'PLAYER_PLAYED'
 
 
 class SlotState(Enum):

@@ -1,0 +1,16 @@
+{
+    "rt": "PLAYER_PLAYED",
+    "player_index": 0,
+    "new_square": {
+        "x": 1,
+        "y": 8
+    },
+    "last_action": {
+        "card": {
+            "name": "King",
+            "color": "red",
+            "description": "Move forwards"
+        },
+        "description": "played a card"
+    }
+}

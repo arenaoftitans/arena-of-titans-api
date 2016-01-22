@@ -225,11 +225,21 @@ def test_play_card(player1, player2):
     }
     yield from player1.send('play_card', message_override={'play_request': play_request})
 
-    response, player_moved_expected_response = yield from player1.recv('player_moved')
+    response, player_moved_expected_response = yield from player1.recv('player_played')
     player_moved_expected_response['new_square'] = {
         'x': new_square['x'],
         'y': new_square['y']
     }
+    # last_action will always differs
+    assert 'last_action' in response
+    assert 'description' in response['last_action']
+    assert 'card' in response['last_action']
+    assert 'color' in response['last_action']['card']
+    assert 'name' in response['last_action']['card']
+    assert 'description' in response['last_action']['card']
+    del response['last_action']
+    del player_moved_expected_response['last_action']
+
     assert response == player_moved_expected_response
 
     response, expected_response = yield from player1.recv('play_card')
@@ -240,6 +250,15 @@ def test_play_card(player1, player2):
     assert response == expected_response
 
     response = yield from player2.recv()
+    # last_action will always differs
+    assert 'last_action' in response
+    assert 'description' in response['last_action']
+    assert 'card' in response['last_action']
+    assert 'color' in response['last_action']['card']
+    assert 'name' in response['last_action']['card']
+    assert 'description' in response['last_action']['card']
+    del response['last_action']
+
     assert response == player_moved_expected_response
 
 

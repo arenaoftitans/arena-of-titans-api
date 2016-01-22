@@ -7,6 +7,7 @@ class Card:
     _color = None
     _colors = set()
     _default_colors = set()
+    _description = ''
     _name = ''
     _movements = []
     _number_movements = 0
@@ -18,6 +19,7 @@ class Card:
         color=Color['ALL'],
         complementary_colors=None,
         name='',
+        description='',
         movements_types=None,
         number_movements=1
     ):
@@ -37,6 +39,7 @@ class Card:
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
         self._default_colors = set(self._colors)
+        self._description = description
         self._name = name
         self._movements = [
             self.movements_methods[mvt] for mvt in movements_types
@@ -164,6 +167,18 @@ class Card:
     @property
     def colors(self):
         return self._colors
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def infos(self):
+        return {
+            'name': self.name,
+            'color': self.color,
+            'description': self.description,
+        }
 
     @property
     def name(self):  # pragma: no cover
