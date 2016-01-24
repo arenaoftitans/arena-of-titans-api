@@ -109,7 +109,7 @@ def test_create_game(player1, player2):
     del expected_response['trumps']
     assert response == expected_response
     assert len(hand_response) == 5
-    assert len(trumps_response) == 5
+    assert len(trumps_response) == 4
     hand_element_keys = pseudo_hand[0].keys()
     for card in hand_response:
         assert card.keys() == hand_element_keys
@@ -320,7 +320,7 @@ def test_reconnect(player1, player2, players):
 
     assert len(response['hand']) == 5
     del response['hand']
-    assert len(response['reconnect']['trumps']) == 5
+    assert len(response['reconnect']['trumps']) == 4
     del response['reconnect']['trumps']
     assert response == expected_response
 

@@ -5,6 +5,7 @@ from aot import (
     get_game,
     get_cards_list,
     get_number_players,
+    get_trumps_list,
 )
 from aot.board import Board
 from aot.cards import Deck
@@ -25,6 +26,7 @@ def deck(board):
 @pytest.fixture
 def player(board, deck):
     player = Player(None, None, 0)
+    player._available_trumps = get_trumps_list(shuffle=False)
     player.set(board, deck)
     return player
 

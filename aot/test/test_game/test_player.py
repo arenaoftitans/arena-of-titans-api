@@ -169,7 +169,7 @@ def test_get_trump(player):
 
 
 def test_trumps_property(player):
-    assert len(player.trumps) == 5
+    assert len(player.trumps) == 4
     trump = player.trumps[0]
     assert 'name' in trump
     assert 'description' in trump

@@ -1,5 +1,6 @@
 import copy
 import json
+import random
 import toml
 
 from aot.board import (
@@ -108,7 +109,7 @@ def _get_additionnal_colors(color,
     return additional_colors
 
 
-def get_trumps_list(board_name='standard'):
+def get_trumps_list(board_name='standard', shuffle=True):
     trumps_descriptions = get_trumps_descriptions(name=board_name)
     trumps = TrumpList()
     for raw_trump_description in trumps_descriptions:
@@ -135,7 +136,10 @@ def get_trumps_list(board_name='standard'):
             trump_name = trump_description['name']
             trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
 
-    return trumps
+    # Return 4 trumps at random among all the possible ones
+    if shuffle:
+        random.shuffle(trumps)
+    return trumps[1:]
 
 
 def get_trumps_descriptions(name='standard'):
