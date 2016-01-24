@@ -106,6 +106,8 @@ class Player:
     def _complete_action(self):
         self._number_moves_played += 1
         self._can_play = self._number_moves_played < self._number_moves_to_play
+        if not self.can_play:
+            self._deck.init_turn()
 
     def discard(self, card):
         self._deck.play(card)
@@ -115,6 +117,7 @@ class Player:
     def pass_turn(self):
         self._last_action = LastAction(description='passed his/her turn')
         self._can_play = False
+        self._deck.init_turn()
 
     def move(self, square):
         if square is None:
@@ -130,7 +133,6 @@ class Player:
         self._rank = rank
 
     def init_turn(self):
-        self._deck.init_turn()
         self._number_moves_played = 0
         self._number_trumps_played = 0
         self._can_play = True
