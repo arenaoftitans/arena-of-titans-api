@@ -204,6 +204,9 @@ def test_number_affecting_trumps(player):
     # player can be affected.
     trump = player.get_trump('Reinforcements')
     player._affect_by(trump)
+    player._affect_by(trump)
+    player._affect_by(trump)
+    player._affect_by(trump)
     player.init_turn()
     assert not player.play_trump(trump, target=player)
     assert player._number_trumps_played == 0

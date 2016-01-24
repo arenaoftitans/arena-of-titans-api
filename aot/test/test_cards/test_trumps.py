@@ -84,11 +84,14 @@ def test_remove_multiple_colors(game):
     assert Color['BLACK'] not in card.colors
 
 
-def test_player_can_only_be_affected_by_one_trump(game):
+def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):
     player1 = game.players[0]
-    trump = RemoveColor(colors=[Color['BLACK']], duration=1)
-    assert player1._affect_by(trump)
-    assert len(player1.affecting_trumps) == 1
+
+    for i in range(player1.MAX_NUMBER_AFFECTING_TRUMPS):
+        trump = RemoveColor(colors=[Color['BLACK']], duration=1)
+        assert player1._affect_by(trump)
+        assert len(player1.affecting_trumps) == i + 1
+
     trump = RemoveColor(colors=[Color['BLACK']], duration=1)
     assert not player1._affect_by(trump)
-    assert len(player1.affecting_trumps) == 1
+    assert len(player1.affecting_trumps) == player1.MAX_NUMBER_AFFECTING_TRUMPS
