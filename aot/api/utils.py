@@ -1,6 +1,7 @@
 from enum import Enum
 
 from aot.board import Square
+from aot.cards.trumps import Trump
 
 
 class RequestTypes(Enum):
@@ -29,6 +30,14 @@ def to_json(python_object):
         return {
             'x': python_object.x,
             'y': python_object.y
+        }
+    elif isinstance(python_object, Trump):
+        return {
+            'cost': python_object.cost,
+            'description': python_object.description,
+            'duration': python_object.duration,
+            'must_target_player': python_object.must_target_player,
+            'name': python_object.name,
         }
     elif isinstance(python_object, set):
         return [to_json(element) for element in python_object]

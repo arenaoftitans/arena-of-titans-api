@@ -163,7 +163,8 @@ class Api(WebSocketServerProtocol):
                     'name': player.name,
                     'square': player.current_square
                 } for player in game.players],
-                'trumps': player.trumps
+                'trumps': player.trumps,
+                'index': player.index,
             }
             return message
 
@@ -270,7 +271,7 @@ class Api(WebSocketServerProtocol):
                     'index': player.index,
                     'name': player.name
                 } for player in game.players],
-                'active_trumps': self._get_trump_message(game),
+                'active_trumps': self._get_active_trumps_message(game),
                 'hand': [{
                     'name': card.name,
                     'color': card.color
@@ -388,14 +389,14 @@ class Api(WebSocketServerProtocol):
             } for card in player.hand],
             'game_over': game.is_over,
             'winners': game.winners,
-            'active_trumps': self._get_trump_message(game)
+            'active_trumps': self._get_active_trumps_message(game)
         }
 
-    def _get_trump_message(self, game):
+    def _get_active_trumps_message(self, game):
         return [{
                 'player_index': game_player.index,
                 'player_name': game_player.name,
-                'trumps_names': [trump.name for trump in game_player.affecting_trumps]
+                'trumps': game_player.affecting_trumps
                 } for game_player in game.players]
 
     def _play_trump(self, game, play_request):
@@ -416,7 +417,7 @@ class Api(WebSocketServerProtocol):
             if game.active_player.play_trump(trump, target=target):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
-                    'active_trumps': self._get_trump_message(game)
+                    'active_trumps': self._get_active_trumps_message(game)
                 }
                 self._send_all(message)
             else:
