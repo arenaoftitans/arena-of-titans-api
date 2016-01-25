@@ -26,7 +26,7 @@ def deck(board):
 @pytest.fixture
 def player(board, deck):
     player = Player(None, None, 0)
-    player._available_trumps = get_trumps_list(shuffle=False)
+    player._available_trumps = get_trumps_list(test=True)
     player.set(board, deck)
     return player
 

@@ -77,7 +77,7 @@ class ApiCache:
         self._game_id = game_id
         self._player_id = player_id
 
-    def create_new_game(self):
+    def create_new_game(self, test=False):
         self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.GAME_MASTER_KEY,
@@ -86,6 +86,10 @@ class ApiCache:
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.STARTED_KEY,
             self.GAME_NOT_STARTED)
+        self._cache.hset(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            'test',
+            test)
         self._init_first_slot()
 
     def _init_first_slot(self):
@@ -96,6 +100,12 @@ class ApiCache:
             'state': SlotState.OPEN.value
         }
         self.add_slot(slot)
+
+    def is_test(self):
+        value = self._cache.hget(
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            'test')
+        return value.decode('utf-8') == 'True'
 
     def add_slot(self, slot):
         if slot['state'] == SlotState.TAKEN.value:

@@ -420,7 +420,7 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Wrong index
     play_request = {
-        'name': 'Tower Black',
+        'name': 'Tower Blue',
         'target_index': 78
     }
     yield from player1.send(
@@ -431,7 +431,7 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Missing index
     play_request = {
-        'name': 'Tower Black'
+        'name': 'Tower Blue'
     }
     yield from player1.send(
         'play_trump_with_target',

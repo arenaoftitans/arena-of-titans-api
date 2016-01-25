@@ -109,7 +109,7 @@ def _get_additionnal_colors(color,
     return additional_colors
 
 
-def get_trumps_list(board_name='standard', shuffle=True):
+def get_trumps_list(board_name='standard', test=False):
     trumps_descriptions = get_trumps_descriptions(name=board_name)
     trumps = TrumpList()
     for raw_trump_description in trumps_descriptions:
@@ -137,7 +137,7 @@ def get_trumps_list(board_name='standard', shuffle=True):
             trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
 
     # Return 4 trumps at random among all the possible ones
-    if shuffle:
+    if not test:
         random.shuffle(trumps)
     return trumps[1:]
 
@@ -146,11 +146,11 @@ def get_trumps_descriptions(name='standard'):
     return get_game_description(name)['trumps']
 
 
-def get_game(players_description, name='standard'):
+def get_game(players_description, name='standard', test=False):
     board = get_board(name=name)
     players = []
     for player in players_description:
-        players.append(Player(player['name'], player['id'], player['index']))
+        players.append(Player(player['name'], player['id'], player['index'], test=test))
     return Game(board, players)
 
 

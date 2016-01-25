@@ -103,7 +103,7 @@ class Api(WebSocketServerProtocol):
     def _initialize_cache(self):
         self._cache = ApiCache(self._game_id, self.id)
         if ApiCache.is_new_game(self._game_id):
-            self._cache.create_new_game()
+            self._cache.create_new_game(test=self.message.get('test', False))
 
         index = self._affect_current_slot()
         self._cache.save_session(index)
@@ -247,7 +247,7 @@ class Api(WebSocketServerProtocol):
             index = player['index']
             player['id'] = slots[index]['player_id']
 
-        game = get_game(players_description)
+        game = get_game(players_description, test=self._cache.is_test())
         self._cache.save_game(game)
         self._send_game_created_message(game)
 
