@@ -43,5 +43,15 @@
               "must_target_player": true
             }]
         }
-    ]
+    ],
+  "last_action": {
+      "description": "Player 1 just played a trump on Player 2",
+      "trump": {
+        "cost": 5,
+        "description": "Prevent the player to move on some colors.",
+        "duration": 2,
+        "must_target_player": true,
+        "name": "Tower Blue"
+      }
+    }
 }

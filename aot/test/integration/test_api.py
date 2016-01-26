@@ -270,10 +270,12 @@ def test_play_trump_no_target(player1, player2):
     response, expected_response = yield from player1.recv('play_trump_no_target')
     assert response['rt'] == 'PLAY_TRUMP'
     assert response['active_trumps'] == expected_response['active_trumps']
+    assert response['last_action'] == expected_response['last_action']
 
     response, expected_response = yield from player2.recv('play_trump_no_target')
     assert response['rt'] == 'PLAY_TRUMP'
     assert response['active_trumps'] == expected_response['active_trumps']
+    assert response['last_action'] == expected_response['last_action']
 
 
 @pytest.mark.asyncio
@@ -284,10 +286,12 @@ def test_play_trump_with_target(player1, player2):
     response, expected_response = yield from player1.recv('play_trump_with_target')
     assert response['rt'] == 'PLAY_TRUMP'
     assert response['active_trumps'] == expected_response['active_trumps']
+    assert response['last_action'] == expected_response['last_action']
 
     response, expected_response = yield from player2.recv('play_trump_with_target')
     assert response['rt'] == 'PLAY_TRUMP'
     assert response['active_trumps'] == expected_response['active_trumps']
+    assert response['last_action'] == expected_response['last_action']
 
 
 @pytest.mark.asyncio

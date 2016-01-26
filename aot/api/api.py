@@ -417,7 +417,11 @@ class Api(WebSocketServerProtocol):
             if game.active_player.play_trump(trump, target=target):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
-                    'active_trumps': self._get_active_trumps_message(game)
+                    'active_trumps': self._get_active_trumps_message(game),
+                    'last_action': {
+                        'description': game.active_player.last_action.description,
+                        'trump': game.active_player.last_action.trump,
+                    },
                 }
                 self._send_all(message)
             else:

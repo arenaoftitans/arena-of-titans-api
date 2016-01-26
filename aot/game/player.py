@@ -3,12 +3,16 @@ from aot.board import Square
 
 
 class LastAction:
-    def __init__(self, description, card=None):
+    def __init__(self, description, card=None, trump=None):
         self.description = description
         if card is None:
             self.card = {}
         else:
             self.card = card
+        if trump is None:
+            self.trump = {}
+        else:
+            self.trump = trump
 
 
 class Player:
@@ -176,6 +180,9 @@ class Player:
         if self.can_play_trump and target is not None:
             if target._affect_by(trump):
                 self._number_trumps_played += 1
+                description = ('{my_name} just played a trump on {target_name}'
+                               .format(my_name=self.name, target_name=target.name))
+                self._last_action = LastAction(description=description, trump=trump)
                 return True
             else:
                 return False

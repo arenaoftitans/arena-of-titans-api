@@ -44,5 +44,15 @@
             "player_name": "Player 2",
             "trumps": []
         }
-    ]
+    ],
+    "last_action": {
+      "description": "Player 1 just played a trump on Player 1",
+      "trump": {
+        "cost": 5,
+        "description": "Allow the player to play one more move.",
+        "duration": 1,
+        "must_target_player": false,
+        "name": "Reinforcements"
+      }
+    }
 }
