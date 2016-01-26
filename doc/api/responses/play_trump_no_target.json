@@ -47,6 +47,7 @@
     ],
     "last_action": {
       "description": "Player 1 just played a trump on Player 1",
+      "player_name": "Player 1",
       "trump": {
         "cost": 5,
         "description": "Allow the player to play one more move.",

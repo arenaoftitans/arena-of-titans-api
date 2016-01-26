@@ -161,3 +161,11 @@ def test_can_move(game):
     assert not game.can_move(None, None)
     assert not game.can_move(None, game.get_square(4, 0))
     assert not game.can_move(game.active_player.deck.first_card_in_hand, None)
+
+
+def test_actions(game):
+    assert len(game._actions) == 0
+    assert game.last_action is None
+    game.add_action('An action')
+    assert len(game._actions) == 1
+    assert game.last_action == 'An action'

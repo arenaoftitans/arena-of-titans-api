@@ -3,8 +3,9 @@ from aot.board import Square
 
 
 class LastAction:
-    def __init__(self, description, card=None, trump=None):
+    def __init__(self, description='', card=None, trump=None, player_name=''):
         self.description = description
+        self.player_name = player_name
         if card is None:
             self.card = {}
         else:
@@ -89,7 +90,10 @@ class Player:
             self.move(dest_square)
 
         if card is not None:
-            self._last_action = LastAction(description='played a card', card=card.infos)
+            self._last_action = LastAction(
+                description='played a card',
+                card=card.infos,
+                player_name=self.name)
         else:
             self._last_action = LastAction(description='A problem occured')
         self._complete_action()
@@ -115,11 +119,16 @@ class Player:
 
     def discard(self, card):
         self._deck.play(card)
-        self._last_action = LastAction(description='dicarded a card', card=card.infos)
+        self._last_action = LastAction(
+            description='dicarded a card',
+            card=card.infos,
+            player_name=self.name)
         self._complete_action()
 
     def pass_turn(self):
-        self._last_action = LastAction(description='passed his/her turn')
+        self._last_action = LastAction(
+            description='passed his/her turn',
+            player_name=self.name)
         self._can_play = False
         self._deck.init_turn()
 
@@ -182,7 +191,10 @@ class Player:
                 self._number_trumps_played += 1
                 description = ('{my_name} just played a trump on {target_name}'
                                .format(my_name=self.name, target_name=target.name))
-                self._last_action = LastAction(description=description, trump=trump)
+                self._last_action = LastAction(
+                    description=description,
+                    trump=trump,
+                    player_name=self.name)
                 return True
             else:
                 return False

@@ -251,7 +251,13 @@ position des joueurs.
                 },
                 "index": 1
             }
-        ]
+        ],
+        "last_action": {
+            "card": {},
+            "description": "passed his/her turn",
+            "player_name": "Player 1",
+            "trump": {}
+        }
       }
    }
 

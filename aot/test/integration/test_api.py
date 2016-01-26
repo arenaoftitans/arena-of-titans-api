@@ -320,7 +320,8 @@ def test_reconnect(player1, player2, players):
         'players': [
             {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}},
             {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}}
-        ]
+        ],
+        'last_action': None,
     }
 
     assert len(response['hand']) == 5
@@ -328,6 +329,46 @@ def test_reconnect(player1, player2, players):
     assert len(response['reconnect']['trumps']) == 4
     del response['reconnect']['trumps']
     assert response == expected_response
+
+
+@pytest.mark.asyncio
+def test_reconnect_after_action(player1, player2, players):
+    yield from create_game(player1, player2)
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    yield from player1.send('pass_turn')
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': player_id
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response, expected_response = yield from new_player.recv('play_card')
+
+    # Correct expected response
+    expected_response['reconnect'] = {
+        'index': 0,
+        'players': [
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}},
+            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}}
+        ],
+        'last_action': {
+            'card': {},
+            'description': 'passed his/her turn',
+            'player_name': 'Player 1',
+            'trump': {},
+        }
+    }
+
+    assert len(response['reconnect']['trumps']) == 4
+    del response['reconnect']['trumps']
+    assert response['reconnect'] == expected_response['reconnect']
 
 
 @pytest.mark.asyncio

@@ -2,6 +2,7 @@ import aot
 
 
 class Game:
+    _actions = None
     _active_player = None
     _board = None
     _is_over = False
@@ -10,6 +11,7 @@ class Game:
     _winners = []
 
     def __init__(self, board, players):
+        self._actions = []
         self._active_player = players[0]
         self._board = board
         self._is_over = False
@@ -21,6 +23,9 @@ class Game:
             deck = aot.get_deck(board)
             player.set(board, deck)
         self._active_player.init_turn()
+
+    def add_action(self, action):
+        self._actions.append(action)
 
     def view_possible_squares(self, card):
         return self._active_player.view_possible_squares(card)
@@ -113,6 +118,13 @@ class Game:
     @property
     def is_over(self):
         return self._is_over
+
+    @property
+    def last_action(self):
+        if len(self._actions) == 0:
+            return None
+        else:
+            return self._actions[-1]
 
     @property
     def players(self):

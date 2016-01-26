@@ -157,6 +157,15 @@ class Api(WebSocketServerProtocol):
             game = self._load_game()
             player = [player for player in game.players if player.id == self.id][0]
             message = self._get_play_message(player, game)
+            if game.last_action is not None:
+                last_action = {
+                    'description': game.last_action.description,
+                    'card': game.last_action.card,
+                    'trump': game.last_action.trump,
+                    'player_name': game.last_action.player_name,
+                }
+            else:
+                last_action = None
             message['reconnect'] = {
                 'players': [{
                     'index': player.index,
@@ -165,6 +174,7 @@ class Api(WebSocketServerProtocol):
                 } for player in game.players],
                 'trumps': player.trumps,
                 'index': player.index,
+                'last_action': last_action
             }
             return message
 
@@ -354,6 +364,7 @@ class Api(WebSocketServerProtocol):
         # Send play message to the player who just played.
         active_player_id = game.active_player.id
         active_player_index = game.active_player.index
+        game.add_action(this_player.last_action)
         self._send_player_played_message(this_player)
         this_player_message = self._get_play_message(this_player, game)
         self._clients[self.id].sendMessage(this_player_message)
@@ -375,6 +386,7 @@ class Api(WebSocketServerProtocol):
             'last_action': {
                 'description': player.last_action.description,
                 'card': player.last_action.card,
+                'player_name': player.last_action.player_name,
             }
         })
 
@@ -415,12 +427,15 @@ class Api(WebSocketServerProtocol):
         if targeted_player_index < len(game.players):
             target = game.players[targeted_player_index]
             if game.active_player.play_trump(trump, target=target):
+                last_action = game.active_player.last_action
+                game.add_action(last_action)
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
                     'active_trumps': self._get_active_trumps_message(game),
                     'last_action': {
-                        'description': game.active_player.last_action.description,
-                        'trump': game.active_player.last_action.trump,
+                        'description': last_action.description,
+                        'trump': last_action.trump,
+                        'player_name': last_action.player_name,
                     },
                 }
                 self._send_all(message)
