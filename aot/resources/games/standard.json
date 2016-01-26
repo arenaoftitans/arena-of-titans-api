@@ -60,7 +60,7 @@
       "name": "Tower",
       "cost": 5,
       "description": "Prevent the player to move on some colors.",
-      "duration": 2,
+      "duration": 1,
       "repeat_for_each_color": true,
       "must_target_player": true,
       "parameters": {
