@@ -22,7 +22,8 @@
     }],
     "hand": [{
         "name": "King",
-        "color": "RED"
+        "color": "RED",
+        "description": "A card"
     }],
     "trumps": [{
         "name": "Red Tower",

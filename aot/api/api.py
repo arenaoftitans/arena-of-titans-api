@@ -284,7 +284,8 @@ class Api(WebSocketServerProtocol):
                 'active_trumps': self._get_active_trumps_message(game),
                 'hand': [{
                     'name': card.name,
-                    'color': card.color
+                    'color': card.color,
+                    'description': card.description,
                 } for card in player.hand],
                 'trumps': player.trumps
             }
@@ -399,7 +400,8 @@ class Api(WebSocketServerProtocol):
             'next_player': game.active_player.index,
             'hand': [{
                 'name': card.name,
-                'color': card.color
+                'color': card.color,
+                'description': card.description,
             } for card in player.hand],
             'game_over': game.is_over,
             'winners': game.winners,

@@ -8,19 +8,23 @@
     "hand": [
         {
             "color": "RED",
-            "name": "Bishop"
+            "name": "Bishop",
+            "description": "A card"
         },
         {
             "color": "BLACK",
-            "name": "Bishop"
+            "name": "Bishop",
+            "description": "A card"
         },
         {
             "color": "BLUE",
-            "name": "Knight"
+            "name": "Knight",
+            "description": "A card"
         },
         {
             "color": "RED",
-            "name": "Warrior"
+            "name": "Warrior",
+            "description": "A card"
         }
     ],
     "game_over": false,
