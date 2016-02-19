@@ -22,7 +22,9 @@ help:
 	@echo "- testintegration: launch integration tests with coverage report"
 	@echo "- testdebug: launch integration tests but don't launch the API"
 	@echo "- deploy: launch `cd aot-api && make updateprod` on the production server"
+	@echo "- devdeploy: launch `cd devaot && make updatedev` on the production server"
 	@echo "- updateprod: restart the API after updating the git repo"
+	@echo "- updatedev: restart the API after updating the git repo"
 	@echo "- static: generate all static files for the API like SVG boards"
 
 
@@ -93,6 +95,12 @@ deploy:
 	ssh aot "cd /home/aot/aot-api && make updateprod"
 
 
+.PHONY: devdeploy
+deploy:
+	git push && \
+	ssh aot "cd /home/aot/devapi && make updateprod"
+
+
 .PHONY: updateprod
 updateprod:
 	git pull && \
@@ -101,6 +109,18 @@ updateprod:
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
 	    -c python3 \
 	    --uid aot \
+	    --killSignal=SIGINT \
+	    aot
+
+
+.PHONY: updatedev
+updatedev:
+	git pull && \
+	forever stop devaot && \
+	$(MAKE) -f $(THIS_FILE) static && \
+	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
+	    -c python3 \
+	    --uid devaot \
 	    --killSignal=SIGINT \
 	    aot
 
