@@ -24,7 +24,8 @@ class Trump:
         self._duration -= 1
 
     def __str__(self):  # pragma: no cover
-        return '{type}(duration={duration}, cost={cost}, must_target_player={must_target_player}, name={name})'\
+        return '{type}(duration={duration}, cost={cost}, must_target_player={must_target_player}, '
+        'name={name})'\
             .format(
                 type=type(self).__name__,
                 duration=self.duration,

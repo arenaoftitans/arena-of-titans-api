@@ -6,7 +6,7 @@ cov = coverage.coverage(config_file=False)
 cov.start()
 
 
-from aot.__main__ import main
+from aot.__main__ import main  # noqa
 
 
 logging.basicConfig(level=logging.DEBUG)
