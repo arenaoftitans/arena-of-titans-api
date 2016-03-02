@@ -104,25 +104,17 @@ deploy:
 .PHONY: updateprod
 updateprod:
 	git pull && \
-	forever stop aot && \
+	systemctl --user stop aot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
-	    -c python3 \
-	    --uid aot \
-	    --killSignal=SIGINT \
-	    aot
+	systemctl --user start aot
 
 
 .PHONY: updatedev
 updatedev:
 	git pull && \
-	forever stop devaot && \
+	systemctl --user stop devaot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
-	    -c python3 \
-	    --uid devaot \
-	    --killSignal=SIGINT \
-	    aot
+	systemctl --user start devaot
 
 
 .PHONY: static

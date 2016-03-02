@@ -1,0 +1,16 @@
+[Unit]
+Description=The	aot dev service
+After=redis.service
+
+
+[Service]
+Type=forking
+WorkingDirectory=/home/aot/devapi
+Environment="PYTHONPATH=/home/aot/devapi"
+PIDFile=/home/aot/.forever/pids/devaot.pid
+ExecStart=/home/aot/.npm-packages/bin/forever start -a -c python3 --uid devaot --killSignal=SIGINT aot
+ExecStop=/home/aot/.npm-packages/bin/forever stop devaot
+
+
+[Install]
+WantedBy=basic.target
