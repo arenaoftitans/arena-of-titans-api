@@ -1,7 +1,10 @@
 import pytest
 from copy import deepcopy
 
-from aot.board import Square
+from aot.board import (
+    Color,
+    Square,
+)
 from aot.cards import Card
 # board is a fixture, ignore the unsued import warnig
 from aot.test import board
@@ -308,3 +311,21 @@ def test_knight_occupied_square(board):
     assert card.move(board[0, 8]) == set([
         Square(1, 6, 'red'),
     ])
+
+
+def test_remove_color_from_possible_colors(board):
+    card_properties = deepcopy(CARD_DICT)
+    card = Card(board, **card_properties)
+
+    assert card.color in card.colors
+    card.remove_color_from_possible_colors(card.color)
+    assert card.color not in card.colors
+
+    card.revert_to_default()
+    assert card.color in card.colors
+
+    card.remove_color_from_possible_colors(Color['ALL'])
+    assert len(card.colors) == 0
+
+    card.revert_to_default()
+    assert card.color in card.colors

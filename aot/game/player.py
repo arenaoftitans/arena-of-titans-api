@@ -23,8 +23,8 @@ class Player:
     MAX_NUMBER_TRUMPS_PLAYED = 1
 
     _aim = set()
-    _affecting_trumps = []
-    _available_trumps = []
+    _affecting_trumps = None
+    _available_trumps = None
     _board = None
     _can_play = False
     _current_square = None
@@ -157,6 +157,8 @@ class Player:
         self._revert_to_default()
         for trump in self._affecting_trumps:
             trump.consume()
+
+        for trump in self._affecting_trumps:
             if trump.duration == 0:
                 self._affecting_trumps.remove(trump)
 
@@ -177,10 +179,7 @@ class Player:
             return False
 
     def get_trump(self, trump_name):
-        try:
-            return self._available_trumps[trump_name]
-        except KeyError:
-            pass
+        return self._available_trumps[trump_name]
 
     def play_trump(self, trump, target=None):
         if self.can_play_trump and target is not None:
@@ -254,7 +253,7 @@ class Player:
         return self._index
 
     @property
-    def last_action(self):
+    def last_action(self):  # pragma: no cover
         return self._last_action
 
     @property

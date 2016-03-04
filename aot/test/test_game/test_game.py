@@ -1,16 +1,28 @@
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
+    deck,
     game,
+    player,
 )
 from aot.board import Square
 from aot.cards import SimpleCard
+from aot.game import Game
+from unittest.mock import MagicMock
+
+
+def test_game_creation(player):
+    player.init_turn = MagicMock()
+    Game(None, [player])
+    player.init_turn.assert_called_once_with()
 
 
 def test_game_one_player_left(game):
+    game.active_player.play_card = MagicMock()
     for i in range(7):
         game.players[i] = None
     game.play_card(None, (0, 0), check_move=False)
+    game.active_player.play_card.assert_called_once_with(None, (0, 0), check_move=False)
     assert game.is_over
 
 
@@ -25,6 +37,7 @@ def test_play_turn_winning_player(game):
     assert not game.is_over
 
     # Same turn
+    player1.can_play = False
     game.play_card(None, (16, 8), check_move=False)
     assert player2 is game.active_player
     assert not game.players[0].has_won
@@ -143,11 +156,13 @@ def test_discard(game):
     assert card not in deck.hand
 
 
-def test_view_possible_square(game):
+def test_view_possible_squares(game):
     # Must not throw. Correctness of the list is tested in card module
     card = game.active_player.deck.first_card_in_hand
+    game.active_player.view_possible_squares = MagicMock()
     card_properties = SimpleCard(name=card.name, color=card.color)
     game.view_possible_squares(card_properties)
+    game.active_player.view_possible_squares.assert_called_once_with(card_properties)
 
 
 def test_get_square(game):
@@ -158,9 +173,15 @@ def test_get_square(game):
 
 
 def test_can_move(game):
-    assert not game.can_move(None, None)
-    assert not game.can_move(None, game.get_square(4, 0))
-    assert not game.can_move(game.active_player.deck.first_card_in_hand, None)
+    game.active_player.can_move = MagicMock(return_value=True)
+    card = game.active_player.deck.first_card_in_hand
+    square = game.get_square(4, 0)
+    assert game.can_move(card, square)
+    game.active_player.can_move.assert_called_once_with(card, square)
+
+    game.active_player.can_move = MagicMock(return_value=False)
+    assert not game.can_move(card, square)
+    game.active_player.can_move.assert_called_once_with(card, square)
 
 
 def test_actions(game):

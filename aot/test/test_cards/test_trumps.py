@@ -6,82 +6,44 @@ from aot.cards.trumps import (
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
+    deck,
     game,
+    player,
 )
+from unittest.mock import MagicMock
 
 
-def test_affect_modify_number_moves(game):
-    player1 = game.players[0]
-    player2 = game.players[1]
+def test_affect_modify_number_moves(player):
+    player.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=1, duration=1)
-    player1._affect_by(trump)
-
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player2 is game.active_player
-
-    for _ in game.players[1:]:
-        game.pass_turn()
-
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player2 is game.active_player
+    trump.affect(player)
+    player.modify_number_moves.assert_called_once_with(1)
 
 
-def test_affect_modify_number_moves_middle_turn(game):
-    player1 = game.players[0]
-    player2 = game.players[1]
-    trump = ModifyNumberMoves(delta_moves=1, duration=1)
-
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    player1._affect_by(trump)
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player2 is game.active_player
-
-    for _ in game.players[1:]:
-        game.pass_turn()
-
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player1 is game.active_player
-    game.play_card(None, (0, 0), check_move=False)
-    assert player2 is game.active_player
-
-
-def test_remove_color(game):
-    player1 = game.players[0]
-    card = player1.deck.first_card_in_hand
+def test_remove_color(player):
+    player.deck.remove_color_from_possible_colors = MagicMock()
+    card = player.deck.first_card_in_hand
     color = card.color
     trump = RemoveColor(color=color, duration=1)
-    player1._affect_by(trump)
-    assert color not in card.colors
+    trump.affect(player)
+    player.deck.remove_color_from_possible_colors.assert_called_once_with(color)
 
 
-def test_remove_all_colors(game):
-    player1 = game.players[0]
-    card = player1.deck.first_card_in_hand
+def test_remove_all_colors(player):
+    player.deck.remove_color_from_possible_colors = MagicMock()
     trump = RemoveColor(color=Color['ALL'], duration=1)
-    player1._affect_by(trump)
-    assert 0 == len(card.colors)
+    trump.affect(player)
+    player.deck.remove_color_from_possible_colors.assert_called_once_with(Color['ALL'])
 
 
-def test_remove_multiple_colors(game):
-    player1 = game.players[0]
-    card = player1.deck.first_card_in_hand
-    trump = RemoveColor(colors=[card.color, Color['BLACK']], duration=1)
-    player1._affect_by(trump)
-    assert card.color not in card.colors
-    assert Color['BLACK'] not in card.colors
+def test_remove_multiple_colors(player):
+    player.deck.remove_color_from_possible_colors = MagicMock()
+    card = player.deck.first_card_in_hand
+    colors = {card.color, Color['BLACK']}
+    trump = RemoveColor(colors=colors, duration=1)
+    trump.affect(player)
+    assert player.deck.remove_color_from_possible_colors.called
+    assert player.deck.remove_color_from_possible_colors.call_count == len(colors)
 
 
 def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):

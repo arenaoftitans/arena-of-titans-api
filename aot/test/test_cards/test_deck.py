@@ -7,6 +7,7 @@ from aot.test import (
     board,
     deck
 )
+from unittest.mock import MagicMock
 
 
 NUMBER_COLORS = 4
@@ -17,11 +18,12 @@ NUMBER_TOTAL_CARDS = NUMBER_CARD_TYPES * NUMBER_COLORS
 
 def test_get_card(deck):
     card = deck.first_card_in_hand
-    assert card == deck.get_card(card.name, card.color)
+    assert card is deck.get_card(card.name, card.color)
     assert deck.get_card('Azerty', 'Black') is None
     assert deck.get_card(None, 'Black') is None
     assert deck.get_card('King', 'king') is None
     assert deck.get_card('King', None) is None
+    assert deck.get_card(None, None) is None
 
 
 def test_init_deck(deck):
@@ -36,11 +38,13 @@ def test_init_deck(deck):
 def test_play_existing_card(deck):
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     played_card = deck.first_card_in_hand
+    played_card.revert_to_default = MagicMock()
 
     deck.play(played_card)
     nb_remaining_cards_after_play = deck.number_cards_in_stock
     assert nb_remaining_cards_before_play == nb_remaining_cards_after_play
     assert NUMBER_CARDS_HAND - 1 == deck.number_cards_in_hand
+    played_card.revert_to_default.assert_called_once_with()
 
     deck.init_turn()
     assert nb_remaining_cards_before_play - 1 == deck.number_cards_in_stock
@@ -54,12 +58,14 @@ def test_play_existing_card(deck):
 def test_play_card_from_name_color(deck):
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     played_card = deck.first_card_in_hand
+    played_card.revert_to_default = MagicMock()
     simple_card = SimpleCard(name=played_card.name, color=played_card.color)
 
     deck.play(simple_card)
     nb_remaining_cards_after_play = deck.number_cards_in_stock
     assert nb_remaining_cards_before_play == nb_remaining_cards_after_play
     assert NUMBER_CARDS_HAND - 1 == deck.number_cards_in_hand
+    played_card.revert_to_default.assert_called_once_with()
 
 
 def test_play_no_card(deck):
@@ -105,3 +111,25 @@ def test_play_more_cards_than_total_in_deck(deck):
 def test_view_possible_square(deck):
     assert isinstance(deck.view_possible_squares(None, None), set)
     assert isinstance(deck.view_possible_squares(deck.first_card_in_hand, None), set)
+    card = deck.first_card_in_hand
+    card = SimpleCard(name=card.name, color=card.color)
+    assert isinstance(deck.view_possible_squares(card, None), set)
+
+
+def test_remove_color_from_possible_colors(deck):
+    for card in deck.hand:
+        card.remove_color_from_possible_colors = MagicMock()
+
+    color = card.color
+    deck.remove_color_from_possible_colors(color)
+    for card in deck.hand:
+        card.remove_color_from_possible_colors.assert_called_once_with(color)
+
+
+def test_revert_to_default(deck):
+    for card in deck.hand:
+        card.revert_to_default = MagicMock()
+
+    deck.revert_to_default()
+    for card in deck.hand:
+        card.revert_to_default.assert_called_once_with()

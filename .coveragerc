@@ -1,7 +1,7 @@
 [run]
 omit =
     aot/test/*
-    aot/main.py
+    aot/__main__.py
     aot/test_main.py
     aot/api/*
 
