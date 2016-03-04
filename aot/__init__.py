@@ -150,7 +150,15 @@ def get_game(players_description, name='standard', test=False):
     board = get_board(name=name)
     players = []
     for player in players_description:
-        players.append(Player(player['name'], player['id'], player['index'], test=test))
+        deck = get_deck(board)
+        player = Player(
+            player['name'],
+            player['id'],
+            player['index'],
+            board,
+            deck,
+            trumps=get_trumps_list(board_name=name, test=test))
+        players.append(player)
     return Game(board, players)
 
 

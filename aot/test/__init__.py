@@ -25,14 +25,12 @@ def deck(board):
 
 @pytest.fixture
 def player(board, deck):
-    player = Player(None, None, 0)
-    player._available_trumps = get_trumps_list(test=True)
-    player.set(board, deck)
+    player = Player(None, None, 0, board, deck, trumps=get_trumps_list(test=True))
     return player
 
 
 @pytest.fixture
-def game(board):
+def game():
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,

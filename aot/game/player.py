@@ -1,4 +1,3 @@
-import aot
 from aot.board import Square
 
 
@@ -40,15 +39,13 @@ class Player:
     _number_trumps_played = 0
     _rank = -1
 
-    def __init__(self, name, id, index, test=False):
+    def __init__(self, name, id, index, board, deck, trumps=None):
         self._name = name
         self._id = id
         self._index = index
 
         self._affecting_trumps = []
-        self._available_trumps = aot.get_trumps_list(test=test)
-
-    def set(self, board, deck):
+        self._available_trumps = trumps if trumps is not None else []
         self._aim = self._generate_aim(board)
         self._board = board
         self._current_square = board[

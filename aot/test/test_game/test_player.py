@@ -56,8 +56,7 @@ def test_init_game_player_0(player, board):
 
 
 def test_init_game_player_1(board, deck):
-    player = Player(None, None, 1)
-    player.set(board, deck)
+    player = Player(None, None, 1, board, deck)
     start_square = player.current_square
     assert start_square.occupied
     assert 4 == start_square.x

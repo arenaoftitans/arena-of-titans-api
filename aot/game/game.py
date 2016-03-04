@@ -1,6 +1,3 @@
-import aot
-
-
 class Game:
     _actions = None
     _active_player = None
@@ -19,9 +16,6 @@ class Game:
         self._next_rank_available = 1
         self._winners = []
 
-        for player in self._players:
-            deck = aot.get_deck(board)
-            player.set(board, deck)
         self._active_player.init_turn()
 
     def add_action(self, action):
