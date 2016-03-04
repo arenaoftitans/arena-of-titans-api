@@ -96,7 +96,7 @@ deploy:
 
 
 .PHONY: devdeploy
-deploy:
+devdeploy:
 	git push && \
 	ssh aot "cd /home/aot/devapi && make updateprod"
 
