@@ -39,10 +39,11 @@ class Player:
     _number_trumps_played = 0
     _rank = -1
 
-    def __init__(self, name, id, index, board, deck, trumps=None):
+    def __init__(self, name, id, index, board, deck, trumps=None, hero=''):
         self._name = name
         self._id = id
         self._index = index
+        self._hero = hero
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
@@ -243,6 +244,10 @@ class Player:
     @property
     def hand(self):
         return self._deck.hand
+
+    @property
+    def hero(self):
+        return self._hero
 
     @property
     def id(self):  # pragma: no cover

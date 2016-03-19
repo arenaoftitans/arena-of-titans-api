@@ -2,9 +2,11 @@
     "rt": "CREATE_GAME",
     "create_game_request": [{
 	"name": "Player 1",
+        "hero": "daemon",
 	"index": 0
     }, {
 	"name": "Player 2",
+        "hero": "daemon",
 	"index": 1
     }]
 }

@@ -2,6 +2,7 @@
     "rt": "SLOT_UPDATED",
     "slot": {
 	"index": 0,
+        "hero": "deamon",
 	"player_name": "Me",
         "state": "TAKEN"
     }

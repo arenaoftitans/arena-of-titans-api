@@ -128,7 +128,9 @@ class Api(WebSocketServerProtocol):
         return initiliazed_game
 
     def _affect_current_slot(self):
-        return self._cache.affect_next_slot(self.message.get('player_name', ''))
+        player_name = self.message.get('player_name', '')
+        hero = self.message.get('hero', '')
+        return self._cache.affect_next_slot(player_name, hero)
 
     def _send_updated_slot_new_player(self, slot, is_game_master):
         # The game master is the first player, no other players to send to
@@ -170,7 +172,8 @@ class Api(WebSocketServerProtocol):
                 'players': [{
                     'index': player.index,
                     'name': player.name,
-                    'square': player.current_square
+                    'square': player.current_square,
+                    'hero': player.hero,
                 } for player in game.players],
                 'trumps': player.trumps,
                 'index': player.index,
@@ -279,7 +282,8 @@ class Api(WebSocketServerProtocol):
                 'winners': [],
                 'players': [{
                     'index': player.index,
-                    'name': player.name
+                    'name': player.name,
+                    'hero': player.hero,
                 } for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
                 'hand': [{

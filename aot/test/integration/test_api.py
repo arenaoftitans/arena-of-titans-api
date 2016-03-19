@@ -318,8 +318,8 @@ def test_reconnect(player1, player2, players):
     expected_response['reconnect'] = {
         'index': 0,
         'players': [
-            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}},
-            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}}
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}, 'hero': 'daemon'},
+            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}, 'hero': 'daemon'},
         ],
         'last_action': None,
     }
@@ -355,8 +355,8 @@ def test_reconnect_after_action(player1, player2, players):
     expected_response['reconnect'] = {
         'index': 0,
         'players': [
-            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}},
-            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}}
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}, 'hero': 'daemon'},
+            {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}, 'hero': 'daemon'},
         ],
         'last_action': {
             'card': {},

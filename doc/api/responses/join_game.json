@@ -6,10 +6,12 @@
     "slots": [{
         "index": 0,
         "player_name": "Player 1",
+        "hero": "daemon",
         "state": "TAKEN"
     }, {
         "index": 1,
         "player_name": "Player 2",
+        "hero": "daemon",
         "state": "TAKEN"
     }]
 }

@@ -3,6 +3,7 @@
     "slot": {
         "player_name": "Player 2",
         "index": 1,
+        "hero": "daemon",
         "state": "TAKEN"
     }
 }

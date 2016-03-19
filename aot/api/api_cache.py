@@ -145,12 +145,13 @@ class ApiCache:
         slots = self.get_slots()
         return [slot for slot in slots if slot['state'] == SlotState.TAKEN.value]
 
-    def affect_next_slot(self, player_name):
+    def affect_next_slot(self, player_name, hero):
         opened_slots = ApiCache._get_opened_slots(self._game_id)
         next_available_slot = opened_slots[0]
         next_available_slot['player_id'] = self._player_id
         next_available_slot['state'] = SlotState.TAKEN.value
         next_available_slot['player_name'] = player_name
+        next_available_slot['hero'] = hero
         self.update_slot(next_available_slot)
 
         return next_available_slot['index']
