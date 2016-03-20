@@ -3,6 +3,7 @@ import asyncio
 import base64
 import copy
 import json
+import logging
 import uuid
 
 from aot import get_game
@@ -66,14 +67,17 @@ class Api(WebSocketServerProtocol):
         self._set_up_connection_keep_alive()
 
     def onMessage(self, payload, isBinary):
-        self.message = json.loads(payload.decode('utf-8'))
-        if self._game_id is None:
-            if not self._initialize_connection():
-                self.sendClose()
-        elif self._creating_game():
-            self._process_create_game_request()
-        else:
-            self._process_play_request()
+        try:
+            self.message = json.loads(payload.decode('utf-8'))
+            if self._game_id is None:
+                if not self._initialize_connection():
+                    self.sendClose()
+            elif self._creating_game():
+                self._process_create_game_request()
+            else:
+                self._process_play_request()
+        except Exception as e:
+            logging.error(e)
 
     def _initialize_connection(self):
         must_close_session = False
