@@ -158,7 +158,7 @@ def get_game(players_description, name='standard', test=False):
             board,
             deck,
             trumps=get_trumps_list(board_name=name, test=test),
-            hero=player['hero'])
+            hero=player.get('hero', ''))
         players.append(player)
     return Game(board, players)
 
