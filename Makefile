@@ -104,17 +104,17 @@ devdeploy:
 .PHONY: updateprod
 updateprod:
 	git pull && \
-	systemctl --user stop aot && \
+	systemctl stop aot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	systemctl --user start aot
+	systemctl start aot
 
 
 .PHONY: updatedev
 updatedev:
 	git pull && \
-	systemctl --user stop devaot && \
+	systemctl stop devaot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	systemctl --user start devaot
+	systemctl start devaot
 
 
 .PHONY: static
