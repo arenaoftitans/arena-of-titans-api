@@ -160,7 +160,9 @@ class ApiCache:
     def update_slot(self, slot):
         current_slot = self.get_slot(slot['index'])
         if current_slot.get('player_id', '') == self._player_id:
-            slot['player_id'] = self._player_id
+            # If new value is OPEN, we are freeing the slot and mustn't add the player id.
+            if slot['state'] != SlotState.OPEN.value:
+                slot['player_id'] = self._player_id
             self._save_slot(slot)
         elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN.value:
             self._save_slot(slot)

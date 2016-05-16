@@ -164,8 +164,14 @@ class Api(WebSocketServerProtocol):
             self._disconnect_timeouts[self.id].cancel()
 
         if self._creating_game():
-            index = self._cache.get_player_index()
-            return self._get_initialiazed_game_message(index)
+            try:
+                index = self._cache.get_player_index()
+            except IndexError:
+                # We were disconnected and we must register again
+                self._game_id = None
+                index = -1
+            finally:
+                return self._get_initialiazed_game_message(index)
         else:
             with self._load_game() as game:
                 message = self._reconnect_to_game(game)
