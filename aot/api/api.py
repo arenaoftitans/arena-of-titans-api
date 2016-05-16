@@ -12,6 +12,7 @@ from aot.game import Player
 from aot.api.api_cache import ApiCache
 from aot.api.utils import to_json
 from aot.api.utils import RequestTypes
+from contextlib import contextmanager
 
 
 class Api(WebSocketServerProtocol):
@@ -160,32 +161,38 @@ class Api(WebSocketServerProtocol):
             index = self._cache.get_player_index()
             return self._get_initialiazed_game_message(index)
         else:
-            game = self._load_game()
-            player = [player for player in game.players if player.id == self.id][0]
-            player.is_connected = True
-            self._save_game(game)
-            message = self._get_play_message(player, game)
-            if game.last_action is not None:
-                last_action = {
-                    'description': game.last_action.description,
-                    'card': game.last_action.card,
-                    'trump': game.last_action.trump,
-                    'player_name': game.last_action.player_name,
-                }
-            else:
-                last_action = None
-            message['reconnect'] = {
-                'players': [{
-                    'index': player.index,
-                    'name': player.name,
-                    'square': player.current_square,
-                    'hero': player.hero,
-                } for player in game.players],
-                'trumps': player.trumps,
-                'index': player.index,
-                'last_action': last_action
-            }
+            with self._load_game() as game:
+                message = self._reconnect_to_game(game)
             return message
+
+    def _reconnect_to_game(self, game):
+        player = [player for player in game.players if player.id == self.id][0]
+        player.is_connected = True
+        message = self._get_play_message(player, game)
+
+        if game.last_action is not None:
+            last_action = {
+                'description': game.last_action.description,
+                'card': game.last_action.card,
+                'trump': game.last_action.trump,
+                'player_name': game.last_action.player_name,
+            }
+        else:
+            last_action = None
+
+        message['reconnect'] = {
+            'players': [{
+                'index': player.index,
+                'name': player.name,
+                'square': player.current_square,
+                'hero': player.hero,
+            } for player in game.players],
+            'trumps': player.trumps,
+            'index': player.index,
+            'last_action': last_action
+        }
+
+        return message
 
     def _creating_game(self):
         return not self._cache.has_game_started()
@@ -306,15 +313,17 @@ class Api(WebSocketServerProtocol):
             self._send_to(message, player.id)
 
     def _process_play_request(self):
-        game = self._load_game()
-        if self._is_player_id_correct(game):
-            self._play_game(game)
-            self._save_game(game)
-        else:
-            self._send_error_to_display('not_your_turn')
+        with self._load_game() as game:
+            if self._is_player_id_correct(game):
+                self._play_game(game)
+            else:
+                self._send_error_to_display('not_your_turn')
 
+    @contextmanager
     def _load_game(self):
-        return self._cache.get_game()
+        game = self._cache.get_game()
+        yield game
+        self._save_game(game)
 
     def _is_player_id_correct(self, game):
         return self.id is not None and self.id == game.active_player.id
@@ -490,12 +499,11 @@ class Api(WebSocketServerProtocol):
             del self._clients[self.id]
 
     def _disconnect_player(self):
-        game = self._load_game()
-        player = game.disconnect(self.id)
-        if not game.is_over and player == game.active_player:
-            game.pass_turn()
-            self._send_play_message(player, game)
-            self._save_game(game)
+        with self._load_game() as game:
+            player = game.disconnect(self.id)
+            if not game.is_over and player == game.active_player:
+                game.pass_turn()
+                self._send_play_message(player, game)
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids():
