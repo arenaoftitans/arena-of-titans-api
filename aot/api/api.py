@@ -508,6 +508,26 @@ class Api(WebSocketServerProtocol):
             del self._clients[self.id]
 
     def _disconnect_player(self):
+        if self._creating_game():
+            self._free_slot()
+        else:
+            self._disconnect_player_from_game()
+
+    def _free_slot(self):
+        slots = self._cache.get_slots()
+        slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
+        if slots:
+            slot = slots[0]
+            self.message = {
+                'rt': RequestTypes.SLOT_UPDATED.value,
+                'slot': {
+                    'index': slot['index'],
+                    'state': 'OPEN',
+                },
+            }
+            self._modify_slots(RequestTypes.SLOT_UPDATED.value)
+
+    def _disconnect_player_from_game(self):
         with self._load_game() as game:
             if game:
                 player = game.disconnect(self.id)
