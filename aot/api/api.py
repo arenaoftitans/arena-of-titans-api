@@ -16,8 +16,10 @@ from contextlib import contextmanager
 
 
 class Api(WebSocketServerProtocol):
+    DISCONNECTED_TIMEOUT_WAIT = 10
     # Class variables.
     _clients = {}
+    _disconnect_timeouts = {}
     _error_messages = {
         'add_slot_exists': 'Trying to add a slot that already exists.',
         'cannot_join': 'You cannot join this game. No slots opened.',
@@ -168,6 +170,7 @@ class Api(WebSocketServerProtocol):
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player.id == self.id][0]
         player.is_connected = True
+        self._disconnect_timeouts[self.id].cancel()
         message = self._get_play_message(player, game)
 
         if game.last_action is not None:
@@ -493,7 +496,10 @@ class Api(WebSocketServerProtocol):
 
     def onClose(self, wasClean, code, reason):
         if self._cache is not None:
-            self._disconnect_player()
+            self._disconnect_timeouts[self.id] = self._loop.call_later(
+                self.DISCONNECTED_TIMEOUT_WAIT,
+                self._disconnect_player
+            )
 
         if self.id in self._clients:
             del self._clients[self.id]
