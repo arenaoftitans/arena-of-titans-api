@@ -12,5 +12,7 @@
             "description": "Move forwards"
         },
         "description": "played a card"
-    }
+    },
+    "winners": [],
+    "game_over": false
 }

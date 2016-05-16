@@ -192,7 +192,9 @@ class Api(WebSocketServerProtocol):
             } for player in game.players],
             'trumps': player.trumps,
             'index': player.index,
-            'last_action': last_action
+            'last_action': last_action,
+            'game_over': game.is_over,
+            'winners': game.winners,
         }
 
         return message
@@ -392,7 +394,7 @@ class Api(WebSocketServerProtocol):
         active_player_id = game.active_player.id
         active_player_index = game.active_player.index
         game.add_action(this_player.last_action)
-        self._send_player_played_message(this_player)
+        self._send_player_played_message(this_player, game)
         this_player_message = self._get_play_message(this_player, game)
         if self.id in self._clients:
             self._clients[self.id].sendMessage(this_player_message)
@@ -403,7 +405,7 @@ class Api(WebSocketServerProtocol):
             active_player_message['your_turn'] = True
             self._clients[active_player_id].sendMessage(active_player_message)
 
-    def _send_player_played_message(self, player):
+    def _send_player_played_message(self, player, game):
         self._send_all({
             'rt': RequestTypes.PLAYER_PLAYED.value,
             'player_index': player.index,
@@ -415,7 +417,9 @@ class Api(WebSocketServerProtocol):
                 'description': player.last_action.description,
                 'card': player.last_action.card,
                 'player_name': player.last_action.player_name,
-            }
+            },
+            'game_over': game.is_over,
+            'winners': game.winners,
         })
 
     def _get_play_message(self, player, game):
@@ -430,9 +434,7 @@ class Api(WebSocketServerProtocol):
                 'color': card.color,
                 'description': card.description,
             } for card in player.hand],
-            'game_over': game.is_over,
-            'winners': game.winners,
-            'active_trumps': self._get_active_trumps_message(game)
+            'active_trumps': self._get_active_trumps_message(game),
         }
 
     def _get_active_trumps_message(self, game):

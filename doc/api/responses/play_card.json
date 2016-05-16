@@ -4,7 +4,6 @@
     "has_won": false,
     "rank": -1,
     "next_player": 0,
-    "winners": [],
     "hand": [
         {
             "color": "RED",
@@ -27,7 +26,6 @@
             "description": "A card"
         }
     ],
-    "game_over": false,
     "active_trumps": [
         {
             "player_index": 0,
