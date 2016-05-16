@@ -170,7 +170,8 @@ class Api(WebSocketServerProtocol):
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player.id == self.id][0]
         player.is_connected = True
-        self._disconnect_timeouts[self.id].cancel()
+        if self.id in self._disconnect_timeouts:
+            self._disconnect_timeouts[self.id].cancel()
         message = self._get_play_message(player, game)
 
         if game.last_action is not None:
@@ -508,10 +509,11 @@ class Api(WebSocketServerProtocol):
 
     def _disconnect_player(self):
         with self._load_game() as game:
-            player = game.disconnect(self.id)
-            if not game.is_over and player == game.active_player:
-                game.pass_turn()
-                self._send_play_message(player, game)
+            if game:
+                player = game.disconnect(self.id)
+                if not game.is_over and player == game.active_player:
+                    game.pass_turn()
+                    self._send_play_message(player, game)
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids():

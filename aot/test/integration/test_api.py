@@ -322,6 +322,8 @@ def test_reconnect(player1, player2, players):
             {'index': 1, 'name': 'Player 2', 'square': {'y': 8, 'x': 4}, 'hero': 'daemon'},
         ],
         'last_action': None,
+        'game_over': False,
+        'winners': [],
     }
 
     assert len(response['hand']) == 5
@@ -363,7 +365,9 @@ def test_reconnect_after_action(player1, player2, players):
             'description': 'passed his/her turn',
             'player_name': 'Player 1',
             'trump': {},
-        }
+        },
+        'game_over': False,
+        'winners': [],
     }
 
     assert len(response['reconnect']['trumps']) == 4

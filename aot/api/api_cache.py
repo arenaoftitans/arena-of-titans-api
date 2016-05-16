@@ -114,7 +114,8 @@ class ApiCache:
 
     def get_game(self):
         game_data = self._cache.hget(self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY)
-        return pickle.loads(game_data)
+        if game_data:
+            return pickle.loads(game_data)
 
     def save_session(self, player_index):
         self._cache.zadd(
