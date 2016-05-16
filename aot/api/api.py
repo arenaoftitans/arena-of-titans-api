@@ -159,6 +159,10 @@ class Api(WebSocketServerProtocol):
         self.id = self.message['player_id']
         self._clients[self.id] = self
         self._cache = ApiCache(self._game_id, self.id)
+
+        if self.id in self._disconnect_timeouts:
+            self._disconnect_timeouts[self.id].cancel()
+
         if self._creating_game():
             index = self._cache.get_player_index()
             return self._get_initialiazed_game_message(index)
@@ -170,8 +174,6 @@ class Api(WebSocketServerProtocol):
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player.id == self.id][0]
         player.is_connected = True
-        if self.id in self._disconnect_timeouts:
-            self._disconnect_timeouts[self.id].cancel()
         message = self._get_play_message(player, game)
 
         if game.last_action is not None:

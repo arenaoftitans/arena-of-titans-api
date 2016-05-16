@@ -74,9 +74,32 @@ def test_onClose_creating_game(api, game):
     api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED.value)
 
 
-def test_reconnect_to_game(api, game):
+def test_reconnect_creating_game(api, game):
     timer = MagicMock()
+    api._creating_game = MagicMock(return_value=True)
+    api._reconnect_to_game = MagicMock()
+    api._get_initialiazed_game_message = MagicMock()
+    api._game_id = 'game-id'
+    api.message = {
+        'player_id': 0,
+    }
     api._disconnect_timeouts[0] = timer
-    api._reconnect_to_game(game)
+    api._reconnect()
 
     timer.cancel.assert_called_once_with()
+    api._get_initialiazed_game_message.assert_called_once_with(-1)
+
+
+def test_reconnect_to_game(api, game):
+    timer = MagicMock()
+    api._creating_game = MagicMock(return_value=False)
+    api._reconnect_to_game = MagicMock()
+    api._game_id = 'game-id'
+    api.message = {
+        'player_id': 0,
+    }
+    api._disconnect_timeouts[0] = timer
+    api._reconnect()
+
+    timer.cancel.assert_called_once_with()
+    api._reconnect_to_game.assert_called_once_with(None)
