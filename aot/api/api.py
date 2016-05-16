@@ -80,7 +80,7 @@ class Api(WebSocketServerProtocol):
             else:
                 self._process_play_request()
         except Exception as e:
-            logging.error(e)
+            logging.exception('onMessage')
 
     def _initialize_connection(self):
         must_close_session = False
