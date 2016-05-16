@@ -190,3 +190,39 @@ def test_actions(game):
     game.add_action('An action')
     assert len(game._actions) == 1
     assert game.last_action == 'An action'
+
+
+def test_disconnect(game):
+    player0 = game.players[0]
+    assert player0 is game.active_player
+    assert player0.is_connected
+
+    ret = game.disconnect(player0.id)
+    assert ret is player0
+    assert not player0.is_connected
+
+
+def test_all_players_disconnected(game):
+    player1 = game.players[0]
+    assert player1 is game.active_player
+
+    for player in game.players:
+        player.is_connected = False
+
+    game.pass_turn()
+
+    assert game.is_over
+    assert len(game.winners) == 0
+
+
+def test_only_one_player_connected(game):
+    player8 = game.players[-1]
+
+    for player in game.players[:-1]:
+        player.is_connected = False
+
+    game.pass_turn()
+
+    assert game.is_over
+    assert len(game.winners) == 8
+    assert game.winners[0] == player8.name

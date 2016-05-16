@@ -27,6 +27,7 @@ class Player:
     _available_trumps = None
     _board = None
     _can_play = False
+    _is_connected = False
     _current_square = None
     _deck = None
     _has_won = False
@@ -256,6 +257,14 @@ class Player:
     @property
     def index(self):
         return self._index
+
+    @property
+    def is_connected(self):
+        return self._is_connected
+
+    @is_connected.setter
+    def is_connected(self, value):
+        self._is_connected = value
 
     @property
     def last_action(self):  # pragma: no cover

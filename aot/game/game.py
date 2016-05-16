@@ -5,6 +5,7 @@ class Game:
     _is_over = False
     _next_rank_available = 1
     _players = []
+    _players_id_to_index = None
     _winners = []
 
     def __init__(self, board, players):
@@ -13,6 +14,7 @@ class Game:
         self._board = board
         self._is_over = False
         self._players = players
+        self._players_id_to_index = {player.id: index for index, player in enumerate(players)}
         self._next_rank_available = 1
         self._winners = []
 
@@ -20,6 +22,13 @@ class Game:
 
     def add_action(self, action):
         self._actions.append(action)
+
+    def disconnect(self, player_id):
+        player_index = self._players_id_to_index[player_id]
+        player = self._players[player_index]
+        player.is_connected = False
+
+        return player
 
     def view_possible_squares(self, card):
         return self._active_player.view_possible_squares(card)
@@ -42,7 +51,11 @@ class Game:
 
     def _has_enough_players_to_continue(self):
         remaining_players = [player for player in self._players
-                             if player is not None and not player.has_won]
+                             if player is not None and not player.has_won and player.is_connected]
+
+        if len(remaining_players) == 1 and remaining_players[0].is_connected:
+            self._add_to_winners(remaining_players[0])
+
         return len(remaining_players) > 1
 
     def _find_next_player(self):
@@ -78,7 +91,7 @@ class Game:
 
         while index_next_player < len(self._players):
             player = self._players[index_next_player]
-            if player is not None and not player.has_won:
+            if player is not None and not player.has_won and player.is_connected:
                 break
             index_next_player += 1
 

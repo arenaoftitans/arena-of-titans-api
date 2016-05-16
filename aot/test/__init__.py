@@ -7,9 +7,11 @@ from aot import (
     get_number_players,
     get_trumps_list,
 )
+from aot.api import Api
 from aot.board import Board
 from aot.cards import Deck
 from aot.game import Player
+from unittest.mock import MagicMock
 
 
 @pytest.fixture
@@ -36,4 +38,16 @@ def game():
         'index': i,
         'id': i
     } for i in range(get_number_players())]
-    return get_game(players_description)
+    g = get_game(players_description)
+    for player in g.players:
+        player.is_connected = True
+
+    return g
+
+
+@pytest.fixture
+def api():
+    a = Api()
+    a._id = 0
+
+    return a

@@ -162,6 +162,8 @@ class Api(WebSocketServerProtocol):
         else:
             game = self._load_game()
             player = [player for player in game.players if player.id == self.id][0]
+            player.is_connected = True
+            self._save_game(game)
             message = self._get_play_message(player, game)
             if game.last_action is not None:
                 last_action = {
@@ -265,6 +267,10 @@ class Api(WebSocketServerProtocol):
             player['id'] = slots[index]['player_id']
 
         game = get_game(players_description, test=self._cache.is_test())
+        for player in game.players:
+            if player.id in self._clients:
+                player.is_connected = True
+
         self._cache.save_game(game)
         self._send_game_created_message(game)
 
@@ -376,7 +382,8 @@ class Api(WebSocketServerProtocol):
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player)
         this_player_message = self._get_play_message(this_player, game)
-        self._clients[self.id].sendMessage(this_player_message)
+        if self.id in self._clients:
+            self._clients[self.id].sendMessage(this_player_message)
 
         # Send to the next player if it is not the player who just played.
         if this_player.index != active_player_index and active_player_id in self._clients:
@@ -476,8 +483,19 @@ class Api(WebSocketServerProtocol):
         self._cache.save_game(game)
 
     def onClose(self, wasClean, code, reason):
+        if self._cache is not None:
+            self._disconnect_player()
+
         if self.id in self._clients:
             del self._clients[self.id]
+
+    def _disconnect_player(self):
+        game = self._load_game()
+        player = game.disconnect(self.id)
+        if not game.is_over and player == game.active_player:
+            game.pass_turn()
+            self._send_play_message(player, game)
+            self._save_game(game)
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids():
