@@ -1,4 +1,5 @@
 from aot.board import Square
+from time import time
 
 
 class LastAction:
@@ -39,6 +40,7 @@ class Player:
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _rank = -1
+    _turn_start_time = 0
 
     def __init__(self, name, id, index, board, deck, trumps=None, hero=''):
         self._name = name
@@ -145,6 +147,7 @@ class Player:
         self._rank = rank
 
     def init_turn(self):
+        self._turn_start_time = int(time() * 1000)
         self._number_moves_played = 0
         self._number_trumps_played = 0
         self._can_play = True
@@ -289,6 +292,10 @@ class Player:
     @property
     def rank(self):
         return self._rank
+
+    @property
+    def turn_start_time(self):
+        return self._turn_start_time
 
     @property
     def trumps(self):

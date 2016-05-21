@@ -444,6 +444,7 @@ class Api(WebSocketServerProtocol):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
+            'turn_start_time': game.active_player.turn_start_time,
         }
 
     def _get_active_trumps_message(self, game):

@@ -144,6 +144,10 @@ def test_pass_turn(player1, player2):
     del expected_response['hand']
     assert len(response['hand']) == 5
     del response['hand']
+    del expected_response['turn_start_time']
+    assert 'turn_start_time' in response
+    assert isinstance(response['turn_start_time'], int)
+    del response['turn_start_time']
     assert response == expected_response
 
     # Player moved answer
@@ -152,8 +156,12 @@ def test_pass_turn(player1, player2):
     expected_response['next_player'] = 1
     expected_response['your_turn'] = True
     del expected_response['hand']
+    del expected_response['turn_start_time']
     assert len(response['hand']) == 5
     del response['hand']
+    assert 'turn_start_time' in response
+    assert isinstance(response['turn_start_time'], int)
+    del response['turn_start_time']
     assert response == expected_response
 
 
@@ -175,8 +183,13 @@ def test_discard_card(player1, player2):
     expected_response['next_player'] = 0
     expected_response['your_turn'] = True
     del expected_response['hand']
+    del expected_response['turn_start_time']
+
     assert len(response['hand']) == 4
     del response['hand']
+    assert 'turn_start_time' in response
+    assert isinstance(response['turn_start_time'], int)
+    del response['turn_start_time']
     assert response == expected_response
 
 
@@ -230,7 +243,7 @@ def test_play_card(player1, player2):
         'x': new_square['x'],
         'y': new_square['y']
     }
-    # last_action will always differs
+    # last_action, turn_start_time will always differ
     assert 'last_action' in response
     assert 'description' in response['last_action']
     assert 'card' in response['last_action']
@@ -245,12 +258,16 @@ def test_play_card(player1, player2):
     response, expected_response = yield from player1.recv('play_card')
     expected_response['your_turn'] = True
     del expected_response['hand']
+    del expected_response['turn_start_time']
     assert len(response['hand']) == 4
     del response['hand']
+    assert 'turn_start_time' in response
+    assert isinstance(response['turn_start_time'], int)
+    del response['turn_start_time']
     assert response == expected_response
 
     response = yield from player2.recv()
-    # last_action will always differs
+    # last_action and will always differ
     assert 'last_action' in response
     assert 'description' in response['last_action']
     assert 'card' in response['last_action']
@@ -315,6 +332,7 @@ def test_reconnect(player1, player2, players):
     # Correct expected response
     expected_response['your_turn'] = True
     del expected_response['hand']
+    del expected_response['turn_start_time']
     expected_response['reconnect'] = {
         'index': 0,
         'players': [
@@ -330,6 +348,9 @@ def test_reconnect(player1, player2, players):
     del response['hand']
     assert len(response['reconnect']['trumps']) == 4
     del response['reconnect']['trumps']
+    assert 'turn_start_time' in response
+    assert isinstance(response['turn_start_time'], int)
+    del response['turn_start_time']
     assert response == expected_response
 
 
