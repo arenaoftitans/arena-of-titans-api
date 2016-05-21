@@ -15,6 +15,7 @@ help:
 	@echo "- config: build config file for nginx"
 	@echo "- debug: launch API in debug mode"
 	@echo "- redis: start the redis database"
+	@echo "- nginx: start the nginx webserver"
 	@echo "- check: launch lint and testall"
 	@echo "- lint: launch pep8 and pyflakes"
 	@echo "- testall: launch all tests with corverage report (equivalent to `make test && make testintegration`)"
@@ -39,7 +40,7 @@ config:
 
 
 .PHONY: debug
-debug: redis
+debug: redis nginx
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w \
 	    --uid debug_aot \
 	    -c python3 \
@@ -50,6 +51,11 @@ debug: redis
 .PHONY: redis
 redis:
 	sudo systemctl start redis
+
+
+.PHONY: nginx
+nginx:
+	sudo systemctl start nginx
 
 
 .PHONY: check
