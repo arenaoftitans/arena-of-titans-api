@@ -1,4 +1,4 @@
-autobahn >= 0.10.7
+autobahn >= 0.14.0
 lxml >= 3.3.6
 redis >= 2.10.3
 toml >= 0.9.1

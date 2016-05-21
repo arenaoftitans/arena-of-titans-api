@@ -13,7 +13,7 @@ def main(debug=False):
     ws_endpoint = 'ws://{host}:{port}'.format(
         host=host,
         port=aot.config['api']['ws_port'])
-    factory = WebSocketServerFactory(ws_endpoint, debug=debug)
+    factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
     server = loop.create_server(factory, host, aot.config['api']['ws_port'])
     wsserver = loop.run_until_complete(server)
