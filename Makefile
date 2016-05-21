@@ -104,15 +104,23 @@ deploy:
 .PHONY: devdeploy
 devdeploy:
 	git push && \
-	ssh aot "cd /home/aot/devapi && make updateprod"
+	ssh aot "cd /home/aot/devapi && make updatedev"
+
+
+.PHONY: updatedev
+updatedev:
+	git pull && \
+	sudo systemctl stop devaot && \
+	$(MAKE) -f $(THIS_FILE) static && \
+	sudo systemctl start devaot
 
 
 .PHONY: updateprod
 updateprod:
 	git pull && \
-	systemctl stop aot && \
+	sudo systemctl stop aot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	systemctl start aot
+	sudo systemctl start aot
 
 
 .PHONY: updatedev
