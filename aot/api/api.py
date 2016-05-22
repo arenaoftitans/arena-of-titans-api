@@ -72,7 +72,9 @@ class Api(WebSocketServerProtocol):
     def onMessage(self, payload, isBinary):
         try:
             self.message = json.loads(payload.decode('utf-8'))
-            if self._game_id is None:
+            if self._game_id is None or \
+                    (self.message['rt'] == RequestTypes.INIT_GAME.value and
+                     'game_id' not in self.message):
                 if not self._initialize_connection():
                     self.sendClose()
             elif self._creating_game():
