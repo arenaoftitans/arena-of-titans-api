@@ -44,14 +44,21 @@ class Game:
         return self._board[x, y]
 
     def _continue_game_if_enough_players(self):
-        if self._has_enough_players_to_continue():
-            self._active_player = self._find_next_player()
-        else:
-            self._is_over = True
+        while not self._is_over:
+            if self._has_enough_players_to_continue():
+                self._active_player = self._find_next_player()
+                if self._active_player.is_connected:
+                    break
+                else:
+                    self._active_player.pass_turn()
+            else:
+                self._is_over = True
 
     def _has_enough_players_to_continue(self):
         remaining_players = [player for player in self._players
-                             if player is not None and not player.has_won and player.is_connected]
+                             if player is not None and
+                             not player.has_won and
+                             (player.is_connected or player.expect_reconnect)]
 
         if len(remaining_players) == 1 and remaining_players[0].is_connected:
             self._add_to_winners(remaining_players[0])
@@ -91,7 +98,7 @@ class Game:
 
         while index_next_player < len(self._players):
             player = self._players[index_next_player]
-            if player is not None and not player.has_won and player.is_connected:
+            if player is not None and not player.has_won:
                 break
             index_next_player += 1
 

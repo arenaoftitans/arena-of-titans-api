@@ -28,6 +28,7 @@ def deck(board):
 @pytest.fixture
 def player(board, deck):
     player = Player(None, None, 0, board, deck, trumps=get_trumps_list(test=True))
+    player.is_connected = True
     return player
 
 

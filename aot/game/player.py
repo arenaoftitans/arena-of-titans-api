@@ -22,6 +22,9 @@ class Player:
     MAX_NUMBER_AFFECTING_TRUMPS = 4
     MAX_NUMBER_MOVE_TO_PLAY = 2
     MAX_NUMBER_TRUMPS_PLAYED = 1
+    #: Maximum number of turn the game will pass before considering that the player will never
+    # reconnect and not take him/her into account in the remaining players.
+    MAX_NUMBER_TURN_EXPECTING_RECONNECT = 4
 
     _aim = set()
     _affecting_trumps = None
@@ -39,6 +42,7 @@ class Player:
     _name = ''
     _number_moves_to_play = 2
     _number_trumps_played = 0
+    _number_turn_passed_not_connected = 0
     _rank = -1
     _turn_start_time = 0
 
@@ -59,6 +63,7 @@ class Player:
         self._deck = deck
         self._has_won = False
         self._number_moves_played = 0
+        self._number_turn_passed_not_connected = 0
         self._rank = -1
 
     def _generate_aim(self, board):
@@ -127,6 +132,9 @@ class Player:
         self._complete_action()
 
     def pass_turn(self):
+        if not self.is_connected:
+            self._number_turn_passed_not_connected += 1
+
         self._last_action = LastAction(
             description='passed his/her turn',
             player_name=self.name)
@@ -246,6 +254,10 @@ class Player:
         return self._deck
 
     @property
+    def expect_reconnect(self):
+        return self._number_turn_passed_not_connected <= self.MAX_NUMBER_TURN_EXPECTING_RECONNECT
+
+    @property
     def hand(self):
         return self._deck.hand
 
@@ -267,6 +279,8 @@ class Player:
 
     @is_connected.setter
     def is_connected(self, value):
+        if value:
+            self._number_turn_passed_not_connected = 0
         self._is_connected = value
 
     @property

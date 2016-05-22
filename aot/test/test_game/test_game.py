@@ -7,7 +7,10 @@ from aot.test import (
 )
 from aot.board import Square
 from aot.cards import SimpleCard
-from aot.game import Game
+from aot.game import (
+    Game,
+    Player,
+)
 from unittest.mock import MagicMock
 
 
@@ -221,6 +224,8 @@ def test_only_one_player_connected(game):
     for player in game.players[:-1]:
         player.is_connected = False
 
+    for i in range(Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT):
+        game.pass_turn()
     game.pass_turn()
 
     assert game.is_over
