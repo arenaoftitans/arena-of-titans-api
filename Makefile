@@ -123,14 +123,6 @@ updateprod:
 	sudo systemctl start aot
 
 
-.PHONY: updatedev
-updatedev:
-	git pull && \
-	sudo systemctl stop devaot && \
-	$(MAKE) -f $(THIS_FILE) static && \
-	sudo systemctl start devaot
-
-
 .PHONY: static
 static:
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py \
