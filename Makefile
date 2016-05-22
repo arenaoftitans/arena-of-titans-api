@@ -126,9 +126,9 @@ updateprod:
 .PHONY: updatedev
 updatedev:
 	git pull && \
-	systemctl stop devaot && \
+	sudo systemctl stop devaot && \
 	$(MAKE) -f $(THIS_FILE) static && \
-	systemctl start devaot
+	sudo systemctl start devaot
 
 
 .PHONY: static
