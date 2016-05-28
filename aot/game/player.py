@@ -18,7 +18,7 @@
 ################################################################################
 
 from aot.board import Square
-from time import time
+from aot.utils import get_time
 
 
 class LastAction:
@@ -174,7 +174,7 @@ class Player:
         self._rank = rank
 
     def init_turn(self):
-        self._turn_start_time = int(time() * 1000)
+        self._turn_start_time = get_time()
         self._number_moves_played = 0
         self._number_trumps_played = 0
         self._can_play = True

@@ -31,6 +31,7 @@ from aot.game import Player
 from aot.api.api_cache import ApiCache
 from aot.api.utils import to_json
 from aot.api.utils import RequestTypes
+from aot.utils import get_time
 from contextlib import contextmanager
 
 
@@ -465,7 +466,7 @@ class Api(WebSocketServerProtocol):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
-            'turn_start_time': game.active_player.turn_start_time,
+            'elapsed_time': get_time() - game.active_player.turn_start_time,
         }
 
     def _get_active_trumps_message(self, game):
