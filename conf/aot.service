@@ -1,7 +1,6 @@
 [Unit]
 Description=The	aot service
 After=redis.service
-Before=basic.target
 
 
 [Service]
