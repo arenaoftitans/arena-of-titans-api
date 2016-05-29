@@ -421,20 +421,12 @@ class Api(WebSocketServerProtocol):
         return game.get_square(x, y)
 
     def _send_play_message(self, this_player, game):
-        # Send play message to the player who just played.
-        active_player_id = game.active_player.id
-        active_player_index = game.active_player.index
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player, game)
-        this_player_message = self._get_play_message(this_player, game)
-        if self.id in self._clients:
-            self._clients[self.id].sendMessage(this_player_message)
 
-        # Send to the next player if it is not the player who just played.
-        if this_player.index != active_player_index and active_player_id in self._clients:
-            active_player_message = self._get_play_message(game.active_player, game)
-            active_player_message['your_turn'] = True
-            self._clients[active_player_id].sendMessage(active_player_message)
+        for player in game.players:
+            if player.id in self._clients:
+                self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _send_player_played_message(self, player, game):
         self._send_all({
