@@ -25,6 +25,7 @@ from aot.board import get_colors_disposition
 class SvgBoardCreator:
     #: XML namespace. Required to use xpath to search the DOM.
     NS = {'ns': 'http://www.w3.org/2000/svg'}
+    _LAST_LINE_CLASS_TEMPLATE = "${{playerIndex == {} ? 'last-line-square' : ''}}"
     _SQUARE_ID_TEMPLATE = 'square-{}-{}'
     _ROTATE_TEMPLATE = 'rotate({} {} {})'
     _NG_PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
@@ -151,7 +152,33 @@ class SvgBoardCreator:
                 class_template = \
                     "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlightedSquare' : ''}}"
                 ng_class = class_template.format(primary_class, square_id)
+                if self._is_on_last_line(y):
+                    ng_class += ' ' + self._last_line_class(x)
                 square.set('class', ng_class)
+
+    def _is_on_last_line(self, y):
+        return y == 8
+
+    def _last_line_class(self, x):
+        index = -1
+        if 0 <= x <= 3:
+            index = 4
+        elif 4 <= x <= 7:
+            index = 5
+        elif 8 <= x <= 11:
+            index = 6
+        elif 12 <= x <= 15:
+            index = 7
+        elif 16 <= x <= 19:
+            index = 0
+        elif 20 <= x <= 23:
+            index = 1
+        elif 24 <= x <= 27:
+            index = 2
+        elif 28 <= x <= 31:
+            index = 3
+
+        return self._LAST_LINE_CLASS_TEMPLATE.format(index)
 
     @property
     def svg(self):  # pragma: no cover
