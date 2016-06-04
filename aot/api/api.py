@@ -259,7 +259,7 @@ class Api(WebSocketServerProtocol):
             elif number_players < 2 or len(players_description) < 2:
                 self._send_error_to_display('not_enought_players')
         else:
-            self._send_error_to_display('unknown_error')
+            self._send_error('unknown_error')
 
     def _modify_slots(self, rt):
         slot = self.message.get('slot', None)
