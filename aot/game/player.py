@@ -190,9 +190,18 @@ class Player:
         for trump in self._affecting_trumps:
             trump.consume()
 
+        self._remove_consumed_trumps()
+
+    def _remove_consumed_trumps(self):
+        # If we modify the size of the size while looping on it, we will skip some element. For
+        # instance if two elements are consumed in the list, only the first one will be removed.
+        to_remove = set()
         for trump in self._affecting_trumps:
-            if trump.duration == 0:
-                self._affecting_trumps.remove(trump)
+            if trump.duration <= 0:
+                to_remove.add(trump)
+
+        for trump in to_remove:
+            self._affecting_trumps.remove(trump)
 
     def _revert_to_default(self):
         self._deck.revert_to_default()

@@ -142,6 +142,19 @@ def test_complete_turn(player):
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
 
 
+def test_complet_turn_collect_all_consumed_trumps(player):
+    trump1 = MagicMock()
+    trump1.duration = 0
+    trump2 = MagicMock()
+    trump2.duration = 0
+    player._affecting_trumps = [trump1, trump2]
+    player._number_moves_to_play = 0
+
+    player.complete_turn()
+
+    assert len(player.affecting_trumps) == 0
+
+
 def test_play_card(player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
