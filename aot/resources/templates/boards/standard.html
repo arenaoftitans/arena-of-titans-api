@@ -1,4 +1,9 @@
 <template>
+    <require from="./infos"> </require>
+
+     <aot-infos type="player-name"
+                infos.bind="infos"> </aot-infos>
+
     <svg
         id="board"
         xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +23,10 @@
         <g id="boardLayer">
         </g>
         <g id="pawnLayer" >
-            <g id="player0Container" class="${playerIndexes.indexOf(0) === -1 ? 'hidden' : ''}">
+            <g id="player0Container"
+               class="${playerIndexes.indexOf(0) === -1 ? 'hidden' : ''}"
+               mouseover.delegate="showPlayerName(0, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -71,7 +79,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player1Container" class="${playerIndexes.indexOf(1) === -1 ? 'hidden' : ''}" transform="rotate(315 985 985)">
+            <g id="player1Container"
+               class="${playerIndexes.indexOf(1) === -1 ? 'hidden' : ''}"
+               transform="rotate(315 985 985)"
+               mouseover.delegate="showPlayerName(1, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -124,7 +136,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player2Container" class="${playerIndexes.indexOf(2) === -1 ? 'hidden' : ''}" transform="rotate(270 985 985)">
+            <g id="player2Container"
+               class="${playerIndexes.indexOf(2) === -1 ? 'hidden' : ''}"
+               transform="rotate(270 985 985)"
+               mouseover.delegate="showPlayerName(2, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -177,7 +193,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player3Container" class="${playerIndexes.indexOf(3) === -1 ? 'hidden' : ''}" transform="rotate(225 985 985)">
+            <g id="player3Container"
+               class="${playerIndexes.indexOf(3) === -1 ? 'hidden' : ''}"
+               transform="rotate(225 985 985)"
+               mouseover.delegate="showPlayerName(3, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -230,7 +250,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player4Container" class="${playerIndexes.indexOf(4) === -1 ? 'hidden' : ''}" transform="rotate(180 985 985)">
+            <g id="player4Container"
+               class="${playerIndexes.indexOf(4) === -1 ? 'hidden' : ''}"
+               transform="rotate(180 985 985)"
+               mouseover.delegate="showPlayerName(4, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -283,7 +307,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player5Container" class="${playerIndexes.indexOf(5) === -1 ? 'hidden' : ''}" transform="rotate(135 985 985)">
+            <g id="player5Container"
+               class="${playerIndexes.indexOf(5) === -1 ? 'hidden' : ''}"
+               transform="rotate(135 985 985)"
+               mouseover.delegate="showPlayerName(5, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -336,7 +364,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player6Container" class="${playerIndexes.indexOf(6) === -1 ? 'hidden' : ''}" transform="rotate(90 985 985)">
+            <g id="player6Container"
+               class="${playerIndexes.indexOf(6) === -1 ? 'hidden' : ''}"
+               transform="rotate(90 985 985)"
+               mouseover.delegate="showPlayerName(6, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
@@ -389,7 +421,11 @@
                     </g>
                 </svg>
             </g>
-            <g id="player7Container" class="${playerIndexes.indexOf(7) === -1 ? 'hidden' : ''}" transform="rotate(45 985 985)">
+            <g id="player7Container"
+               class="${playerIndexes.indexOf(7) === -1 ? 'hidden' : ''}"
+               transform="rotate(45 985 985)"
+               mouseover.delegate="showPlayerName(7, $event)"
+               mouseout.delegate="hidePlayerName()">
                 <svg
                     xmlns:dc="http://purl.org/dc/elements/1.1/"
                     xmlns:cc="http://creativecommons.org/ns#"
