@@ -449,6 +449,7 @@ class Api(WebSocketServerProtocol):
         return {
             'rt': RequestTypes.PLAY,
             'your_turn': player.id == game.active_player.id,
+            'on_last_line': player.on_last_line,
             'has_won': player.has_won,
             'rank': player.rank,
             'next_player': game.active_player.index,

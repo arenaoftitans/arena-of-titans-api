@@ -246,7 +246,7 @@ class Player:
         return str(self)
 
     @property
-    def _is_on_last_line(self):
+    def on_last_line(self):
         return self._current_square in self._aim
 
     @property
@@ -321,7 +321,7 @@ class Player:
 
     @property
     def has_reached_aim(self):
-        return self._is_on_last_line and self._was_on_last_line_previous_move
+        return self.on_last_line and self._was_on_last_line_previous_move
 
     @property
     def has_won(self):
