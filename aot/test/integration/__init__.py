@@ -53,9 +53,10 @@ def flush(cache):
 
 @pytest.yield_fixture
 def players(event_loop):
-    players = Players()
+    players = Players(event_loop)
     yield players
-    event_loop.run_until_complete(players.close())
+    if not event_loop.is_closed():
+        event_loop.run_until_complete(players.close())
 
 
 @pytest.fixture
@@ -92,13 +93,14 @@ def create_game(*players):
 
 
 class Players:
-    def __init__(self):
+    def __init__(self, event_loop):
         self._players = []
+        self._event_loop = event_loop
         self.add()
 
     def add(self):
         next_index = len(self._players)
-        self._players.append(PlayerWs(next_index, self.on_send))
+        self._players.append(PlayerWs(next_index, self.on_send, self._event_loop))
 
     def on_send(self, request_name, sender_index):
         for player in self._players:
@@ -123,7 +125,7 @@ class Players:
 
 
 class PlayerWs:
-    def __init__(self, index, on_send):
+    def __init__(self, index, on_send, event_loop):
         self.index = index
         self.on_send = on_send
         self.has_joined_game = False
@@ -131,13 +133,14 @@ class PlayerWs:
         self.number_asked = 0
         self._game_id = None
         self._player_id = None
+        self._event_loop = event_loop
 
     @asyncio.coroutine
     def connect(self):
         ws_endpoint = 'ws://{host}:{port}'.format(
             host=aot.config['api']['host'],
             port=aot.config['api']['ws_port'])
-        self.ws = yield from websockets.connect(ws_endpoint)
+        self.ws = yield from websockets.connect(ws_endpoint, loop=self._event_loop)
 
     @asyncio.coroutine
     def send(self, request_name=None, message_override=dict(), message=None):

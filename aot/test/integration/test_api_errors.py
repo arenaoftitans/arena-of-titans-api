@@ -32,7 +32,7 @@ from aot.test.integration import (
 logging.basicConfig(level=logging.DEBUG)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_not_enough_players(player1):
     yield from player1.send('init_game')
     create_game_request = [{
@@ -49,7 +49,7 @@ def test_not_enough_players(player1):
     }
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_too_many_players(player1, players):
     yield from player1.connect()
     yield from player1.send('init_game')
@@ -83,7 +83,7 @@ def test_too_many_players(player1, players):
     }
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_wrong_request(player1):
     yield from player1.send('init_game')
     yield from player1.send('create_game', message_override={'rt': 'TOTO'})
@@ -91,7 +91,7 @@ def test_wrong_request(player1):
     assert response == {'error': 'Unknown request: TOTO.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_wrong_play_request(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('pass_turn', message_override={'rt': 'TOTO'})
@@ -99,7 +99,7 @@ def test_wrong_play_request(player1, player2):
     assert response == {'error': 'Unknown request: TOTO.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_cannot_join(player1, player2):
     yield from player1.send('init_game')
 
@@ -111,7 +111,7 @@ def test_cannot_join(player1, player2):
     assert response == {'error_to_display': 'You cannot join this game. No slots opened.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_only_game_master_can_create_game(player1, player2):
     yield from player1.send('init_game')
     yield from player1.send('add_slot')
@@ -125,7 +125,7 @@ def test_only_game_master_can_create_game(player1, player2):
     assert response == {'error_to_display': 'Only the game master can use CREATE_GAME request.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_only_game_master_add_slot(player1, player2):
     yield from player1.send('init_game')
     yield from player1.send('add_slot')
@@ -144,7 +144,7 @@ def test_only_game_master_add_slot(player1, player2):
     assert response == {'error_to_display': 'Only the game master can use ADD_SLOT request.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_update_slot_no_solt(player1):
     yield from player1.send('init_game')
 
@@ -157,7 +157,7 @@ def test_update_slot_no_solt(player1):
     assert response == {'error_to_display': 'No slot provided.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_update_wrong_slot(player1):
     yield from player1.send('init_game')
     yield from player1.send('update_slot2')
@@ -166,7 +166,7 @@ def test_update_wrong_slot(player1):
     assert response == {'error_to_display': 'Trying to update non existant slot.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_add_existing_slot(player1):
     yield from player1.send('init_game')
     yield from player1.send('add_slot')
@@ -176,7 +176,7 @@ def test_add_existing_slot(player1):
     assert response == {'error_to_display': 'Trying to add a slot that already exists.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_not_your_turn(player1, player2):
     yield from create_game(player1, player2)
     yield from player2.send('pass_turn')
@@ -185,7 +185,7 @@ def test_not_your_turn(player1, player2):
     assert response == {'error_to_display': 'Not your turn.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_view_squares_wrong_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -249,7 +249,7 @@ def test_view_squares_wrong_card(player1, player2):
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_wrong_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -314,7 +314,7 @@ def test_play_wrong_card(player1, player2):
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_wrong_square(player1, player2):
     yield from create_game(player1, player2)
 
@@ -399,7 +399,7 @@ def test_play_wrong_square(player1, player2):
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_wrong_trump_without_target(player1, player2):
     yield from create_game(player1, player2)
 
@@ -423,7 +423,7 @@ def test_play_wrong_trump_without_target(player1, player2):
     assert response == {'error_to_display': 'Unknown trump.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_wrong_trump_with_target(player1, player2):
     yield from create_game(player1, player2)
 
@@ -468,7 +468,7 @@ def test_play_wrong_trump_with_target(player1, player2):
     assert response == {'error_to_display': 'Unknown trump.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_two_trumps_on_same_player(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
@@ -478,7 +478,7 @@ def test_play_two_trumps_on_same_player(player1, player2):
     assert response == {'error_to_display': 'A player cannot be affected by more than 1 trump(s).'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_two_trumps_on_same_player(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
@@ -488,7 +488,7 @@ def test_play_two_trumps_on_same_player(player1, player2):
     assert response == {'error_to_display': 'You can only play 1 trump(s) per turn'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_reconnect_wrong_game_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -509,7 +509,7 @@ def test_reconnect_wrong_game_id(player1, player2, players):
     assert response == {'error_to_display': 'You cannot join this game. No slots opened.'}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(forbid_global_loop=True)
 def test_reconnect_wrong_player_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
