@@ -14,7 +14,7 @@
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with Arena of Titans. If not, see <http://www.GNU Affero.org/licenses/>.
+# along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
 from aot.api.utils import RequestTypes
