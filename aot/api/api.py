@@ -204,15 +204,7 @@ class Api(WebSocketServerProtocol):
         player.is_connected = True
         message = self._get_play_message(player, game)
 
-        if game.last_action is not None:
-            last_action = {
-                'description': game.last_action.description,
-                'card': game.last_action.card,
-                'trump': game.last_action.trump,
-                'player_name': game.last_action.player_name,
-            }
-        else:
-            last_action = None
+        last_action = self._get_last_action_message(game.last_action)
 
         message['reconnect'] = {
             'players': [{
@@ -229,6 +221,16 @@ class Api(WebSocketServerProtocol):
         }
 
         return message
+
+    def _get_last_action_message(self, last_action):
+        if last_action is not None:
+            return {
+                'description': last_action.description,
+                'card': last_action.card,
+                'trump': last_action.trump,
+                'player_name': last_action.player_name,
+                'player_index': last_action.player_index,
+            }
 
     def _creating_game(self):
         return not self._cache.has_game_started()
@@ -436,11 +438,7 @@ class Api(WebSocketServerProtocol):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
-            'last_action': {
-                'description': player.last_action.description,
-                'card': player.last_action.card,
-                'player_name': player.last_action.player_name,
-            },
+            'last_action': self._get_last_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
         })
@@ -490,11 +488,7 @@ class Api(WebSocketServerProtocol):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
                     'active_trumps': self._get_active_trumps_message(game),
-                    'last_action': {
-                        'description': last_action.description,
-                        'trump': last_action.trump,
-                        'player_name': last_action.player_name,
-                    },
+                    'last_action': self._get_last_action_message(last_action),
                 }
                 self._send_all(message)
             else:

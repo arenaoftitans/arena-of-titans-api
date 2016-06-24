@@ -22,15 +22,16 @@ from aot.utils import get_time
 
 
 class LastAction:
-    def __init__(self, description='', card=None, trump=None, player_name=''):
+    def __init__(self, description='', card=None, trump=None, player_name='', player_index=None):
         self.description = description
         self.player_name = player_name
+        self.player_index = player_index
         if card is None:
-            self.card = {}
+            self.card = None
         else:
             self.card = card
         if trump is None:
-            self.trump = {}
+            self.trump = None
         else:
             self.trump = trump
 
@@ -118,7 +119,8 @@ class Player:
             self._last_action = LastAction(
                 description='played a card',
                 card=card.infos,
-                player_name=self.name)
+                player_name=self.name,
+                player_index=self.index)
         else:
             self._last_action = LastAction(description='A problem occured')
         self._complete_action()
@@ -147,7 +149,8 @@ class Player:
         self._last_action = LastAction(
             description='dicarded a card',
             card=card.infos,
-            player_name=self.name)
+            player_name=self.name,
+            player_index=self.index)
         self._complete_action()
 
     def pass_turn(self):
@@ -156,7 +159,8 @@ class Player:
 
         self._last_action = LastAction(
             description='passed his/her turn',
-            player_name=self.name)
+            player_name=self.name,
+            player_index=self.index)
         self._can_play = False
         self._deck.init_turn()
 
@@ -231,7 +235,8 @@ class Player:
                 self._last_action = LastAction(
                     description=description,
                     trump=trump,
-                    player_name=self.name)
+                    player_name=self.name,
+                    player_index=self.index)
                 return True
             else:
                 return False

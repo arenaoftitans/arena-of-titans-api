@@ -47,6 +47,8 @@
   "last_action": {
     "description": "Player 1 just played a trump on Player 2",
     "player_name": "Player 1",
+    "player_index": 0,
+    "card": null,
     "trump": {
         "cost": 5,
         "description": "Prevent the player to move on some colors.",
