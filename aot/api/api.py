@@ -204,7 +204,7 @@ class Api(WebSocketServerProtocol):
         player.is_connected = True
         message = self._get_play_message(player, game)
 
-        last_action = self._get_last_action_message(game.last_action)
+        last_action = self._get_action_message(game.last_action)
 
         message['reconnect'] = {
             'players': [{
@@ -216,21 +216,27 @@ class Api(WebSocketServerProtocol):
             'trumps': player.trumps,
             'index': player.index,
             'last_action': last_action,
+            'history': self._get_history(game),
             'game_over': game.is_over,
             'winners': game.winners,
         }
 
         return message
 
-    def _get_last_action_message(self, last_action):
-        if last_action is not None:
+    def _get_action_message(self, action):
+        if action is not None:
             return {
-                'description': last_action.description,
-                'card': last_action.card,
-                'trump': last_action.trump,
-                'player_name': last_action.player_name,
-                'player_index': last_action.player_index,
+                'description': action.description,
+                'card': action.card,
+                'trump': action.trump,
+                'player_name': action.player_name,
+                'player_index': action.player_index,
             }
+
+    def _get_history(self, game):
+        return [
+            [self._get_action_message(action) for action in player.history]
+            for player in game.players]
 
     def _creating_game(self):
         return not self._cache.has_game_started()
@@ -438,7 +444,7 @@ class Api(WebSocketServerProtocol):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
-            'last_action': self._get_last_action_message(player.last_action),
+            'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
         })
@@ -488,7 +494,7 @@ class Api(WebSocketServerProtocol):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP.value,
                     'active_trumps': self._get_active_trumps_message(game),
-                    'last_action': self._get_last_action_message(last_action),
+                    'last_action': self._get_action_message(last_action),
                 }
                 self._send_all(message)
             else:

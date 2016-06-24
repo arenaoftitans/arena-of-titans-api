@@ -55,6 +55,7 @@ class Player:
     _current_square = None
     _deck = None
     _has_won = False
+    _history = None
     _id = ''
     _index = -1
     _last_action = None
@@ -82,6 +83,7 @@ class Player:
         self._current_square.occupied = True
         self._deck = deck
         self._has_won = False
+        self._history = []
         self._number_moves_played = 0
         self._number_turn_passed_not_connected = 0
         self._rank = -1
@@ -116,13 +118,13 @@ class Player:
             self.move(dest_square)
 
         if card is not None:
-            self._last_action = LastAction(
+            self.last_action = LastAction(
                 description='played a card',
                 card=card.infos,
                 player_name=self.name,
                 player_index=self.index)
         else:
-            self._last_action = LastAction(description='A problem occured')
+            self.last_action = LastAction(description='A problem occured')
         self._complete_action()
 
     def _get_possible_squares(self, card, check_move):
@@ -146,7 +148,7 @@ class Player:
 
     def discard(self, card):
         self._deck.play(card)
-        self._last_action = LastAction(
+        self.last_action = LastAction(
             description='dicarded a card',
             card=card.infos,
             player_name=self.name,
@@ -157,7 +159,7 @@ class Player:
         if not self.is_connected:
             self._number_turn_passed_not_connected += 1
 
-        self._last_action = LastAction(
+        self.last_action = LastAction(
             description='passed his/her turn',
             player_name=self.name,
             player_index=self.index)
@@ -232,7 +234,7 @@ class Player:
                 self._number_trumps_played += 1
                 description = ('{my_name} just played a trump on {target_name}'
                                .format(my_name=self.name, target_name=target.name))
-                self._last_action = LastAction(
+                self.last_action = LastAction(
                     description=description,
                     trump=trump,
                     player_name=self.name,
@@ -320,6 +322,11 @@ class Player:
     def last_action(self):  # pragma: no cover
         return self._last_action
 
+    @last_action.setter
+    def last_action(self, value):
+        self._last_action = value
+        self._history.append(value)
+
     @property
     def last_square_previous_turn(self):
         return self._last_square_previous_turn
@@ -331,6 +338,10 @@ class Player:
     @property
     def has_won(self):
         return self._has_won
+
+    @property
+    def history(self):
+        return self._history
 
     @property
     def name(self):
