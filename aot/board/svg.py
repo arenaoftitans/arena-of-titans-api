@@ -150,7 +150,7 @@ class SvgBoardCreator:
                 primary_class = svg_color + '-square'
                 square_id = self._get_id(x, y)
                 class_template = \
-                    "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlightedSquare' : ''}}"
+                    "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"
                 ng_class = class_template.format(primary_class, square_id)
                 if self._is_on_last_line(y):
                     ng_class += ' ' + self._last_line_class(x)
