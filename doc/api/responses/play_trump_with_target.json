@@ -45,8 +45,9 @@
         }
     ],
   "last_action": {
-    "description": "Player 1 just played a trump on Player 2",
+    "description": "played_trump",
     "player_name": "Player 1",
+    "target_name": "Player 2",
     "player_index": 0,
     "card": null,
     "trump": {

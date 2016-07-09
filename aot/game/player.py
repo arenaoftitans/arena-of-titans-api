@@ -22,9 +22,16 @@ from aot.utils import get_time
 
 
 class LastAction:
-    def __init__(self, description='', card=None, trump=None, player_name='', player_index=None):
+    def __init__(
+            self, description='',
+            card=None,
+            trump=None,
+            player_name='',
+            player_index=None,
+            target_name=''):
         self.description = description
         self.player_name = player_name
+        self.target_name = target_name
         self.player_index = player_index
         if card is None:
             self.card = None
@@ -119,12 +126,12 @@ class Player:
 
         if card is not None:
             self.last_action = LastAction(
-                description='played a card',
+                description='played_card',
                 card=card.infos,
                 player_name=self.name,
                 player_index=self.index)
         else:
-            self.last_action = LastAction(description='A problem occured')
+            self.last_action = LastAction(description='problem')
         self._complete_action()
 
     def _get_possible_squares(self, card, check_move):
@@ -149,7 +156,7 @@ class Player:
     def discard(self, card):
         self._deck.play(card)
         self.last_action = LastAction(
-            description='dicarded a card',
+            description='dicarded_card',
             card=card.infos,
             player_name=self.name,
             player_index=self.index)
@@ -160,7 +167,7 @@ class Player:
             self._number_turn_passed_not_connected += 1
 
         self.last_action = LastAction(
-            description='passed his/her turn',
+            description='passed_turn',
             player_name=self.name,
             player_index=self.index)
         self._can_play = False
@@ -232,12 +239,11 @@ class Player:
         if self.can_play_trump and target is not None:
             if target._affect_by(trump):
                 self._number_trumps_played += 1
-                description = ('{my_name} just played a trump on {target_name}'
-                               .format(my_name=self.name, target_name=target.name))
                 self.last_action = LastAction(
-                    description=description,
+                    description='played_trump',
                     trump=trump,
                     player_name=self.name,
+                    target_name=target.name,
                     player_index=self.index)
                 return True
             else:

@@ -403,8 +403,9 @@ def test_reconnect_after_action(player1, player2, players):
         ],
         'last_action': {
             'card': None,
-            'description': 'passed his/her turn',
+            'description': 'passed_turn',
             'player_name': 'Player 1',
+            'target_name': '',
             'player_index': 0,
             'trump': None,
         },
@@ -412,9 +413,10 @@ def test_reconnect_after_action(player1, player2, players):
             [
                 {
                     'card': None,
-                    'description': 'passed his/her turn',
+                    'description': 'passed_turn',
                     'player_index': 0,
                     'player_name': 'Player 1',
+                    'target_name': '',
                     'trump': None
                 }
             ],

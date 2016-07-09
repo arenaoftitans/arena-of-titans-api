@@ -230,6 +230,7 @@ class Api(WebSocketServerProtocol):
                 'card': action.card,
                 'trump': action.trump,
                 'player_name': action.player_name,
+                'target_name': action.target_name,
                 'player_index': action.player_index,
             }
 
