@@ -25,6 +25,7 @@ class Trump:
     _duration = 0
     _description = ''
     _must_target_player = False
+    _initiator = ''
 
     def __init__(
             self,
@@ -74,6 +75,14 @@ class Trump:
     @property
     def name(self):  # pragma: no cover
         return self._name
+
+    @property
+    def initiator(self):  # pragma: no cover
+        return self._initiator
+
+    @initiator.setter
+    def initiator(self, initiator):  # pragma: no cover
+        self._initiator = initiator
 
 
 class ModifyNumberMoves(Trump):

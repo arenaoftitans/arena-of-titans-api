@@ -482,6 +482,7 @@ class Api(WebSocketServerProtocol):
         elif trump.must_target_player and targeted_player_index is None:
             self._send_error('missing_trump_target')
         elif trump.must_target_player:
+            trump.initiator = game.active_player.name
             self._play_trump_with_target(game, trump, targeted_player_index)
         else:
             self._play_trump_without_target(game, trump)

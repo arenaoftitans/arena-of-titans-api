@@ -40,6 +40,7 @@
               "cost": 5,
               "description": "Prevent the player to move on some colors.",
               "duration": 1,
+              "initiator": "Player 1",
               "must_target_player": true
             }]
         }
@@ -54,6 +55,7 @@
         "cost": 5,
         "description": "Prevent the player to move on some colors.",
         "duration": 1,
+        "initiator": "Player 1",
         "must_target_player": true,
         "name": "Tower Blue"
       }

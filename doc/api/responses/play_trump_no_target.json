@@ -35,6 +35,7 @@
               "cost": 5,
               "description": "Allow the player to play one more move.",
               "duration": 1,
+              "initiator": "",
               "must_target_player": false
             }]
 
@@ -55,6 +56,7 @@
         "cost": 5,
         "description": "Allow the player to play one more move.",
         "duration": 1,
+        "initiator": "",
         "must_target_player": false,
         "name": "Reinforcements"
       }
