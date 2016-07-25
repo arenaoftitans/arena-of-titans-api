@@ -30,6 +30,7 @@ class Card:
     _name = ''
     _movements = []
     _number_movements = 0
+    _cost = 0
     movements_methods = set()
 
     def __init__(
@@ -40,7 +41,8 @@ class Card:
         name='',
         description='',
         movements_types=None,
-        number_movements=1
+        number_movements=1,
+        cost=0
     ):
         if not complementary_colors:
             complementary_colors = set()
@@ -64,6 +66,7 @@ class Card:
             self.movements_methods[mvt] for mvt in movements_types
         ]
         self._number_movements = number_movements
+        self._cost = cost
 
     def move(self, origin):
         number_movements_left = self._number_movements

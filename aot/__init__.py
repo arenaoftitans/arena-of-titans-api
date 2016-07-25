@@ -94,6 +94,7 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
     number_movements = card_description['number_of_movements']
     name = card_description['name']
     description = card_description['description']
+    cost = card_description['cost']
     additional_movements_color = card_description\
         .get('additional_movements_colors', [])
     complementary_colors = card_description\
@@ -112,7 +113,9 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
                 complementary_colors=additional_colors,
                 name=name,
                 description=description,
-                movements_types=movements_types)
+                movements_types=movements_types,
+                cost=cost
+            )
             cards.append(card)
     return cards
 

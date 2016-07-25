@@ -8,38 +8,44 @@
         "name": "Assassin",
         "number_of_movements": 2,
         "movements_type": ["line", "diagonal"],
-        "description": "Move two squares in line or diagonal."
+        "description": "Move two squares in line or diagonal.",
+        "cost": 300
       },
       {
         "name": "King",
         "number_of_movements": 3,
         "movements_type": ["line"],
-        "description": "Move three squares in line."
+        "description": "Move three squares in line.",
+        "cost": 400
       },
       {
         "name": "Queen",
         "number_of_movements": 2,
         "movements_type": ["line", "diagonal"],
-        "description": "Move two squares in line or diagonal."
+        "description": "Move two squares in line or diagonal.",
+        "cost": 300
       },
       {
         "name": "Knight",
         "number_of_movements": 1,
         "movements_type": ["knight"],
-        "description": "Move one square in L."
+        "description": "Move one square in L.",
+        "cost": 200
       },
       {
         "name": "Wizard",
         "number_of_movements": 1,
         "movements_type": ["line", "diagonal"],
         "additional_movements_colors": ["ALL"],
-        "description": "Move one squares in line or diagonal. Can move on a square of any color."
+        "description": "Move one squares in line or diagonal. Can move on a square of any color.",
+        "cost": 200
       },
       {
         "name": "Warrior",
         "number_of_movements": 1,
         "movements_type": ["line"],
-        "description": "Move one square in line"
+        "description": "Move one square in line",
+        "cost": 100
       },
       {
         "name": "Bishop",
@@ -51,7 +57,8 @@
           "RED": ["BLACK"],
           "YELLOW": ["RED"]
         },
-        "description": "Move two squares in diagonal. Can move on two different colors."
+        "description": "Move two squares in diagonal. Can move on two different colors.",
+        "cost": 200
       }
     ]
   },
