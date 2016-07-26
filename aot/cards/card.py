@@ -191,6 +191,10 @@ class Card:
         return self._colors
 
     @property
+    def cost(self):
+        return self._cost
+
+    @property
     def description(self):
         return self._description
 

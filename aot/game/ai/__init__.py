@@ -17,7 +17,12 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import namedtuple
+
 from aot.game.ai.pathfinding import a_star
+
+
+IACardResult = namedtuple('IAResult', 'card square')
 
 
 def distance_covered(start_square, proposed_destination_square, goal_square, board):
@@ -25,3 +30,18 @@ def distance_covered(start_square, proposed_destination_square, goal_square, boa
     distance_from_destination = len(a_star(proposed_destination_square, goal_square, board))
     return distance_from_start - distance_from_destination
 
+
+def find_move_to_play(hand, current_square, goal_square, board):
+    best_distance = 0
+    best_card = None
+    best_square = None
+    for card in hand:
+        for square in card.move(current_square):
+            distance = distance_covered(current_square, square, goal_square, board)
+            if distance > best_distance or \
+                    (distance > 0 and distance == best_distance and card.cost < best_card.cost):
+                best_card = card
+                best_square = square
+                best_distance = distance
+
+    return IACardResult(card=best_card, square=best_square)
