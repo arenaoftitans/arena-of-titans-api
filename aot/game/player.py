@@ -18,6 +18,10 @@
 ################################################################################
 
 from aot.board import Square
+from aot.game.ai import (
+    find_cheapest_card,
+    find_move_to_play,
+)
 from aot.utils import get_time
 
 
@@ -83,6 +87,7 @@ class Player:
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
         self._aim = self._generate_aim(board)
+        self._ai_aim = next(iter(self._aim))
         self._board = board
         self._current_square = board[
             self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
@@ -152,6 +157,20 @@ class Player:
         self._can_play = self._number_moves_played < self._number_moves_to_play
         if not self.can_play:
             self._deck.init_turn()
+
+    def play_auto(self):
+        while self.can_play:
+            card, square = find_move_to_play(
+                self.hand,
+                self.current_square,
+                self._ai_aim,
+                self._board
+            )
+            if card:
+                self.play_card(card, square)
+            else:
+                cheapest_card = find_cheapest_card(self.hand)
+                self.discard(cheapest_card)
 
     def discard(self, card):
         self._deck.play(card)

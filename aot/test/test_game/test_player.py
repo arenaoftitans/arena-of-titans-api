@@ -25,7 +25,10 @@ from aot.test import (
     deck,
     player,
 )
-from unittest.mock import MagicMock
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 
 def test_view_possible_squares(player):
@@ -322,3 +325,60 @@ def test_number_affecting_trumps(player):
     player.init_turn()
     assert not player.play_trump(trump, target=player)
     assert player._number_trumps_played == 0
+
+
+def test_play_auto(player, mocker):
+    def complete_action_side_effect(*args, **kwargs):
+        player._complete_action()
+
+    player.init_turn()
+    card = player.hand[0]
+    find_move_to_play = MagicMock(return_value=(card, None))
+    find_cheapeast_card = MagicMock()
+    player.discard = MagicMock()
+    player.play_card = MagicMock(side_effect=complete_action_side_effect)
+    mocker.patch('aot.game.player.find_move_to_play', side_effect=find_move_to_play)
+    mocker.patch('aot.game.player.find_cheapest_card', side_effect=find_cheapeast_card)
+
+    player.play_auto()
+
+    assert find_move_to_play.call_count == 2
+    find_move_to_play.assert_called_with(
+        player.hand,
+        player.current_square,
+        player._ai_aim,
+        player._board
+    )
+    assert player.play_card.call_count == 2
+    player.play_card.assert_called_with(card, None)
+    player.play_card.called
+    assert not find_cheapeast_card.called
+    assert not player.discard.called
+
+
+def test_play_auto_no_card_found(player, mocker):
+    def complete_action_side_effect(*args, **kwargs):
+        player._complete_action()
+
+    player.init_turn()
+    find_move_to_play = MagicMock(return_value=(None, None))
+    find_cheapeast_card = MagicMock(return_value=player.hand[0])
+    player.discard = MagicMock(side_effect=complete_action_side_effect)
+    player.play_card = MagicMock()
+    mocker.patch('aot.game.player.find_move_to_play', side_effect=find_move_to_play)
+    mocker.patch('aot.game.player.find_cheapest_card', side_effect=find_cheapeast_card)
+
+    player.play_auto()
+
+    assert find_move_to_play.call_count == 2
+    find_move_to_play.assert_called_with(
+        player.hand,
+        player.current_square,
+        player._ai_aim,
+        player._board
+    )
+    assert not player.play_card.called
+    find_cheapeast_card.call_count == 2
+    find_cheapeast_card.assert_called_with(player.hand)
+    assert player.discard.call_count == 2
+    player.discard.assert_called_with(player.hand[0])

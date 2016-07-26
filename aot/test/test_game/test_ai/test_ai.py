@@ -20,6 +20,7 @@
 
 from aot.cards import Card
 from aot.game.ai import (
+    find_cheapest_card,
     find_move_to_play,
     distance_covered,
 )
@@ -91,3 +92,19 @@ def test_find_move_to_play_backward(board):
     assert distance_covered(board[0, 7], board[0, 8], board[19, 8], board) == -1
     assert result.card is None
     assert result.square is None
+
+
+def test_find_cheapest_card_same_cost():
+    card1 = Card(board, name='card1')
+    card2 = Card(board, name='card2')
+    hand = [card1, card2]
+
+    assert find_cheapest_card(hand) == card1
+
+
+def test_find_cheapest_card():
+    card1 = Card(board, name='card1', cost=500)
+    card2 = Card(board, name='card2', cost=200)
+    hand = [card1, card2]
+
+    assert find_cheapest_card(hand) == card2

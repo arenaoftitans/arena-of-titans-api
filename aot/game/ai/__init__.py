@@ -45,3 +45,12 @@ def find_move_to_play(hand, current_square, goal_square, board):
                 best_distance = distance
 
     return IACardResult(card=best_card, square=best_square)
+
+
+def find_cheapest_card(hand):
+    cheapest_card = hand[0]
+    for card in hand[1:]:
+        if card.cost < cheapest_card.cost:
+            cheapest_card = card
+
+    return cheapest_card
