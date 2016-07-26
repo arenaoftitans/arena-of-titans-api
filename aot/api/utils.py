@@ -27,7 +27,6 @@ class RequestTypes(Enum):
     INIT_GAME = 'INIT_GAME'
     CREATE_GAME = 'CREATE_GAME'
     GAME_INITIALIZED = 'GAME_INITIALIZED'
-    ADD_SLOT = 'ADD_SLOT'
     SLOT_UPDATED = 'SLOT_UPDATED'
     PLAY = 'PLAY'
     VIEW_POSSIBLE_SQUARES = 'VIEW_POSSIBLE_SQUARES'
@@ -40,6 +39,7 @@ class SlotState(Enum):
     CLOSED = 'CLOSED'
     RESERVED = 'RESERVED'
     TAKEN = 'TAKEN'
+    AI = 'AI'
 
 
 def to_json(python_object):

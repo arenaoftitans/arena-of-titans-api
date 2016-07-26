@@ -27,6 +27,7 @@ from aot import (
     get_trumps_list,
 )
 from aot.api import Api
+from aot.api.api_cache import ApiCache
 from aot.board import Board
 from aot.cards import Deck
 from aot.game import Player
@@ -71,3 +72,9 @@ def api():
     a._id = 0
 
     return a
+
+
+@pytest.fixture
+def api_cache(mock):
+    mock.patch('aot.api.api_cache.redis.Redis', site_effect=MagicMock())
+    return ApiCache('game_id', 'player_id')

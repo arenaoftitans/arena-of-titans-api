@@ -20,7 +20,11 @@
 import pickle
 import redis
 
+from copy import deepcopy
+
 import aot
+
+from aot import get_number_players
 from aot.api.utils import SlotState
 
 
@@ -109,16 +113,26 @@ class ApiCache:
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             'test',
             test)
-        self._init_first_slot()
+        self._init_slots()
 
-    def _init_first_slot(self):
+    def _init_slots(self):
         slot = {
             'player_name': '',
             'player_id': self._player_id,
             'index': 0,
             'state': SlotState.OPEN.value
         }
-        self.add_slot(slot)
+        self._add_slot(slot)
+
+        slot['player_id'] = ''
+        index = 0
+        while not self._max_number_slots_reached():
+            index += 1
+            slot['index'] = index
+            self._add_slot(slot)
+
+    def _max_number_slots_reached(self):
+        return len(self.get_slots()) == get_number_players()
 
     def is_test(self):
         value = self._cache.hget(
@@ -126,7 +140,8 @@ class ApiCache:
             'test')
         return value.decode('utf-8') == 'True'
 
-    def add_slot(self, slot):
+    def _add_slot(self, slot):
+        slot = deepcopy(slot)
         if slot['state'] == SlotState.TAKEN.value:
             slot['player_id'] = self._player_id
         self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(self._game_id), pickle.dumps(slot))

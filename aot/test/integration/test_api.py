@@ -45,16 +45,6 @@ def test_game_init(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
-def test_add_slot(player1):
-    yield from player1.send('init_game')
-    yield from player1.send('add_slot')
-
-    response, expected_response = yield from player1.recv('add_slot')
-
-    assert response == expected_response
-
-
-@pytest.mark.asyncio(forbid_global_loop=True)
 def test_update_slot(player1):
     # Update his/her slot
     yield from player1.send('init_game')
@@ -75,7 +65,6 @@ def test_update_slot(player1):
     assert saved_slot0 == response['slot']
 
     # Update status second slot which has no player_id
-    yield from player1.send('add_slot')
     yield from player1.send('update_slot2')
     response, expected_response = yield from player1.recv('update_slot2')
     assert response == expected_response
@@ -91,7 +80,6 @@ def test_update_slot(player1):
 @pytest.mark.asyncio(forbid_global_loop=True)
 def test_player2_join(player1, player2):
     yield from player1.send('init_game')
-    yield from player1.send('add_slot')
     yield from player1.send('update_slot2')
 
     game_id = yield from player1.get_game_id()
@@ -454,6 +442,10 @@ def test_reconnect_game_creation(player1, player2, players):
     expected_response['player_id'] = player_id
     expected_response['is_game_master'] = True
     expected_response['index'] = 0
-    del expected_response['slots'][1]
+    expected_response['slots'][1] = {
+        'index': 1,
+        'player_name': '',
+        'state': 'OPEN',
+    }
 
     assert response == expected_response

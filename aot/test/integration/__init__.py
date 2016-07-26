@@ -76,13 +76,6 @@ def player2(players, event_loop):
 def create_game(*players):
     player1 = players[0]
     yield from player1.send('init_game', message_override={'test': True})
-    for i in range(len(players)):
-        msg = {
-            "index": i + 1,
-            "state": "OPEN",
-            "player_name": ""
-        }
-        yield from player1.send('add_slot', message_override={'slot': msg})
 
     game_id = yield from player1.get_game_id()
     for player in players[1:]:

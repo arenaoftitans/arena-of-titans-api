@@ -17,12 +17,28 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot.api.utils import RequestTypes
 from aot.test import (
     api,
     game,
 )
 from unittest.mock import MagicMock
+
+
+class ApiCacheStub:
+    def __init__(self, *args, **kwargs):
+        pass
+
+
+@pytest.fixture(autouse=True)
+def set_magic_mocks_on_api_cache():
+    ApiCacheStub.create_new_game = MagicMock()
+    ApiCacheStub.affect_next_slot = MagicMock()
+    ApiCacheStub.save_session = MagicMock()
+    ApiCacheStub.is_game_master = MagicMock()
+    ApiCacheStub.get_slots = MagicMock()
 
 
 def test_onClose(api, game):
@@ -122,3 +138,19 @@ def test_reconnect_to_game(api, game):
 
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(None)
+
+
+def test_initialize_connection_new_game(api, game, mock):
+    mock.patch('aot.api.api.ApiCache', side_effect=ApiCacheStub)
+    api.message = {
+        'rt': 'INIT_GAME',
+    }
+    api.sendMessage = MagicMock()
+    api._can_join = MagicMock(return_value=True)
+    api._is_reconnecting = MagicMock(return_value=False)
+
+    api._initialize_connection()
+
+    assert api._game_id
+    assert api.sendMessage.call_count == 1
+    assert ApiCacheStub.create_new_game.call_count == 1

@@ -41,11 +41,8 @@ class Api(WebSocketServerProtocol):
     _clients = {}
     _disconnect_timeouts = {}
     _error_messages = {
-        'add_slot_exists': 'Trying to add a slot that already exists.',
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
-        'inexistant_slot': 'Trying to update non existant slot.',
-        'max_number_slots_reached': 'Max number of slots reached. You cannot add more slots.',
         'max_number_trumps': 'A player cannot be affected by more than {num} trump(s).',
         'max_number_played_trumps': 'You can only play {num} trump(s) per turn',
         'missing_trump_target': 'You must specify a target player.',
@@ -254,7 +251,7 @@ class Api(WebSocketServerProtocol):
         rt = self.message['rt']
         if rt not in RequestTypes.__members__:
             self._send_error('unknown_request', {'rt': rt})
-        if rt in (RequestTypes.ADD_SLOT.value, RequestTypes.SLOT_UPDATED.value):
+        if rt == RequestTypes.SLOT_UPDATED.value:
             self._modify_slots(rt)
         elif rt == RequestTypes.CREATE_GAME.value:
             number_players = self._cache.number_taken_slots()
@@ -275,19 +272,8 @@ class Api(WebSocketServerProtocol):
         if slot is None:
             self._send_error_to_display('no_slot')
             return
-        elif rt == RequestTypes.ADD_SLOT.value:
-            if not self._max_number_slots_reached() and not self._cache.slot_exists(slot):
-                self._cache.add_slot(slot)
-            elif self._cache.slot_exists(slot):
-                self._send_error_to_display('add_slot_exists')
-            else:
-                self._send_error_to_display('max_number_slots_reached')
-                return
         elif self._cache.slot_exists(slot):
             self._cache.update_slot(slot)
-        else:
-            self._send_error_to_display('inexistant_slot')
-            return
         # The player_id is stored in the cache so we can know to which player which slot is
         # associated. We don't pass this information to the frontend. If the slot is new, it
         # doesn't have a player_id yet
@@ -298,9 +284,6 @@ class Api(WebSocketServerProtocol):
             'slot': slot
         }
         self._send_all(response)
-
-    def _max_number_slots_reached(self):
-        return len(self._cache.get_slots()) == get_number_players()
 
     def _good_number_player_registered(self, number_players):
         return number_players >= 2 and number_players <= get_number_players()
