@@ -77,6 +77,11 @@ test:
 	./setup.py test
 
 
+.PHONY: tdd
+tdd:
+	py.test-3 aot/test --cov aot --cov-report html --cov-config .coveragerc --ignore aot/test/integration --testmon
+
+
 .PHONY: testintegration
 testintegration: redis
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
