@@ -79,7 +79,7 @@ test:
 
 .PHONY: tdd
 tdd:
-	py.test-3 aot/test --cov aot --cov-report html --cov-config .coveragerc --ignore aot/test/integration --testmon
+	ptw-3 aot --runner /usr/bin/py.test-3 -- aot/test --ignore aot/test/integration --ignore aot/test_main.py --testmon
 
 
 .PHONY: testintegration
