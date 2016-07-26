@@ -44,3 +44,9 @@ def test_create_new_game(api_cache):
 
     assert api_cache._cache.hset.call_count == 3
     assert api_cache._cache.rpush.call_count == 8
+
+
+def test_number_taken_slots(api_cache):
+    slots = [{'state': 'TAKEN'}, {'state': 'IA'}, {'state': 'AI'}]
+    api_cache.get_slots = MagicMock(return_value=slots)
+    assert api_cache.number_taken_slots() == 2

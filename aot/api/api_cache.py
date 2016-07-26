@@ -178,7 +178,8 @@ class ApiCache:
 
     def _get_taken_slots(self,):
         slots = self.get_slots()
-        return [slot for slot in slots if slot['state'] == SlotState.TAKEN.value]
+        return [slot for slot in slots
+                if slot['state'] in (SlotState.TAKEN.value, SlotState.AI.value)]
 
     def affect_next_slot(self, player_name, hero):
         opened_slots = ApiCache._get_opened_slots(self._game_id)
