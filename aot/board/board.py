@@ -96,6 +96,12 @@ class Board:
         squares.add(self[square.x + 1, square.y + 1, 'right'])
         return squares
 
+    def get_neighbors(self, square):
+        neighbors = set()
+        neighbors.update(self.get_line_squares(square, ['all']))
+        neighbors.update(self.get_diagonal_squares(square, ['all']))
+        return neighbors
+
     def _correct_x(self, x):
         """Correct the absissa, ie make it positive and congrent to _x_max
 
