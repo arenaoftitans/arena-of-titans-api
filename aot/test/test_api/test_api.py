@@ -100,13 +100,13 @@ def test_onClose_creating_game(api, game):
     api._disconnect_player()
 
     assert api.message == {
-        'rt': RequestTypes.SLOT_UPDATED.value,
+        'rt': RequestTypes.SLOT_UPDATED,
         'slot': {
             'index': 0,
             'state': 'OPEN',
         },
     }
-    api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED.value)
+    api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED)
 
 
 def test_reconnect_creating_game(api, game):

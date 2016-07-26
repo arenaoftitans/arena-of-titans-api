@@ -136,7 +136,7 @@ class RemoveColor(Trump):
 
     def _add_color(self, color):
         if isinstance(color, str):  # pragma: no cover
-            self._colors.add(Color[color.upper()])
+            self._colors.add(Color[color])
         else:
             self._colors.add(color)
 

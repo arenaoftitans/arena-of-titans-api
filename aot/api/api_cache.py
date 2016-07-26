@@ -70,7 +70,7 @@ class ApiCache:
     @classmethod
     def _get_opened_slots(cls, game_id):
         slots = cls._get_slots(game_id)
-        return [slot for slot in slots if slot['state'] == SlotState.OPEN.value]
+        return [slot for slot in slots if slot['state'] == SlotState.OPEN]
 
     @classmethod
     def _get_slots(cls, game_id, include_player_id=True):
@@ -120,7 +120,7 @@ class ApiCache:
             'player_name': '',
             'player_id': self._player_id,
             'index': 0,
-            'state': SlotState.OPEN.value
+            'state': SlotState.OPEN,
         }
         self._add_slot(slot)
 
@@ -142,7 +142,7 @@ class ApiCache:
 
     def _add_slot(self, slot):
         slot = deepcopy(slot)
-        if slot['state'] == SlotState.TAKEN.value:
+        if slot['state'] == SlotState.TAKEN:
             slot['player_id'] = self._player_id
         self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(self._game_id), pickle.dumps(slot))
 
@@ -179,13 +179,13 @@ class ApiCache:
     def _get_taken_slots(self,):
         slots = self.get_slots()
         return [slot for slot in slots
-                if slot['state'] in (SlotState.TAKEN.value, SlotState.AI.value)]
+                if slot['state'] in (SlotState.TAKEN, SlotState.AI)]
 
     def affect_next_slot(self, player_name, hero):
         opened_slots = ApiCache._get_opened_slots(self._game_id)
         next_available_slot = opened_slots[0]
         next_available_slot['player_id'] = self._player_id
-        next_available_slot['state'] = SlotState.TAKEN.value
+        next_available_slot['state'] = SlotState.TAKEN
         next_available_slot['player_name'] = player_name
         next_available_slot['hero'] = hero
         self.update_slot(next_available_slot)
@@ -196,13 +196,13 @@ class ApiCache:
         current_slot = self.get_slot(slot['index'])
         if current_slot.get('player_id', '') == self._player_id:
             # If new value is OPEN, we are freeing the slot and mustn't add the player id.
-            if slot['state'] != SlotState.OPEN.value:
+            if slot['state'] != SlotState.OPEN:
                 slot['player_id'] = self._player_id
             self._save_slot(slot)
-        elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN.value:
+        elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN:
             self._save_slot(slot)
-        elif current_slot['state'] != SlotState.TAKEN.value and \
-                slot['state'] == SlotState.TAKEN.value:
+        elif current_slot['state'] != SlotState.TAKEN and \
+                slot['state'] == SlotState.TAKEN:
             slot['player_id'] = self._player_id
             self._save_slot(slot)
 

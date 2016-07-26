@@ -156,10 +156,10 @@ class PlayerWs:
                 resp = yield from self.ws.recv()
                 resp = json.loads(resp)
 
-            if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED.value:
+            if 'rt' in resp and resp['rt'] == RequestTypes.GAME_INITIALIZED:
                 self._game_id = resp['game_id']
                 self._player_id = resp['player_id']
-            elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_PLAYED.value:
+            elif 'rt' in resp and resp['rt'] == RequestTypes.PLAYER_PLAYED:
                 # Each PLAYER_PLAYED request is followed by the play request which update cards,
                 # trumps, … for the current player. So we need to increase the recieve_index by
                 # one to correctly get it.
