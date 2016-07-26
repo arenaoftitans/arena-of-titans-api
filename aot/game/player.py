@@ -69,6 +69,7 @@ class Player:
     _history = None
     _id = ''
     _index = -1
+    _is_ai = False
     _last_action = None
     _last_square_previous_turn = None
     _name = ''
@@ -78,11 +79,12 @@ class Player:
     _rank = -1
     _turn_start_time = 0
 
-    def __init__(self, name, id, index, board, deck, trumps=None, hero=''):
+    def __init__(self, name, id, index, board, deck, trumps=None, hero='', is_ai=False):
         self._name = name
         self._id = id
         self._index = index
         self._hero = hero
+        self._is_ai = is_ai
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
@@ -332,6 +334,10 @@ class Player:
     @property
     def index(self):
         return self._index
+
+    @property
+    def is_ai(self):
+        return self._is_ai
 
     @property
     def is_connected(self):

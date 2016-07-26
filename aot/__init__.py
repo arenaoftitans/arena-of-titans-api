@@ -180,7 +180,8 @@ def get_game(players_description, name='standard', test=False):
             board,
             deck,
             trumps=get_trumps_list(board_name=name, test=test),
-            hero=player.get('hero', ''))
+            hero=player.get('hero', ''),
+            is_ai=player.get('is_ai', False))
         players.append(player)
     return Game(board, players)
 

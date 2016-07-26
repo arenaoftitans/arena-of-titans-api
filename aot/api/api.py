@@ -300,6 +300,7 @@ class Api(WebSocketServerProtocol):
         for player in players_description:
             index = player['index']
             player['id'] = slots[index]['player_id']
+            player['is_ai'] = slots[index]['state'] == 'AI'
 
         game = get_game(players_description, test=self._cache.is_test())
         for player in game.players:
