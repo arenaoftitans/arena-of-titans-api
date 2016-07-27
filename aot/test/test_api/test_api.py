@@ -99,7 +99,7 @@ def test_onClose_creating_game(api, game):
     )
     api._disconnect_player()
 
-    assert api.message == {
+    assert api._message == {
         'rt': RequestTypes.SLOT_UPDATED,
         'slot': {
             'index': 0,
@@ -115,7 +115,7 @@ def test_reconnect_creating_game(api, game):
     api._reconnect_to_game = MagicMock()
     api._get_initialiazed_game_message = MagicMock()
     api._game_id = 'game-id'
-    api.message = {
+    api._message = {
         'player_id': 0,
     }
     api._disconnect_timeouts[0] = timer
@@ -130,7 +130,7 @@ def test_reconnect_to_game(api, game):
     api._creating_game = MagicMock(return_value=False)
     api._reconnect_to_game = MagicMock()
     api._game_id = 'game-id'
-    api.message = {
+    api._message = {
         'player_id': 0,
     }
     api._disconnect_timeouts[0] = timer
@@ -142,7 +142,7 @@ def test_reconnect_to_game(api, game):
 
 def test_initialize_connection_new_game(api, game, mock):
     mock.patch('aot.api.api.ApiCache', side_effect=ApiCacheStub)
-    api.message = {
+    api._message = {
         'rt': 'INIT_GAME',
     }
     api.sendMessage = MagicMock()

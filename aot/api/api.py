@@ -88,9 +88,9 @@ class Api(WebSocketServerProtocol):
 
     def onMessage(self, payload, isBinary):
         try:
-            self.message = json.loads(payload.decode('utf-8'))
+            self._message = json.loads(payload.decode('utf-8'))
             if self._game_id is None or \
-                    (self.message['rt'] == RequestTypes.INIT_GAME and
+                    (self._message['rt'] == RequestTypes.INIT_GAME and
                      'game_id' not in self.message):
                 if not self._initialize_connection():
                     self.sendClose()
@@ -103,8 +103,8 @@ class Api(WebSocketServerProtocol):
 
     def _initialize_connection(self):
         must_close_session = False
-        if self.message['rt'] == RequestTypes.INIT_GAME and 'game_id' in self.message:
-            self._game_id = self.message['game_id']
+        if self._message['rt'] == RequestTypes.INIT_GAME and 'game_id' in self._message:
+            self._game_id = self._message['game_id']
         else:
             self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
                 .replace(b'=', b'')\
@@ -129,7 +129,7 @@ class Api(WebSocketServerProtocol):
     def _initialize_cache(self):
         self._cache = ApiCache(self._game_id, self.id)
         if ApiCache.is_new_game(self._game_id):
-            self._cache.create_new_game(test=self.message.get('test', False))
+            self._cache.create_new_game(test=self._message.get('test', False))
 
         index = self._affect_current_slot()
         self._cache.save_session(index)
@@ -154,8 +154,8 @@ class Api(WebSocketServerProtocol):
         return initiliazed_game
 
     def _affect_current_slot(self):
-        player_name = self.message.get('player_name', '')
-        hero = self.message.get('hero', '')
+        player_name = self._message.get('player_name', '')
+        hero = self._message.get('hero', '')
         return self._cache.affect_next_slot(player_name, hero)
 
     def _send_updated_slot_new_player(self, slot, is_game_master):
@@ -169,13 +169,13 @@ class Api(WebSocketServerProtocol):
             self._send_all_others(message)
 
     def _is_reconnecting(self):
-        return 'player_id' in self.message
+        return 'player_id' in self._message
 
     def _can_reconnect(self):
-        return ApiCache.is_member_game(self._game_id, self.message['player_id'])
+        return ApiCache.is_member_game(self._game_id, self._message['player_id'])
 
     def _reconnect(self):
-        self.id = self.message['player_id']
+        self.id = self._message['player_id']
         self._clients[self.id] = self
         self._cache = ApiCache(self._game_id, self.id)
 
@@ -241,21 +241,21 @@ class Api(WebSocketServerProtocol):
 
     def _process_create_game_request(self):
         if not self._cache.is_game_master() and \
-                self.message['rt'] != RequestTypes.SLOT_UPDATED:
-            rt = self.message['rt']
+                self._message['rt'] != RequestTypes.SLOT_UPDATED:
+            rt = self._message['rt']
             self._send_error_to_display('game_master_request', {'rt': rt})
         else:
             self._do_create_game_request()
 
     def _do_create_game_request(self):
-        rt = self.message['rt']
+        rt = self._message['rt']
         if rt not in RequestTypes:
             self._send_error('unknown_request', {'rt': rt})
         if rt == RequestTypes.SLOT_UPDATED:
             self._modify_slots(rt)
         elif rt == RequestTypes.CREATE_GAME:
             number_players = self._cache.number_taken_slots()
-            players_description = [player for player in self.message['create_game_request']
+            players_description = [player for player in self._message['create_game_request']
                                    if player['name']]
             if self._good_number_player_registered(number_players) and \
                     self._good_number_players_description(number_players, players_description):
@@ -268,7 +268,7 @@ class Api(WebSocketServerProtocol):
             self._send_error('unknown_error')
 
     def _modify_slots(self, rt):
-        slot = self.message.get('slot', None)
+        slot = self._message.get('slot', None)
         if slot is None:
             self._send_error_to_display('no_slot')
             return
@@ -358,8 +358,8 @@ class Api(WebSocketServerProtocol):
         return self.id is not None and self.id == game.active_player.id
 
     def _play_game(self, game):
-        rt = self.message['rt']
-        play_request = self.message.get('play_request', {})
+        rt = self._message['rt']
+        play_request = self._message.get('play_request', {})
         if rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
             self._view_possible_squares(game, play_request)
         elif rt == RequestTypes.PLAY:
@@ -528,7 +528,7 @@ class Api(WebSocketServerProtocol):
         slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
         if slots:
             slot = slots[0]
-            self.message = {
+            self._message = {
                 'rt': RequestTypes.SLOT_UPDATED,
                 'slot': {
                     'index': slot['index'],
