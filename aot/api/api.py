@@ -28,23 +28,14 @@ from aot import get_game
 from aot import get_number_players
 from aot.game import Player
 from aot.api.api_cache import ApiCache
-from aot.api.utils import to_json
-from aot.api.utils import RequestTypes
+from aot.api.utils import (
+    AotError,
+    AotErrorToDisplay,
+    to_json,
+    RequestTypes,
+)
 from aot.utils import get_time
 from contextlib import contextmanager
-
-
-class AotError(Exception):
-    def __init__(self, msg, infos=None):
-        super().__init__(msg)
-        if infos is None:
-            self.infos = {}
-        else:
-            self.infos = infos
-
-
-class AotErrorToDisplay(AotError):
-    pass
 
 
 class Api(WebSocketServerProtocol):

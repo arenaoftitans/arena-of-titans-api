@@ -17,15 +17,13 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pickle
-import redis
-
-from copy import deepcopy
-
 import aot
+import pickle
 
 from aot import get_number_players
 from aot.api.utils import SlotState
+from copy import deepcopy
+from redis import Redis
 
 
 class ApiCache:
@@ -41,12 +39,14 @@ class ApiCache:
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
-    GAME_EXPIRE = 2*24*60*60
+    GAME_EXPIRE = 2 * 24 * 60 * 60
 
-    # redis connection used by methods.
-    _cache = redis.Redis(
-        host=aot.config['cache']['server_host'],
-        port=aot.config['cache']['server_port'])
+    def __init__(self, game_id=None, player_id=None):
+        self._cache = Redis(
+            host=aot.config['cache']['server_host'],
+            port=aot.config['cache']['server_port'])
+        self._game_id = game_id
+        self._player_id = player_id
 
     @classmethod
     def is_new_game(cls, game_id):
@@ -92,13 +92,6 @@ class ApiCache:
     @classmethod
     def is_member_game(cls, game_id, player_id):
         return player_id in cls._get_players_ids(game_id)
-
-    def __init__(self, game_id, player_id):
-        self._cache = redis.Redis(
-            host=aot.config['cache']['server_host'],
-            port=aot.config['cache']['server_port'])
-        self._game_id = game_id
-        self._player_id = player_id
 
     def create_new_game(self, test=False):
         self._cache.hset(

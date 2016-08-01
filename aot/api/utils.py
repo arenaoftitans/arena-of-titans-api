@@ -22,6 +22,19 @@ from aot.board import Square
 from aot.cards.trumps import Trump
 
 
+class AotError(Exception):
+    def __init__(self, msg, infos=None):
+        super().__init__(msg)
+        if infos is None:
+            self.infos = {}
+        else:
+            self.infos = infos
+
+
+class AotErrorToDisplay(AotError):
+    pass
+
+
 class RequestTypes(metaclass=SimpleEnumMeta):
     INIT_GAME = ()
     CREATE_GAME = ()
