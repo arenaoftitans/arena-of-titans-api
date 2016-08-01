@@ -303,6 +303,7 @@ def test_process_play_request_your_turn(api, game):
     api._process_play_request()
 
     api._play_game.assert_called_once_with(game)
+    api._cache.save_game.assert_called_once_with(game)
 
 
 def test_play_game_no_request(api, game):
