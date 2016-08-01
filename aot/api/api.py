@@ -17,11 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from autobahn.asyncio.websocket import WebSocketServerProtocol
-import asyncio
 import base64
-import json
-import logging
 import uuid
 
 from aot import get_game
@@ -31,19 +27,16 @@ from aot.api.api_cache import ApiCache
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
-    to_json,
     RequestTypes,
 )
+from aot.api.ws import AotWs
 from aot.utils import get_time
 from contextlib import contextmanager
 
 
-class Api(WebSocketServerProtocol):
-    DISCONNECTED_TIMEOUT_WAIT = 10
-    INDEX_FIRST_PLAYER = 0
+class Api(AotWs):
     # Class variables.
-    _clients = {}
-    _disconnect_timeouts = {}
+    INDEX_FIRST_PLAYER = 0
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
@@ -71,48 +64,6 @@ class Api(WebSocketServerProtocol):
     _game_id = None
     _cache = None
     _id = None
-    _message = None
-    _rt = ''
-    _loop = None
-
-    def sendMessage(self, message):
-        if isinstance(message, dict):
-            message = json.dumps(message, default=to_json)
-        message = message.encode('utf-8')
-        if isinstance(message, bytes):
-            super().sendMessage(message)
-
-    def onOpen(self):
-        self.id = self._wskey
-        Api._clients[self.id] = self
-        self._loop = asyncio.get_event_loop()
-        self._set_up_connection_keep_alive()
-        self._cache = ApiCache()
-
-    def _set_up_connection_keep_alive(self):
-        self._loop.call_later(5, self.sendPing)
-
-    def onPong(self, payload):
-        self._set_up_connection_keep_alive()
-
-    def onMessage(self, payload, isBinary):
-        try:
-            self._message = json.loads(payload.decode('utf-8'))
-            self._rt = self._message.get('rt', '')
-            if self._rt not in RequestTypes:
-                raise AotError('unknown_request', {'rt': self._rt})
-            elif self._creating_new_game:
-                self._create_new_game()
-            elif self._creating_game:
-                self._process_create_game_request()
-            else:
-                self._process_play_request()
-        except AotError as e:
-            self._send_error(str(e), e.infos)
-        except AotErrorToDisplay as e:
-            self._send_error_to_display(str(e), e.infos)
-        except Exception as e:
-            logging.exception('onMessage')
 
     @property
     def _creating_new_game(self):
@@ -490,16 +441,6 @@ class Api(WebSocketServerProtocol):
     def _save_game(self, game):
         self._cache.save_game(game)
 
-    def onClose(self, wasClean, code, reason):
-        if self._cache is not None:
-            self._disconnect_timeouts[self.id] = self._loop.call_later(
-                self.DISCONNECTED_TIMEOUT_WAIT,
-                self._disconnect_player
-            )
-
-        if self.id in self._clients:
-            del self._clients[self.id]
-
     def _disconnect_player(self):
         if self._creating_game:
             self._free_slot()
@@ -527,37 +468,6 @@ class Api(WebSocketServerProtocol):
                 if not game.is_over and player == game.active_player:
                     game.pass_turn()
                     self._send_play_message(player, game)
-
-    def _send_all(self, message, excluded_players=set()):
-        for player_id in self._cache.get_players_ids():
-            player = self._clients.get(player_id, None)
-            if player is not None and player_id not in excluded_players:
-                player.sendMessage(message)
-
-    def _send_all_others(self, message):
-        self._send_all(message, excluded_players=set([self.id]))
-
-    def _send_to(self, message, id):
-        if id in self._clients:
-            self._clients[id].sendMessage(message)
-
-    def _format_error_to_display(self, message, format_opt={}):
-        return {'error_to_display': self._get_error(message, format_opt)}
-
-    def _get_error(self, message, format_opt):
-        return self._error_messages.get(message, message).format(**format_opt)
-
-    def _send_error(self, message, format_opt={}):
-        self.sendMessage(self._format_error(message, format_opt))
-
-    def _send_error_to_display(self, message, format_opt={}):
-        self.sendMessage(self._format_error_to_display(message, format_opt))
-
-    def _send_all_error(self, message, format_opt={}):
-        self._send_all(self._format_error(message, format_opt))
-
-    def _format_error(self, message, format_opt={}):
-        return {'error': self._get_error(message, format_opt)}
 
     @property
     def id(self):

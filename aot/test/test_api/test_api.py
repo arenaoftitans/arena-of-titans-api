@@ -20,7 +20,7 @@
 import pytest
 
 from aot import get_game
-from aot.api.api import (
+from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
 )
@@ -48,49 +48,6 @@ def test_new_game_request_on_old_connection(api):
     api._rt = 'INIT_GAME'
     api._message = {}
     assert api._creating_new_game
-
-
-def test_onMessage_unkwon_request_type(api):
-    api._send_error = MagicMock()
-
-    try:
-        api.onMessage(b'{}', False)
-    except AotError as e:
-        assert str(e) == 'unknown_request'
-        api._send_error.assert_called_once_with('ttt')
-
-
-def test_onMessage_new_game(api):
-    api._game_id = None
-    api._create_new_game = MagicMock()
-    api.sendMessage = MagicMock()
-
-    api.onMessage(b'{"rt": "INIT_GAME"}', False)
-
-    api._create_new_game.assert_called_once_with()
-
-
-def test_onMessage_creating_game(api):
-    api._process_create_game_request = MagicMock()
-    api._cache = MagicMock()
-    api._cache.has_game_started = MagicMock(return_value=False)
-    api._game_id = 'game_id'
-    api.sendMessage = MagicMock()
-
-    api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
-
-    api._process_create_game_request.assert_called_once_with()
-
-
-def test_onMessage_process_play_request(api):
-    api._process_play_request = MagicMock()
-    api._cache = MagicMock()
-    api._cache.has_game_started = MagicMock(return_value=True)
-    api._game_id = 'game_id'
-
-    api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
-
-    api._process_play_request.assert_called_once_with()
 
 
 def test_create_new_game(api, mock):
