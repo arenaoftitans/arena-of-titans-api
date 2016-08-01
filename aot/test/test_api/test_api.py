@@ -22,135 +22,69 @@ import pytest
 from aot.api.utils import RequestTypes
 from aot.test import (
     api,
-    game,
 )
 from unittest.mock import MagicMock
 
 
-class ApiCacheStub:
-    def __init__(self, *args, **kwargs):
-        pass
+def test_new_game_no_game_id(api):
+    api._game_id = None
+    assert api._creating_new_game
 
 
-@pytest.fixture(autouse=True)
-def set_magic_mocks_on_api_cache():
-    ApiCacheStub.create_new_game = MagicMock()
-    ApiCacheStub.affect_next_slot = MagicMock()
-    ApiCacheStub.save_session = MagicMock()
-    ApiCacheStub.is_game_master = MagicMock()
-    ApiCacheStub.get_slots = MagicMock()
+def test_new_game_with_game_id(api):
+    api._game_id = 'game_id'
+    assert not api._creating_new_game
 
 
-def test_onClose(api, game):
-    api._cache = MagicMock()
-    api._cache.get_game = MagicMock(return_value=game)
-    api._clients[0] = None
-    api._send_play_message = MagicMock()
-    api._save_game = MagicMock()
-    api._loop = MagicMock()
-
-    player = game.active_player
-    game.pass_turn = MagicMock()
-    game.disconnect = MagicMock(return_value=player)
-
-    api.onClose(True, 1001, None)
-
-    assert 0 not in api._clients
-
-    api._loop.call_later.assert_called_once_with(
-        api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
-    )
-    api._disconnect_player()
-
-    api._cache.get_game.assert_called_once_with()
-    api._send_play_message.assert_called_once_with(player, game)
-    api._save_game.assert_called_once_with(game)
-
-    game.disconnect.assert_called_once_with(player.id)
-    game.pass_turn.assert_called_once_with()
+def test_new_game_request_on_old_connection(api):
+    api._game_id = 'game_id'
+    api._rt = 'INIT_GAME'
+    api._message = {}
+    assert api._creating_new_game
 
 
-def test_onClose_creating_game(api, game):
-    api._cache = MagicMock()
-    slots = [
-        {
-            'index': 0,
-            'player_id': 0,
-        },
-        {
-            'index': 1,
-            'player_id': 1,
-        },
-    ]
-    api._cache.get_slots = MagicMock(return_value=slots)
-    api._creating_game = MagicMock(return_value=True)
-    api._modify_slots = MagicMock()
-    api._clients[0] = None
-    api._loop = MagicMock()
-
-    api.onClose(True, 1001, None)
-
-    assert 0 not in api._clients
-
-    api._loop.call_later.assert_called_once_with(
-        api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
-    )
-    api._disconnect_player()
-
-    assert api._message == {
-        'rt': RequestTypes.SLOT_UPDATED,
-        'slot': {
-            'index': 0,
-            'state': 'OPEN',
-        },
-    }
-    api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED)
-
-
-def test_reconnect_creating_game(api, game):
-    timer = MagicMock()
-    api._creating_game = MagicMock(return_value=True)
-    api._reconnect_to_game = MagicMock()
-    api._get_initialiazed_game_message = MagicMock()
-    api._game_id = 'game-id'
-    api._message = {
-        'player_id': 0,
-    }
-    api._disconnect_timeouts[0] = timer
-    api._reconnect()
-
-    timer.cancel.assert_called_once_with()
-    api._get_initialiazed_game_message.assert_called_once_with(-1)
-
-
-def test_reconnect_to_game(api, game):
-    timer = MagicMock()
-    api._creating_game = MagicMock(return_value=False)
-    api._reconnect_to_game = MagicMock()
-    api._game_id = 'game-id'
-    api._message = {
-        'player_id': 0,
-    }
-    api._disconnect_timeouts[0] = timer
-    api._reconnect()
-
-    timer.cancel.assert_called_once_with()
-    api._reconnect_to_game.assert_called_once_with(None)
-
-
-def test_initialize_connection_new_game(api, game, mock):
-    mock.patch('aot.api.api.ApiCache', side_effect=ApiCacheStub)
-    api._message = {
-        'rt': 'INIT_GAME',
-    }
+def test_onMessage_new_game(api):
+    api._game_id = None
+    api._create_new_game = MagicMock()
     api.sendMessage = MagicMock()
-    api._can_join = MagicMock(return_value=True)
-    api._is_reconnecting = MagicMock(return_value=False)
 
-    api._initialize_connection()
+    api.onMessage(b'{}', False)
 
-    assert api._game_id
+    api._create_new_game.assert_called_once_with()
     assert api.sendMessage.call_count == 1
-    assert ApiCacheStub.create_new_game.call_count == 1
+
+
+def test_onMessage_creating_game(api):
+    api._process_create_game_request = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=False)
+    api._game_id = 'game_id'
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{}', False)
+
+    api._process_create_game_request.assert_called_once_with()
+    assert api.sendMessage.call_count == 1
+
+
+def test_create_new_game(api, mock):
+    api_cache = MagicMock()
+    mock.patch('aot.api.api.ApiCache', return_value=api_cache)
+    api._get_initialiazed_game_message = MagicMock()
+    api_cache.affect_next_slot = MagicMock(return_value=api.INDEX_FIRST_PLAYER)
+    api._message = {
+        'player_name': 'Game Master',
+        'hero': 'daemon',
+    }
+
+    api._create_new_game()
+
+    assert isinstance(api._game_id, str)
+    assert len(api._game_id) == 22
+    api_cache.create_new_game.assert_called_once_with(test=False)
+    api_cache.affect_next_slot.assert_called_once_with(
+        api._message['player_name'],
+        api._message['hero'],
+    )
+    api_cache.save_session.assert_called_once_with(api.INDEX_FIRST_PLAYER)
+    api._get_initialiazed_game_message.assert_called_once_with(api.INDEX_FIRST_PLAYER)
