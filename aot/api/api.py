@@ -337,7 +337,7 @@ class Api(WebSocketServerProtocol):
             if self._is_player_id_correct(game):
                 self._play_game(game)
             else:
-                self._send_error_to_display('not_your_turn')
+                raise AotErrorToDisplay('not_your_turn')
 
     @contextmanager
     def _load_game(self):
@@ -349,18 +349,20 @@ class Api(WebSocketServerProtocol):
         return self.id is not None and self.id == game.active_player.id
 
     def _play_game(self, game):
-        play_request = self._message.get('play_request', {})
-        if self._rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
+        play_request = self._message.get('play_request', None)
+        if play_request is None:
+            raise AotError('no_request')
+        elif self._rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
             self._view_possible_squares(game, play_request)
         elif self._rt == RequestTypes.PLAY:
-            self._play_card(game, play_request)
+            self._play(game, play_request)
         elif self._rt == RequestTypes.PLAY_TRUMP:
             self._play_trump(game, play_request)
         else:
-            return self._send_error('unknown_request', {'rt': self._rt})
+            raise AotError('unknown_request', {'rt': self._rt})
 
     def _view_possible_squares(self, game, play_request):
-        card = self._get_card(play_request, game)
+        card = self._get_card(game, play_request)
         if card is not None:
             possible_squares = game.view_possible_squares(card)
             self.sendMessage({
@@ -368,42 +370,39 @@ class Api(WebSocketServerProtocol):
                 'possible_squares': possible_squares
             })
         else:
-            self._send_error_to_display('wrong_card')
+            raise AotErrorToDisplay('wrong_card')
 
-    def _get_card(self, play_request, game):
+    def _get_card(self, game, play_request):
         name = play_request.get('card_name', None)
         color = play_request.get('card_color', None)
         return game.active_player.get_card(name, color)
 
-    def _play_card(self, game, play_request):
+    def _play(self, game, play_request):
         this_player = game.active_player
-        error = False
         if play_request.get('pass', False):
             game.pass_turn()
         elif play_request.get('discard', False):
-            card = self._get_card(play_request, game)
+            card = self._get_card(game, play_request)
+            if card is None:
+                raise AotErrorToDisplay('wrong_card')
             game.discard(card)
         else:
-            card = self._get_card(play_request, game)
+            card = self._get_card(game, play_request)
             square = self._get_square(play_request, game)
-            if card is not None and square is not None and game.can_move(card, square):
-                game.play_card(card, square)
-            elif card is None:
-                error = True
-                self._send_error_to_display('wrong_card')
+            if card is None:
+                raise AotErrorToDisplay('wrong_card')
             elif square is None or not game.can_move(card, square):
-                error = True
-                self._send_error_to_display('wrong_square')
+                raise AotErrorToDisplay('wrong_square')
+            game.play_card(card, square)
 
-        if not error:
-            self._send_play_message(this_player, game)
+        self._send_play_message(game, this_player)
 
     def _get_square(self, play_request, game):
         x = play_request.get('x', None)
         y = play_request.get('y', None)
         return game.get_square(x, y)
 
-    def _send_play_message(self, this_player, game):
+    def _send_play_message(self, game, this_player):
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player, game)
 

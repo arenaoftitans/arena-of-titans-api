@@ -27,6 +27,7 @@ from aot.api.api import (
 from aot.api.utils import RequestTypes
 from aot.test import (
     api,
+    game,
 )
 from unittest.mock import MagicMock
 
@@ -78,6 +79,17 @@ def test_onMessage_creating_game(api):
     api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
 
     api._process_create_game_request.assert_called_once_with()
+
+
+def test_onMessage_process_play_request(api):
+    api._process_play_request = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=True)
+    api._game_id = 'game_id'
+
+    api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
+
+    api._process_play_request.assert_called_once_with()
 
 
 def test_create_new_game(api, mock):
@@ -268,3 +280,169 @@ def test_create_game(mock, api):
     api._cache.save_game.assert_called_once_with(game)
     api._send_game_created_message.assert_called_once_with(game)
     api._send_to.call_count == 2
+
+
+def test_process_play_request_not_your_turn(api, game):
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api.id = 'wrong_id'
+
+    try:
+        api._process_play_request()
+        raise AssertionError
+    except AotErrorToDisplay as e:
+        assert str(e) == 'not_your_turn'
+
+
+def test_process_play_request_your_turn(api, game):
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api.id = game.active_player.id
+    api._play_game = MagicMock()
+
+    api._process_play_request()
+
+    api._play_game.assert_called_once_with(game)
+
+
+def test_play_game_no_request(api, game):
+    api._message = {}
+
+    try:
+        api._play_game(game)
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'no_request'
+
+
+def test_play_game_unknown_request(api, game):
+    api._message = {
+        'play_request': {},
+        'rt': 'TOTO',
+    }
+
+    try:
+        api._play_game(game)
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'unknown_request'
+
+
+def test_play_game(api, game):
+    requests_to_test = ['VIEW_POSSIBLE_SQUARES', 'PLAY', 'PLAY_TRUMP']
+    for request in requests_to_test:
+        setattr(api, '_' + request.lower(), MagicMock())
+
+    for request in requests_to_test:
+        api._message = {
+            'play_request': request,
+        }
+        api._rt = request
+        api._play_game(game)
+
+    for request in requests_to_test:
+        mm = getattr(api, '_' + request.lower())
+        mm.assert_called_once_with(game, request)
+
+
+def test_view_possible_squares_wrong_card(api, game):
+    try:
+        api._view_possible_squares(game, {})
+        raise AssertionError
+    except AotErrorToDisplay as e:
+        assert str(e) == 'wrong_card'
+
+
+def test_view_possible_squares(api, game):
+    api.sendMessage = MagicMock()
+    card = game.active_player.hand[0]
+
+    api._view_possible_squares(game, {
+        'card_name': card.name,
+        'card_color': card.color,
+    })
+
+    assert api.sendMessage.call_count == 1
+
+
+def test_play_pass(api, game):
+    game.pass_turn = MagicMock()
+    api._send_play_message = MagicMock()
+
+    api._play(game, {'pass': True})
+
+    game.pass_turn.assert_called_once_with()
+    api._send_play_message.assert_called_once_with(game, game.active_player)
+
+
+def test_play_discard_wrong_card(api, game):
+    game.discard = MagicMock()
+
+    try:
+        api._play(game, {'discard': True})
+        raise AssertionError
+    except AotErrorToDisplay as e:
+        assert str(e) == 'wrong_card'
+        assert game.discard.call_count == 0
+
+
+def test_play_discard(api, game):
+    game.discard = MagicMock()
+    api._send_play_message = MagicMock()
+    card = game.active_player.hand[0]
+
+    api._play(game, {
+        'discard': True,
+        'card_name': card.name,
+        'card_color': card.color,
+    })
+
+    game.discard.assert_called_once_with(card)
+    api._send_play_message.assert_called_once_with(game, game.active_player)
+
+
+def test_play_wrong_card(api, game):
+    game.play_card = MagicMock()
+    api._send_play_message = MagicMock()
+
+    try:
+        api._play(game, {})
+        raise AssertionError
+    except AotErrorToDisplay as e:
+        assert str(e) == 'wrong_card'
+        assert game.play_card.call_count == 0
+
+
+def test_play_wrong_square(api, game):
+    game.play_card = MagicMock()
+    api._send_play_message = MagicMock()
+    card = game.active_player.hand[0]
+
+    try:
+        api._play(game, {
+            'card_name': card.name,
+            'card_color': card.color,
+        })
+        raise AssertionError
+    except AotErrorToDisplay as e:
+        assert str(e) == 'wrong_square'
+        assert game.play_card.call_count == 0
+
+
+def test_play_card(api, game):
+    card = game.active_player.hand[0]
+    square = game.get_square(0, 0)
+    game.play_card = MagicMock()
+    game.get_square = MagicMock(return_value=square)
+    game.can_move = MagicMock(return_value=True)
+    api._send_play_message = MagicMock()
+
+    api._play(game, {
+        'card_name': card.name,
+        'card_color': card.color,
+        'x': 0,
+        'y': 0,
+    })
+
+    game.play_card.assert_called_once_with(card, square)
+    api._send_play_message.assert_called_once_with(game, game.active_player)
