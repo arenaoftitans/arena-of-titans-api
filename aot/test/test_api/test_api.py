@@ -25,6 +25,7 @@ from aot.api.api import (
     AotErrorToDisplay,
 )
 from aot.api.utils import RequestTypes
+from aot.game import Player
 from aot.test import (
     api,
     game,
@@ -447,3 +448,102 @@ def test_play_card(api, game):
 
     game.play_card.assert_called_once_with(card, square)
     api._send_play_message.assert_called_once_with(game, game.active_player)
+
+
+def test_play_trump_wrong_trump(api, game):
+    try:
+        api._play_trump(game, {})
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'wrong_trump'
+
+
+def test_play_trump_missing_target(api, game):
+    for trump in game.active_player.trumps:
+        if trump['must_target_player']:
+            break
+
+    try:
+        api._play_trump(game, {
+            'name': trump['name'],
+        })
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'missing_trump_target'
+
+
+def test_play_trump_with_wrong_target(api, game):
+    for trump in game.active_player.trumps:
+        if trump['must_target_player']:
+            break
+
+    try:
+        api._play_trump(game, {
+            'name': trump['name'],
+            'target_index': 10,
+        })
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'wrong_trump_target'
+
+
+def test_play_trump_max_number_trumps_played(api, game):
+    trump = game.active_player.trumps[0]
+    trump['must_target_player'] = True
+    game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._can_play = False
+
+    try:
+        api._play_trump(game, {
+            'name': trump['name'],
+            'target_index': 0,
+        })
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'max_number_played_trumps'
+
+
+def test_play_trump_max_number_affecting_trumps(api, game):
+    trump = game.active_player.trumps[0]
+    trump['must_target_player'] = True
+    game.active_player.play_trump = MagicMock(return_value=False)
+
+    try:
+        api._play_trump(game, {
+            'name': trump['name'],
+            'target_index': 0,
+        })
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'max_number_trumps'
+
+
+def test_play_trump_with_target(api, game):
+    for trump in game.active_player.trumps:
+        if trump['must_target_player']:
+            break
+    api._send_all = MagicMock()
+    game.add_action = MagicMock()
+
+    api._play_trump(game, {
+        'name': trump['name'],
+        'target_index': 0,
+    })
+
+    assert api._send_all.call_count == 1
+    assert game.add_action.call_count == 1
+
+
+def test_play_trump_without_target(api, game):
+    for trump in game.active_player.trumps:
+        if not trump['must_target_player']:
+            break
+    api._send_all = MagicMock()
+    game.add_action = MagicMock()
+
+    api._play_trump(game, {
+        'name': trump['name'],
+    })
+
+    assert api._send_all.call_count == 1
+    assert game.add_action.call_count == 1

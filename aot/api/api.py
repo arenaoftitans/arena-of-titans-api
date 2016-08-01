@@ -451,10 +451,11 @@ class Api(WebSocketServerProtocol):
         trump = self._get_trump(game, play_request.get('name', ''))
         targeted_player_index = play_request.get('target_index', None)
         if trump is None:
-            self._send_error_to_display('wrong_trump')
+            raise AotError('wrong_trump')
         elif trump.must_target_player and targeted_player_index is None:
-            self._send_error('missing_trump_target')
-        elif trump.must_target_player:
+            raise AotError('missing_trump_target')
+
+        if trump.must_target_player:
             trump.initiator = game.active_player.name
             self._play_trump_with_target(game, trump, targeted_player_index)
         else:
@@ -475,17 +476,19 @@ class Api(WebSocketServerProtocol):
             else:
                 self._send_trump_error(game.active_player)
         else:
-            self._send_error_to_display('wrong_trump_target')
+            raise AotError('wrong_trump_target')
 
     def _send_trump_error(self, active_player):
         if not active_player.can_play_trump:
-            self._send_error_to_display(
+            raise AotErrorToDisplay(
                 'max_number_played_trumps',
-                format_opt={'num': Player.MAX_NUMBER_TRUMPS_PLAYED})
+                {'num': Player.MAX_NUMBER_TRUMPS_PLAYED},
+            )
         else:
-            self._send_error_to_display(
+            raise AotErrorToDisplay(
                 'max_number_trumps',
-                format_opt={'num': Player.MAX_NUMBER_AFFECTING_TRUMPS})
+                {'num': Player.MAX_NUMBER_AFFECTING_TRUMPS},
+            )
 
     def _play_trump_without_target(self, game, trump):
         self._play_trump_with_target(game, trump, game.active_player.index)

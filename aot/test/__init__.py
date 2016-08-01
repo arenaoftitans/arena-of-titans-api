@@ -59,7 +59,7 @@ def game():
         'index': i,
         'id': i
     } for i in range(get_number_players())]
-    g = get_game(players_description)
+    g = get_game(players_description, test=True)
     for player in g.players:
         player.is_connected = True
 
