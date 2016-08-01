@@ -34,6 +34,19 @@ from aot.utils import get_time
 from contextlib import contextmanager
 
 
+class AotError(Exception):
+    def __init__(self, msg, infos=None):
+        super().__init__(msg)
+        if infos is None:
+            self.infos = {}
+        else:
+            self.infos = infos
+
+
+class AotErrorToDisplay(AotError):
+    pass
+
+
 class Api(WebSocketServerProtocol):
     DISCONNECTED_TIMEOUT_WAIT = 10
     INDEX_FIRST_PLAYER = 0
@@ -43,6 +56,7 @@ class Api(WebSocketServerProtocol):
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
+        'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_trumps': 'A player cannot be affected by more than {num} trump(s).',
         'max_number_played_trumps': 'You can only play {num} trump(s) per turn',
         'missing_trump_target': 'You must specify a target player.',
@@ -50,8 +64,10 @@ class Api(WebSocketServerProtocol):
         'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
                                'to start a game.',
         'not_your_turn': 'Not your turn.',
+        'no_request': 'No request was provided',
         'registered_different_description': 'Number of registered players differs with number of '
-                                            'players descriptions.',
+                                            'players descriptions or too many/too few players are '
+                                            'registered.',
         'unknown_error': 'Unknown error.',
         'unknown_request': 'Unknown request: {rt}.',
         'wrong_card': 'This card doesn\'t exist or is not in your hand.',
@@ -92,14 +108,18 @@ class Api(WebSocketServerProtocol):
         try:
             self._message = json.loads(payload.decode('utf-8'))
             self._rt = self._message.get('rt', '')
-            if self._creating_new_game:
-                response = self._create_new_game()
+            if self._rt not in RequestTypes:
+                raise AotError('unknown_request', {'rt': self._rt})
+            elif self._creating_new_game:
+                self._create_new_game()
             elif self._creating_game:
-                response = self._process_create_game_request()
+                self._process_create_game_request()
             else:
-                response = self._process_play_request()
-
-            self.sendMessage(response)
+                self._process_play_request()
+        except AotError as e:
+            self._send_error(str(e), e.infos)
+        except AotErrorToDisplay as e:
+            self._send_error_to_display(str(e), e.infos)
         except Exception as e:
             logging.exception('onMessage')
 
@@ -113,7 +133,8 @@ class Api(WebSocketServerProtocol):
             .replace(b'=', b'')\
             .decode('ascii')
         self._initialize_cache()
-        return self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
+        response = self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
+        self.sendMessage(response)
 
     def _can_join(self):
         return ApiCache.is_new_game(self._game_id) or \
@@ -217,46 +238,47 @@ class Api(WebSocketServerProtocol):
     def _process_create_game_request(self):
         if not self._cache.is_game_master() and \
                 self._rt != RequestTypes.SLOT_UPDATED:
-            self._send_error_to_display('game_master_request', {'rt': self._rt})
-        else:
-            self._do_create_game_request()
-
-    def _do_create_game_request(self):
-        if self._rt not in RequestTypes:
-            self._send_error('unknown_request', {'rt': self._rt})
-        if self._rt == RequestTypes.SLOT_UPDATED:
+            raise AotErrorToDisplay('game_master_request', {'rt': self._rt})
+        elif self._rt == RequestTypes.SLOT_UPDATED:
             self._modify_slots()
         elif self._rt == RequestTypes.CREATE_GAME:
-            number_players = self._cache.number_taken_slots()
-            players_description = [player for player in self._message['create_game_request']
-                                   if player['name']]
-            if self._good_number_player_registered(number_players) and \
-                    self._good_number_players_description(number_players, players_description):
-                self._initialize_game(players_description)
-            elif not self._good_number_players_description(number_players, players_description):
-                self._send_error('registered_different_description')
-            elif number_players < 2 or len(players_description) < 2:
-                self._send_error_to_display('not_enought_players')
+            self._create_game()
         else:
-            self._send_error('unknown_error')
+            raise AotError('unknown_error')
 
     def _modify_slots(self):
         slot = self._message.get('slot', None)
         if slot is None:
-            self._send_error_to_display('no_slot')
-            return
+            raise AotErrorToDisplay('no_slot')
         elif self._cache.slot_exists(slot):
             self._cache.update_slot(slot)
-        # The player_id is stored in the cache so we can know to which player which slot is
-        # associated. We don't pass this information to the frontend. If the slot is new, it
-        # doesn't have a player_id yet
-        if 'player_id' in slot:
-            del slot['player_id']
-        response = {
-            'rt': RequestTypes.SLOT_UPDATED,
-            'slot': slot
-        }
-        self._send_all(response)
+            # The player_id is stored in the cache so we can know to which player which slot is
+            # associated. We don't pass this information to the frontend. If the slot is new, it
+            # doesn't have a player_id yet, so we have to check for its existance before attempting
+            # to delete it.
+            if 'player_id' in slot:
+                del slot['player_id']
+            response = {
+                'rt': RequestTypes.SLOT_UPDATED,
+                'slot': slot
+            }
+            self._send_all(response)
+        else:
+            raise AotError('inexistant_slot')
+
+    def _create_game(self):
+        number_players = self._cache.number_taken_slots()
+        create_game_request = self._message.get('create_game_request', None)
+        if create_game_request is None:
+            raise AotError('no_request')
+        players_description = [player for player in create_game_request if player['name']]
+
+        if not self._good_number_players_description(number_players, players_description) or\
+                not self._good_number_player_registered(number_players):
+            raise AotError('registered_different_description')
+
+        self._initialize_game(players_description)
+        self._cache.game_has_started()
 
     def _good_number_player_registered(self, number_players):
         return number_players >= 2 and number_players <= get_number_players()
@@ -265,10 +287,6 @@ class Api(WebSocketServerProtocol):
         return number_players == len(players_description)
 
     def _initialize_game(self, players_description):
-        self._create_game(players_description)
-        self._cache.game_has_started()
-
-    def _create_game(self, players_description):
         slots = self._cache.get_slots()
         for player in players_description:
             index = player['index']
