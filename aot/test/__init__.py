@@ -34,6 +34,16 @@ from aot.game import Player
 from unittest.mock import MagicMock
 
 
+class PickleStub:
+    @classmethod
+    def loads(cls, arg):
+        return arg
+
+    @classmethod
+    def dumps(cls, arg):
+        return arg
+
+
 @pytest.fixture
 def board():
     return get_board()
@@ -76,5 +86,17 @@ def api():
 
 @pytest.fixture
 def api_cache(mock):
-    mock.patch('aot.api.api_cache.redis.Redis', site_effect=MagicMock())
-    return ApiCache('game_id', 'player_id')
+    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
+    mock.patch('aot.api.api_cache.pickle', PickleStub)
+    cache = ApiCache()
+    cache.init('game_id', 'player_id')
+    cache._cache = MagicMock()
+    return cache
+
+
+@pytest.fixture
+def api_cache_cls(mock):
+    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
+    mock.patch('aot.api.api_cache.pickle', PickleStub)
+
+    return ApiCache
