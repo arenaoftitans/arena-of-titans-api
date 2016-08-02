@@ -28,11 +28,9 @@ from unittest.mock import MagicMock
 def test_onMessage_unkwon_request_type(api):
     api._send_error = MagicMock()
 
-    try:
-        api.onMessage(b'{}', False)
-    except AotError as e:
-        assert str(e) == 'unknown_request'
-        api._send_error.assert_called_once_with('ttt')
+    api.onMessage(b'{}', False)
+
+    api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
 
 
 def test_onMessage_new_game(api):
