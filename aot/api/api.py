@@ -23,7 +23,6 @@ import uuid
 from aot import get_game
 from aot import get_number_players
 from aot.game import Player
-from aot.api.api_cache import ApiCache
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
@@ -74,19 +73,17 @@ class Api(AotWs):
         self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
             .replace(b'=', b'')\
             .decode('ascii')
-        self._initialize_cache()
+        self._initialize_cache(new_game=True)
         response = self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
         self.sendMessage(response)
 
-    def _can_join(self):
-        return ApiCache.is_new_game(self._game_id) or \
-            (ApiCache.game_exists(self._game_id) and ApiCache.has_opened_slots(self._game_id))
-
-    def _initialize_cache(self):
+    def _initialize_cache(self, new_game=False):
         self._cache.init(game_id=self._game_id, player_id=self._id)
-        self._cache.create_new_game(test=self._message.get('test', False))
+        if new_game:
+            self._cache.create_new_game(test=self._message.get('test', False))
         index = self._affect_current_slot()
         self._cache.save_session(index)
+        return index
 
     def _get_initialiazed_game_message(self, index):
         initiliazed_game = {
@@ -112,14 +109,37 @@ class Api(AotWs):
 
     def _process_create_game_request(self):
         if not self._cache.is_game_master() and \
-                self._rt != RequestTypes.SLOT_UPDATED:
+                self._rt not in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME):
             raise AotErrorToDisplay('game_master_request', {'rt': self._rt})
+        elif self._rt == RequestTypes.INIT_GAME:
+            if self._can_join:
+                self._join()
+            else:
+                raise AotErrorToDisplay('cannot_join')
         elif self._rt == RequestTypes.SLOT_UPDATED:
             self._modify_slots()
         elif self._rt == RequestTypes.CREATE_GAME:
             self._create_game()
         else:
             raise AotError('unknown_error')
+
+    @property
+    def _can_join(self):
+        return self._cache.game_exists(self._game_id) and \
+            self._cache.has_opened_slots(self._game_id)
+
+    def _join(self):
+        index = self._initialize_cache()
+        response = self._get_initialiazed_game_message(index)
+        self.sendMessage(response)
+        self._send_updated_slot_new_player(response['slots'][index])
+
+    def _send_updated_slot_new_player(self, slot):
+        message = {
+            'rt': RequestTypes.SLOT_UPDATED,
+            'slot': slot,
+        }
+        self._send_all_others(message)
 
     def _modify_slots(self):
         slot = self._message.get('slot', None)

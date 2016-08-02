@@ -108,6 +108,30 @@ def test_process_create_game_request_update_slot_game_master(api):
     api._modify_slots.assert_called_once_with()
 
 
+def test_process_create_game_request_join_cannot_join(api):
+    api._rt = RequestTypes.INIT_GAME
+    api._cache = MagicMock()
+    api._cache.game_exists = MagicMock(return_value=False)
+
+    try:
+        api._process_create_game_request()
+        raise AssertionError
+    except AotError as e:
+        assert str(e) == 'cannot_join'
+
+
+def test_process_create_game_request_join(api):
+    api._rt = RequestTypes.INIT_GAME
+    api._cache = MagicMock()
+    api._cache.game_exists = MagicMock(return_value=True)
+    api._cache.has_opened_slots = MagicMock(return_value=True)
+    api._join = MagicMock()
+
+    api._process_create_game_request()
+
+    api._join.assert_called_once_with()
+
+
 def test_process_create_game_request_create_game(api):
     api._cache = MagicMock()
     api._cache.is_game_master = MagicMock(return_value=True)
@@ -117,6 +141,41 @@ def test_process_create_game_request_create_game(api):
     api._process_create_game_request()
 
     api._create_game.assert_called_once_with()
+
+
+def test_join(api):
+    game_message = {
+        'slots': [
+            None,
+            {
+                'state': 'TAKEN',
+            },
+        ],
+    }
+    api._get_initialiazed_game_message = MagicMock(return_value=game_message)
+    api.sendMessage = MagicMock()
+    api._send_all_others = MagicMock()
+    api._cache = MagicMock()
+    api._cache.affect_next_slot = MagicMock(return_value=1)
+    api.id = 'player_id'
+    api._game_id = 'game_id'
+    api._message = {
+        'hero': 'daemon',
+        'player_name': 'Player 2',
+    }
+
+    api._join()
+
+    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    assert api._cache.create_new_game.call_count == 0
+    api._cache.affect_next_slot.assert_called_once_with('Player 2', 'daemon')
+    api._cache.save_session.assert_called_once_with(1)
+    api._get_initialiazed_game_message.assert_called_once_with(1)
+    api.sendMessage.assert_called_once_with(game_message)
+    api._send_all_others.assert_called_once_with({
+        'rt': RequestTypes.SLOT_UPDATED,
+        'slot': game_message['slots'][1],
+    })
 
 
 def test_modify_slots_empty_request(api):
