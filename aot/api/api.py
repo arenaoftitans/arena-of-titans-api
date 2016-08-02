@@ -83,7 +83,7 @@ class Api(AotWs):
             (ApiCache.game_exists(self._game_id) and ApiCache.has_opened_slots(self._game_id))
 
     def _initialize_cache(self):
-        self._cache = ApiCache(game_id=self._game_id, player_id=self._id)
+        self._cache.init(game_id=self._game_id, player_id=self._id)
         self._cache.create_new_game(test=self._message.get('test', False))
         index = self._affect_current_slot()
         self._cache.save_session(index)
@@ -105,73 +105,6 @@ class Api(AotWs):
         player_name = self._message.get('player_name', '')
         hero = self._message.get('hero', '')
         return self._cache.affect_next_slot(player_name, hero)
-
-    def _is_reconnecting(self):
-        return 'player_id' in self._message
-
-    def _can_reconnect(self):
-        return ApiCache.is_member_game(self._game_id, self._message['player_id'])
-
-    def _reconnect(self):
-        self.id = self._message['player_id']
-        self._clients[self.id] = self
-
-        if self.id in self._disconnect_timeouts:
-            self._disconnect_timeouts[self.id].cancel()
-
-        if self._creating_game:
-            try:
-                index = self._cache.get_player_index()
-            except IndexError:
-                # We were disconnected and we must register again
-                self._game_id = None
-                index = -1
-            finally:
-                return self._get_initialiazed_game_message(index)
-        else:
-            with self._load_game() as game:
-                message = self._reconnect_to_game(game)
-            return message
-
-    def _reconnect_to_game(self, game):
-        player = [player for player in game.players if player.id == self.id][0]
-        player.is_connected = True
-        message = self._get_play_message(player, game)
-
-        last_action = self._get_action_message(game.last_action)
-
-        message['reconnect'] = {
-            'players': [{
-                'index': player.index,
-                'name': player.name,
-                'square': player.current_square,
-                'hero': player.hero,
-            } for player in game.players],
-            'trumps': player.trumps,
-            'index': player.index,
-            'last_action': last_action,
-            'history': self._get_history(game),
-            'game_over': game.is_over,
-            'winners': game.winners,
-        }
-
-        return message
-
-    def _get_action_message(self, action):
-        if action is not None:
-            return {
-                'description': action.description,
-                'card': action.card,
-                'trump': action.trump,
-                'player_name': action.player_name,
-                'target_name': action.target_name,
-                'player_index': action.player_index,
-            }
-
-    def _get_history(self, game):
-        return [
-            [self._get_action_message(action) for action in player.history]
-            for player in game.players]
 
     @property
     def _creating_game(self):
@@ -440,34 +373,6 @@ class Api(AotWs):
 
     def _save_game(self, game):
         self._cache.save_game(game)
-
-    def _disconnect_player(self):
-        if self._creating_game:
-            self._free_slot()
-        else:
-            self._disconnect_player_from_game()
-
-    def _free_slot(self):
-        slots = self._cache.get_slots()
-        slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
-        if slots:
-            slot = slots[0]
-            self._message = {
-                'rt': RequestTypes.SLOT_UPDATED,
-                'slot': {
-                    'index': slot['index'],
-                    'state': 'OPEN',
-                },
-            }
-            self._modify_slots(RequestTypes.SLOT_UPDATED)
-
-    def _disconnect_player_from_game(self):
-        with self._load_game() as game:
-            if game:
-                player = game.disconnect(self.id)
-                if not game.is_over and player == game.active_player:
-                    game.pass_turn()
-                    self._send_play_message(player, game)
 
     @property
     def id(self):

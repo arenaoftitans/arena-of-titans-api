@@ -51,10 +51,9 @@ def test_new_game_request_on_old_connection(api):
 
 
 def test_create_new_game(api, mock):
-    api_cache = MagicMock()
-    mock.patch('aot.api.api.ApiCache', return_value=api_cache)
+    api._cache = MagicMock()
     api._get_initialiazed_game_message = MagicMock()
-    api_cache.affect_next_slot = MagicMock(return_value=api.INDEX_FIRST_PLAYER)
+    api._cache.affect_next_slot = MagicMock(return_value=api.INDEX_FIRST_PLAYER)
     api._message = {
         'player_name': 'Game Master',
         'hero': 'daemon',
@@ -65,12 +64,12 @@ def test_create_new_game(api, mock):
 
     assert isinstance(api._game_id, str)
     assert len(api._game_id) == 22
-    api_cache.create_new_game.assert_called_once_with(test=False)
-    api_cache.affect_next_slot.assert_called_once_with(
+    api._cache.create_new_game.assert_called_once_with(test=False)
+    api._cache.affect_next_slot.assert_called_once_with(
         api._message['player_name'],
         api._message['hero'],
     )
-    api_cache.save_session.assert_called_once_with(api.INDEX_FIRST_PLAYER)
+    api._cache.save_session.assert_called_once_with(api.INDEX_FIRST_PLAYER)
     api._get_initialiazed_game_message.assert_called_once_with(api.INDEX_FIRST_PLAYER)
     assert api.sendMessage.call_count == 1
 

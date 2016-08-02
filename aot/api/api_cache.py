@@ -41,10 +41,15 @@ class ApiCache:
     #: Time in seconds after which the game is deleted (48h).
     GAME_EXPIRE = 2 * 24 * 60 * 60
 
-    def __init__(self, game_id=None, player_id=None):
+    _game_id = ''
+    _player_id = ''
+
+    def __init__(self):
         self._cache = Redis(
             host=aot.config['cache']['server_host'],
             port=aot.config['cache']['server_port'])
+
+    def init(self, game_id=None, player_id=None):
         self._game_id = game_id
         self._player_id = player_id
 

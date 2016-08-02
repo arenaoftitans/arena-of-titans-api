@@ -22,6 +22,7 @@ import json
 import logging
 
 from abc import abstractmethod
+from aot.api.api_cache import ApiCache
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
@@ -29,6 +30,7 @@ from aot.api.utils import (
     RequestTypes,
 )
 from autobahn.asyncio.websocket import WebSocketServerProtocol
+from contextlib import contextmanager
 
 
 class AotWs(WebSocketServerProtocol):
@@ -48,6 +50,8 @@ class AotWs(WebSocketServerProtocol):
             self._rt = self._message.get('rt', '')
             if self._rt not in RequestTypes:
                 raise AotError('unknown_request', {'rt': self._rt})
+            elif self._is_reconnecting and self._can_reconnect:
+                self._reconnect()
             elif self._creating_new_game:
                 self._create_new_game()
             elif self._creating_game:
@@ -83,6 +87,15 @@ class AotWs(WebSocketServerProtocol):
     def _process_play_request(self):
         pass
 
+    @abstractmethod
+    def _get_action_message(self, action):
+        pass
+
+    @abstractmethod
+    @contextmanager
+    def _load_game(self):
+        pass
+
     def sendMessage(self, message):
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
@@ -95,6 +108,7 @@ class AotWs(WebSocketServerProtocol):
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
         self._set_up_connection_keep_alive()
+        self._cache = ApiCache()
 
     def onClose(self, wasClean, code, reason):
         if self._cache is not None:
@@ -109,8 +123,98 @@ class AotWs(WebSocketServerProtocol):
     def onPong(self, payload):
         self._set_up_connection_keep_alive()
 
+    def _disconnect_player(self):
+        if self._creating_game:
+            self._free_slot()
+        else:
+            self._disconnect_player_from_game()
+
+    def _free_slot(self):
+        slots = self._cache.get_slots()
+        slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
+        if slots:
+            slot = slots[0]
+            self._message = {
+                'rt': RequestTypes.SLOT_UPDATED,
+                'slot': {
+                    'index': slot['index'],
+                    'state': 'OPEN',
+                },
+            }
+            self._modify_slots(RequestTypes.SLOT_UPDATED)
+
+    def _disconnect_player_from_game(self):
+        with self._load_game() as game:
+            if game:
+                player = game.disconnect(self.id)
+                if not game.is_over and player == game.active_player:
+                    game.pass_turn()
+                    self._send_play_message(player, game)
+
     def _set_up_connection_keep_alive(self):
         self._loop.call_later(5, self.sendPing)
+
+    @property
+    def _is_reconnecting(self):
+        return self._rt == RequestTypes.INIT_GAME and \
+            'player_id' in self._message and \
+            'game_id' in self._message
+
+    @property
+    def _can_reconnect(self):
+        return self._cache.is_member_game(self._message['game_id'], self._message['player_id'])
+
+    def _reconnect(self):
+        self.id = self._message['player_id']
+        self._game_id = self._message['game_id']
+        self._cache.init(game_id=self._game_id, player_id=self.id)
+        self._clients[self.id] = self
+
+        if self.id in self._disconnect_timeouts:
+            self._disconnect_timeouts[self.id].cancel()
+
+        if self._creating_game:
+            try:
+                index = self._cache.get_player_index()
+            except IndexError:
+                # We were disconnected and we must register again
+                self._game_id = None
+                index = -1
+            finally:
+                return self._get_initialiazed_game_message(index)
+        else:
+            with self._load_game() as game:
+                message = self._reconnect_to_game(game)
+            return message
+
+    def _reconnect_to_game(self, game):
+        player = [player for player in game.players if player.id == self.id][0]
+        player.is_connected = True
+        message = self._get_play_message(player, game)
+
+        last_action = self._get_action_message(game.last_action)
+
+        message['reconnect'] = {
+            'players': [{
+                'index': player.index,
+                'name': player.name,
+                'square': player.current_square,
+                'hero': player.hero,
+            } for player in game.players],
+            'trumps': player.trumps,
+            'index': player.index,
+            'last_action': last_action,
+            'history': self._get_history(game),
+            'game_over': game.is_over,
+            'winners': game.winners,
+        }
+
+        return message
+
+    def _get_history(self, game):
+        return [
+            [self._get_action_message(action) for action in player.history]
+            for player in game.players]
 
     def _send_all(self, message, excluded_players=set()):
         for player_id in self._cache.get_players_ids():
