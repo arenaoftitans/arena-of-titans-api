@@ -67,7 +67,7 @@ def a_star(start, goal, board):
             gscore[neighbor] = tentative_gscore
             fscore[neighbor] = gscore[neighbor] + heuristic_cost_estimate(neighbor, goal)
 
-    return []
+    return []  # pragma: no cover
 
 
 def heuristic_cost_estimate(start, goal):

@@ -47,5 +47,5 @@ class SimpleEnumMeta(type):
     def __iter__(cls):
         return (name for name in cls._member_names_)
 
-    def __len__(cls):
+    def __len__(cls):  # pragma: no cover
         return len(cls._member_names_)

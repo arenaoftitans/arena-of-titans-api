@@ -54,7 +54,7 @@ class SlotState(metaclass=SimpleEnumMeta):
     AI = ()
 
 
-def to_json(python_object):
+def to_json(python_object):  # pragma: no cover
     if isinstance(python_object, SimpleEnumMeta):
         return python_object.value
     elif isinstance(python_object, Square):

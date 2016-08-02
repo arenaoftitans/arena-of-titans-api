@@ -35,7 +35,7 @@ class Square:
         # To ease testing
         if isinstance(color, str):  # pragma: no cover
             self._color = Color[color]
-        else:
+        else:  # pragma: no cover
             self._color = color
 
     @property

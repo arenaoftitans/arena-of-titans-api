@@ -137,7 +137,7 @@ class RemoveColor(Trump):
     def _add_color(self, color):
         if isinstance(color, str):  # pragma: no cover
             self._colors.add(Color[color])
-        else:
+        else:  # pragma: no cover
             self._colors.add(color)
 
     def affect(self, player):
