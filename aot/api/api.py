@@ -18,6 +18,8 @@
 ################################################################################
 
 import base64
+import json
+import logging
 import uuid
 
 from aot import get_game
@@ -61,13 +63,28 @@ class Api(AotWs):
 
     # Instance variables
     _game_id = None
-    _cache = None
     _id = None
 
-    @property
-    def _creating_new_game(self):
-        return self._game_id is None or \
-            (self._rt == RequestTypes.INIT_GAME and 'game_id' not in self._message)
+    def onMessage(self, payload, isBinary):
+        try:
+            self._message = json.loads(payload.decode('utf-8'))
+            self._rt = self._message.get('rt', '')
+            if self._rt not in RequestTypes:
+                raise AotError('unknown_request', {'rt': self._rt})
+            elif self._is_reconnecting and self._can_reconnect:
+                self._reconnect()
+            elif self._creating_new_game:
+                self._create_new_game()
+            elif self._creating_game:
+                self._process_create_game_request()
+            else:
+                self._process_play_request()
+        except AotError as e:
+            self._send_error(str(e), e.infos)
+        except AotErrorToDisplay as e:  # pragma: no cover
+            self._send_error_to_display(str(e), e.infos)
+        except Exception as e:  # pragma: no cover
+            logging.exception('onMessage')
 
     def _create_new_game(self):
         self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
@@ -85,7 +102,7 @@ class Api(AotWs):
         self._cache.save_session(index)
         return index
 
-    def _get_initialiazed_game_message(self, index):
+    def _get_initialiazed_game_message(self, index):  # pragma: no cover
         initiliazed_game = {
             'rt': RequestTypes.GAME_INITIALIZED,
             'is_game_master': False,
@@ -103,13 +120,8 @@ class Api(AotWs):
         hero = self._message.get('hero', '')
         return self._cache.affect_next_slot(player_name, hero)
 
-    @property
-    def _creating_game(self):
-        return not self._cache.has_game_started()
-
     def _process_create_game_request(self):
-        if not self._cache.is_game_master() and \
-                self._rt not in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME):
+        if not self._current_request_allowed:
             raise AotErrorToDisplay('game_master_request', {'rt': self._rt})
         elif self._rt == RequestTypes.INIT_GAME:
             if self._can_join:
@@ -120,13 +132,8 @@ class Api(AotWs):
             self._modify_slots()
         elif self._rt == RequestTypes.CREATE_GAME:
             self._create_game()
-        else:
+        else:  # pragma: no cover
             raise AotError('unknown_error')
-
-    @property
-    def _can_join(self):
-        return self._cache.game_exists(self._game_id) and \
-            self._cache.has_opened_slots(self._game_id)
 
     def _join(self):
         index = self._initialize_cache()
@@ -196,7 +203,7 @@ class Api(AotWs):
         self._cache.save_game(game)
         self._send_game_created_message(game)
 
-    def _send_game_created_message(self, game):
+    def _send_game_created_message(self, game):  # pragma: no cover
         # Some session can be used for multiple players (mostly for debug purpose). We use the set
         # below to keep track of players' id and only send the first request for these sessions.
         # Otherwise, the list of cards for the first player to play would be overriden by the cards
@@ -297,7 +304,7 @@ class Api(AotWs):
         y = play_request.get('y', None)
         return game.get_square(x, y)
 
-    def _send_play_message(self, game, this_player):
+    def _send_play_message(self, game, this_player):  # pragma: no cover
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player, game)
 
@@ -305,7 +312,7 @@ class Api(AotWs):
             if player.id in self._clients:
                 self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
-    def _send_player_played_message(self, player, game):
+    def _send_player_played_message(self, player, game):  # pragma: no cover
         self._send_all({
             'rt': RequestTypes.PLAYER_PLAYED,
             'player_index': player.index,
@@ -393,6 +400,25 @@ class Api(AotWs):
 
     def _save_game(self, game):
         self._cache.save_game(game)
+
+    @property
+    def _can_join(self):
+        return self._cache.game_exists(self._game_id) and \
+            self._cache.has_opened_slots(self._game_id)
+
+    @property
+    def _creating_game(self):
+        return not self._cache.has_game_started()
+
+    @property
+    def _creating_new_game(self):
+        return self._game_id is None or \
+            (self._rt == RequestTypes.INIT_GAME and 'game_id' not in self._message)
+
+    @property
+    def _current_request_allowed(self):
+        return self._cache.is_game_master() or \
+                self._rt in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME)
 
     @property
     def id(self):

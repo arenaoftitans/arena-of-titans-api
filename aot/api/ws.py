@@ -19,13 +19,10 @@
 
 import asyncio
 import json
-import logging
 
 from abc import abstractmethod
 from aot.api.api_cache import ApiCache
 from aot.api.utils import (
-    AotError,
-    AotErrorToDisplay,
     to_json,
     RequestTypes,
 )
@@ -40,70 +37,50 @@ class AotWs(WebSocketServerProtocol):
     _disconnect_timeouts = {}
 
     # Instance variable
+    _cache = None
     _loop = None
     _message = None
     _rt = ''
 
-    def onMessage(self, payload, isBinary):
-        try:
-            self._message = json.loads(payload.decode('utf-8'))
-            self._rt = self._message.get('rt', '')
-            if self._rt not in RequestTypes:
-                raise AotError('unknown_request', {'rt': self._rt})
-            elif self._is_reconnecting and self._can_reconnect:
-                self._reconnect()
-            elif self._creating_new_game:
-                self._create_new_game()
-            elif self._creating_game:
-                self._process_create_game_request()
-            else:
-                self._process_play_request()
-        except AotError as e:
-            self._send_error(str(e), e.infos)
-        except AotErrorToDisplay as e:
-            self._send_error_to_display(str(e), e.infos)
-        except Exception as e:
-            logging.exception('onMessage')
-
     @property
     @abstractmethod
-    def _creating_new_game(self):
+    def _creating_new_game(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def _create_new_game(self):
+    def _create_new_game(self):  # pragma: no cover
         pass
 
     @property
     @abstractmethod
-    def _creating_game(self):
+    def _creating_game(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def _process_create_game_request(self):
+    def _process_create_game_request(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def _process_play_request(self):
+    def _process_play_request(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def _get_action_message(self, action):
+    def _get_action_message(self, action):  # pragma: no cover
         pass
 
     @abstractmethod
     @contextmanager
-    def _load_game(self):
+    def _load_game(self):  # pragma: no cover
         pass
 
-    def sendMessage(self, message):
+    def sendMessage(self, message):  # pragma: no cover
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
         message = message.encode('utf-8')
         if isinstance(message, bytes):
             super().sendMessage(message)
 
-    def onOpen(self):
+    def onOpen(self):  # pragma: no cover
         self.id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
@@ -120,7 +97,7 @@ class AotWs(WebSocketServerProtocol):
         if self.id in self._clients:
             del self._clients[self.id]
 
-    def onPong(self, payload):
+    def onPong(self, payload):  # pragma: no cover
         self._set_up_connection_keep_alive()
 
     def _disconnect_player(self):
@@ -151,7 +128,7 @@ class AotWs(WebSocketServerProtocol):
                     game.pass_turn()
                     self._send_play_message(player, game)
 
-    def _set_up_connection_keep_alive(self):
+    def _set_up_connection_keep_alive(self):  # pragma: no cover
         self._loop.call_later(5, self.sendPing)
 
     @property
@@ -216,33 +193,33 @@ class AotWs(WebSocketServerProtocol):
             [self._get_action_message(action) for action in player.history]
             for player in game.players]
 
-    def _send_all(self, message, excluded_players=set()):
+    def _send_all(self, message, excluded_players=set()):  # pragma: no cover
         for player_id in self._cache.get_players_ids():
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
                 player.sendMessage(message)
 
-    def _send_all_others(self, message):
+    def _send_all_others(self, message):  # pragma: no cover
         self._send_all(message, excluded_players=set([self.id]))
 
-    def _send_to(self, message, id):
+    def _send_to(self, message, id):  # pragma: no cover
         if id in self._clients:
             self._clients[id].sendMessage(message)
 
-    def _format_error_to_display(self, message, format_opt={}):
+    def _format_error_to_display(self, message, format_opt={}):  # pragma: no cover
         return {'error_to_display': self._get_error(message, format_opt)}
 
-    def _get_error(self, message, format_opt):
+    def _get_error(self, message, format_opt):  # pragma: no cover
         return self._error_messages.get(message, message).format(**format_opt)
 
-    def _send_error(self, message, format_opt={}):
+    def _send_error(self, message, format_opt={}):  # pragma: no cover
         self.sendMessage(self._format_error(message, format_opt))
 
-    def _send_error_to_display(self, message, format_opt={}):
+    def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
         self.sendMessage(self._format_error_to_display(message, format_opt))
 
-    def _send_all_error(self, message, format_opt={}):
+    def _send_all_error(self, message, format_opt={}):  # pragma: no cover
         self._send_all(self._format_error(message, format_opt))
 
-    def _format_error(self, message, format_opt={}):
+    def _format_error(self, message, format_opt={}):  # pragma: no cover
         return {'error': self._get_error(message, format_opt)}

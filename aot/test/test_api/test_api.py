@@ -33,6 +33,58 @@ from aot.test import (
 from unittest.mock import MagicMock
 
 
+def test_onMessage_unkwon_request_type(api):
+    api._send_error = MagicMock()
+
+    api.onMessage(b'{}', False)
+
+    api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
+
+
+def test_onMessage_reconnect(api):
+    api._reconnect = MagicMock()
+    api._cache = MagicMock()
+    api._cache.is_member_game = MagicMock(return_value=True)
+
+    api.onMessage(b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False)
+
+    api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
+    api._reconnect.assert_called_once_with()
+
+
+def test_onMessage_new_game(api):
+    api._game_id = None
+    api._create_new_game = MagicMock()
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{"rt": "INIT_GAME"}', False)
+
+    api._create_new_game.assert_called_once_with()
+
+
+def test_onMessage_creating_game(api):
+    api._process_create_game_request = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=False)
+    api._game_id = 'game_id'
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
+
+    api._process_create_game_request.assert_called_once_with()
+
+
+def test_onMessage_process_play_request(api):
+    api._process_play_request = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=True)
+    api._game_id = 'game_id'
+
+    api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
+
+    api._process_play_request.assert_called_once_with()
+
+
 def test_new_game_no_game_id(api):
     api._game_id = None
     assert api._creating_new_game
@@ -290,12 +342,15 @@ def test_create_game(mock, api):
     api._message = {
         'create_game_request': create_game_request,
     }
+    api._clients['0'] = None
 
     api._create_game()
 
     api._cache.save_game.assert_called_once_with(game)
     api._send_game_created_message.assert_called_once_with(game)
     api._send_to.call_count == 2
+    assert game.players[0].is_connected
+    assert not game.players[1].is_connected
 
 
 def test_process_play_request_not_your_turn(api, game):
