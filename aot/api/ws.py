@@ -150,6 +150,8 @@ class AotWs(WebSocketServerProtocol):
         if self.id in self._disconnect_timeouts:
             self._disconnect_timeouts[self.id].cancel()
 
+        message = None
+
         if self._creating_game:
             try:
                 index = self._cache.get_player_index()
@@ -158,11 +160,13 @@ class AotWs(WebSocketServerProtocol):
                 self._game_id = None
                 index = -1
             finally:
-                return self._get_initialiazed_game_message(index)
+                message = self._get_initialiazed_game_message(index)
         else:
             with self._load_game() as game:
                 message = self._reconnect_to_game(game)
-            return message
+
+        if message:
+            self.sendMessage(message)
 
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player.id == self.id][0]

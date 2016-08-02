@@ -106,6 +106,8 @@ def test_reconnect_creating_game(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
     api._reconnect()
 
     timer.cancel.assert_called_once_with()
@@ -113,6 +115,7 @@ def test_reconnect_creating_game(api, game):
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
+    assert api.sendMessage.call_count == 1
 
 
 def test_reconnect_creating_game_slot_freed(api, game):
@@ -128,11 +131,14 @@ def test_reconnect_creating_game_slot_freed(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
     api._reconnect()
 
     timer.cancel.assert_called_once_with()
     api._get_initialiazed_game_message.assert_called_once_with(-1)
     assert api._game_id is None
+    assert api.sendMessage.call_count == 1
 
 
 def test_reconnect_reconnect_to_game(api, game):
@@ -146,6 +152,8 @@ def test_reconnect_reconnect_to_game(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
     api._reconnect()
 
     timer.cancel.assert_called_once_with()
@@ -153,6 +161,7 @@ def test_reconnect_reconnect_to_game(api, game):
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
+    assert api.sendMessage.call_count == 1
 
 
 def test_reconnect_to_game(api, game):

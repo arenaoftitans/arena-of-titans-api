@@ -31,8 +31,17 @@ from unittest.mock import MagicMock
 
 def test_get_players_ids(api_cache):
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
+    api_cache._game_id = None
 
     assert api_cache.get_players_ids('game_id') == ['id0', 'id1']
+
+    api_cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
+
+
+def test_get_players_ids_without_game_id(api_cache):
+    api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
+
+    assert api_cache.get_players_ids() == ['id0', 'id1']
 
     api_cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
 
@@ -180,6 +189,10 @@ def test_is_game_master(api_cache):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 
     api_cache._cache.hget = MagicMock(return_value=b'toto')
+    assert not api_cache.is_game_master()
+    api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
+
+    api_cache._cache.hget = MagicMock(return_value=None)
     assert not api_cache.is_game_master()
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 

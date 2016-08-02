@@ -65,7 +65,9 @@ class ApiCache:
         self._game_id = game_id
         self._player_id = player_id
 
-    def get_players_ids(self, game_id):
+    def get_players_ids(self, game_id=None):
+        if game_id is None:
+            game_id = self._game_id
         ids = self._cache.zrange(self.PLAYERS_KEY_TEMPLATE.format(game_id), 0, -1)
         return [id.decode('utf-8') for id in ids]
 
@@ -167,8 +169,8 @@ class ApiCache:
         game_master_id = self._cache.hget(
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.GAME_MASTER_KEY,
-        ).decode('utf-8')
-        return game_master_id == self._player_id
+        )
+        return game_master_id is not None and game_master_id.decode('utf-8') == self._player_id
 
     def number_taken_slots(self):
         return len(self._get_taken_slots())
@@ -191,7 +193,10 @@ class ApiCache:
 
     def update_slot(self, slot):
         current_slot = self.get_slot(slot['index'])
-        if current_slot.get('player_id', '') == self._player_id:
+        if current_slot['state'] == SlotState.OPEN and slot['state'] == SlotState.TAKEN:
+            slot['player_id'] = self._player_id
+            self._save_slot(slot)
+        elif current_slot.get('player_id', '') == self._player_id:
             # If new value is OPEN, we are freeing the slot and mustn't add the player id.
             if slot['state'] != SlotState.OPEN:
                 slot['player_id'] = self._player_id
@@ -199,10 +204,6 @@ class ApiCache:
                 del slot['player_id']
             self._save_slot(slot)
         elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN:
-            self._save_slot(slot)
-        elif current_slot['state'] != SlotState.TAKEN and \
-                slot['state'] == SlotState.TAKEN:
-            slot['player_id'] = self._player_id
             self._save_slot(slot)
 
     def _save_slot(self, slot):

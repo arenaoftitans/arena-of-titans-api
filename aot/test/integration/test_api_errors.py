@@ -45,8 +45,9 @@ def test_not_enough_players(player1):
         message_override={'create_game_request': create_game_request})
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'Not enough player to create game. 2 Players are at least required to '
-                            'start a game.'
+        'error': 'Number of registered players differs with number of '
+                 'players descriptions or too many/too few players are '
+                 'registered.'
     }
 
 
@@ -344,7 +345,7 @@ def test_play_wrong_trump_without_target(player1, player2):
         'play_trump_with_target',
         message_override={'play_request': play_request})
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'Unknown trump.'}
+    assert response == {'error': 'Unknown trump.'}
 
     # Missing
     play_request = {
@@ -353,7 +354,7 @@ def test_play_wrong_trump_without_target(player1, player2):
         'play_trump_with_target',
         message_override={'play_request': play_request})
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'Unknown trump.'}
+    assert response == {'error': 'Unknown trump.'}
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
@@ -368,7 +369,7 @@ def test_play_wrong_trump_with_target(player1, player2):
         'play_trump_with_target',
         message_override={'play_request': play_request})
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'Unknown trump.'}
+    assert response == {'error': 'Unknown trump.'}
 
     # Wrong index
     play_request = {
@@ -379,7 +380,7 @@ def test_play_wrong_trump_with_target(player1, player2):
         'play_trump_with_target',
         message_override={'play_request': play_request})
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'Wrong target player index.'}
+    assert response == {'error': 'Wrong target player index.'}
 
     # Missing index
     play_request = {
@@ -398,21 +399,22 @@ def test_play_wrong_trump_with_target(player1, player2):
         'play_trump_with_target',
         message_override={'play_request': play_request})
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'Unknown trump.'}
+    assert response == {'error': 'Unknown trump.'}
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
 def test_play_two_trumps_on_same_player(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
-    yield from player1.send('play_trump_with_target')
+    yield from player1.pass_turn()
+    yield from player2.send('play_trump_with_target')
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'A player cannot be affected by more than 1 trump(s).'}
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
-def test_play_two_trumps_on_same_player(player1, player2):
+def test_play_two_trumps_in_same_turn(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
     yield from player1.send('play_trump_with_target')

@@ -52,6 +52,19 @@ def test_onMessage_reconnect(api):
     api._reconnect.assert_called_once_with()
 
 
+def test_onMessage_reconnect_cannot_join(api):
+    api._reconnect = MagicMock()
+    api._cache = MagicMock()
+    api._cache.is_member_game = MagicMock(return_value=False)
+    api._send_error_to_display = MagicMock()
+
+    api.onMessage(b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False)
+
+    api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
+    assert api._reconnect.call_count == 0
+    api._send_error_to_display.assert_called_once_with('cannot_join', {})
+
+
 def test_onMessage_new_game(api):
     api._game_id = None
     api._create_new_game = MagicMock()

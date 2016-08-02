@@ -46,8 +46,6 @@ class Api(AotWs):
         'max_number_played_trumps': 'You can only play {num} trump(s) per turn',
         'missing_trump_target': 'You must specify a target player.',
         'no_slot': 'No slot provided.',
-        'not_enought_players': 'Not enough player to create game. 2 Players are at least required '
-                               'to start a game.',
         'not_your_turn': 'Not your turn.',
         'no_request': 'No request was provided',
         'registered_different_description': 'Number of registered players differs with number of '
@@ -69,20 +67,27 @@ class Api(AotWs):
         try:
             self._message = json.loads(payload.decode('utf-8'))
             self._rt = self._message.get('rt', '')
+            if 'game_id' in self._message:
+                self._game_id = self._message['game_id']
+                self._cache.init(game_id=self._game_id, player_id=self.id)
+
             if self._rt not in RequestTypes:
                 raise AotError('unknown_request', {'rt': self._rt})
-            elif self._is_reconnecting and self._can_reconnect:
-                self._reconnect()
+            elif self._is_reconnecting:
+                if self._can_reconnect:
+                    self._reconnect()
+                else:
+                    raise AotErrorToDisplay('cannot_join')
             elif self._creating_new_game:
                 self._create_new_game()
             elif self._creating_game:
                 self._process_create_game_request()
             else:
                 self._process_play_request()
-        except AotError as e:
-            self._send_error(str(e), e.infos)
         except AotErrorToDisplay as e:  # pragma: no cover
             self._send_error_to_display(str(e), e.infos)
+        except AotError as e:
+            self._send_error(str(e), e.infos)
         except Exception as e:  # pragma: no cover
             logging.exception('onMessage')
 
@@ -324,6 +329,17 @@ class Api(AotWs):
             'game_over': game.is_over,
             'winners': game.winners,
         })
+
+    def _get_action_message(self, action):  # pragma: no cover
+        if action is not None:
+            return {
+                'description': action.description,
+                'card': action.card,
+                'trump': action.trump,
+                'player_name': action.player_name,
+                'target_name': action.target_name,
+                'player_index': action.player_index,
+            }
 
     def _get_play_message(self, player, game):
         return {
