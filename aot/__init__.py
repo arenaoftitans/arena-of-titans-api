@@ -80,7 +80,7 @@ def get_movements_cards_description(name='standard'):
 def _get_colors(name='standard'):
     colors = set()
     for color_name in get_game_description(name)['colors']:
-        colors.add(Color[color_name.upper()])
+        colors.add(Color[color_name])
     return colors
 
 
@@ -127,7 +127,7 @@ def _get_additionnal_colors(color,
     additional_colors.update([Color[col]
                               for col in additional_movements_color])
     additional_colors.update([Color[col]
-                              for col in complementary_colors.get(color.value, [])])
+                              for col in complementary_colors.get(color, [])])
     return additional_colors
 
 
@@ -148,7 +148,7 @@ def get_trumps_list(board_name='standard', test=False):
                 if color == Color.ALL:
                     continue
                 trump_name = color_trump_description['name']
-                trump_name = '{name} {color}'.format(name=trump_name, color=color.value.title())
+                trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
                 color_trump_description['name'] = trump_name
                 color_trump_description['color'] = color
                 color_trump_description = copy.deepcopy(color_trump_description)

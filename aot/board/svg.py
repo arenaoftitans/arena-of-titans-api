@@ -146,7 +146,7 @@ class SvgBoardCreator:
                 path = './/*[@id="square-{}-{}"]'.format(x, y)
                 square = self._svg.xpath(path, namespaces=self.NS)[0]
                 color = self._colors_disposition[y][x]
-                svg_color = color.value.lower()
+                svg_color = color.lower()
                 primary_class = svg_color + '-square'
                 square_id = self._get_id(x, y)
                 class_template = \

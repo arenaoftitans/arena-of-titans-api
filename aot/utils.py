@@ -23,3 +23,29 @@ from time import time
 
 def get_time():
     return int(time() * 1000)
+
+
+class SimpleEnumMeta(type):
+    def __new__(metacls, cls, bases, classdict):
+        object_attrs = set(dir(type(cls, (object,), {})))
+        simple_enum_cls = super().__new__(metacls, cls, bases, classdict)
+        simple_enum_cls._member_names_ = set(classdict.keys()) - object_attrs
+        non_members = set()
+        for attr in simple_enum_cls._member_names_:
+            if attr.startswith('_') and attr.endswith('_'):
+                non_members.add(attr)
+            else:
+                setattr(simple_enum_cls, attr, attr)
+
+        simple_enum_cls._member_names_.difference_update(non_members)
+
+        return simple_enum_cls
+
+    def __getitem__(cls, key):
+        return getattr(cls, key.upper())
+
+    def __iter__(cls):
+        return (name for name in cls._member_names_)
+
+    def __len__(cls):  # pragma: no cover
+        return len(cls._member_names_)

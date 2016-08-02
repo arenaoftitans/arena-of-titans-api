@@ -36,7 +36,7 @@ class Card:
     def __init__(
         self,
         board,
-        color=Color['ALL'],
+        color=Color.ALL,
         complementary_colors=None,
         name='',
         description='',
@@ -56,7 +56,7 @@ class Card:
         }
 
         self._board = board
-        self._color = color if isinstance(color, Color) else Color[color.upper()]
+        self._color = color if isinstance(color, Color) else Color[color]
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
         self._default_colors = set(self._colors)
@@ -174,7 +174,7 @@ class Card:
         return temporary_horizontal_squares
 
     def remove_color_from_possible_colors(self, color):
-        if color == Color['ALL']:
+        if color == Color.ALL:
             self._colors = set()
         elif color in self._colors:
             self._colors.remove(color)

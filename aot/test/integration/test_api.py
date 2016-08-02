@@ -80,7 +80,6 @@ def test_update_slot(player1):
 @pytest.mark.asyncio(forbid_global_loop=True)
 def test_player2_join(player1, player2):
     yield from player1.send('init_game')
-    yield from player1.send('update_slot2')
 
     game_id = yield from player1.get_game_id()
     yield from player2.send('join_game', message_override={'game_id': game_id})

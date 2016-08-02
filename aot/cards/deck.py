@@ -90,8 +90,8 @@ class Deck:
 
     def get_card(self, card_name, card_color):
         if isinstance(card_color, str):
-            card_color = card_color.upper()
-            card_color = Color[card_color] if card_color in Color.__members__ else None
+            card_color = card_color
+            card_color = Color[card_color] if card_color in Color else None
 
         matching_cards = [card for card in self._hand
                           if card.name == card_name and

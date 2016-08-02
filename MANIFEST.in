@@ -1,5 +1,5 @@
 include config.dist.toml
-include aot/resources/templates/boards/*.svg
+include aot/resources/templates/boards/*.html
 include aot/resources/games/*.json
 include doc/api/requests/*.json
 include doc/api/responses/*.json

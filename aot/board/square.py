@@ -34,8 +34,8 @@ class Square:
         self._y = y
         # To ease testing
         if isinstance(color, str):  # pragma: no cover
-            self._color = Color[color.upper()]
-        else:
+            self._color = Color[color]
+        else:  # pragma: no cover
             self._color = color
 
     @property
@@ -71,7 +71,7 @@ class Square:
         return str(self)
 
     def __hash__(self):
-        return self._x * 10 + self._y * 100 + hash(self._color.name)
+        return self._x * 10 + self._y * 100 + hash(self._color)
 
 
 class SquareSet(set):

@@ -3,7 +3,6 @@ omit =
     aot/test/*
     aot/__main__.py
     aot/test_main.py
-    aot/api/*
 
 
 [html]
