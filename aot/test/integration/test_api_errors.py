@@ -21,6 +21,7 @@ import logging
 import pytest
 
 from aot import get_number_players
+from aot.game import Player
 from aot.test.integration import (
     flush_cache,
     create_game,
@@ -373,7 +374,7 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Wrong index
     play_request = {
-        'name': 'Tower Blue',
+        'name': 'Tower Black',
         'target_index': 78
     }
     yield from player1.send(
@@ -384,7 +385,7 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Missing index
     play_request = {
-        'name': 'Tower Blue'
+        'name': 'Tower Black'
     }
     yield from player1.send(
         'play_trump_with_target',
@@ -403,14 +404,35 @@ def test_play_wrong_trump_with_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
-def test_play_two_trumps_on_same_player(player1, player2):
-    yield from create_game(player1, player2)
-    yield from player1.send('play_trump_with_target')
-    yield from player1.pass_turn()
-    yield from player2.send('play_trump_with_target')
+def test_play_two_trumps_on_same_player(players):
+    for _ in range(Player.MAX_NUMBER_AFFECTING_TRUMPS + 2):
+        player = players.add()
 
-    response = yield from player1.recv()
-    assert response == {'error_to_display': 'A player cannot be affected by more than 1 trump(s).'}
+    yield from create_game(*players)
+    msg = {
+        'play_request': {
+            'target_index': len(players) - 1,
+            'name': 'Tower Black',
+        },
+    }
+
+    for i in range(Player.MAX_NUMBER_AFFECTING_TRUMPS + 1):
+        player = players[i]
+        yield from player.send('play_trump_with_target', message_override=msg)
+        if i == Player.MAX_NUMBER_AFFECTING_TRUMPS:
+            break
+        for p in players:
+            response = yield from p.recv()
+        yield from player.send('pass_turn')
+        for p in players:
+            r = yield from p.recv()
+            r = yield from p.recv()
+
+    response = yield from player.recv()
+    assert response == {
+        'error_to_display': 'A player cannot be affected by more than {} trump(s).'
+                            .format(Player.MAX_NUMBER_AFFECTING_TRUMPS)
+    }
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)

@@ -75,14 +75,33 @@ def player2(players, event_loop):
 @asyncio.coroutine
 def create_game(*players):
     player1 = players[0]
+    if not player1.is_connected:
+        yield from player1.connect()
     yield from player1.send('init_game', message_override={'test': True})
 
     game_id = yield from player1.get_game_id()
+    index = 1
     for player in players[1:]:
+        if not player.is_connected:
+            yield from player.connect()
+        index += 1
         yield from player.connect()
-        yield from player.send('join_game', message_override={'game_id': game_id})
+        msg = {
+            'game_id': game_id,
+            'player_name': 'Player ' + str(index),
+        }
+        yield from player.send('join_game', message_override=msg)
+        # yield from player.recv()
 
-    yield from player1.send('create_game')
+    create_game_msg = get_request('create_game')
+    if len(players) > 2:
+        for i in range(2, len(players)):
+            create_game_msg['create_game_request'].append({
+                'index': i,
+                'hero': 'daemon',
+                'name': 'Player ' + str(i + 1)
+            })
+    yield from player1.send('create_game', message_override=create_game_msg)
 
 
 class Players:
@@ -93,7 +112,9 @@ class Players:
 
     def add(self):
         next_index = len(self._players)
-        self._players.append(PlayerWs(next_index, self.on_send, self._event_loop))
+        player = PlayerWs(next_index, self.on_send, self._event_loop)
+        self._players.append(player)
+        return player
 
     def on_send(self, request_name, sender_index):
         for player in self._players:
@@ -116,6 +137,9 @@ class Players:
     def __getitem__(self, index):
         return self._players[index]
 
+    def __len__(self):
+        return len(self._players)
+
 
 class PlayerWs:
     def __init__(self, index, on_send, event_loop):
@@ -124,6 +148,7 @@ class PlayerWs:
         self.has_joined_game = False
         self.recieve_index = 0
         self.number_asked = 0
+        self.ws = None
         self._game_id = None
         self._player_id = None
         self._event_loop = event_loop
@@ -193,3 +218,7 @@ class PlayerWs:
     @asyncio.coroutine
     def close(self):
         yield from self.ws.close()
+
+    @property
+    def is_connected(self):
+        return self.ws is not None
