@@ -73,6 +73,10 @@ class AotWs(WebSocketServerProtocol):
     def _load_game(self):  # pragma: no cover
         pass
 
+    @abstractmethod
+    def _modify_slots(self):  # pragma: no cover
+        pass
+
     def sendMessage(self, message):  # pragma: no cover
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
@@ -118,7 +122,7 @@ class AotWs(WebSocketServerProtocol):
                     'state': 'OPEN',
                 },
             }
-            self._modify_slots(RequestTypes.SLOT_UPDATED)
+            self._modify_slots()
 
     def _disconnect_player_from_game(self):
         with self._load_game() as game:
@@ -126,7 +130,7 @@ class AotWs(WebSocketServerProtocol):
                 player = game.disconnect(self.id)
                 if not game.is_over and player == game.active_player:
                     game.pass_turn()
-                    self._send_play_message(player, game)
+                    self._send_play_message(game, player)
 
     def _set_up_connection_keep_alive(self):  # pragma: no cover
         self._loop.call_later(5, self.sendPing)

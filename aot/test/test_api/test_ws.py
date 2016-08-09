@@ -48,7 +48,7 @@ def test_onClose(api, game):
     api._disconnect_player()
 
     api._cache.get_game.assert_called_once_with()
-    api._send_play_message.assert_called_once_with(player, game)
+    api._send_play_message.assert_called_once_with(game, player)
     api._save_game.assert_called_once_with(game)
 
     game.disconnect.assert_called_once_with(player.id)
@@ -90,7 +90,7 @@ def test_onClose_creating_game(api, game):
             'state': 'OPEN',
         },
     }
-    api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED)
+    api._modify_slots.assert_called_once_with()
 
 
 def test_reconnect_creating_game(api, game):
