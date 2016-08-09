@@ -179,7 +179,7 @@ class Api(AotWs):
         create_game_request = self._message.get('create_game_request', None)
         if create_game_request is None:
             raise AotError('no_request')
-        players_description = [player for player in create_game_request if player['name']]
+        players_description = [player for player in create_game_request if player.get('name', '')]
 
         if not self._good_number_players_description(number_players, players_description) or\
                 not self._good_number_player_registered(number_players):
