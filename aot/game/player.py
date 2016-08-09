@@ -18,10 +18,6 @@
 ################################################################################
 
 from aot.board import Square
-from aot.game.ai import (
-    find_cheapest_card,
-    find_move_to_play,
-)
 from aot.utils import get_time
 
 
@@ -160,20 +156,6 @@ class Player:
         if not self.can_play:
             self._deck.init_turn()
 
-    def play_auto(self):
-        while self.can_play:
-            card, square = find_move_to_play(
-                self.hand,
-                self.current_square,
-                self._ai_aim,
-                self._board
-            )
-            if card:
-                self.play_card(card, square)
-            else:
-                cheapest_card = find_cheapest_card(self.hand)
-                self.discard(cheapest_card)
-
     def discard(self, card):
         self._deck.play(card)
         self.last_action = LastAction(
@@ -290,6 +272,10 @@ class Player:
     @property
     def affecting_trumps(self):
         return self._affecting_trumps
+
+    @property
+    def ai_aim(self):
+        return self._ai_aim
 
     @property
     def aim(self):

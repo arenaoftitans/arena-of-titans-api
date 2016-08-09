@@ -18,6 +18,12 @@
 ################################################################################
 
 
+from aot.game.ai import (
+    find_cheapest_card,
+    find_move_to_play,
+)
+
+
 class Game:
     _actions = None
     _active_player = None
@@ -144,6 +150,19 @@ class Game:
     def discard(self, card):
         self._active_player.discard(card)
         self._continue_game_if_enough_players()
+
+    def play_auto(self):
+        card, square = find_move_to_play(
+            self.active_player.hand,
+            self.active_player.current_square,
+            self.active_player.ai_aim,
+            self._board
+        )
+        if card:
+            self.play_card(card, square)
+        else:
+            cheapest_card = find_cheapest_card(self.active_player.hand)
+            self.discard(cheapest_card)
 
     @property
     def active_player(self):
