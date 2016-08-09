@@ -369,6 +369,13 @@ class Player:
         return self._rank
 
     @property
+    def still_in_game(self):
+        if self.is_ai:
+            return False
+        else:
+            return not self.has_won and (self.is_connected or self.expect_reconnect)
+
+    @property
     def turn_start_time(self):
         return self._turn_start_time
 

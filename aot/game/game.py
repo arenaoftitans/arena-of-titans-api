@@ -83,8 +83,7 @@ class Game:
     def _has_enough_players_to_continue(self):
         remaining_players = [player for player in self._players
                              if player is not None and
-                             not player.has_won and
-                             (player.is_connected or player.expect_reconnect)]
+                             player.still_in_game]
 
         if len(remaining_players) == 1 and remaining_players[0].is_connected:
             self._add_to_winners(remaining_players[0])

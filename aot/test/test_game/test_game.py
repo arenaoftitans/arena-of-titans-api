@@ -224,17 +224,19 @@ def test_disconnect(game):
     assert not player0.is_connected
 
 
-def test_all_players_disconnected(game):
+def test_has_enough_players_to_continue(game):
     player1 = game.players[0]
     assert player1 is game.active_player
 
-    for player in game.players:
+    # AI player should be counted as not connected.
+    player1._is_ai = True
+    # Players that won shouldn't be counted as connected
+    game.players[1]._has_won = True
+    for player in game.players[2:]:
         player.is_connected = False
+        player._number_turn_passed_not_connected = float('inf')
 
-    game.pass_turn()
-
-    assert game.is_over
-    assert len(game.winners) == 0
+    assert not game._has_enough_players_to_continue()
 
 
 def test_only_one_player_connected(game):
