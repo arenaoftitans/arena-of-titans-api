@@ -38,6 +38,7 @@ from contextlib import contextmanager
 class Api(AotWs):
     # Class variables.
     INDEX_FIRST_PLAYER = 0
+    AI_TIMEOUT = 15
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
@@ -197,7 +198,7 @@ class Api(AotWs):
         slots = self._cache.get_slots()
         for player in players_description:
             index = player['index']
-            player['id'] = slots[index]['player_id']
+            player['id'] = slots[index].get('player_id', None)
             player['is_ai'] = slots[index]['state'] == 'AI'
 
         game = get_game(players_description, test=self._cache.is_test())
@@ -243,8 +244,19 @@ class Api(AotWs):
         with self._load_game() as game:
             if self._is_player_id_correct(game):
                 self._play_game(game)
+                self._play_ai(game)
+            elif game.active_player.is_ai:
+                self._play_ai(game)
             else:
                 raise AotErrorToDisplay('not_your_turn')
+
+    def _play_ai(self, game):
+        if game.active_player.is_ai:
+            this_player = game.active_player
+            game.play_auto()
+            self._send_play_message(game, this_player)
+            if game.active_player.is_ai:
+                self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
 
     @contextmanager
     def _load_game(self):

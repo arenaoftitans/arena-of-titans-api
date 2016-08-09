@@ -73,7 +73,7 @@ class Game:
         while not self._is_over:
             if self._has_enough_players_to_continue():
                 self._active_player = self._find_next_player()
-                if self._active_player.is_connected:
+                if self._active_player.is_connected or self._active_player.is_ai:
                     break
                 else:
                     self._active_player.pass_turn()

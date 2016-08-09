@@ -254,6 +254,17 @@ def test_only_one_player_connected(game):
     assert game.winners[0] == player8.name
 
 
+def test_continue_game_with_ai(game):
+    game._has_enough_players_to_continue = MagicMock(return_value=True)
+    game._find_next_player = MagicMock(return_value=game.players[1])
+    game.players[1]._is_ai = True
+
+    game._continue_game_if_enough_players()
+
+    assert game.active_player is game.players[1]
+    assert game.players[1].is_ai
+
+
 def test_play_auto(game, mocker):
     card = game.active_player.hand[0]
     find_move_to_play = MagicMock(return_value=(card, None))

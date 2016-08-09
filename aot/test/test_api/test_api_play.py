@@ -53,6 +53,47 @@ def test_process_play_request_your_turn(api, game):
     api._cache.save_game.assert_called_once_with(game)
 
 
+def test_process_play_request_ai_after_player(api, game):
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api._is_player_id_correct = MagicMock(return_value=True)
+    api._play_game = MagicMock()
+    api._play_ai = MagicMock()
+
+    api._process_play_request()
+
+    api._play_game.assert_called_once_with(game)
+    api._play_ai.assert_called_once_with(game)
+
+
+def test_process_play_request_ai_after_ai(api, game):
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api._is_player_id_correct = MagicMock(return_value=False)
+    api._play_game = MagicMock()
+    api._play_ai = MagicMock()
+    game.active_player._is_ai = True
+
+    api._process_play_request()
+
+    assert api._play_game.call_count == 0
+    api._play_ai.assert_called_once_with(game)
+
+
+def test_play_ai(api, game):
+    api._cache = MagicMock()
+    api._loop = MagicMock()
+    api._send_play_message = MagicMock()
+    game.active_player._is_ai = True
+    game.play_auto = MagicMock()
+
+    api._play_ai(game)
+
+    game.play_auto.assert_called_once_with()
+    api._send_play_message.assert_called_once_with(game, game.active_player)
+    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+
+
 def test_play_game_no_request(api, game):
     api._message = {}
 
