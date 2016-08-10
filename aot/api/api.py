@@ -244,11 +244,15 @@ class Api(AotWs):
         with self._load_game() as game:
             if self._is_player_id_correct(game):
                 self._play_game(game)
-                self._play_ai(game)
+                if game.active_player.is_ai:
+                    self._play_ai_after_timeout()
             elif game.active_player.is_ai:
                 self._play_ai(game)
             else:
                 raise AotErrorToDisplay('not_your_turn')
+
+    def _play_ai_after_timeout(self):
+        self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
 
     def _play_ai(self, game):
         if game.active_player.is_ai:
@@ -256,7 +260,7 @@ class Api(AotWs):
             game.play_auto()
             self._send_play_message(game, this_player)
             if game.active_player.is_ai:
-                self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
+                self._play_ai_after_timeout()
 
     @contextmanager
     def _load_game(self):

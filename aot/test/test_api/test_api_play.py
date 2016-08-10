@@ -54,16 +54,19 @@ def test_process_play_request_your_turn(api, game):
 
 
 def test_process_play_request_ai_after_player(api, game):
+    game.active_player._is_ai = True
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._is_player_id_correct = MagicMock(return_value=True)
     api._play_game = MagicMock()
     api._play_ai = MagicMock()
+    api._loop = MagicMock()
 
     api._process_play_request()
 
     api._play_game.assert_called_once_with(game)
-    api._play_ai.assert_called_once_with(game)
+    assert api._play_ai.call_count == 0
+    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
 
 
 def test_process_play_request_ai_after_ai(api, game):
