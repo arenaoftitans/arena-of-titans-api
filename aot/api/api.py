@@ -38,7 +38,7 @@ from contextlib import contextmanager
 class Api(AotWs):
     # Class variables.
     INDEX_FIRST_PLAYER = 0
-    AI_TIMEOUT = 15
+    AI_TIMEOUT = 10
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
