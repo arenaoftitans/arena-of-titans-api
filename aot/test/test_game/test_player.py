@@ -329,7 +329,9 @@ def test_number_affecting_trumps(player):
 
 def test_still_in_game_ai(player):
     player._is_ai = True
-    player.is_connected = True
+    player.is_connected = False
+    assert player.still_in_game
+    player._has_won = True
     assert not player.still_in_game
 
 

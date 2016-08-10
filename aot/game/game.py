@@ -81,14 +81,22 @@ class Game:
                 self._is_over = True
 
     def _has_enough_players_to_continue(self):
-        remaining_players = [player for player in self._players
-                             if player is not None and
-                             player.still_in_game]
+        remaining_ai = set()
+        remaining_humain_players = set()
+        for player in self._players:
+            if player is not None and player.still_in_game:
+                if player.is_ai:
+                    remaining_ai.add(player)
+                else:
+                    remaining_humain_players.add(player)
+        remaining_players = remaining_ai.union(remaining_humain_players)
 
-        if len(remaining_players) == 1 and remaining_players[0].is_connected:
-            self._add_to_winners(remaining_players[0])
+        if len(remaining_humain_players) == 1 and len(remaining_ai) == 0:
+            last_player = remaining_humain_players.pop()
+            if last_player.is_connected:
+                self._add_to_winners(last_player)
 
-        return len(remaining_players) > 1
+        return len(remaining_players) > 1 and len(remaining_humain_players) >= 1
 
     def _find_next_player(self):
         if self._active_player.can_play:

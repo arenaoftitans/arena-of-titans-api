@@ -371,7 +371,7 @@ class Player:
     @property
     def still_in_game(self):
         if self.is_ai:
-            return False
+            return not self.has_won
         else:
             return not self.has_won and (self.is_connected or self.expect_reconnect)
 
