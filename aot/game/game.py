@@ -159,6 +159,10 @@ class Game:
         self._continue_game_if_enough_players()
 
     def play_auto(self):
+        if self.active_player.on_last_line:
+            self.pass_turn()
+            return
+
         card, square = find_move_to_play(
             self.active_player.hand,
             self.active_player.current_square,
