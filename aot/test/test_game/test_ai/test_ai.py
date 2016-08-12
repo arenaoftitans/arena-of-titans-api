@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
 
 from aot.cards import Card
 from aot.game.ai import (
@@ -29,11 +30,16 @@ from aot.game.ai.pathfinding import a_star
 from aot.test import board
 
 
+@pytest.mark.timeout(1)
 def test_a_star(board):
     assert len(a_star(board[0, 8], board[19, 8], board)) == 25
+    assert len(a_star(board[0, 8], board[18, 8], board)) == 25
+    assert len(a_star(board[0, 8], board[17, 8], board)) == 25
+    assert len(a_star(board[0, 8], board[16, 8], board)) == 25
     assert len(a_star(board[18, 8], board[19, 8], board)) == 2
 
 
+@pytest.mark.timeout(1)
 def test_distance_difference(board):
     goal = board[19, 8]
     assert distance_covered(board[0, 8], board[18, 8], goal, board) == 23
@@ -42,6 +48,7 @@ def test_distance_difference(board):
 
 
 def test_find_move_to_play_best_distance(board):
+@pytest.mark.timeout(1)
     card1 = Card(board, name='card1', movements_types=['line'], cost=400)
     card2 = Card(board, name='card2', movements_types=['line'], number_movements=2, cost=400)
     hand = [card1, card2]
@@ -52,6 +59,7 @@ def test_find_move_to_play_best_distance(board):
 
 
 def test_find_move_to_play_same_cost(board):
+@pytest.mark.timeout(1)
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=500)
     hand = [card1, card2]
@@ -62,6 +70,7 @@ def test_find_move_to_play_same_cost(board):
 
 
 def test_find_move_to_play_best_cost(board):
+@pytest.mark.timeout(1)
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]
@@ -72,6 +81,7 @@ def test_find_move_to_play_best_cost(board):
 
 
 def test_find_move_to_play_no_move(board):
+@pytest.mark.timeout(1)
     card1 = Card(board, name='card1')
     card2 = Card(board, name='card2')
     hand = [card1, card2]
@@ -82,6 +92,7 @@ def test_find_move_to_play_no_move(board):
 
 
 def test_find_move_to_play_backward(board):
+@pytest.mark.timeout(1)
     card1 = Card(board, name='card1')
     card2 = Card(board, name='card2')
     hand = [card1, card2]
