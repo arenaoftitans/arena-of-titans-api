@@ -31,20 +31,25 @@ def distance_covered(start_square, proposed_destination_square, goal_square, boa
     return distance_from_start - distance_from_destination
 
 
-def find_move_to_play(hand, current_square, goal_square, board):
+def find_move_to_play(hand, current_square, goal_squares, board):
     best_distance = 0
     best_card = None
     best_square = None
-    for card in hand:
-        for square in card.move(current_square):
-            distance = distance_covered(current_square, square, goal_square, board)
-            if distance > best_distance or \
-                    (distance > 0 and distance == best_distance and card.cost < best_card.cost):
-                best_card = card
-                best_square = square
-                best_distance = distance
+    for goal_square in goal_squares:
+        for card in hand:
+            for square in card.move(current_square):
+                distance = distance_covered(current_square, square, goal_square, board)
+                if distance > best_distance or \
+                        is_card_cheaper(distance, best_distance, card, best_card):
+                    best_card = card
+                    best_square = square
+                    best_distance = distance
 
     return IACardResult(card=best_card, square=best_square)
+
+
+def is_card_cheaper(distance, best_distance, card, best_card):
+    return distance > 0 and distance == best_distance and card.cost < best_card.cost
 
 
 def find_cheapest_card(hand):

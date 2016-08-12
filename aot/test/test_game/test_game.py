@@ -302,7 +302,7 @@ def test_play_auto_no_card_found(game, mocker):
     find_move_to_play.assert_called_with(
         game.active_player.hand,
         game.active_player.current_square,
-        game.active_player._ai_aim,
+        game.active_player._ai_direction_aim,
         game.active_player._board
     )
     assert not game.play_card.called

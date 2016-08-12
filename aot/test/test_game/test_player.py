@@ -355,3 +355,14 @@ def test_still_in_game_player_not_connected_wont_come_back(player):
     player.is_connected = False
     player._number_turn_passed_not_connected = float('inf')
     assert not player.still_in_game
+
+
+def test_ai_aim(player, board):
+    # Just direction
+    assert len(player.ai_aim) == 1
+    # On arm: full aim
+    player._current_square = board[19, 3]
+    assert len(player.ai_aim) == 4
+    # On wrong arm
+    player._current_square = board[8, 3]
+    assert len(player.ai_aim) == 1

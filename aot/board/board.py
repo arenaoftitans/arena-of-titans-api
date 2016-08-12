@@ -119,12 +119,16 @@ class Board:
                 x, y, x_direction = coords
 
         if coords is not None and x is not None:
-            while x < 0:
-                x += self._x_max
-            x = x % self._x_max
+            x = self.correct_x(x)
             return (x, y, x_direction)
         else:
             return None, None, None
+
+    def correct_x(self, x):
+        while x < 0:
+            x += self._x_max
+        x = x % self._x_max
+        return x
 
     def _on_arm_edge(self, x, y, x_direction):
         on_arm = y > self._inner_circle_higher_y
@@ -154,6 +158,9 @@ class Board:
         if y is not None and not self._on_arm_edge(x, y, x_direction) and \
                 0 <= y and y < self._y_max:
             return self._board[y][x]
+
+    def is_in_arm(self, square):
+        return square.y > self._inner_circle_higher_y
 
     @property
     def _x_max(self):

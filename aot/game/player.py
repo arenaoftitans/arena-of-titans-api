@@ -53,7 +53,10 @@ class Player:
     # reconnect and not take him/her into account in the remaining players.
     MAX_NUMBER_TURN_EXPECTING_RECONNECT = 4
 
+    _ai_direction_aim = None
     _aim = set()
+    _aim_min_x = 0
+    _aim_max_x = 0
     _affecting_trumps = None
     _available_trumps = None
     _board = None
@@ -81,12 +84,12 @@ class Player:
         self._index = index
         self._hero = hero
         self._is_ai = is_ai
+        self._board = board
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
         self._aim = self._generate_aim(board)
-        self._ai_aim = next(iter(self._aim))
-        self._board = board
+        self._ai_direction_aim = set([next(iter(self._aim))])
         self._current_square = board[
             self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
             self.BOARD_ARM_LENGTH_AND_MAX_Y]
@@ -103,7 +106,11 @@ class Player:
             (1 if self._index >= self.BOARD_ARM_WIDTH_AND_MODULO else -1)
         aim_x = set()
         for i in range(self.BOARD_ARM_WIDTH_AND_MODULO):
-            aim_x.add(self.BOARD_ARM_WIDTH_AND_MODULO * opposite_index + i)
+            x = self.BOARD_ARM_WIDTH_AND_MODULO * opposite_index + i
+            aim_x.add(self._board.correct_x(x))
+
+        self._aim_max_x = max(aim_x)
+        self._aim_min_x = min(aim_x)
 
         return set([board[x, self.BOARD_ARM_LENGTH_AND_MAX_Y] for x in aim_x])
 
@@ -275,7 +282,10 @@ class Player:
 
     @property
     def ai_aim(self):
-        return self._ai_aim
+        if self.on_aim_arm:
+            return self.aim
+        else:
+            return self._ai_direction_aim
 
     @property
     def aim(self):
@@ -334,6 +344,11 @@ class Player:
         if value:
             self._number_turn_passed_not_connected = 0
         self._is_connected = value
+
+    @property
+    def on_aim_arm(self):
+        return self._board.is_in_arm(self._current_square) and \
+            self._aim_min_x <= self._current_square.x <= self._aim_max_x
 
     @property
     def last_action(self):  # pragma: no cover
