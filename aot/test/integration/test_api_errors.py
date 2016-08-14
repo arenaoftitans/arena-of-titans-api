@@ -430,8 +430,7 @@ def test_play_two_trumps_on_same_player(players):
 
     response = yield from player.recv()
     assert response == {
-        'error_to_display': 'A player cannot be affected by more than {} trump(s).'
-                            .format(Player.MAX_NUMBER_AFFECTING_TRUMPS)
+        'error_to_display': 'trumps.max_number_trumps'
     }
 
 
@@ -442,7 +441,7 @@ def test_play_two_trumps_in_same_turn(player1, player2):
     yield from player1.send('play_trump_with_target')
 
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'You can only play 1 trump(s) per turn'}
+    assert response == {'error_to_display': 'trumps.max_number_played_trumps'}
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
