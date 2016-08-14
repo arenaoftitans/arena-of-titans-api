@@ -179,7 +179,8 @@ class Api(AotWs):
         create_game_request = self._message.get('create_game_request', None)
         if create_game_request is None:
             raise AotError('no_request')
-        players_description = [player for player in create_game_request if player.get('name', '')]
+        players_description = [player if player is not None and player.get('name', '') else None
+                               for player in create_game_request]
 
         if not self._good_number_players_description(number_players, players_description) or\
                 not self._good_number_player_registered(number_players):
@@ -192,18 +193,19 @@ class Api(AotWs):
         return number_players >= 2 and number_players <= get_number_players()
 
     def _good_number_players_description(self, number_players, players_description):
-        return number_players == len(players_description)
+        return number_players == len([player for player in players_description if player])
 
     def _initialize_game(self, players_description):
         slots = self._cache.get_slots()
         for player in players_description:
-            index = player['index']
-            player['id'] = slots[index].get('player_id', None)
-            player['is_ai'] = slots[index]['state'] == 'AI'
+            if player:
+                index = player['index']
+                player['id'] = slots[index].get('player_id', None)
+                player['is_ai'] = slots[index]['state'] == 'AI'
 
         game = get_game(players_description, test=self._cache.is_test())
         for player in game.players:
-            if player.id in self._clients:
+            if player is not None and player.id in self._clients:
                 player.is_connected = True
 
         self._cache.save_game(game)
@@ -216,7 +218,7 @@ class Api(AotWs):
         # of the last one.
         ids_message_sent = set()
         for player in game.players:
-            if player.id in ids_message_sent:
+            if player is None or player.id in ids_message_sent:
                 continue
             ids_message_sent.add(player.id)
             message = {
@@ -229,7 +231,7 @@ class Api(AotWs):
                     'index': player.index,
                     'name': player.name,
                     'hero': player.hero,
-                } for player in game.players],
+                } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
                 'hand': [{
                     'name': card.name,
@@ -330,7 +332,7 @@ class Api(AotWs):
         self._send_player_played_message(this_player, game)
 
         for player in game.players:
-            if player.id in self._clients:
+            if player is not None and player.id in self._clients:
                 self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _send_player_played_message(self, player, game):  # pragma: no cover
@@ -379,7 +381,7 @@ class Api(AotWs):
                 'player_index': game_player.index,
                 'player_name': game_player.name,
                 'trumps': game_player.affecting_trumps
-                } for game_player in game.players]
+                } if game_player else None for game_player in game.players]
 
     def _play_trump(self, game, play_request):
         trump = self._get_trump(game, play_request.get('name', ''))
@@ -398,7 +400,7 @@ class Api(AotWs):
     def _play_trump_with_target(self, game, trump, targeted_player_index):
         if targeted_player_index < len(game.players):
             target = game.players[targeted_player_index]
-            if game.active_player.play_trump(trump, target=target):
+            if target and game.active_player.play_trump(trump, target=target):
                 last_action = game.active_player.last_action
                 game.add_action(last_action)
                 message = {

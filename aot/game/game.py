@@ -40,7 +40,8 @@ class Game:
         self._board = board
         self._is_over = False
         self._players = players
-        self._players_id_to_index = {player.id: index for index, player in enumerate(players)}
+        self._players_id_to_index = {player.id: index for index, player in enumerate(players)
+                                     if player}
         self._next_rank_available = 1
         self._winners = []
 

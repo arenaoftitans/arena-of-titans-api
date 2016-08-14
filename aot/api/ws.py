@@ -173,7 +173,7 @@ class AotWs(WebSocketServerProtocol):
             self.sendMessage(message)
 
     def _reconnect_to_game(self, game):
-        player = [player for player in game.players if player.id == self.id][0]
+        player = [player for player in game.players if player and player.id == self.id][0]
         player.is_connected = True
         message = self._get_play_message(player, game)
 
@@ -185,7 +185,7 @@ class AotWs(WebSocketServerProtocol):
                 'name': player.name,
                 'square': player.current_square,
                 'hero': player.hero,
-            } for player in game.players],
+            } if player else None for player in game.players],
             'trumps': player.trumps,
             'index': player.index,
             'last_action': last_action,
@@ -199,7 +199,7 @@ class AotWs(WebSocketServerProtocol):
     def _get_history(self, game):
         return [
             [self._get_action_message(action) for action in player.history]
-            for player in game.players]
+            if player else None for player in game.players]
 
     def _send_all(self, message, excluded_players=set()):  # pragma: no cover
         for player_id in self._cache.get_players_ids():

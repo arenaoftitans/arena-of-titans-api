@@ -344,8 +344,10 @@ def test_create_game(mock, api):
             'name': str(i),
             'index': i,
             'id': str(i),
-        } for i in range(2)
+        } for i in range(3)
     ]
+    create_game_request[1] = None
+
     game = get_game(create_game_request)
     mock.patch('aot.api.api.get_game', return_value=game)
     api._cache = MagicMock()
@@ -363,4 +365,5 @@ def test_create_game(mock, api):
     api._send_game_created_message.assert_called_once_with(game)
     api._send_to.call_count == 2
     assert game.players[0].is_connected
-    assert not game.players[1].is_connected
+    assert game.players[1] is None
+    assert not game.players[2].is_connected

@@ -172,16 +172,17 @@ def get_game(players_description, name='standard', test=False):
     board = get_board(name=name)
     players = []
     for player in players_description:
-        deck = get_deck(board)
-        player = Player(
-            player['name'],
-            player['id'],
-            player['index'],
-            board,
-            deck,
-            trumps=get_trumps_list(board_name=name, test=test),
-            hero=player.get('hero', ''),
-            is_ai=player.get('is_ai', False))
+        if player:
+            deck = get_deck(board)
+            player = Player(
+                player['name'],
+                player['id'],
+                player['index'],
+                board,
+                deck,
+                trumps=get_trumps_list(board_name=name, test=test),
+                hero=player.get('hero', ''),
+                is_ai=player.get('is_ai', False))
         players.append(player)
     return Game(board, players)
 
