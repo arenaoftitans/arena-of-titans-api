@@ -204,6 +204,10 @@ class ApiCache:
                 del slot['player_id']
             self._save_slot(slot)
         elif self.is_game_master() and current_slot['state'] != SlotState.TAKEN:
+            # If we are closing the slot, we remove the name of the previous player.
+            if slot['state'] == SlotState.CLOSED and 'player_name' in slot:
+                del slot['player_name']
+
             self._save_slot(slot)
 
     def _save_slot(self, slot):

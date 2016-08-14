@@ -238,6 +238,28 @@ def test_update_slot_free(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
+def test_update_slot_close(api_cache):
+    cache_slot = {
+        'state': 'AI',
+        'player_name': 'AI 2',
+        'index': 0,
+    }
+    api_cache.get_slot = MagicMock(return_value=deepcopy(cache_slot))
+    api_cache._save_slot = MagicMock()
+    api_cache.is_game_master = MagicMock(return_value=True)
+    slot = {
+        'index': 0,
+        'state': 'CLOSED',
+        'player_name': 'AI 2',
+    }
+    del cache_slot['player_name']
+    cache_slot['state'] = 'CLOSED'
+
+    api_cache.update_slot(slot)
+
+    api_cache._save_slot.assert_called_once_with(cache_slot)
+
+
 def test_update_slot_update_not_game_master(api_cache):
     cache_slot = {
         'state': 'TAKEN',
