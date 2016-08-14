@@ -35,6 +35,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_not_enough_players(player1):
     yield from player1.send('init_game')
     create_game_request = [{
@@ -53,6 +54,7 @@ def test_not_enough_players(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_wrong_request(player1):
     yield from player1.send('init_game')
     yield from player1.send('create_game', message_override={'rt': 'TOTO'})
@@ -61,6 +63,7 @@ def test_wrong_request(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_wrong_play_request(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('pass_turn', message_override={'rt': 'TOTO'})
@@ -69,6 +72,7 @@ def test_wrong_play_request(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_cannot_join(player1, player2, players):
     yield from player1.send('init_game')
     for i in range(1, get_number_players()):
@@ -90,6 +94,7 @@ def test_cannot_join(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_only_game_master_can_create_game(player1, player2):
     yield from player1.send('init_game')
     yield from player1.send('update_slot2')
@@ -103,6 +108,7 @@ def test_only_game_master_can_create_game(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_update_slot_no_solt(player1):
     yield from player1.send('init_game')
 
@@ -112,6 +118,7 @@ def test_update_slot_no_solt(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_not_your_turn(player1, player2):
     yield from create_game(player1, player2)
     yield from player2.send('pass_turn')
@@ -121,6 +128,7 @@ def test_not_your_turn(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_view_squares_wrong_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -185,6 +193,7 @@ def test_view_squares_wrong_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_wrong_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -250,6 +259,7 @@ def test_play_wrong_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_wrong_square(player1, player2):
     yield from create_game(player1, player2)
 
@@ -335,6 +345,7 @@ def test_play_wrong_square(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_wrong_trump_without_target(player1, player2):
     yield from create_game(player1, player2)
 
@@ -359,6 +370,7 @@ def test_play_wrong_trump_without_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_wrong_trump_with_target(player1, player2):
     yield from create_game(player1, player2)
 
@@ -404,6 +416,7 @@ def test_play_wrong_trump_with_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_two_trumps_on_same_player(players):
     for _ in range(Player.MAX_NUMBER_AFFECTING_TRUMPS + 2):
         player = players.add()
@@ -435,6 +448,7 @@ def test_play_two_trumps_on_same_player(players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_two_trumps_in_same_turn(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
@@ -445,6 +459,7 @@ def test_play_two_trumps_in_same_turn(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_wrong_game_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -466,6 +481,7 @@ def test_reconnect_wrong_game_id(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_wrong_player_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()

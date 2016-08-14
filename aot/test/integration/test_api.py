@@ -34,6 +34,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_game_init(player1):
     yield from player1.send('init_game')
 
@@ -45,6 +46,7 @@ def test_game_init(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_update_slot(player1):
     # Update his/her slot
     yield from player1.send('init_game')
@@ -78,6 +80,7 @@ def test_update_slot(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_player2_join(player1, player2):
     yield from player1.send('init_game')
 
@@ -101,6 +104,7 @@ def test_player2_join(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_create_game(player1, player2):
     yield from create_game(player1, player2)
 
@@ -139,6 +143,7 @@ def test_create_game(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_pass_turn(player1, player2):
     yield from create_game(player1, player2)
 
@@ -172,6 +177,7 @@ def test_pass_turn(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_discard_card(player1, player2):
     yield from create_game(player1, player2)
     response = yield from player1.recv()
@@ -200,6 +206,7 @@ def test_discard_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_view_squares(player1, player2):
     yield from create_game(player1, player2)
     response = yield from player1.recv()
@@ -219,6 +226,7 @@ def test_view_squares(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -286,6 +294,7 @@ def test_play_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_trump_no_target(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_no_target')
@@ -302,6 +311,7 @@ def test_play_trump_no_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_trump_with_target(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
@@ -318,6 +328,7 @@ def test_play_trump_with_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -362,6 +373,7 @@ def test_reconnect(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_after_action(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -419,6 +431,7 @@ def test_reconnect_after_action(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_game_creation(player1, player2, players):
     yield from player1.send('init_game')
     game_id = yield from player1.get_game_id()
