@@ -73,14 +73,29 @@ def player2(players, event_loop):
 
 
 @asyncio.coroutine
-def create_game(*players):
+def create_game(*players, with_holes=False):
     player1 = players[0]
     if not player1.is_connected:
         yield from player1.connect()
     yield from player1.send('init_game', message_override={'test': True})
+    yield from player1.recv()
+
+    if with_holes:
+        msg = {
+            'slot': {
+                'player_name': '',
+                'state': 'CLOSED',
+                'index': 1
+            }
+        }
+        yield from player1.send('update_slot2', message_override=msg)
+        yield from player1.recv()
 
     game_id = yield from player1.get_game_id()
-    index = 1
+    if with_holes:
+        index = 2
+    else:
+        index = 1
     for player in players[1:]:
         if not player.is_connected:
             yield from player.connect()
@@ -91,9 +106,12 @@ def create_game(*players):
             'player_name': 'Player ' + str(index),
         }
         yield from player.send('join_game', message_override=msg)
-        # yield from player.recv()
+        yield from player.recv()
 
     create_game_msg = get_request('create_game')
+    if with_holes:
+        create_game_msg['create_game_request'].insert(1, None)
+
     if len(players) > 2:
         for i in range(2, len(players)):
             create_game_msg['create_game_request'].append({
@@ -101,6 +119,13 @@ def create_game(*players):
                 'hero': 'daemon',
                 'name': 'Player ' + str(i + 1)
             })
+
+    # Correct player indexes (expect 1st) if there is holes
+    if with_holes:
+        for player_description in create_game_msg['create_game_request'][1:]:
+            if player_description:
+                player_description['index'] += 1
+
     yield from player1.send('create_game', message_override=create_game_msg)
 
 

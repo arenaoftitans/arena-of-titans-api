@@ -144,6 +144,63 @@ def test_create_game(player1, player2):
 
 @pytest.mark.asyncio(forbid_global_loop=True)
 @pytest.mark.timeout(5)
+def test_create_game_with_holes(player1, player2):
+    yield from create_game(player1, player2, with_holes=True)
+
+    response, expected_response = yield from player1.recv('create_game')
+    hand_response = response['hand']
+    pseudo_hand = expected_response['hand']
+    trumps_response = response['trumps']
+    pseudo_trumps = expected_response['trumps']
+    del response['hand']
+    del expected_response['hand']
+    del response['trumps']
+    del expected_response['trumps']
+    expected_response['players'].insert(1, None)
+    expected_response['active_trumps'].insert(1, None)
+    for p in expected_response['players'][1:]:
+        if p:
+            p['index'] += 1
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
+
+    assert response == expected_response
+    assert len(hand_response) == 5
+    assert len(trumps_response) == 4
+    hand_element_keys = pseudo_hand[0].keys()
+    for card in hand_response:
+        assert card.keys() == hand_element_keys
+    trump_element_keys = pseudo_trumps[0].keys()
+    for trump in trumps_response:
+        assert trump.keys() == trump_element_keys
+
+    response, expected_response = yield from player2.recv('create_game')
+    expected_response['your_turn'] = False
+    hand_response = response['hand']
+    trumps_response = response['trumps']
+    del response['hand']
+    del expected_response['hand']
+    del response['trumps']
+    del expected_response['trumps']
+    expected_response['players'].insert(1, None)
+    expected_response['active_trumps'].insert(1, None)
+    for p in expected_response['players'][1:]:
+        if p:
+            p['index'] += 1
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
+
+    assert response == expected_response
+    for card in hand_response:
+        assert card.keys() == hand_element_keys
+    for trump in trumps_response:
+        assert trump.keys() == trump_element_keys
+
+
+@pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_pass_turn(player1, player2):
     yield from create_game(player1, player2)
 
@@ -361,6 +418,56 @@ def test_reconnect(player1, player2, players):
         'game_over': False,
         'winners': [],
     }
+
+    assert len(response['hand']) == 5
+    del response['hand']
+    assert len(response['reconnect']['trumps']) == 4
+    del response['reconnect']['trumps']
+    assert 'elapsed_time' in response
+    assert isinstance(response['elapsed_time'], int)
+    del response['elapsed_time']
+    assert response == expected_response
+
+
+@pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
+def test_reconnect_with_holes(player1, player2, players):
+    yield from create_game(player1, player2, with_holes=True)
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': player_id
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response, expected_response = yield from new_player.recv('play_card')
+
+    # Correct expected response
+    expected_response['your_turn'] = True
+    del expected_response['hand']
+    del expected_response['elapsed_time']
+    expected_response['reconnect'] = {
+        'index': 0,
+        'players': [
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}, 'hero': 'daemon'},
+            None,
+            {'index': 2, 'name': 'Player 2', 'square': {'y': 8, 'x': 8}, 'hero': 'daemon'},
+        ],
+        'last_action': None,
+        'history': [[], None, []],
+        'game_over': False,
+        'winners': [],
+    }
+    expected_response['active_trumps'].insert(1, None)
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
 
     assert len(response['hand']) == 5
     del response['hand']
