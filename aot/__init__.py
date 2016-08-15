@@ -80,7 +80,7 @@ def get_movements_cards_description(name='standard'):
 def _get_colors(name='standard'):
     colors = set()
     for color_name in get_game_description(name)['colors']:
-        colors.add(Color[color_name.upper()])
+        colors.add(Color[color_name])
     return colors
 
 
@@ -94,6 +94,7 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
     number_movements = card_description['number_of_movements']
     name = card_description['name']
     description = card_description['description']
+    cost = card_description['cost']
     additional_movements_color = card_description\
         .get('additional_movements_colors', [])
     complementary_colors = card_description\
@@ -112,7 +113,9 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
                 complementary_colors=additional_colors,
                 name=name,
                 description=description,
-                movements_types=movements_types)
+                movements_types=movements_types,
+                cost=cost
+            )
             cards.append(card)
     return cards
 
@@ -124,7 +127,7 @@ def _get_additionnal_colors(color,
     additional_colors.update([Color[col]
                               for col in additional_movements_color])
     additional_colors.update([Color[col]
-                              for col in complementary_colors.get(color.value, [])])
+                              for col in complementary_colors.get(color, [])])
     return additional_colors
 
 
@@ -145,7 +148,7 @@ def get_trumps_list(board_name='standard', test=False):
                 if color == Color.ALL:
                     continue
                 trump_name = color_trump_description['name']
-                trump_name = '{name} {color}'.format(name=trump_name, color=color.value.title())
+                trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
                 color_trump_description['name'] = trump_name
                 color_trump_description['color'] = color
                 color_trump_description = copy.deepcopy(color_trump_description)
@@ -169,15 +172,17 @@ def get_game(players_description, name='standard', test=False):
     board = get_board(name=name)
     players = []
     for player in players_description:
-        deck = get_deck(board)
-        player = Player(
-            player['name'],
-            player['id'],
-            player['index'],
-            board,
-            deck,
-            trumps=get_trumps_list(board_name=name, test=test),
-            hero=player.get('hero', ''))
+        if player:
+            deck = get_deck(board)
+            player = Player(
+                player['name'],
+                player['id'],
+                player['index'],
+                board,
+                deck,
+                trumps=get_trumps_list(board_name=name, test=test),
+                hero=player.get('hero', ''),
+                is_ai=player.get('is_ai', False))
         players.append(player)
     return Game(board, players)
 

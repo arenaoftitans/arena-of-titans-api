@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2015-2016 by Arena of Titans Contributors.
+# Copyright (C) 2016 by Arena of Titans Contributors.
 #
 # This file is part of Arena of Titans.
 #
@@ -48,7 +48,7 @@ def test_onClose(api, game):
     api._disconnect_player()
 
     api._cache.get_game.assert_called_once_with()
-    api._send_play_message.assert_called_once_with(player, game)
+    api._send_play_message.assert_called_once_with(game, player)
     api._save_game.assert_called_once_with(game)
 
     game.disconnect.assert_called_once_with(player.id)
@@ -68,7 +68,7 @@ def test_onClose_creating_game(api, game):
         },
     ]
     api._cache.get_slots = MagicMock(return_value=slots)
-    api._creating_game = MagicMock(return_value=True)
+    api._cache.has_game_started = MagicMock(return_value=False)
     api._modify_slots = MagicMock()
     api._clients[0] = None
     api._loop = MagicMock()
@@ -83,42 +83,94 @@ def test_onClose_creating_game(api, game):
     )
     api._disconnect_player()
 
-    assert api.message == {
-        'rt': RequestTypes.SLOT_UPDATED.value,
+    assert api._message == {
+        'rt': RequestTypes.SLOT_UPDATED,
         'slot': {
             'index': 0,
             'state': 'OPEN',
         },
     }
-    api._modify_slots.assert_called_once_with(RequestTypes.SLOT_UPDATED.value)
+    api._modify_slots.assert_called_once_with()
 
 
 def test_reconnect_creating_game(api, game):
     timer = MagicMock()
-    api._creating_game = MagicMock(return_value=True)
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=False)
+    api._cache.get_player_index = MagicMock(return_value=0)
     api._reconnect_to_game = MagicMock()
     api._get_initialiazed_game_message = MagicMock()
     api._game_id = 'game-id'
-    api.message = {
-        'player_id': 0,
+    api._message = {
+        'player_id': 'player_id',
+        'game_id': 'game_id',
     }
-    api._disconnect_timeouts[0] = timer
+    api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
+    api._reconnect()
+
+    timer.cancel.assert_called_once_with()
+    api._get_initialiazed_game_message.assert_called_once_with(0)
+    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    assert api.id == 'player_id'
+    assert api._game_id == 'game_id'
+    assert api.sendMessage.call_count == 1
+
+
+def test_reconnect_creating_game_slot_freed(api, game):
+    timer = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=False)
+    api._cache.get_player_index = MagicMock(side_effect=IndexError)
+    api._reconnect_to_game = MagicMock()
+    api._get_initialiazed_game_message = MagicMock()
+    api._game_id = 'game-id'
+    api._message = {
+        'player_id': 'player_id',
+        'game_id': 'game_id',
+    }
+    api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
     api._reconnect()
 
     timer.cancel.assert_called_once_with()
     api._get_initialiazed_game_message.assert_called_once_with(-1)
+    assert api._game_id is None
+    assert api.sendMessage.call_count == 1
 
 
-def test_reconnect_to_game(api, game):
+def test_reconnect_reconnect_to_game(api, game):
     timer = MagicMock()
-    api._creating_game = MagicMock(return_value=False)
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=True)
+    api._cache.get_game = MagicMock(return_value=game)
     api._reconnect_to_game = MagicMock()
-    api._game_id = 'game-id'
-    api.message = {
-        'player_id': 0,
+    api._message = {
+        'player_id': 'player_id',
+        'game_id': 'game_id',
     }
-    api._disconnect_timeouts[0] = timer
+    api._disconnect_timeouts['player_id'] = timer
+    api.sendMessage = MagicMock()
+
     api._reconnect()
 
     timer.cancel.assert_called_once_with()
-    api._reconnect_to_game.assert_called_once_with(None)
+    api._reconnect_to_game.assert_called_once_with(game)
+    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    assert api.id == 'player_id'
+    assert api._game_id == 'game_id'
+    assert api.sendMessage.call_count == 1
+
+
+def test_reconnect_to_game(api, game):
+    game.active_player._id = 'player_id'
+    game.active_player.is_connected = False
+    api.id = 'player_id'
+    api._get_action_message = MagicMock()
+
+    api._reconnect_to_game(game)
+
+    assert game.active_player.is_connected
+    api._get_action_message.assert_called_once_with(None)

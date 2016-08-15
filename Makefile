@@ -1,7 +1,9 @@
-FLAKE8_CMD ?= python3-flake8
-JINJA2_CLI ?= jinja2
-PEP8_CMD ?= python3-pep8
-PYTHON_CMD ?= python3
+FLAKE8_CMD ?= /usr/bin/python3-flake8
+JINJA2_CLI ?= /usr/bin/jinja2
+PEP8_CMD ?= /usr/bin/python3-pep8
+PYTHON_CMD ?= /usr/bin/python3
+PYTEST_CMD ?= /usr/bin/py.test-3
+PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
@@ -43,7 +45,7 @@ config:
 debug: redis nginx
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w \
 	    --uid debug_aot \
-	    -c python3 \
+	    -c "${PYTHON_CMD}" \
 	    --watchDirectory aot \
 	    aot/test_main.py
 
@@ -77,22 +79,27 @@ test:
 	./setup.py test
 
 
+.PHONY: tdd
+tdd:
+	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- aot/test --ignore aot/test/integration --ignore aot/test_main.py --testmon
+
+
 .PHONY: testintegration
-testintegration: redis
+testintegration:
+	"${PYTEST_CMD}" aot/test/integration/
+
+
+.PHONY: testdebug
+testdebug: redis
 	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
-	    -c python3 \
+	    -c "${PYTHON_CMD}" \
 	    --uid test_aot \
 	    --killSignal=SIGINT \
 	    aot/test_main.py
 	# Wait for the process to start
 	sleep 10
-	py.test-3.4 aot/test/integration/
+	"${PYTEST_CMD}" aot/test/integration/
 	forever stop test_aot --killSignal=SIGINT
-
-
-.PHONY: testdebug
-testdebug:
-	py.test-3.4 aot/test/integration/ -sv
 
 
 .PHONY: deploy

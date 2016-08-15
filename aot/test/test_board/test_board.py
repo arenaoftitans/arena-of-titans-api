@@ -132,3 +132,26 @@ def test_square_set_from_color():
 
 def test_color_set():
     assert Color['BLUE'] in ColorSet([Color['BLUE']])
+
+
+def test_get_neighbors(board):
+    square = board[0, 8]
+    neighbors = board.get_neighbors(square)
+    assert neighbors == set([
+        board[1, 8],
+        board[1, 7],
+        board[0, 7],
+    ])
+
+    square = board[1, 7]
+    neighbors = board.get_neighbors(square)
+    assert neighbors == set([
+        board[2, 7],
+        board[2, 8],
+        board[1, 8],
+        board[0, 8],
+        board[0, 7],
+        board[0, 6],
+        board[1, 6],
+        board[2, 6],
+    ])

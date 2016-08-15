@@ -13,5 +13,29 @@
         "player_name": "Player 2",
         "hero": "daemon",
         "state": "TAKEN"
+    }, {
+        "index": 2,
+        "player_name": "",
+        "state": "OPEN"
+    }, {
+        "index": 3,
+        "player_name": "",
+        "state": "OPEN"
+    }, {
+        "index": 4,
+        "player_name": "",
+        "state": "OPEN"
+    }, {
+        "index": 5,
+        "player_name": "",
+        "state": "OPEN"
+    }, {
+        "index": 6,
+        "player_name": "",
+        "state": "OPEN"
+    }, {
+        "index": 7,
+        "player_name": "",
+        "state": "OPEN"
     }]
 }

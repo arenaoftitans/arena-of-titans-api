@@ -27,10 +27,21 @@ from aot import (
     get_trumps_list,
 )
 from aot.api import Api
+from aot.api.api_cache import ApiCache
 from aot.board import Board
 from aot.cards import Deck
 from aot.game import Player
 from unittest.mock import MagicMock
+
+
+class PickleStub:
+    @classmethod
+    def loads(cls, arg):
+        return arg
+
+    @classmethod
+    def dumps(cls, arg):
+        return arg
 
 
 @pytest.fixture
@@ -58,7 +69,7 @@ def game():
         'index': i,
         'id': i
     } for i in range(get_number_players())]
-    g = get_game(players_description)
+    g = get_game(players_description, test=True)
     for player in g.players:
         player.is_connected = True
 
@@ -71,3 +82,21 @@ def api():
     a._id = 0
 
     return a
+
+
+@pytest.fixture
+def api_cache(mock):
+    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
+    mock.patch('aot.api.api_cache.pickle', PickleStub)
+    cache = ApiCache()
+    cache.init('game_id', 'player_id')
+    cache._cache = MagicMock()
+    return cache
+
+
+@pytest.fixture
+def api_cache_cls(mock):
+    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
+    mock.patch('aot.api.api_cache.pickle', PickleStub)
+
+    return ApiCache

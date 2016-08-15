@@ -30,17 +30,19 @@ class Card:
     _name = ''
     _movements = []
     _number_movements = 0
+    _cost = 0
     movements_methods = set()
 
     def __init__(
         self,
         board,
-        color=Color['ALL'],
+        color=Color.ALL,
         complementary_colors=None,
         name='',
         description='',
         movements_types=None,
-        number_movements=1
+        number_movements=1,
+        cost=0
     ):
         if not complementary_colors:
             complementary_colors = set()
@@ -54,7 +56,7 @@ class Card:
         }
 
         self._board = board
-        self._color = color if isinstance(color, Color) else Color[color.upper()]
+        self._color = color if isinstance(color, Color) else Color[color]
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
         self._default_colors = set(self._colors)
@@ -64,6 +66,7 @@ class Card:
             self.movements_methods[mvt] for mvt in movements_types
         ]
         self._number_movements = number_movements
+        self._cost = cost
 
     def move(self, origin):
         number_movements_left = self._number_movements
@@ -171,7 +174,7 @@ class Card:
         return temporary_horizontal_squares
 
     def remove_color_from_possible_colors(self, color):
-        if color == Color['ALL']:
+        if color == Color.ALL:
             self._colors = set()
         elif color in self._colors:
             self._colors.remove(color)
@@ -186,6 +189,10 @@ class Card:
     @property
     def colors(self):
         return self._colors
+
+    @property
+    def cost(self):
+        return self._cost
 
     @property
     def description(self):

@@ -17,33 +17,45 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from enum import Enum
-
+from aot.utils import SimpleEnumMeta
 from aot.board import Square
 from aot.cards.trumps import Trump
 
 
-class RequestTypes(Enum):
-    INIT_GAME = 'INIT_GAME'
-    CREATE_GAME = 'CREATE_GAME'
-    GAME_INITIALIZED = 'GAME_INITIALIZED'
-    ADD_SLOT = 'ADD_SLOT'
-    SLOT_UPDATED = 'SLOT_UPDATED'
-    PLAY = 'PLAY'
-    VIEW_POSSIBLE_SQUARES = 'VIEW_POSSIBLE_SQUARES'
-    PLAY_TRUMP = 'PLAY_TRUMP'
-    PLAYER_PLAYED = 'PLAYER_PLAYED'
+class AotError(Exception):
+    def __init__(self, msg, infos=None):
+        super().__init__(msg)
+        if infos is None:
+            self.infos = {}
+        else:
+            self.infos = infos
 
 
-class SlotState(Enum):
-    OPEN = 'OPEN'
-    CLOSED = 'CLOSED'
-    RESERVED = 'RESERVED'
-    TAKEN = 'TAKEN'
+class AotErrorToDisplay(AotError):
+    pass
 
 
-def to_json(python_object):
-    if isinstance(python_object, Enum):
+class RequestTypes(metaclass=SimpleEnumMeta):
+    INIT_GAME = ()
+    CREATE_GAME = ()
+    GAME_INITIALIZED = ()
+    SLOT_UPDATED = ()
+    PLAY = ()
+    VIEW_POSSIBLE_SQUARES = ()
+    PLAY_TRUMP = ()
+    PLAYER_PLAYED = ()
+
+
+class SlotState(metaclass=SimpleEnumMeta):
+    OPEN = ()
+    CLOSED = ()
+    RESERVED = ()
+    TAKEN = ()
+    AI = ()
+
+
+def to_json(python_object):  # pragma: no cover
+    if isinstance(python_object, SimpleEnumMeta):
         return python_object.value
     elif isinstance(python_object, Square):
         return {

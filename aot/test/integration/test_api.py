@@ -34,6 +34,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_game_init(player1):
     yield from player1.send('init_game')
 
@@ -45,16 +46,7 @@ def test_game_init(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
-def test_add_slot(player1):
-    yield from player1.send('init_game')
-    yield from player1.send('add_slot')
-
-    response, expected_response = yield from player1.recv('add_slot')
-
-    assert response == expected_response
-
-
-@pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_update_slot(player1):
     # Update his/her slot
     yield from player1.send('init_game')
@@ -75,7 +67,6 @@ def test_update_slot(player1):
     assert saved_slot0 == response['slot']
 
     # Update status second slot which has no player_id
-    yield from player1.send('add_slot')
     yield from player1.send('update_slot2')
     response, expected_response = yield from player1.recv('update_slot2')
     assert response == expected_response
@@ -89,10 +80,9 @@ def test_update_slot(player1):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_player2_join(player1, player2):
     yield from player1.send('init_game')
-    yield from player1.send('add_slot')
-    yield from player1.send('update_slot2')
 
     game_id = yield from player1.get_game_id()
     yield from player2.send('join_game', message_override={'game_id': game_id})
@@ -114,6 +104,7 @@ def test_player2_join(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_create_game(player1, player2):
     yield from create_game(player1, player2)
 
@@ -152,6 +143,64 @@ def test_create_game(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
+def test_create_game_with_holes(player1, player2):
+    yield from create_game(player1, player2, with_holes=True)
+
+    response, expected_response = yield from player1.recv('create_game')
+    hand_response = response['hand']
+    pseudo_hand = expected_response['hand']
+    trumps_response = response['trumps']
+    pseudo_trumps = expected_response['trumps']
+    del response['hand']
+    del expected_response['hand']
+    del response['trumps']
+    del expected_response['trumps']
+    expected_response['players'].insert(1, None)
+    expected_response['active_trumps'].insert(1, None)
+    for p in expected_response['players'][1:]:
+        if p:
+            p['index'] += 1
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
+
+    assert response == expected_response
+    assert len(hand_response) == 5
+    assert len(trumps_response) == 4
+    hand_element_keys = pseudo_hand[0].keys()
+    for card in hand_response:
+        assert card.keys() == hand_element_keys
+    trump_element_keys = pseudo_trumps[0].keys()
+    for trump in trumps_response:
+        assert trump.keys() == trump_element_keys
+
+    response, expected_response = yield from player2.recv('create_game')
+    expected_response['your_turn'] = False
+    hand_response = response['hand']
+    trumps_response = response['trumps']
+    del response['hand']
+    del expected_response['hand']
+    del response['trumps']
+    del expected_response['trumps']
+    expected_response['players'].insert(1, None)
+    expected_response['active_trumps'].insert(1, None)
+    for p in expected_response['players'][1:]:
+        if p:
+            p['index'] += 1
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
+
+    assert response == expected_response
+    for card in hand_response:
+        assert card.keys() == hand_element_keys
+    for trump in trumps_response:
+        assert trump.keys() == trump_element_keys
+
+
+@pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_pass_turn(player1, player2):
     yield from create_game(player1, player2)
 
@@ -185,6 +234,7 @@ def test_pass_turn(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_discard_card(player1, player2):
     yield from create_game(player1, player2)
     response = yield from player1.recv()
@@ -213,6 +263,7 @@ def test_discard_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_view_squares(player1, player2):
     yield from create_game(player1, player2)
     response = yield from player1.recv()
@@ -232,6 +283,7 @@ def test_view_squares(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_card(player1, player2):
     yield from create_game(player1, player2)
 
@@ -299,6 +351,7 @@ def test_play_card(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_trump_no_target(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_no_target')
@@ -315,6 +368,7 @@ def test_play_trump_no_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_play_trump_with_target(player1, player2):
     yield from create_game(player1, player2)
     yield from player1.send('play_trump_with_target')
@@ -331,6 +385,7 @@ def test_play_trump_with_target(player1, player2):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -375,6 +430,57 @@ def test_reconnect(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
+def test_reconnect_with_holes(player1, player2, players):
+    yield from create_game(player1, player2, with_holes=True)
+    game_id = yield from player1.get_game_id()
+    player_id = yield from player1.get_player_id()
+
+    player1.close()
+    players.add()
+    new_player = players[-1]
+    yield from new_player.connect()
+
+    msg = {
+        'game_id': game_id,
+        'player_id': player_id
+    }
+    yield from new_player.send('join_game', message_override=msg)
+    response, expected_response = yield from new_player.recv('play_card')
+
+    # Correct expected response
+    expected_response['your_turn'] = True
+    del expected_response['hand']
+    del expected_response['elapsed_time']
+    expected_response['reconnect'] = {
+        'index': 0,
+        'players': [
+            {'index': 0, 'name': 'Player 1', 'square': {'y': 8, 'x': 0}, 'hero': 'daemon'},
+            None,
+            {'index': 2, 'name': 'Player 2', 'square': {'y': 8, 'x': 8}, 'hero': 'daemon'},
+        ],
+        'last_action': None,
+        'history': [[], None, []],
+        'game_over': False,
+        'winners': [],
+    }
+    expected_response['active_trumps'].insert(1, None)
+    for t in expected_response['active_trumps'][1:]:
+        if t:
+            t['player_index'] += 1
+
+    assert len(response['hand']) == 5
+    del response['hand']
+    assert len(response['reconnect']['trumps']) == 4
+    del response['reconnect']['trumps']
+    assert 'elapsed_time' in response
+    assert isinstance(response['elapsed_time'], int)
+    del response['elapsed_time']
+    assert response == expected_response
+
+
+@pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_after_action(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
@@ -432,6 +538,7 @@ def test_reconnect_after_action(player1, player2, players):
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
+@pytest.mark.timeout(5)
 def test_reconnect_game_creation(player1, player2, players):
     yield from player1.send('init_game')
     game_id = yield from player1.get_game_id()
@@ -454,6 +561,10 @@ def test_reconnect_game_creation(player1, player2, players):
     expected_response['player_id'] = player_id
     expected_response['is_game_master'] = True
     expected_response['index'] = 0
-    del expected_response['slots'][1]
+    expected_response['slots'][1] = {
+        'index': 1,
+        'player_name': '',
+        'state': 'OPEN',
+    }
 
     assert response == expected_response

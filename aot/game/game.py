@@ -18,6 +18,12 @@
 ################################################################################
 
 
+from aot.game.ai import (
+    find_cheapest_card,
+    find_move_to_play,
+)
+
+
 class Game:
     _actions = None
     _active_player = None
@@ -34,7 +40,8 @@ class Game:
         self._board = board
         self._is_over = False
         self._players = players
-        self._players_id_to_index = {player.id: index for index, player in enumerate(players)}
+        self._players_id_to_index = {player.id: index for index, player in enumerate(players)
+                                     if player}
         self._next_rank_available = 1
         self._winners = []
 
@@ -67,7 +74,7 @@ class Game:
         while not self._is_over:
             if self._has_enough_players_to_continue():
                 self._active_player = self._find_next_player()
-                if self._active_player.is_connected:
+                if self._active_player.is_connected or self._active_player.is_ai:
                     break
                 else:
                     self._active_player.pass_turn()
@@ -75,15 +82,22 @@ class Game:
                 self._is_over = True
 
     def _has_enough_players_to_continue(self):
-        remaining_players = [player for player in self._players
-                             if player is not None and
-                             not player.has_won and
-                             (player.is_connected or player.expect_reconnect)]
+        remaining_ai = set()
+        remaining_humain_players = set()
+        for player in self._players:
+            if player is not None and player.still_in_game:
+                if player.is_ai:
+                    remaining_ai.add(player)
+                else:
+                    remaining_humain_players.add(player)
+        remaining_players = remaining_ai.union(remaining_humain_players)
 
-        if len(remaining_players) == 1 and remaining_players[0].is_connected:
-            self._add_to_winners(remaining_players[0])
+        if len(remaining_humain_players) == 1 and len(remaining_ai) == 0:
+            last_player = remaining_humain_players.pop()
+            if last_player.is_connected:
+                self._add_to_winners(last_player)
 
-        return len(remaining_players) > 1
+        return len(remaining_players) > 1 and len(remaining_humain_players) >= 1
 
     def _find_next_player(self):
         if self._active_player.can_play:
@@ -144,6 +158,23 @@ class Game:
     def discard(self, card):
         self._active_player.discard(card)
         self._continue_game_if_enough_players()
+
+    def play_auto(self):
+        if self.active_player.on_last_line:
+            self.pass_turn()
+            return
+
+        card, square = find_move_to_play(
+            self.active_player.hand,
+            self.active_player.current_square,
+            self.active_player.ai_aim,
+            self._board
+        )
+        if card:
+            self.play_card(card, square)
+        else:
+            cheapest_card = find_cheapest_card(self.active_player.hand)
+            self.discard(cheapest_card)
 
     @property
     def active_player(self):

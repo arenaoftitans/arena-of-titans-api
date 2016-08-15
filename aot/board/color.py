@@ -17,10 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from enum import Enum
+from aot.utils import SimpleEnumMeta
 
 
-class Color(Enum):
+class Color(metaclass=SimpleEnumMeta):
     BLACK = 'BLACK'
     BLUE = 'BLUE'
     RED = 'RED'
@@ -29,7 +29,7 @@ class Color(Enum):
 
 
 all_colors = set(Color)
-all_colors.remove(Color['ALL'])
+all_colors.remove(Color.ALL)
 
 
 class ColorSet(set):
@@ -42,8 +42,8 @@ class ColorSet(set):
         self.update(colors)
 
     def update(self, colors):
-        colors = [Color[color.upper()] if isinstance(color, str) else color for color in colors]
-        if Color['ALL'] in colors:
+        colors = [Color[color] if isinstance(color, str) else color for color in colors]
+        if Color.ALL in colors:
             super().update(all_colors)
         else:
             super().update(colors)
@@ -51,8 +51,8 @@ class ColorSet(set):
     def add(self, color):
         # To ease unit testing
         if isinstance(color, str):  # pragma: no cover
-            color = Color[color.upper()]
-        if color == Color['ALL']:
+            color = Color[color]
+        if color == Color.ALL:
             self.update([color])
         else:
             super().add(color)

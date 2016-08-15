@@ -25,7 +25,10 @@ from aot.test import (
     deck,
     player,
 )
-from unittest.mock import MagicMock
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 
 def test_view_possible_squares(player):
@@ -322,3 +325,44 @@ def test_number_affecting_trumps(player):
     player.init_turn()
     assert not player.play_trump(trump, target=player)
     assert player._number_trumps_played == 0
+
+
+def test_still_in_game_ai(player):
+    player._is_ai = True
+    player.is_connected = False
+    assert player.still_in_game
+    player._has_won = True
+    assert not player.still_in_game
+
+
+def test_still_in_game_has_won(player):
+    player.is_connected = True
+    player._has_won = True
+    assert not player.still_in_game
+
+
+def test_still_in_game_player_connected(player):
+    player.is_connected = True
+    assert player.still_in_game
+
+
+def test_still_in_game_player_not_connected_may_come_back(player):
+    player.is_connected = False
+    assert player.still_in_game
+
+
+def test_still_in_game_player_not_connected_wont_come_back(player):
+    player.is_connected = False
+    player._number_turn_passed_not_connected = float('inf')
+    assert not player.still_in_game
+
+
+def test_ai_aim(player, board):
+    # Just direction
+    assert len(player.ai_aim) == 1
+    # On arm: full aim
+    player._current_square = board[19, 3]
+    assert len(player.ai_aim) == 4
+    # On wrong arm
+    player._current_square = board[8, 3]
+    assert len(player.ai_aim) == 1
