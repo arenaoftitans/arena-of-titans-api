@@ -226,6 +226,9 @@ class AotWs(WebSocketServerProtocol):
     def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
         self.sendMessage(self._format_error_to_display(message, format_opt))
 
+    def _send_debug(self, message):
+        self._send_all({'debug': message})
+
     def _send_all_error(self, message, format_opt={}):  # pragma: no cover
         self._send_all(self._format_error(message, format_opt))
 

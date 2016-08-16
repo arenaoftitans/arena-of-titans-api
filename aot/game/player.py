@@ -320,6 +320,10 @@ class Player:
         return self._deck.hand
 
     @property
+    def hand_for_debug(self):
+        return list(map(lambda card: '{} {}'.format(card.name, card.color), self.hand))
+
+    @property
     def hero(self):
         return self._hero
 

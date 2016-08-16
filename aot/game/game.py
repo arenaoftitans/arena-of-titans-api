@@ -28,6 +28,7 @@ class Game:
     _actions = None
     _active_player = None
     _board = None
+    _is_debug = False
     _is_over = False
     _next_rank_available = 1
     _players = []
@@ -179,6 +180,14 @@ class Game:
     @property
     def active_player(self):
         return self._active_player
+
+    @property
+    def is_debug(self):
+        return self._is_debug
+
+    @is_debug.setter
+    def is_debug(self, value):
+        self._is_debug = bool(value)
 
     @property
     def is_over(self):

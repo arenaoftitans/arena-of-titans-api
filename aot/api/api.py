@@ -22,6 +22,7 @@ import json
 import logging
 import uuid
 
+from aot import config
 from aot import get_game
 from aot import get_number_players
 from aot.game import Player
@@ -204,6 +205,8 @@ class Api(AotWs):
                 player['is_ai'] = slots[index]['state'] == 'AI'
 
         game = get_game(players_description, test=self._cache.is_test())
+        game.is_debug = self._message.get('debug', False) and \
+            config['api'].get('allow_debug', False)
         for player in game.players:
             if player is not None and player.id in self._clients:
                 player.is_connected = True
@@ -259,6 +262,11 @@ class Api(AotWs):
     def _play_ai(self, game):
         if game.active_player.is_ai:
             this_player = game.active_player
+            if game.is_debug:
+                self._send_debug({
+                    'player': this_player.name,
+                    'hand': this_player.hand_for_debug,
+                })
             game.play_auto()
             self._send_play_message(game, this_player)
             if game.active_player.is_ai:
