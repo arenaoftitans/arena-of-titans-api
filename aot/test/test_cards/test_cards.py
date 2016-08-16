@@ -308,6 +308,56 @@ def test_knight_arm_edge(board):
     ])
 
 
+def test_knight_arm_edge_horizontal(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('knight')
+    card_properties['color'] = 'yellow'
+
+    # Left edge
+    card = Card(board, **card_properties)
+    assert card.move(board[1, 3]) == set([
+        Square(3, 2, 'yellow'),
+        Square(31, 2, 'yellow'),
+    ])
+
+
+def test_knight_arm_edge_horizontal2(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('knight')
+    card_properties['color'] = 'black'
+
+    # Left edge
+    card = Card(board, **card_properties)
+    assert card.move(board[1, 8]) == set([
+        Square(2, 6, 'black'),
+        Square(3, 7, 'black'),
+    ])
+
+
+def test_knight_arm_edge_vertical(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('knight')
+    card_properties['color'] = 'black'
+
+    # Left edge
+    card = Card(board, **card_properties)
+    assert card.move(board[0, 4]) == set([
+        Square(1, 2, 'black'),
+    ])
+
+
+def test_knight_arm_edge_vertical2(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('knight')
+    card_properties['color'] = 'yellow'
+
+    # Left edge
+    card = Card(board, **card_properties)
+    assert card.move(board[0, 4]) == set([
+        Square(31, 2, 'yellow'),
+    ])
+
+
 def test_knight_circle(board):
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')

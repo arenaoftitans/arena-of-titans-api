@@ -140,23 +140,14 @@ class Card:
                 if square.color in self._colors and not square.occupied]
 
     def __knigt_get_horizontal_square(self, origin):
-        temporary_horizontal_squares = self.__knight_get_temporary_horizontal_square(origin)
-
         probable_squares = set()
-        for square in temporary_horizontal_squares:
-            # Squares in temporary_horizontal_squares are added by board[] so they
-            # can be None.
-            if not square:
-                continue
-            up_square = self._board[square.x, square.y + 1]
-            down_square = self._board[square.x, square.y - 1]
-            if up_square:
-                probable_squares.add(up_square)
-            if down_square:
-                probable_squares.add(down_square)
+
+        for square in (self._board[origin.x, origin.y + 1], self._board[origin.x, origin.y - 1]):
+            if square:
+                probable_squares.update(self.__knight_get_temporary_horizontal_square(square))
 
         return [square for square in probable_squares
-                if square.color in self._colors and not square.occupied]
+                if square and square.color in self._colors and not square.occupied]
 
     def __knight_get_temporary_horizontal_square(self, origin):
         # We must get horizontal squares one step at a time to avoid switching
