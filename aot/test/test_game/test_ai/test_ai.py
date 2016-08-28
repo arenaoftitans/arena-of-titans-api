@@ -169,6 +169,35 @@ def test_find_move_to_play_full_set_of_goal(board):
     assert result.square is board[19, 4]
 
 
+@pytest.mark.timeout(1)
+def test_move_to_goal(board):
+    # We can use a set here to be sure of the order in which the square will be iterated trough
+    # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
+    # to evaluate the distance from board[19, 8] first for this test to be valid.
+    goal_squares = [board[19, 8], board[18, 8], board[17, 8], board[16, 8]]
+    card1 = Card(board, name='card1', movements_types=['line'], cost=400)
+    hand = [card1]
+
+    result = find_move_to_play(hand, board[16, 7], goal_squares, board)
+    assert result.card is card1
+    assert result.square is board[16, 8]
+
+
+@pytest.mark.timeout(1)
+def test_move_to_goal_same_distance_cheapest_card(board):
+    # We can use a set here to be sure of the order in which the square will be iterated trough
+    # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
+    # to evaluate the distance from board[19, 8] first for this test to be valid.
+    goal_squares = [board[19, 8], board[18, 8], board[17, 8], board[16, 8]]
+    card1 = Card(board, name='card1', movements_types=['line'], cost=800)
+    card2 = Card(board, name='card2', movements_types=['line'], color='blue', cost=600)
+    hand = [card1, card2]
+
+    result = find_move_to_play(hand, board[16, 7], goal_squares, board)
+    assert result.card is card1
+    assert result.square is board[16, 8]
+
+
 def test_find_cheapest_card_same_cost():
     card1 = Card(board, name='card1')
     card2 = Card(board, name='card2')
