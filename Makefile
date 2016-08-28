@@ -38,16 +38,13 @@ doc:
 
 .PHONY: config
 config:
-	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
+	${JINJA2_CLI} --format=toml conf/aot-api.dist.conf config.toml > aot-api.conf
+	${JINJA2_CLI} --format=toml -Dcurrent_dir=$(shell pwd) conf/uwsgi.dist.ini config.toml > uwsgi.ini
 
 
 .PHONY: debug
-debug: redis nginx
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w \
-	    --uid debug_aot \
-	    -c "${PYTHON_CMD}" \
-	    --watchDirectory aot \
-	    aot/test_main.py
+debug: redis nginx uwsgi
+	tail -f api.log
 
 
 .PHONY: redis
@@ -58,6 +55,13 @@ redis:
 .PHONY: nginx
 nginx:
 	sudo systemctl start nginx
+
+
+.PHONY: uwsgi
+uwsgi:
+	echo > api.log
+	chown $(shell whoami):uwsgi api.log
+	sudo systemctl start uwsgi
 
 
 .PHONY: check

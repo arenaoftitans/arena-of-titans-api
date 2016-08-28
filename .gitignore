@@ -4,4 +4,5 @@
 /htmlcov
 /static
 /aot-api.conf
+/uwsgi.ini
 /.testmondata

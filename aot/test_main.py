@@ -17,21 +17,16 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import coverage
 import logging
-
-
-cov = coverage.coverage(config_file=False)
-cov.start()
 
 
 from aot.__main__ import main  # noqa
 
 
-logging.basicConfig(level=logging.DEBUG)
-main(debug=True)
+def test_main():
+    logging.basicConfig(level=logging.DEBUG)
+    main(debug=True)
 
-cov.report(omit=['/usr/lib/*'])
-cov.stop()
-cov.save()
-cov.html_report(directory='htmlcovapi')
+
+if __name__ == '__main__':
+    test_main()
