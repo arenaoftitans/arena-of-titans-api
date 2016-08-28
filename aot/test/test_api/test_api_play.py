@@ -87,6 +87,7 @@ def test_play_ai(api, game):
     api._cache = MagicMock()
     api._loop = MagicMock()
     api._send_play_message = MagicMock()
+    api._send_debug = MagicMock()
     game.active_player._is_ai = True
     game.play_auto = MagicMock()
 
@@ -95,6 +96,27 @@ def test_play_ai(api, game):
     game.play_auto.assert_called_once_with()
     api._send_play_message.assert_called_once_with(game, game.active_player)
     api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+    assert api._send_debug.call_count == 0
+
+
+def test_play_ai_mode_debug(api, game):
+    api._cache = MagicMock()
+    api._loop = MagicMock()
+    api._send_play_message = MagicMock()
+    api._send_debug = MagicMock()
+    game.active_player._is_ai = True
+    game.play_auto = MagicMock()
+    game._is_debug = True
+
+    api._play_ai(game)
+
+    game.play_auto.assert_called_once_with()
+    api._send_play_message.assert_called_once_with(game, game.active_player)
+    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+    assert api._send_debug.call_count == 1
+    args_last_call = api._send_debug.call_args[0][0]
+    assert args_last_call['player'] == 'Player 0'
+    assert len(args_last_call['hand']) == 5
 
 
 def test_play_game_no_request(api, game):
