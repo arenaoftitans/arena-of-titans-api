@@ -40,6 +40,7 @@ def find_move_to_play(hand, current_square, goal_squares, board):
             for square in card.move(current_square):
                 distance = distance_covered(current_square, square, goal_square, board)
                 if distance > best_distance or \
+                        should_make_null_move(distance, best_distance, card, best_card) or \
                         is_card_cheaper(distance, best_distance, card, best_card):
                     best_card = card
                     best_square = square
@@ -48,8 +49,13 @@ def find_move_to_play(hand, current_square, goal_squares, board):
     return IACardResult(card=best_card, square=best_square)
 
 
+def should_make_null_move(distance, best_distance, card, best_card):
+    return distance == 0 and \
+        (best_card is None or is_card_cheaper(distance, best_distance, card, best_card))
+
+
 def is_card_cheaper(distance, best_distance, card, best_card):
-    return distance > 0 and distance == best_distance and card.cost < best_card.cost
+    return distance >= 0 and distance == best_distance and card.cost < best_card.cost
 
 
 def find_cheapest_card(hand):

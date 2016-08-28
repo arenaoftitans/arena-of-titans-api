@@ -98,8 +98,8 @@ def test_find_move_to_play_no_move(board, goal_squares):
 
 @pytest.mark.timeout(1)
 def test_find_move_to_play_backward(board, goal_squares):
-    card1 = Card(board, name='card1')
-    card2 = Card(board, name='card2')
+    card1 = Card(board, name='card1', movements_types=['line'])
+    card2 = Card(board, name='card2', movements_types=['line'])
     hand = [card1, card2]
 
     board[0, 6].occupied = True
@@ -108,6 +108,53 @@ def test_find_move_to_play_backward(board, goal_squares):
     assert distance_covered(board[0, 7], board[0, 8], board[19, 8], board) == -1
     assert result.card is None
     assert result.square is None
+
+
+@pytest.mark.timeout(1)
+def test_find_move_distance_null(board, goal_squares):
+    card1 = Card(board, name='card1', movements_types=['line'])
+    hand = [card1]
+
+    result = find_move_to_play(hand, board[3, 3], goal_squares, board)
+
+    assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
+    assert result.card is card1
+
+
+@pytest.mark.timeout(1)
+def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
+    card1 = Card(board, name='card1', movements_types=['line'], cost=300)
+    card2 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=400)
+    hand = [card1, card2]
+
+    result = find_move_to_play(hand, board[3, 3], goal_squares, board)
+
+    assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
+    assert result.card is card2
+
+
+@pytest.mark.timeout(1)
+def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
+    card1 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=300)
+    card2 = Card(board, name='card1', movements_types=['line'], cost=400)
+    hand = [card1, card2]
+
+    result = find_move_to_play(hand, board[3, 3], goal_squares, board)
+
+    assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
+    assert result.card is card1
+
+
+@pytest.mark.timeout(1)
+def test_find_move_distance_null_with_cheaper_card(board, goal_squares):
+    card1 = Card(board, name='card1', movements_types=['line'], cost=500)
+    card2 = Card(board, name='card1', movements_types=['line'], cost=400)
+    hand = [card1, card2]
+
+    result = find_move_to_play(hand, board[3, 3], goal_squares, board)
+
+    assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
+    assert result.card is card2
 
 
 @pytest.mark.timeout(1)
