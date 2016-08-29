@@ -39,6 +39,7 @@ doc:
 .PHONY: config
 config:
 	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf config/config.toml > aot-api.conf
+	${JINJA2_CLI} --format=toml templates/aot.conf.dist config/config.toml > aot.conf
 	${JINJA2_CLI} --format=toml \
 	    -Dcurrent_dir=$(shell pwd) \
 	    -Dsocket_id=42 \
