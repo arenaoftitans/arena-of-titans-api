@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import argparse
 import asyncio
 import logging
 import os
@@ -26,26 +27,29 @@ from autobahn.asyncio.websocket import WebSocketServerFactory
 import aot
 from aot.api import Api
 
+try:
+    import uwsgi  # noqa
+    on_uwsgi = True
+except ImportError:
+    on_uwsgi = False
+
 
 def main(debug=False):
     wsserver, loop = None, None
 
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+
     try:
-        wsserver, loop = _start(debug=debug)
+        wsserver, loop = startup(debug=debug)
+        loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
-        if wsserver is not None:
-            wsserver.close()
-        if loop is not None:
-            loop.close()
-        try:
-            os.remove('/var/run/uwsgi/aot-api-app.sock')
-        except FileNotFoundError:
-            pass
+        cleanup(wsserver, loop)
 
 
-def _start(debug=False):
+def startup(debug=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug)
 
@@ -58,8 +62,6 @@ def _start(debug=False):
     wsserver = loop.run_until_complete(server)
     if socket:
         _correct_permissions_unix_server(socket)
-
-    loop.run_forever()
 
     return wsserver, loop
 
@@ -75,7 +77,7 @@ def _create_unix_server(loop, socket):
 def _correct_permissions_unix_server(socket):
     os.chmod(socket, 0o660)
     try:
-        shutil.chown(socket, user='uwsgi', group='nginx')
+        shutil.chown(socket, group=aot.config['api']['socket_group'])
     except PermissionError as e:
         logging.exception(e)
 
@@ -90,5 +92,24 @@ def _create_tcp_server(loop):
     return loop.create_server(factory, host, aot.config['api']['ws_port'])
 
 
+def cleanup(wsserver, loop):
+    if wsserver is not None:
+        wsserver.close()
+    if loop is not None:
+        loop.close()
+    try:
+        os.remove(aot.config['api']['socket'])
+    except FileNotFoundError:
+        pass
+
+
 if __name__ == "__main__":  # pragma: no cover
-    main()
+    parser = argparse.ArgumentParser(description='Start the AoT API')
+    parser.add_argument(
+        '--debug',
+        help='Start in debug mode',
+        action='store_true',
+    )
+    args = parser.parse_args()
+
+    main(debug=args.debug)

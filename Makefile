@@ -42,9 +42,14 @@ config:
 	${JINJA2_CLI} --format=toml -Dcurrent_dir=$(shell pwd) templates/uwsgi.dist.ini config/config.toml > uwsgi.ini
 
 
-.PHONY: debug
-debug: redis nginx uwsgi
+.PHONY: debuguwsgi
+debuguwsgi: redis nginx uwsgi
 	tail -f api.log
+
+
+.PHONY: dev
+dev: redis nginx
+	PYTHONPATH="${PYTHONPATH}:$(pwd)" python3 aot/test_main.py
 
 
 .PHONY: redis
