@@ -1,8 +1,11 @@
-/config/config.toml
+/config/config.dev.toml
+/config/config.testing.toml
 /doc/_build
 /htmlcovapi
 /htmlcov
+/scripts/deploy-conf.sh
 /static
 /aot-api.conf
+/aot.conf
 /uwsgi.ini
 /.testmondata

@@ -7,6 +7,8 @@ PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
+type ?= dev
+
 
 .PHONY: help
 help:
@@ -38,13 +40,13 @@ doc:
 
 .PHONY: config
 config:
-	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf config/config.toml > aot-api.conf
-	${JINJA2_CLI} --format=toml templates/aot.conf.dist config/config.toml > aot.conf
+	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf "config/config.${type}.toml" > aot-api.conf
+	${JINJA2_CLI} --format=toml templates/aot.dist.conf "config/config.${type}.toml" > aot.conf
 	${JINJA2_CLI} --format=toml \
 	    -Dcurrent_dir=$(shell pwd) \
 	    -Dsocket_id=42 \
 	    templates/uwsgi.dist.ini \
-	    config/config.toml > uwsgi.ini
+	    "config/config.${type}.toml" > uwsgi.ini
 
 
 .PHONY: debuguwsgi
@@ -116,32 +118,19 @@ testdebug: redis
 	forever stop test_aot --killSignal=SIGINT
 
 
-.PHONY: deploy
-deploy:
-	git push aot -f && \
-	ssh aot "cd /home/aot/aot-api && make updateprod"
+.PHONY: deployprod
+deployprod:
+	./scripts/deploy.sh prod
 
 
-.PHONY: devdeploy
-devdeploy:
-	git push && \
-	ssh aot "cd /home/aot/devapi && make updatedev"
+.PHONY: deploystaging
+deploystaging:
+	./scripts/deploy.sh staging
 
 
-.PHONY: updatedev
-updatedev:
-	git pull && \
-	sudo systemctl stop devaot && \
-	$(MAKE) -f $(THIS_FILE) static && \
-	sudo systemctl start devaot
-
-
-.PHONY: updateprod
-updateprod:
-	git pull && \
-	sudo systemctl stop aot && \
-	$(MAKE) -f $(THIS_FILE) static && \
-	sudo systemctl start aot
+.PHONY: deploytesting
+deploytesting:
+	./scripts/deploy.sh testing
 
 
 .PHONY: static
