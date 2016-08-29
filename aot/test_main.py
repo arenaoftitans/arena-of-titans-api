@@ -70,7 +70,7 @@ class AotEventHandler(FileSystemEventHandler):
         logging.debug('Reload: done')
 
     def start_app(self):
-        self.app = Popen(['python3', 'aot', '--debug'])
+        self.app = Popen(['python3', 'aot', '--debug', '--socket-id', '42'])
 
     def stop_app(self):
         self.app.terminate()

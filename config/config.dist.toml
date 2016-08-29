@@ -1,10 +1,10 @@
 [api]
 allow_debug = false
 host = '127.0.0.1'
-root = '/home/jenselme/projects/aot-api/static'
+root = '/home/jenselme/projects/aot-api'
 server_name = 'api.aot'
 # If socket is present and contains a truethy value, the app will be created with unix socket.
-socket = '/var/run/uwsgi/aot-api-app.sock'
+socket = '/var/run/uwsgi/aot-api-ws-$1.sock'
 # The group for the unix socket
 socket_group = 'nginx'
 ws_port = 9000

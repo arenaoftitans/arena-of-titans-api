@@ -34,14 +34,14 @@ except ImportError:
     on_uwsgi = False
 
 
-def main(debug=False):
+def main(debug=False, socket_id=''):
     wsserver, loop = None, None
 
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
     try:
-        wsserver, loop = startup(debug=debug)
+        wsserver, loop = startup(debug=debug, socket_id=socket_id)
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -49,12 +49,13 @@ def main(debug=False):
         cleanup(wsserver, loop)
 
 
-def startup(debug=False):
+def startup(debug=False, socket_id=''):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug)
 
     socket = aot.config['api'].get('socket', None)
     if socket:
+        socket = socket.replace('$1', socket_id)
         server = _create_unix_server(loop, socket)
     else:
         server = _create_tcp_server(loop)
@@ -110,6 +111,12 @@ if __name__ == "__main__":  # pragma: no cover
         help='Start in debug mode',
         action='store_true',
     )
+    parser.add_argument(
+        '--socket-id',
+        help='Id of the unix socket',
+        dest='socket_id',
+        default='',
+    )
     args = parser.parse_args()
 
-    main(debug=args.debug)
+    main(debug=args.debug, socket_id=args.socket_id)
