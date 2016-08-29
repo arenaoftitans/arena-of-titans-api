@@ -38,8 +38,8 @@ doc:
 
 .PHONY: config
 config:
-	${JINJA2_CLI} --format=toml conf/aot-api.dist.conf config.toml > aot-api.conf
-	${JINJA2_CLI} --format=toml -Dcurrent_dir=$(shell pwd) conf/uwsgi.dist.ini config.toml > uwsgi.ini
+	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf config/config.toml > aot-api.conf
+	${JINJA2_CLI} --format=toml -Dcurrent_dir=$(shell pwd) templates/uwsgi.dist.ini config/config.toml > uwsgi.ini
 
 
 .PHONY: debug

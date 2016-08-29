@@ -40,7 +40,7 @@ from aot.game import (
 )
 
 
-with open('config.toml', 'r') as config_file:
+with open('config/config.toml', 'r') as config_file:
     config = toml.load(config_file)
 
 
