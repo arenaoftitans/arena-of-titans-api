@@ -83,8 +83,22 @@ deploy-front() {
     pushd "${FRONT_LOCATION}" > /dev/null
         release "${type}" "${version}"
         echo -e "\tBuilding frontend"
-        npm run "${type}" > /dev/null
+        npm run clean > /dev/null
+        npm run config -- --type "${type}" --version "${version}" > /dev/null
+        npm run prodbuild > /dev/null
+
         echo -e "\tPushing code to server"
+        # Correct load path so scripts are loaded from the correct version.
+        sed -Ei "s#\"(/dist/[a-z\-]+bundle.js)\"#\"/${version}\1\"#g" index.html
+        sed -Ei "s#\"(/dist/[a-z\-]+bundle)\"#\"/${version}\1\"#g" dist/vendor-bundle.js
+        # Correct assets path in index
+        sed -Ei "s#\"(/assets/.*)\"#\"/${version}\1\"#g" index.html
+        # Correct assets path in included HTML
+        sed -Ei "s#\"(/assets/[^\"]*)\"#\"/${version}\1\"#g" dist/*.js
+        # Correct assets path in included CSS
+        sed -Ei "s#url\((/assets/[^\)]*)\)#url(/${version}\1)#g" dist/*.js
+
+        # Sync with server
         rsync -a --delete --info=progress2 --exclude="*.map" "index.html" "assets" "dist" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
         scp "${INTLJS_POLYFILL}" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
     popd > /dev/null
