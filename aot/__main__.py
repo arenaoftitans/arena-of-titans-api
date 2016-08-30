@@ -19,6 +19,7 @@
 
 import argparse
 import asyncio
+import configparser
 import logging
 import os
 import shutil
@@ -36,6 +37,13 @@ except ImportError:
 
 def main(debug=False, type='prod', version='latest'):
     wsserver, loop = None, None
+    # We can pass arguments to the uwsgi entry point so we store the values in the configuration.
+    if on_uwsgi:
+        uwsgi_config = configparser.ConfigParser()
+        uwsgi_config.read('uwsgi.ini')
+        type = uwsgi_config['aot']['type']
+        version = uwsgi_config['aot']['version']
+
     config.load_config(type, version)
 
     if debug:
