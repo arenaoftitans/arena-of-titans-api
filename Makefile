@@ -8,6 +8,7 @@ PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 type ?= dev
+version ?= latest
 
 
 .PHONY: help
@@ -46,6 +47,7 @@ config:
 	    -Dcurrent_dir=$(shell pwd) \
 	    -Dsocket_id=42 \
 	    -Dtype="${type}" \
+	    -Dversion="${version}" \
 	    templates/uwsgi.dist.ini \
 	    "config/config.${type}.toml" > uwsgi.ini
 

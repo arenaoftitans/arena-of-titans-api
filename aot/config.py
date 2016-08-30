@@ -14,9 +14,14 @@ class Config:
         else:
             return self._config[key]
 
-    def load_config(self, type):
+    def load_config(self, type, version='latest'):
         with open('config/config.{type}.toml'.format(type=type), 'r') as config_file:
             self._config = toml.load(config_file)
+
+        socket = self._config['api'].get('socket', None)
+        if socket:
+            socket = socket.format(version=version)
+            self._config['api']['socket'] = socket
 
 
 config = Config()

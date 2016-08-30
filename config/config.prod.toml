@@ -4,7 +4,7 @@ host = '127.0.0.1'
 root = '/home/aot/prod/api/latest'
 server_name = 'api.arenaoftitans.com'
 # If socket is present and contains a truethy value, the app will be created with unix socket.
-socket = '/var/run/uwsgi/aot-api-ws-prod-$1.sock'
+socket = '/var/run/uwsgi/aot-api-ws-prod-{version}.sock'
 # The group for the unix socket
 socket_group = 'nginx'
 ws_port = 9000

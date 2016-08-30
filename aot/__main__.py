@@ -34,9 +34,9 @@ except ImportError:
     on_uwsgi = False
 
 
-def main(debug=False, socket_id='', type='prod'):
+def main(debug=False, socket_id='', type='prod', version='latest'):
     wsserver, loop = None, None
-    config.load_config(type)
+    config.load_config(type, version)
 
     if debug:
         logging.basicConfig(level=logging.DEBUG)
