@@ -18,6 +18,7 @@ declare -A DEPLOY_USERS
 UWSGI_USER="uwsgi"
 UWSGI_GROUP="uwsgi"
 UWSGI_DEPLOY_FOLDER="/etc/uwsgi.d"
+UWSGI_SOCKET_FOLDER="/var/run/uwsgi"
 DEPLOY_BASE_DIR="~"
 FRONT_LOCATION="../arena-of-titans"
 
@@ -26,7 +27,7 @@ source ./scripts/deploy-conf.sh 2> /dev/null || echo "No user configuration file
 
 # Values that don't change neither per user nor per type
 API_GIT_URL="https://bitbucket.org/arenaoftitans/arena-of-titans-api.git"
-API_RETRIES_TIME=5
+API_RETRIES_TIME=1
 INTLJS_POLYFILL="node_modules/intl/dist/Intl.js"
 MAX_API_RETRIES=5
 
@@ -63,7 +64,9 @@ deploy() {
 
     # Make deployed version lastest version
     echo "Updating default version"
-    execute-on-server "ln -sf \"${DEPLOY_BASE_DIR}/${type}/front/${version}\" \"${DEPLOY_BASE_DIR}/${type}/front/latest\""
+    execute-on-server "ln -sf ${DEPLOY_BASE_DIR}/${type}/front/${version} ${DEPLOY_BASE_DIR}/${type}/front/latest"
+    execute-on-server "ln -sf ${DEPLOY_BASE_DIR}/${type}/api/${version} ${DEPLOY_BASE_DIR}/${type}/api/latest"
+    execute-on-server "sudo ln -sf ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-${version}.sock ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-latest.sock"
     echo "Deploying is done"
 }
 
@@ -89,9 +92,10 @@ release() {
     local type="$1"
     local version="$2"
 
+    git push -q
+
     if [[ "${type}" == "prod" ]]; then
         git tag "${version}"
-        git push
         git push --tags
     fi
 }
@@ -109,7 +113,7 @@ deploy-api() {
 
     if [[ "${type}" == "testing" ]]; then
         cfg_file="/tmp/config.testing.toml-${version}"
-        scp "config/config.testing.toml" "/tmp/config.testing.toml-${version}"
+        scp "config/config.testing.toml" "${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/config.testing.toml-${version}"
     fi
 
     execute-on-server "set -u && \
@@ -133,7 +137,8 @@ deploy-api-server() {
     local version="$2"
     local cfg_file="${3:-}"
     local api_dir="${type}/api/${version}"
-    local uwsgi_file="${api_dir}/uwsgi.ini"
+    local uwsgi_file="uwsgi.ini"
+    local log_file="api.log"
 
     mkdir -p "${api_dir}"
     pushd "${api_dir}" > /dev/null
@@ -146,9 +151,16 @@ deploy-api-server() {
             mv "${cfg_file}" config/config.testing.toml
         fi
 
-        make config type=testing
+        make config type=testing version="${version}"
+        make static type=testing version="${version}"
+        uwsgi_file="$(pwd)/${uwsgi_file}"
+        chmod 660 "${uwsgi_file}"
         sudo chown "${UWSGI_USER}:${UWSGI_GROUP}" "${uwsgi_file}"
         sudo ln -s "${uwsgi_file}" "${UWSGI_DEPLOY_FOLDER}/aot-api-${version}.ini"
+
+        echo > "${log_file}"
+        chown "$(whoami):${UWSGI_GROUP}" "${log_file}"
+        chmod 660 "${log_file}"
     popd > /dev/null
 
     echo -e "\tWaiting for API to start"
@@ -161,9 +173,11 @@ wait-api-to-start() {
     local version="$2"
     local retries=0
 
-    while ! curl -f "${API_HOST}/ws/${version}" && [[ "${retries}" < "${MAX_API_RETRIES}" ]]; do
+    while ! curl -f "${API_HOST}/ws/${version}" > /dev/null 2>&1 && [[ "${retries}" < "${MAX_API_RETRIES}" ]]; do
         sleep "${API_RETRIES_TIME}"
-        ((retries++))
+        # Maths operation returns their value, which means ((retries++)) will return with non zero
+        # status code and so exit the script.
+        ((retries++)) || true
     done
 
     if [[ "${retries}" == "${MAX_API_RETRIES}" ]]; then

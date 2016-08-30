@@ -4,6 +4,7 @@ host = '127.0.0.1'
 root = '/home/aot/staging/api/latest'
 server_name = 'devapi.arenaoftitans.com'
 # If socket is present and contains a truethy value, the app will be created with unix socket.
+# Update the deploy script if convention changes.
 socket = '/var/run/uwsgi/aot-api-ws-staging-{version}.sock'
 # The group for the unix socket
 socket_group = 'nginx'
