@@ -1,7 +1,7 @@
 [api]
 allow_debug = false
 host = '127.0.0.1'
-root = '/home/jenselme/projects/aot-api'
+root = '/home/aot/staging/api/latest'
 server_name = 'devapi.arenaoftitans.com'
 # If socket is present and contains a truethy value, the app will be created with unix socket.
 socket = '/var/run/uwsgi/aot-api-ws-staging-$1.sock'
@@ -16,7 +16,7 @@ server_port = 6379
 
 
 [front]
-root = ''
+root = '/home/aot/staging/front/latest'
 server_name = 'dev.arenaoftitans.com'
 
 
