@@ -45,11 +45,15 @@ config:
 	${JINJA2_CLI} --format=toml templates/aot.dist.conf "config/config.${type}.toml" > aot.conf
 	${JINJA2_CLI} --format=toml \
 	    -Dcurrent_dir=$(shell pwd) \
-	    -Dsocket_id=42 \
 	    -Dtype="${type}" \
 	    -Dversion="${version}" \
 	    templates/uwsgi.dist.ini \
 	    "config/config.${type}.toml" > uwsgi.ini
+	${JINJA2_CLI} --format=toml \
+	    -Dtype="${type}" \
+	    -Dversion="${version}" \
+	    templates/redis.dist.conf \
+	    "config/config.${type}.toml" > "redis.conf"
 
 
 .PHONY: debuguwsgi

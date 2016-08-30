@@ -18,10 +18,14 @@ class Config:
         with open('config/config.{type}.toml'.format(type=type), 'r') as config_file:
             self._config = toml.load(config_file)
 
-        socket = self._config['api'].get('socket', None)
+        self._set_version_in_socket_name('api', version)
+        self._set_version_in_socket_name('cache', version)
+
+    def _set_version_in_socket_name(self, section_name, version):
+        socket = self._config[section_name].get('socket', None)
         if socket:
             socket = socket.format(version=version)
-            self._config['api']['socket'] = socket
+            self._config[section_name]['socket'] = socket
 
 
 config = Config()

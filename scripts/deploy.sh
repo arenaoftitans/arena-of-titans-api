@@ -15,6 +15,10 @@ declare -A DEPLOY_HOSTS
 declare -A DEPLOY_USERS
 
 # Defined variables that can change per user before loading the user configuration
+REDIS_CONF_DIR="/etc/redis.d"
+REDIS_USER="redis"
+# We will append type and version to it.
+REDIS_WORKING_DIR="/var/lib/redis"
 UWSGI_USER="uwsgi"
 UWSGI_GROUP="uwsgi"
 UWSGI_DEPLOY_FOLDER="/etc/uwsgi.d"
@@ -70,7 +74,7 @@ deploy() {
     execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/front/${version} ${DEPLOY_BASE_DIR}/${type}/front/latest"
     execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/api/${version} ${DEPLOY_BASE_DIR}/${type}/api/latest"
     execute-on-server "sudo ln -sf ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-${version}.sock ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-latest.sock"
-    echo "Deploying is done"
+    echo "Deploy is done"
 }
 
 
@@ -147,6 +151,9 @@ deploy-api() {
         export API_RETRIES_TIME=\"${API_RETRIES_TIME}\" && \
         export DEPLOY_API_BRANCH=\"${DEPLOY_API_BRANCH}\" && \
         export MAX_API_RETRIES=\"${MAX_API_RETRIES}\" && \
+        export REDIS_CONF_DIR=\"${REDIS_CONF_DIR}\" && \
+        export REDIS_USER=\"${REDIS_USER}\" && \
+        export REDIS_WORKING_DIR=\"${REDIS_WORKING_DIR}\" && \
         export UWSGI_DEPLOY_FOLDER=\"${UWSGI_DEPLOY_FOLDER}\" && \
         export UWSGI_GROUP=\"${UWSGI_GROUP}\" && \
         export UWSGI_USER=\"${UWSGI_USER}\" && \
@@ -161,6 +168,7 @@ deploy-api-server() {
     local api_dir="${type}/api/${version}"
     local uwsgi_file="uwsgi.ini"
     local log_file="api.log"
+    local redis_cgf_file="aot-api-${type}-${version}.conf"
 
     mkdir -p "${api_dir}"
     pushd "${api_dir}" > /dev/null
@@ -173,13 +181,25 @@ deploy-api-server() {
             mv "${cfg_file}" config/config.testing.toml
         fi
 
+        # Build config
         make config type=testing version="${version}"
         make static type=testing version="${version}"
+
+        # Setup redis
+        sudo cp "redis.conf" "${REDIS_CONF_DIR}/${redis_cgf_file}"
+        sudo chown "root:${REDIS_USER}" "${REDIS_CONF_DIR}/${redis_cgf_file}"
+        sudo mkdir -p "${REDIS_WORKING_DIR}/${type}-${version}/"
+        sudo chown -R "${REDIS_USER}:${REDIS_USER}" "${REDIS_WORKING_DIR}/"
+        sudo systemctl start "redis@${type}-${version}"
+        sudo systemctl enable "redis@${type}-${version}"
+
+        # Setup uwsgi
         uwsgi_file="$(pwd)/${uwsgi_file}"
         chmod 660 "${uwsgi_file}"
         sudo chown "${UWSGI_USER}:${UWSGI_GROUP}" "${uwsgi_file}"
         sudo ln -s "${uwsgi_file}" "${UWSGI_DEPLOY_FOLDER}/aot-api-${version}.ini"
 
+        # Prepare log file
         echo > "${log_file}"
         chown "$(whoami):${UWSGI_GROUP}" "${log_file}"
         chmod 660 "${log_file}"

@@ -9,3 +9,4 @@
 /aot.conf
 /uwsgi.ini
 /.testmondata
+/redis-latest.conf
