@@ -25,6 +25,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from aot.__main__ import cleanup
+from aot.config import config
 
 
 class AotEventHandler(FileSystemEventHandler):
@@ -70,7 +71,12 @@ class AotEventHandler(FileSystemEventHandler):
         logging.debug('Reload: done')
 
     def start_app(self):
-        self.app = Popen(['python3', 'aot', '--debug', '--socket-id', '42'])
+        self.app = Popen([
+            'python3', 'aot',
+            '--debug',
+            '--socket-id', '42',
+            '--type', 'dev',
+        ])
 
     def stop_app(self):
         self.app.terminate()
@@ -86,6 +92,7 @@ class AotEventHandler(FileSystemEventHandler):
 
 
 def test_main():
+    config.load_config('dev')
     logging.basicConfig(level=logging.DEBUG)
 
     aot_event_handler = AotEventHandler()

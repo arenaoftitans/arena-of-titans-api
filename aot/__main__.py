@@ -24,8 +24,8 @@ import os
 import shutil
 from autobahn.asyncio.websocket import WebSocketServerFactory
 
-import aot
 from aot.api import Api
+from aot.config import config
 
 try:
     import uwsgi  # noqa
@@ -34,8 +34,9 @@ except ImportError:
     on_uwsgi = False
 
 
-def main(debug=False, socket_id=''):
+def main(debug=False, socket_id='', type='prod'):
     wsserver, loop = None, None
+    config.load_config(type)
 
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -53,9 +54,8 @@ def startup(debug=False, socket_id=''):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug)
 
-    socket = aot.config['api'].get('socket', None)
+    socket = config['api'].get('socket', None)
     if socket:
-        socket = socket.replace('$1', socket_id)
         server = _create_unix_server(loop, socket)
     else:
         server = _create_tcp_server(loop)
@@ -78,19 +78,19 @@ def _create_unix_server(loop, socket):
 def _correct_permissions_unix_server(socket):
     os.chmod(socket, 0o660)
     try:
-        shutil.chown(socket, group=aot.config['api']['socket_group'])
+        shutil.chown(socket, group=config['api']['socket_group'])
     except PermissionError as e:
         logging.exception(e)
 
 
 def _create_tcp_server(loop):
-    host = aot.config['api']['host']
+    host = config['api']['host']
     ws_endpoint = 'ws://{host}:{port}'.format(
         host=host,
-        port=aot.config['api']['ws_port'])
+        port=config['api']['ws_port'])
     factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
-    return loop.create_server(factory, host, aot.config['api']['ws_port'])
+    return loop.create_server(factory, host, config['api']['ws_port'])
 
 
 def cleanup(wsserver, loop):
@@ -99,7 +99,7 @@ def cleanup(wsserver, loop):
     if loop is not None:
         loop.close()
     try:
-        os.remove(aot.config['api']['socket'])
+        os.remove(config['api']['socket'])
     except FileNotFoundError:
         pass
 
@@ -117,6 +117,13 @@ if __name__ == "__main__":  # pragma: no cover
         dest='socket_id',
         default='',
     )
+    parser.add_argument(
+        '--type',
+        help='The type of deployment',
+        dest='type',
+        default='dev',
+        choices=['prod', 'dev', 'testing', 'staging'],
+    )
     args = parser.parse_args()
 
-    main(debug=args.debug, socket_id=args.socket_id)
+    main(debug=args.debug, socket_id=args.socket_id, type=args.type)

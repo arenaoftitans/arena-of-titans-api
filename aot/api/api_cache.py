@@ -17,9 +17,9 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import aot
 import pickle
 
+from aot.config import config
 from aot import get_number_players
 from aot.api.utils import SlotState
 from copy import deepcopy
@@ -50,8 +50,8 @@ class ApiCache:
     def _get_redis_instance(cls, new=False):
         if new:
             return Redis(
-                host=aot.config['cache']['server_host'],
-                port=aot.config['cache']['server_port'],
+                host=config['cache']['server_host'],
+                port=config['cache']['server_port'],
             )
         else:  # pragma: no cover
             if cls._cache is None:

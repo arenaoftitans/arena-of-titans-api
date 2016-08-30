@@ -20,7 +20,6 @@
 import copy
 import json
 import random
-import toml
 
 from aot.board import (
     Board,
@@ -38,10 +37,6 @@ from aot.game import (
     Game,
     Player,
 )
-
-
-with open('config/config.toml', 'r') as config_file:
-    config = toml.load(config_file)
 
 
 def get_game_description(name='standard'):
