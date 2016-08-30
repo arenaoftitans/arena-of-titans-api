@@ -49,7 +49,7 @@ with open('requires.txt', 'r') as requires:
     install_requires = requires.read().split('\n')
 
 
-with open('tests_require.txt', 'r') as requires:
+with open('tests_requires.txt', 'r') as requires:
     tests_require = requires.read().split('\n')
 
 
