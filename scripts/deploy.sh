@@ -57,6 +57,9 @@ $0 TYPE"
 
 
 deploy() {
+    local type="$1"
+    local version="$2"
+
     echo "Deploying frontend"
     deploy-front "${type}" "${version}"
     echo "Deploying API"
