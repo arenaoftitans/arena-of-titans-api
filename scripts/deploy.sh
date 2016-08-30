@@ -92,6 +92,8 @@ release() {
     local type="$1"
     local version="$2"
 
+    echo -e "\tReleasing"
+
     git push -q
 
     if [[ "${type}" == "prod" ]]; then
