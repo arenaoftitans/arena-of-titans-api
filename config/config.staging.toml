@@ -21,5 +21,6 @@ server_name = 'dev.arenaoftitans.com'
 
 
 [uwsgi]
-socket = '/var/run/uwsgi/aot-api-staging.sock'
+# Don't append .sock, it is appended with the version in the template.
+socket = '/var/run/uwsgi/aot-api-staging'
 user = 'uwsgi'
