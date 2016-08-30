@@ -64,8 +64,8 @@ deploy() {
 
     # Make deployed version lastest version
     echo "Updating default version"
-    execute-on-server "ln -sf ${DEPLOY_BASE_DIR}/${type}/front/${version} ${DEPLOY_BASE_DIR}/${type}/front/latest"
-    execute-on-server "ln -sf ${DEPLOY_BASE_DIR}/${type}/api/${version} ${DEPLOY_BASE_DIR}/${type}/api/latest"
+    execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/front/${version} ${DEPLOY_BASE_DIR}/${type}/front/latest"
+    execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/api/${version} ${DEPLOY_BASE_DIR}/${type}/api/latest"
     execute-on-server "sudo ln -sf ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-${version}.sock ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-latest.sock"
     echo "Deploying is done"
 }
