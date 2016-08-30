@@ -34,7 +34,7 @@ except ImportError:
     on_uwsgi = False
 
 
-def main(debug=False, socket_id='', type='prod', version='latest'):
+def main(debug=False, type='prod', version='latest'):
     wsserver, loop = None, None
     config.load_config(type, version)
 
@@ -42,7 +42,7 @@ def main(debug=False, socket_id='', type='prod', version='latest'):
         logging.basicConfig(level=logging.DEBUG)
 
     try:
-        wsserver, loop = startup(debug=debug, socket_id=socket_id)
+        wsserver, loop = startup(debug=debug)
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -50,7 +50,7 @@ def main(debug=False, socket_id='', type='prod', version='latest'):
         cleanup(wsserver, loop)
 
 
-def startup(debug=False, socket_id=''):
+def startup(debug=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug)
 
@@ -112,10 +112,10 @@ if __name__ == "__main__":  # pragma: no cover
         action='store_true',
     )
     parser.add_argument(
-        '--socket-id',
-        help='Id of the unix socket',
-        dest='socket_id',
-        default='',
+        '--version',
+        help='Version of the API being deployed',
+        dest='version',
+        default='latest',
     )
     parser.add_argument(
         '--type',
@@ -126,4 +126,4 @@ if __name__ == "__main__":  # pragma: no cover
     )
     args = parser.parse_args()
 
-    main(debug=args.debug, socket_id=args.socket_id, type=args.type)
+    main(debug=args.debug, version=args.version, type=args.type)

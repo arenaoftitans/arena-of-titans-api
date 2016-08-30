@@ -74,7 +74,7 @@ class AotEventHandler(FileSystemEventHandler):
         self.app = Popen([
             'python3', 'aot',
             '--debug',
-            '--socket-id', '42',
+            '--version', 'latest',
             '--type', 'dev',
         ])
 
