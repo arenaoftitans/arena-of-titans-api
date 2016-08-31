@@ -2,3 +2,7 @@ autobahn >= 0.14.0
 lxml >= 3.3.6
 redis >= 2.10.3
 toml >= 0.9.1
+watchdog >= 0.8.2
+
+# Needed to build templates
+jinja2-cli >= 0.5.0

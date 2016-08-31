@@ -1,0 +1,28 @@
+[api]
+allow_debug = false
+host = '127.0.0.1'
+root = '/home/aot/staging/api/latest'
+server_name = 'devapi.arenaoftitans.com'
+# If socket is present and contains a truethy value, the app will be created with unix socket.
+# Update the deploy script if convention changes.
+socket = '/var/run/uwsgi/aot-api-ws-staging-{version}.sock'
+# The group for the unix socket
+socket_group = 'nginx'
+ws_port = 9000
+
+
+[cache]
+server_host = '127.0.0.1'
+server_port = 6379
+socket = '/var/run/redis/aot-api-staging-{version}.sock'
+
+
+[front]
+root = '/home/aot/staging/front/latest'
+server_name = 'dev.arenaoftitans.com'
+
+
+[uwsgi]
+# Don't append .sock, it is appended with the version in the template.
+socket = '/var/run/uwsgi/aot-api-staging'
+user = 'uwsgi'

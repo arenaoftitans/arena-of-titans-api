@@ -7,6 +7,9 @@ PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
+type ?= dev
+version ?= latest
+
 
 .PHONY: help
 help:
@@ -15,20 +18,21 @@ help:
 	@echo "Possible targets:"
 	@echo "- doc: create the doc"
 	@echo "- config: build config file for nginx"
-	@echo "- debug: launch API in debug mode"
+	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- redis: start the redis database"
 	@echo "- nginx: start the nginx webserver"
 	@echo "- check: launch lint and testall"
 	@echo "- lint: launch pep8 and pyflakes"
-	@echo "- testall: launch all tests with corverage report (equivalent to `make test && make testintegration`)"
+	@echo "- testall: launch all tests with corverage report (equivalent to make test && make testintegration)"
 	@echo "- test: launch unit tests with coverage report"
-	@echo "- testintegration: launch integration tests with coverage report"
-	@echo "- testdebug: launch integration tests but don't launch the API"
-	@echo "- deploy: launch `cd aot-api && make updateprod` on the production server"
-	@echo "- devdeploy: launch `cd devaot && make updatedev` on the production server"
-	@echo "- updateprod: restart the API after updating the git repo"
-	@echo "- updatedev: restart the API after updating the git repo"
+	@echo "- testintegration: launch integration tests with coverage report. The API must be running on dev mode."
 	@echo "- static: generate all static files for the API like SVG boards"
+	@echo "- deployprod: deploy front and API to the production server"
+	@echo "- deploystaging: deploy front and API to the staging server"
+	@echo "- deploytesting: deploy front and API to the user defined staging server"
+	@echo "- collectprod: remove all unused fronts and APIs from the production server"
+	@echo "- collectstaging: remove all unused fronts and APIs from the staging server"
+	@echo "- collecttesting: remove all unused fronts and APIs from the user defined staging server"
 
 
 .PHONY: doc
@@ -38,16 +42,29 @@ doc:
 
 .PHONY: config
 config:
-	${JINJA2_CLI} --format=toml aot-api.dist.conf config.toml > aot-api.conf
+	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf "config/config.${type}.toml" > aot-api.conf
+	${JINJA2_CLI} --format=toml templates/aot.dist.conf "config/config.${type}.toml" > aot.conf
+	${JINJA2_CLI} --format=toml \
+	    -Dcurrent_dir=$(shell pwd) \
+	    -Dtype="${type}" \
+	    -Dversion="${version}" \
+	    templates/uwsgi.dist.ini \
+	    "config/config.${type}.toml" > uwsgi.ini
+	${JINJA2_CLI} --format=toml \
+	    -Dtype="${type}" \
+	    -Dversion="${version}" \
+	    templates/redis.dist.conf \
+	    "config/config.${type}.toml" > "redis.conf"
 
 
-.PHONY: debug
-debug: redis nginx
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever -w \
-	    --uid debug_aot \
-	    -c "${PYTHON_CMD}" \
-	    --watchDirectory aot \
-	    aot/test_main.py
+.PHONY: debuguwsgi
+debuguwsgi: redis nginx uwsgi
+	tail -f api.log
+
+
+.PHONY: dev
+dev: redis nginx
+	PYTHONPATH="${PYTHONPATH}:$(pwd)" python3 aot/test_main.py
 
 
 .PHONY: redis
@@ -58,6 +75,13 @@ redis:
 .PHONY: nginx
 nginx:
 	sudo systemctl start nginx
+
+
+.PHONY: uwsgi
+uwsgi:
+	echo > api.log
+	chown $(shell whoami):uwsgi api.log
+	sudo systemctl start uwsgi
 
 
 .PHONY: check
@@ -89,45 +113,34 @@ testintegration:
 	"${PYTEST_CMD}" aot/test/integration/
 
 
-.PHONY: testdebug
-testdebug: redis
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
-	    -c "${PYTHON_CMD}" \
-	    --uid test_aot \
-	    --killSignal=SIGINT \
-	    aot/test_main.py
-	# Wait for the process to start
-	sleep 10
-	"${PYTEST_CMD}" aot/test/integration/
-	forever stop test_aot --killSignal=SIGINT
+.PHONY: deployprod
+deployprod:
+	./scripts/cli.sh deploy prod
 
 
-.PHONY: deploy
-deploy:
-	git push aot -f && \
-	ssh aot "cd /home/aot/aot-api && make updateprod"
+.PHONY: deploystaging
+deploystaging:
+	./scripts/cli.sh deploy staging
 
 
-.PHONY: devdeploy
-devdeploy:
-	git push && \
-	ssh aot "cd /home/aot/devapi && make updatedev"
+.PHONY: deploytesting
+deploytesting:
+	./scripts/cli.sh deploy testing
 
 
-.PHONY: updatedev
-updatedev:
-	git pull && \
-	sudo systemctl stop devaot && \
-	$(MAKE) -f $(THIS_FILE) static && \
-	sudo systemctl start devaot
+.PHONY: collectprod
+collectprod:
+	./scripts/cli.sh collect prod
 
 
-.PHONY: updateprod
-updateprod:
-	git pull && \
-	sudo systemctl stop aot && \
-	$(MAKE) -f $(THIS_FILE) static && \
-	sudo systemctl start aot
+.PHONY: collectstaging
+collectstaging:
+	./scripts/cli.sh collect staging
+
+
+.PHONY: collecttesting
+collecttesting:
+	./scripts/cli.sh collect testing
 
 
 .PHONY: static

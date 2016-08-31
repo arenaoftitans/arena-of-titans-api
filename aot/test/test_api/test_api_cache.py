@@ -19,6 +19,7 @@
 
 import pickle
 
+from aot.config import config
 from aot.api.api_cache import ApiCache
 from aot.test import (
     api_cache,
@@ -27,6 +28,10 @@ from aot.test import (
 )
 from copy import deepcopy
 from unittest.mock import MagicMock
+
+
+def setup_module():
+    config.load_config('dev')
 
 
 def test_get_players_ids(api_cache):

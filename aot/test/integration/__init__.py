@@ -23,7 +23,7 @@ import pytest
 import redis
 import websockets
 
-import aot
+from aot.config import config
 from aot.api.utils import RequestTypes
 
 
@@ -39,9 +39,10 @@ def get_response(request_type):
 
 @pytest.yield_fixture(autouse=True)
 def flush_cache():
+    config.load_config('dev')
     cache = redis.Redis(
-        host=aot.config['cache']['server_host'],
-        port=aot.config['cache']['server_port'])
+        host=config['cache']['server_host'],
+        port=config['cache']['server_port'])
     flush(cache)
     yield
     flush(cache)
@@ -181,8 +182,13 @@ class PlayerWs:
     @asyncio.coroutine
     def connect(self):
         ws_endpoint = 'ws://{host}:{port}'.format(
-            host=aot.config['api']['host'],
-            port=aot.config['api']['ws_port'])
+            host=config['api']['host'],
+            port=config['api']['ws_port'],
+        )
+        # If the API is using Unix socket, we use nginx to connect to the API so we must use the
+        # correct path.
+        if config['api'].get('socket', None):
+            ws_endpoint += '/ws/latest'
         self.ws = yield from websockets.connect(ws_endpoint, loop=self._event_loop)
 
     @asyncio.coroutine

@@ -17,34 +17,121 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import argparse
 import asyncio
+import configparser
+import logging
+import os
+import shutil
 from autobahn.asyncio.websocket import WebSocketServerFactory
 
-import aot
 from aot.api import Api
+from aot.config import config
+
+try:
+    import uwsgi  # noqa
+    on_uwsgi = True
+except ImportError:
+    on_uwsgi = False
 
 
-def main(debug=False):
-    loop = asyncio.get_event_loop()
-    loop.set_debug(debug)
+def main(debug=False, type='prod', version='latest'):
+    wsserver, loop = None, None
+    # We can pass arguments to the uwsgi entry point so we store the values in the configuration.
+    if on_uwsgi:
+        uwsgi_config = configparser.ConfigParser()
+        uwsgi_config.read('uwsgi.ini')
+        type = uwsgi_config['aot']['type']
+        version = uwsgi_config['aot']['version']
 
-    host = aot.config['api']['host']
-    ws_endpoint = 'ws://{host}:{port}'.format(
-        host=host,
-        port=aot.config['api']['ws_port'])
-    factory = WebSocketServerFactory(ws_endpoint)
-    factory.protocol = Api
-    server = loop.create_server(factory, host, aot.config['api']['ws_port'])
-    wsserver = loop.run_until_complete(server)
+    config.load_config(type, version)
+
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
 
     try:
+        wsserver, loop = startup(debug=debug)
         loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        cleanup(wsserver, loop)
+
+
+def startup(debug=False):
+    loop = asyncio.get_event_loop()
+    loop.set_debug(debug)
+
+    socket = config['api'].get('socket', None)
+    if socket:
+        server = _create_unix_server(loop, socket)
+    else:
+        server = _create_tcp_server(loop)
+
+    wsserver = loop.run_until_complete(server)
+    if socket:
+        _correct_permissions_unix_server(socket)
+
+    return wsserver, loop
+
+
+def _create_unix_server(loop, socket):
+    factory = WebSocketServerFactory(None)
+    factory.protocol = Api
+    server = loop.create_unix_server(factory, socket)
+
+    return server
+
+
+def _correct_permissions_unix_server(socket):
+    os.chmod(socket, 0o660)
+    try:
+        shutil.chown(socket, group=config['api']['socket_group'])
+    except PermissionError as e:
+        logging.exception(e)
+
+
+def _create_tcp_server(loop):
+    host = config['api']['host']
+    ws_endpoint = 'ws://{host}:{port}'.format(
+        host=host,
+        port=config['api']['ws_port'])
+    factory = WebSocketServerFactory(ws_endpoint)
+    factory.protocol = Api
+    return loop.create_server(factory, host, config['api']['ws_port'])
+
+
+def cleanup(wsserver, loop):
+    if wsserver is not None:
         wsserver.close()
+    if loop is not None:
         loop.close()
+    try:
+        os.remove(config['api']['socket'])
+    except FileNotFoundError:
+        pass
 
 
 if __name__ == "__main__":  # pragma: no cover
-    main()
+    parser = argparse.ArgumentParser(description='Start the AoT API')
+    parser.add_argument(
+        '--debug',
+        help='Start in debug mode',
+        action='store_true',
+    )
+    parser.add_argument(
+        '--version',
+        help='Version of the API being deployed',
+        dest='version',
+        default='latest',
+    )
+    parser.add_argument(
+        '--type',
+        help='The type of deployment',
+        dest='type',
+        default='dev',
+        choices=['prod', 'dev', 'testing', 'staging'],
+    )
+    args = parser.parse_args()
+
+    main(debug=args.debug, version=args.version, type=args.type)

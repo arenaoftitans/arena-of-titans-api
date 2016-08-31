@@ -17,9 +17,9 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import aot
 import pickle
 
+from aot.config import config
 from aot import get_number_players
 from aot.api.utils import SlotState
 from copy import deepcopy
@@ -27,7 +27,6 @@ from redis import Redis
 
 
 class ApiCache:
-    BOARD_KEY_TEMPLATE = 'board:{}'
     GAME_KEY_TEMPLATE = 'game:{}'
     PLAYERS_KEY_TEMPLATE = 'players:{}'
     SLOTS_KEY_TEMPLATE = 'slots:{}'
@@ -49,10 +48,17 @@ class ApiCache:
     @classmethod
     def _get_redis_instance(cls, new=False):
         if new:
-            return Redis(
-                host=aot.config['cache']['server_host'],
-                port=aot.config['cache']['server_port'],
-            )
+            socket = config['cache'].get('socket', None)
+            if socket:
+                kwargs = {
+                    'unix_socket_path': socket,
+                }
+            else:
+                kwargs = {
+                    'host': config['cache']['server_host'],
+                    'port': config['cache']['server_port'],
+                }
+            return Redis(**kwargs)
         else:  # pragma: no cover
             if cls._cache is None:
                 cls._cache = cls._get_redis_instance(new=True)
@@ -117,6 +123,8 @@ class ApiCache:
             'test',
             test)
         self._init_slots()
+        self._cache.expire(self.SLOTS_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
+        self._cache.expire(self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
 
     def _init_slots(self):
         slot = {
@@ -159,6 +167,7 @@ class ApiCache:
         self._cache.zadd(
             self.PLAYERS_KEY_TEMPLATE.format(self._game_id),
             self._player_id, player_index)
+        self._cache.expire(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
 
     def get_player_index(self):
         slot = [slot for slot in self.get_slots()
