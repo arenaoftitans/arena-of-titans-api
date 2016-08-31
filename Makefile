@@ -18,20 +18,21 @@ help:
 	@echo "Possible targets:"
 	@echo "- doc: create the doc"
 	@echo "- config: build config file for nginx"
-	@echo "- debug: launch API in debug mode"
+	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- redis: start the redis database"
 	@echo "- nginx: start the nginx webserver"
 	@echo "- check: launch lint and testall"
 	@echo "- lint: launch pep8 and pyflakes"
-	@echo "- testall: launch all tests with corverage report (equivalent to `make test && make testintegration`)"
+	@echo "- testall: launch all tests with corverage report (equivalent to make test && make testintegration)"
 	@echo "- test: launch unit tests with coverage report"
-	@echo "- testintegration: launch integration tests with coverage report"
-	@echo "- testdebug: launch integration tests but don't launch the API"
-	@echo "- deploy: launch `cd aot-api && make updateprod` on the production server"
-	@echo "- devdeploy: launch `cd devaot && make updatedev` on the production server"
-	@echo "- updateprod: restart the API after updating the git repo"
-	@echo "- updatedev: restart the API after updating the git repo"
+	@echo "- testintegration: launch integration tests with coverage report. The API must be running on dev mode."
 	@echo "- static: generate all static files for the API like SVG boards"
+	@echo "- deployprod: deploy front and API to the production server"
+	@echo "- deploystaging: deploy front and API to the staging server"
+	@echo "- deploytesting: deploy front and API to the user defined staging server"
+	@echo "- collectprod: remove all unused fronts and APIs from the production server"
+	@echo "- collectstaging: remove all unused fronts and APIs from the staging server"
+	@echo "- collecttesting: remove all unused fronts and APIs from the user defined staging server"
 
 
 .PHONY: doc
@@ -110,19 +111,6 @@ tdd:
 .PHONY: testintegration
 testintegration:
 	"${PYTEST_CMD}" aot/test/integration/
-
-
-.PHONY: testdebug
-testdebug: redis
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" forever start -a \
-	    -c "${PYTHON_CMD}" \
-	    --uid test_aot \
-	    --killSignal=SIGINT \
-	    aot/test_main.py
-	# Wait for the process to start
-	sleep 10
-	"${PYTEST_CMD}" aot/test/integration/
-	forever stop test_aot --killSignal=SIGINT
 
 
 .PHONY: deployprod

@@ -6,6 +6,17 @@
 Welcome to Arena of Titans – API documentation's documentation!
 ===============================================================
 
+README
+------
+
+.. toctree::
+
+    README
+
+
+Documentation
+-------------
+
 Contents:
 
 .. toctree::
