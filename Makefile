@@ -127,17 +127,32 @@ testdebug: redis
 
 .PHONY: deployprod
 deployprod:
-	./scripts/deploy.sh prod
+	./scripts/cli.sh deploy prod
 
 
 .PHONY: deploystaging
 deploystaging:
-	./scripts/deploy.sh staging
+	./scripts/cli.sh deploy staging
 
 
 .PHONY: deploytesting
 deploytesting:
-	./scripts/deploy.sh testing
+	./scripts/cli.sh deploy testing
+
+
+.PHONY: collectprod
+collectprod:
+	./scripts/cli.sh collect prod
+
+
+.PHONY: collectstaging
+collectstaging:
+	./scripts/cli.sh collect staging
+
+
+.PHONY: collecttesting
+collecttesting:
+	./scripts/cli.sh collect testing
 
 
 .PHONY: static
