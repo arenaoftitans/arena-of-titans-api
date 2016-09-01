@@ -106,10 +106,13 @@ def cleanup(wsserver, loop):
         wsserver.close()
     if loop is not None:
         loop.close()
-    try:
-        os.remove(config['api']['socket'])
-    except FileNotFoundError:
-        pass
+
+    socket = config['api'].get('socket', None)
+    if socket:
+        try:
+            os.remove(['socket'])
+        except FileNotFoundError:
+            pass
 
 
 if __name__ == "__main__":  # pragma: no cover
