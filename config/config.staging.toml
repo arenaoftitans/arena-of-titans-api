@@ -18,7 +18,7 @@ socket = '/var/run/redis/aot-api-staging-{version}.sock'
 
 
 [front]
-root = '/home/aot/staging/front/latest'
+root = '/home/aot/staging/front'
 server_name = 'dev.arenaoftitans.com'
 
 

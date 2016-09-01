@@ -42,8 +42,14 @@ doc:
 
 .PHONY: config
 config:
-	${JINJA2_CLI} --format=toml templates/aot-api.dist.conf "config/config.${type}.toml" > aot-api.conf
-	${JINJA2_CLI} --format=toml templates/aot.dist.conf "config/config.${type}.toml" > aot.conf
+	${JINJA2_CLI} --format=toml \
+		-Dtype="${type}" \
+		templates/aot-api.dist.conf \
+		"config/config.${type}.toml" > aot-api.conf
+	${JINJA2_CLI} --format=toml \
+		-Dtype="${type}" \
+		templates/aot.dist.conf \
+		"config/config.${type}.toml" > aot.conf
 	${JINJA2_CLI} --format=toml \
 	    -Dcurrent_dir=$(shell pwd) \
 	    -Dtype="${type}" \

@@ -18,7 +18,7 @@ socket = '/var/run/redis/aot-api-prod-{version}.sock'
 
 
 [front]
-root = '/home/aot/prod/front/latest'
+root = '/home/aot/prod/front'
 server_name = 'www.arenaoftitans.com'
 
 
