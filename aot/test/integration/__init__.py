@@ -41,8 +41,8 @@ def get_response(request_type):
 def flush_cache():
     config.load_config('dev')
     cache = redis.Redis(
-        host=config['cache']['server_host'],
-        port=config['cache']['server_port'])
+        host=config['cache']['host'],
+        port=config['cache']['port'])
     flush(cache)
     yield
     flush(cache)

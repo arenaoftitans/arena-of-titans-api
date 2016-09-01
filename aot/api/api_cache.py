@@ -55,8 +55,8 @@ class ApiCache:
                 }
             else:
                 kwargs = {
-                    'host': config['cache']['server_host'],
-                    'port': config['cache']['server_port'],
+                    'host': config['cache']['host'],
+                    'port': config['cache']['port'],
                 }
             return Redis(**kwargs)
         else:  # pragma: no cover

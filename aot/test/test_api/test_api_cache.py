@@ -34,6 +34,39 @@ def setup_module():
     config.load_config('dev')
 
 
+def test_connect_unix_socket(mock):
+    cfg = {
+        'cache': {
+            'socket': '/var/run/redis/aot-api-staging-latest.sock',
+            'host': '127.0.0.1',
+            'server_port': '6379',
+        }
+    }
+    redis = MagicMock()
+    mock.patch('aot.api.api_cache.config', new=cfg)
+    mock.patch('aot.api.api_cache.Redis', new=redis)
+
+    ApiCache._get_redis_instance(new=True)
+
+    redis.assert_called_once_with(unix_socket_path=cfg['cache']['socket'])
+
+
+def test_connect_tcp_socket(mock):
+    cfg = {
+        'cache': {
+            'host': '127.0.0.1',
+            'port': '6379',
+        }
+    }
+    redis = MagicMock()
+    mock.patch('aot.api.api_cache.config', new=cfg)
+    mock.patch('aot.api.api_cache.Redis', new=redis)
+
+    ApiCache._get_redis_instance(new=True)
+
+    redis.assert_called_once_with(host=cfg['cache']['host'], port=cfg['cache']['port'])
+
+
 def test_get_players_ids(api_cache):
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
     api_cache._game_id = None
