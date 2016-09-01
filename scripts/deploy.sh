@@ -27,7 +27,7 @@ deploy-front() {
         echo -e "\tBuilding frontend"
         npm run clean > /dev/null
         npm run config -- --type "${type}" --version "${version}" > /dev/null
-        npm run prodbuild > /dev/null
+        npm run buildprod > /dev/null
 
         echo -e "\tPushing code to server"
         # Correct load path so scripts are loaded from the correct version.
@@ -121,8 +121,8 @@ deploy-api-server() {
         fi
 
         # Build config
-        make config type=testing version="${version}"
-        make static type=testing version="${version}"
+        make config type="${type}" version="${version}"
+        make static type="${type}" version="${version}"
 
         # Setup redis
         sudo cp "redis.conf" "${REDIS_CONF_DIR}/${redis_cgf_file}"
