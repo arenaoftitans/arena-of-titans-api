@@ -66,7 +66,7 @@ usage() {
 
 $0 CMD TYPE
 
-- CMD: deploy, collect
+- CMD: deploy, collect, collect-on-server
 - TYPE: prod, staging, testing"
 }
 
@@ -121,6 +121,8 @@ main() {
                     deploy "${type}" "${version}";;
                 'collect')
                     collect "${type}";;
+                'collect-on-server')
+                    collect-on-server "${type}";;
                 *)
                     usage
                     exit 1;;
