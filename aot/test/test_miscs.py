@@ -17,7 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot import get_cards_list
+from aot.config import config
 
 
 def test_bishop():
@@ -25,3 +28,9 @@ def test_bishop():
     for card in cards:
         if card.name == 'Bishop':
             assert len(card.colors) == 2
+
+
+def test_access_unitialized_config():
+    with pytest.raises(RuntimeError) as e:
+        config['test']
+    assert 'Configuration is not loaded.' in str(e)
