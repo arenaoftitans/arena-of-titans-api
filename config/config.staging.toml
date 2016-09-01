@@ -1,5 +1,5 @@
 [api]
-allow_debug = false
+allow_debug = true
 host = '127.0.0.1'
 root = '/home/aot/staging/api/latest'
 server_name = 'devapi.arenaoftitans.com'
