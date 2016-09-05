@@ -70,6 +70,7 @@ debuguwsgi: redis nginx uwsgi
 
 .PHONY: dev
 dev: redis nginx
+	rm -f *.sock
 	PYTHONPATH="${PYTHONPATH}:$(pwd)" python3 aot/test_main.py
 
 
