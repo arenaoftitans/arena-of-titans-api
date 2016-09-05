@@ -110,7 +110,7 @@ def cleanup(wsserver, loop):
     socket = config['api'].get('socket', None)
     if socket:
         try:
-            os.remove(['socket'])
+            os.remove(socket)
         except FileNotFoundError:
             pass
 
