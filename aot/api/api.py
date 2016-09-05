@@ -22,7 +22,7 @@ import json
 import logging
 import uuid
 
-from aot import config
+from aot.config import config
 from aot import get_game
 from aot import get_number_players
 from aot.game import Player
