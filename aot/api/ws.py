@@ -77,6 +77,10 @@ class AotWs(WebSocketServerProtocol):
     def _modify_slots(self):  # pragma: no cover
         pass
 
+    @abstractmethod
+    def _play_ai_after_timeout(self):  # pragma: no cover
+        pass
+
     def sendMessage(self, message):  # pragma: no cover
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
@@ -131,6 +135,8 @@ class AotWs(WebSocketServerProtocol):
                 if not game.is_over and player == game.active_player:
                     game.pass_turn()
                     self._send_play_message(game, player)
+                    if game.active_player.is_ai:
+                        self._play_ai_after_timeout()
 
     def _set_up_connection_keep_alive(self):  # pragma: no cover
         self._loop.call_later(5, self.sendPing)

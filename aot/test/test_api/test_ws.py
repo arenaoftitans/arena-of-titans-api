@@ -55,6 +55,42 @@ def test_onClose(api, game):
     game.pass_turn.assert_called_once_with()
 
 
+def test_onClose_just_before_ai(api, game):
+    def pass_turn():
+        game._active_player = game.players[1]
+
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api._clients[0] = None
+    api._send_play_message = MagicMock()
+    api._save_game = MagicMock()
+    api._loop = MagicMock()
+    api._play_ai_after_timeout = MagicMock()
+
+    player = game.active_player
+    game.pass_turn = MagicMock(side_effect=pass_turn)
+    game.disconnect = MagicMock(return_value=player)
+    game.players[1]._is_ai = True
+
+    api.onClose(True, 1001, None)
+
+    assert 0 not in api._clients
+
+    api._loop.call_later.assert_called_once_with(
+        api.DISCONNECTED_TIMEOUT_WAIT,
+        api._disconnect_player
+    )
+    api._disconnect_player()
+
+    api._cache.get_game.assert_called_once_with()
+    api._send_play_message.assert_called_once_with(game, player)
+    api._save_game.assert_called_once_with(game)
+    api._play_ai_after_timeout.assert_called_once_with()
+
+    game.disconnect.assert_called_once_with(player.id)
+    game.pass_turn.assert_called_once_with()
+
+
 def test_onClose_creating_game(api, game):
     api._cache = MagicMock()
     slots = [
