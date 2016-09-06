@@ -81,6 +81,7 @@ def api():
     a = Api()
     a._id = 0
     a._clients_pending_disconnection = {}
+    a._pending_ai = set()
 
     return a
 

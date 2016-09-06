@@ -88,9 +88,11 @@ def test_process_play_request_ai_after_ai(api, game):
 
 def test_play_ai(api, game):
     api._cache = MagicMock()
-    api._loop = MagicMock()
     api._send_play_message = MagicMock()
     api._send_debug = MagicMock()
+    api._game_id = 'game_id'
+    api._pending_ai.add('game_id')
+    api._play_ai_after_timeout = MagicMock()
     game.active_player._is_ai = True
     game.play_auto = MagicMock()
 
@@ -98,15 +100,28 @@ def test_play_ai(api, game):
 
     game.play_auto.assert_called_once_with()
     api._send_play_message.assert_called_once_with(game, game.active_player)
-    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+    api._play_ai_after_timeout.assert_called_once_with()
     assert api._send_debug.call_count == 0
+
+
+def test_play_ai_after_timeout(api):
+    api._loop = MagicMock()
+    api._game_id = 'game_id'
+    assert 'game_id' not in api._pending_ai
+
+    api._play_ai_after_timeout()
+
+    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+    assert 'game_id' in api._pending_ai
 
 
 def test_play_ai_mode_debug(api, game):
     api._cache = MagicMock()
-    api._loop = MagicMock()
     api._send_play_message = MagicMock()
     api._send_debug = MagicMock()
+    api._game_id = 'game_id'
+    api._pending_ai.add('game_id')
+    api._play_ai_after_timeout = MagicMock()
     game.active_player._is_ai = True
     game.play_auto = MagicMock()
     game._is_debug = True
@@ -115,7 +130,7 @@ def test_play_ai_mode_debug(api, game):
 
     game.play_auto.assert_called_once_with()
     api._send_play_message.assert_called_once_with(game, game.active_player)
-    api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
+    api._play_ai_after_timeout.assert_called_once_with()
     assert api._send_debug.call_count == 1
     args_last_call = api._send_debug.call_args[0][0]
     assert args_last_call['player'] == 'Player 0'

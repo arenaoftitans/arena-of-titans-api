@@ -181,6 +181,8 @@ class AotWs(WebSocketServerProtocol):
             with self._load_game() as game:
                 self._must_save_game = False
                 message = self._reconnect_to_game(game)
+                if game.active_player.is_ai and self._game_id not in self._pending_ai:
+                    self._play_ai_after_timeout()
 
         if message:
             self.sendMessage(message)

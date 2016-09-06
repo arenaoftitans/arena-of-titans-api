@@ -65,6 +65,7 @@ class Api(AotWs):
     _game_id = None
     _id = None
     _must_save_game = True
+    _pending_ai = set()
 
     def onMessage(self, payload, isBinary):
         try:
@@ -259,9 +260,11 @@ class Api(AotWs):
                 raise AotErrorToDisplay('not_your_turn')
 
     def _play_ai_after_timeout(self):
+        self._pending_ai.add(self._game_id)
         self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
 
     def _play_ai(self, game):
+        self._pending_ai.discard(self._game_id)
         if game.active_player.is_ai:
             this_player = game.active_player
             if game.is_debug:

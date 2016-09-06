@@ -222,6 +222,7 @@ def test_reconnect_reconnect_to_game(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
+    api._play_ai_after_timeout = MagicMock()
     api.sendMessage = MagicMock()
 
     api._reconnect()
@@ -229,6 +230,36 @@ def test_reconnect_reconnect_to_game(api, game):
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(game)
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    assert api._save_game.call_count == 0
+    assert api._play_ai_after_timeout.call_count == 0
+    assert api.id == 'player_id'
+    assert api._game_id == 'game_id'
+    assert api.sendMessage.call_count == 1
+
+
+def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
+    timer = MagicMock()
+    api._cache = MagicMock()
+    api._cache.has_game_started = MagicMock(return_value=True)
+    api._get_game = MagicMock(return_value=game)
+    api._save_game = MagicMock()
+    api._reconnect_to_game = MagicMock()
+    api._message = {
+        'player_id': 'player_id',
+        'game_id': 'game_id',
+    }
+    api._disconnect_timeouts['player_id'] = timer
+    api._play_ai_after_timeout = MagicMock()
+    api.sendMessage = MagicMock()
+    game._active_player = game.players[1]
+    game._active_player._is_ai = True
+
+    api._reconnect()
+
+    timer.cancel.assert_called_once_with()
+    api._reconnect_to_game.assert_called_once_with(game)
+    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    api._play_ai_after_timeout.assert_called_once_with()
     assert api._save_game.call_count == 0
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
