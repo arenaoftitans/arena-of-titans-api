@@ -90,10 +90,11 @@ class Board:
 
     def get_diagonal_squares(self, square, colors):
         squares = SquareSet(colors)
-        squares.add(self[square.x - 1, square.y - 1, 'left'])
-        squares.add(self[square.x + 1, square.y - 1, 'right'])
-        squares.add(self[square.x - 1, square.y + 1, 'left'])
-        squares.add(self[square.x + 1, square.y + 1, 'right'])
+        on_circle = not self._on_arm(square.y)
+        squares.add(self[square.x - 1, square.y - 1, 'left', on_circle])
+        squares.add(self[square.x + 1, square.y - 1, 'right', on_circle])
+        squares.add(self[square.x - 1, square.y + 1, 'left', on_circle])
+        squares.add(self[square.x + 1, square.y + 1, 'right', on_circle])
         return squares
 
     def get_neighbors(self, square):
@@ -115,14 +116,18 @@ class Board:
             if len(coords) == 2:
                 x, y = coords
                 x_direction = None
+                on_circle = False
             elif len(coords) == 3:
                 x, y, x_direction = coords
+                on_circle = False
+            elif len(coords) == 4:
+                x, y, x_direction, on_circle = coords
 
         if coords is not None and x is not None:
             x = self.correct_x(x)
-            return (x, y, x_direction)
+            return (x, y, x_direction, on_circle)
         else:
-            return None, None, None
+            return None, None, None, False
 
     def correct_x(self, x):
         while x < 0:
@@ -131,7 +136,7 @@ class Board:
         return x
 
     def _on_arm_edge(self, x, y, x_direction):
-        on_arm = y > self._inner_circle_higher_y
+        on_arm = self._on_arm(y)
         if x_direction == 'left':
             # When going left, x from original square is x + 1
             return (x + 1) % self._arms_width == 0 and on_arm
@@ -142,6 +147,9 @@ class Board:
         else:
             return False
 
+    def _on_arm(self, y):
+        return y > self._inner_circle_higher_y
+
     def __len__(self):  # pragma: no cover
         return len(self._board) * len(self._board[0])
 
@@ -151,13 +159,23 @@ class Board:
         **PARAMTERS**
 
         * *coords* - tuple of coordonates. Use a third optional element to
-          indicate horizontal direction (among 'left', 'right')
+          indicate horizontal direction (among 'left', 'right'). Use a forth optional element to
+          indicate if you are currenctly on the circle.
         """
-        x, y, x_direction = self._correct_x(coords)
+        x, y, x_direction, on_circle = self._correct_x(coords)
 
-        if y is not None and not self._on_arm_edge(x, y, x_direction) and \
-                0 <= y and y < self._y_max:
+        if y is not None and \
+                self._edge_move_valid(on_circle, x, y, x_direction) and \
+                self._y_in_bounds(y):
             return self._board[y][x]
+
+    def _edge_move_valid(self, on_circle, x, y, x_direction):
+        # If the start square is on the circle, we can move in any arm.
+        # If it is not, we need to check the arm edge rules.
+        return on_circle or not self._on_arm_edge(x, y, x_direction)
+
+    def _y_in_bounds(self, y):
+        return 0 <= y and y < self._y_max
 
     def is_in_arm(self, square):
         return square.y > self._inner_circle_higher_y

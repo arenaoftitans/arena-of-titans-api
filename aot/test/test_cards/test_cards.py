@@ -258,6 +258,21 @@ def test_line_diagonal_arms_edges(board, edge_card_properties):
     ])
 
 
+def test_line_diagonal_arms_edges_from_circle(board, edge_card_properties):
+    edge_card_properties['movements_types'].remove('line')
+    edge_card_properties['color'] = 'black'
+    card = Card(board, **edge_card_properties)
+    assert card.move(board[31, 2]) == set([board[0, 3]])
+
+    edge_card_properties['color'] = 'red'
+    card = Card(board, **edge_card_properties)
+    assert card.move(board[4, 2]) == set([
+        board[3, 1],
+        board[3, 3],
+        board[5, 1],
+    ])
+
+
 def test_knight_no_move(board):
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
