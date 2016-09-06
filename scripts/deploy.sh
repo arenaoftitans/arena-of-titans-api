@@ -2,13 +2,13 @@ deploy() {
     local type="$1"
     local version="$2"
 
-    echo "Deploying frontend"
+    echo "Deploying frontend for ${type} with version ${version}"
     deploy-front "${type}" "${version}"
     echo "Deploying API"
     deploy-api "${type}" "${version}"
 
     # Make deployed version lastest version
-    echo "Updating default version"
+    echo "Updating default version for ${type} with version ${version}"
     execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/front/${version} ${DEPLOY_BASE_DIR}/${type}/front/latest"
     execute-on-server "ln --force --no-dereference --symbolic ${DEPLOY_BASE_DIR}/${type}/api/${version} ${DEPLOY_BASE_DIR}/${type}/api/latest"
     execute-on-server "sudo ln -sf ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-${version}.sock ${UWSGI_SOCKET_FOLDER}/aot-api-ws-${type}-latest.sock"
