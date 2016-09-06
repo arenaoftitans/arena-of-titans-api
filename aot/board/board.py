@@ -113,13 +113,12 @@ class Board:
         coords = None
         if isinstance(x, tuple):
             coords = x
+            x_direction = None
+            on_circle = False
             if len(coords) == 2:
                 x, y = coords
-                x_direction = None
-                on_circle = False
             elif len(coords) == 3:
                 x, y, x_direction = coords
-                on_circle = False
             elif len(coords) == 4:
                 x, y, x_direction, on_circle = coords
 
