@@ -367,3 +367,15 @@ def test_create_game(mock, api):
     assert game.players[0].is_connected
     assert game.players[1] is None
     assert not game.players[2].is_connected
+
+
+def test_disconnect_pending_players(api, game):
+    api._clients_pending_disconnection = {
+        'game_id': [1, 2],
+    }
+    api._game_id = 'game_id'
+
+    api._disconnect_pending_players(game)
+
+    assert len(api._clients_pending_disconnection) == 1
+    assert len(api._clients_pending_disconnection['game_id']) == 0

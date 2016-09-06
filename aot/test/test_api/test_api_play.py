@@ -32,6 +32,7 @@ from unittest.mock import MagicMock
 def test_process_play_request_not_your_turn(api, game):
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
+    api._save_game = MagicMock()
     api.id = 'wrong_id'
 
     try:
@@ -39,6 +40,7 @@ def test_process_play_request_not_your_turn(api, game):
         raise AssertionError
     except AotErrorToDisplay as e:
         assert str(e) == 'not_your_turn'
+        assert api._save_game.call_count == 0
 
 
 def test_process_play_request_your_turn(api, game):

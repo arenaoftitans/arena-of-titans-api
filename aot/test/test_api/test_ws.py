@@ -35,7 +35,7 @@ def test_onClose(api, game):
 
     player = game.active_player
     game.pass_turn = MagicMock()
-    game.disconnect = MagicMock(return_value=player)
+    game.get_player_by_id = MagicMock(return_value=player)
 
     api.onClose(True, 1001, None)
 
@@ -51,8 +51,41 @@ def test_onClose(api, game):
     api._send_play_message.assert_called_once_with(game, player)
     api._save_game.assert_called_once_with(game)
 
-    game.disconnect.assert_called_once_with(player.id)
+    game.get_player_by_id.assert_called_once_with(player.id)
     game.pass_turn.assert_called_once_with()
+
+
+def test_onClose_not_your_turn(api, game):
+    api._cache = MagicMock()
+    api._cache.get_game = MagicMock(return_value=game)
+    api._clients[0] = None
+    api._send_play_message = MagicMock()
+    api._save_game = MagicMock()
+    api._loop = MagicMock()
+
+    player = game.active_player
+    game._active_player = game.players[1]
+    game.pass_turn = MagicMock()
+    game.get_player_by_id = MagicMock(return_value=player)
+
+    api.onClose(True, 1001, None)
+
+    assert 0 not in api._clients
+
+    api._loop.call_later.assert_called_once_with(
+        api.DISCONNECTED_TIMEOUT_WAIT,
+        api._disconnect_player
+    )
+    api._disconnect_player()
+
+    api._cache.get_game.assert_called_once_with()
+    assert api._send_play_message.call_count == 0
+    assert api._save_game.call_count == 0
+
+    game.get_player_by_id.assert_called_once_with(player.id)
+    assert game.pass_turn.call_count == 0
+    assert len(api._clients_pending_disconnection) == 1
+    assert api._clients_pending_disconnection[None] == [0]
 
 
 def test_onClose_just_before_ai(api, game):
@@ -69,7 +102,7 @@ def test_onClose_just_before_ai(api, game):
 
     player = game.active_player
     game.pass_turn = MagicMock(side_effect=pass_turn)
-    game.disconnect = MagicMock(return_value=player)
+    game.get_player_by_id = MagicMock(return_value=player)
     game.players[1]._is_ai = True
 
     api.onClose(True, 1001, None)
@@ -87,7 +120,7 @@ def test_onClose_just_before_ai(api, game):
     api._save_game.assert_called_once_with(game)
     api._play_ai_after_timeout.assert_called_once_with()
 
-    game.disconnect.assert_called_once_with(player.id)
+    game.get_player_by_id.assert_called_once_with(player.id)
     game.pass_turn.assert_called_once_with()
 
 
@@ -181,7 +214,8 @@ def test_reconnect_reconnect_to_game(api, game):
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)
-    api._cache.get_game = MagicMock(return_value=game)
+    api._get_game = MagicMock(return_value=game)
+    api._save_game = MagicMock()
     api._reconnect_to_game = MagicMock()
     api._message = {
         'player_id': 'player_id',
@@ -195,6 +229,7 @@ def test_reconnect_reconnect_to_game(api, game):
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(game)
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    assert api._save_game.call_count == 0
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
     assert api.sendMessage.call_count == 1

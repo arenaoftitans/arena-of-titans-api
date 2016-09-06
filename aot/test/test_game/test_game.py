@@ -219,9 +219,8 @@ def test_disconnect(game):
     assert player0 is game.active_player
     assert player0.is_connected
 
-    ret = game.disconnect(player0.id)
+    ret = game.get_player_by_id(player0.id)
     assert ret is player0
-    assert not player0.is_connected
 
 
 def test_has_enough_players_to_continue(game):

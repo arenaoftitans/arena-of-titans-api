@@ -34,6 +34,7 @@ class AotWs(WebSocketServerProtocol):
     # Class variables.
     DISCONNECTED_TIMEOUT_WAIT = 10
     _clients = {}
+    _clients_pending_disconnection = {}
     _disconnect_timeouts = {}
 
     # Instance variable
@@ -131,12 +132,17 @@ class AotWs(WebSocketServerProtocol):
     def _disconnect_player_from_game(self):
         with self._load_game() as game:
             if game:
-                player = game.disconnect(self.id)
+                player = game.get_player_by_id(self.id)
                 if not game.is_over and player == game.active_player:
+                    player.is_connected = False
                     game.pass_turn()
                     self._send_play_message(game, player)
                     if game.active_player.is_ai:
                         self._play_ai_after_timeout()
+                else:
+                    self._clients_pending_disconnection.setdefault(self._game_id, [])\
+                        .append(self.id)
+                    self._must_save_game = False
 
     def _set_up_connection_keep_alive(self):  # pragma: no cover
         self._loop.call_later(5, self.sendPing)
@@ -173,6 +179,7 @@ class AotWs(WebSocketServerProtocol):
                 message = self._get_initialiazed_game_message(index)
         else:
             with self._load_game() as game:
+                self._must_save_game = False
                 message = self._reconnect_to_game(game)
 
         if message:

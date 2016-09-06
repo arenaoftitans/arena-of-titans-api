@@ -51,10 +51,9 @@ class Game:
     def add_action(self, action):
         self._actions.append(action)
 
-    def disconnect(self, player_id):
+    def get_player_by_id(self, player_id):
         player_index = self._players_id_to_index[player_id]
         player = self._players[player_index]
-        player.is_connected = False
 
         return player
 

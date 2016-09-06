@@ -64,6 +64,7 @@ class Api(AotWs):
     # Instance variables
     _game_id = None
     _id = None
+    _must_save_game = True
 
     def onMessage(self, payload, isBinary):
         try:
@@ -254,6 +255,7 @@ class Api(AotWs):
             elif game.active_player.is_ai:
                 self._play_ai(game)
             else:
+                self._must_save_game = False
                 raise AotErrorToDisplay('not_your_turn')
 
     def _play_ai_after_timeout(self):
@@ -274,9 +276,27 @@ class Api(AotWs):
 
     @contextmanager
     def _load_game(self):
-        game = self._cache.get_game()
+        self._must_save_game = True
+        game = self._get_game()
+        self._disconnect_pending_players(game)
+
         yield game
-        self._save_game(game)
+
+        if self._must_save_game:
+            self._save_game(game)
+
+    def _disconnect_pending_players(self, game):
+        players_pending_disconnection = self._clients_pending_disconnection.get(self._game_id, [])
+        while len(players_pending_disconnection):
+            player_id = players_pending_disconnection.pop()
+            player = game.get_player_by_id(player_id)
+            player.is_connected = False
+
+    def _get_game(self):
+        return self._cache.get_game()
+
+    def _save_game(self, game):
+        self._cache.save_game(game)
 
     def _is_player_id_correct(self, game):
         return self.id is not None and self.id == game.active_player.id
@@ -439,9 +459,6 @@ class Api(AotWs):
 
     def _get_trump(self, game, play_request):
         return game.active_player.get_trump(play_request.title())
-
-    def _save_game(self, game):
-        self._cache.save_game(game)
 
     @property
     def _can_join(self):
