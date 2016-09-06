@@ -35,6 +35,7 @@ class AotWs(WebSocketServerProtocol):
     DISCONNECTED_TIMEOUT_WAIT = 10
     _clients = {}
     _clients_pending_disconnection = {}
+    _clients_pending_reconnection = {}
     _disconnect_timeouts = {}
 
     # Instance variable
@@ -140,9 +141,12 @@ class AotWs(WebSocketServerProtocol):
                     if game.active_player.is_ai:
                         self._play_ai_after_timeout()
                 else:
-                    self._clients_pending_disconnection.setdefault(self._game_id, [])\
-                        .append(self.id)
+                    self._append_to_clients_pending_disconnection()
                     self._must_save_game = False
+
+    def _append_to_clients_pending_disconnection(self):
+        self._clients_pending_disconnection_for_game.add(self.id)
+        self._clients_pending_reconnection_for_game.discard(self.id)
 
     def _set_up_connection_keep_alive(self):  # pragma: no cover
         self._loop.call_later(5, self.sendPing)
@@ -180,6 +184,7 @@ class AotWs(WebSocketServerProtocol):
         else:
             with self._load_game() as game:
                 self._must_save_game = False
+                self._append_to_clients_pending_reconnection()
                 message = self._reconnect_to_game(game)
                 if game.active_player.is_ai and self._game_id not in self._pending_ai:
                     self._play_ai_after_timeout()
@@ -187,9 +192,12 @@ class AotWs(WebSocketServerProtocol):
         if message:
             self.sendMessage(message)
 
+    def _append_to_clients_pending_reconnection(self):
+        self._clients_pending_reconnection_for_game.add(self.id)
+        self._clients_pending_disconnection_for_game.discard(self.id)
+
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player and player.id == self.id][0]
-        player.is_connected = True
         message = self._get_play_message(player, game)
 
         last_action = self._get_action_message(game.last_action)
@@ -249,3 +257,11 @@ class AotWs(WebSocketServerProtocol):
 
     def _format_error(self, message, format_opt={}):  # pragma: no cover
         return {'error': self._get_error(message, format_opt)}
+
+    @property
+    def _clients_pending_reconnection_for_game(self):
+        return self._clients_pending_reconnection.setdefault(self._game_id, set())
+
+    @property
+    def _clients_pending_disconnection_for_game(self):
+        return self._clients_pending_disconnection.setdefault(self._game_id, set())

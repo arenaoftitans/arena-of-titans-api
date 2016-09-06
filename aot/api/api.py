@@ -282,6 +282,7 @@ class Api(AotWs):
         self._must_save_game = True
         game = self._get_game()
         self._disconnect_pending_players(game)
+        self._reconnect_pending_players(game)
 
         yield game
 
@@ -289,11 +290,24 @@ class Api(AotWs):
             self._save_game(game)
 
     def _disconnect_pending_players(self, game):
-        players_pending_disconnection = self._clients_pending_disconnection.get(self._game_id, [])
-        while len(players_pending_disconnection):
-            player_id = players_pending_disconnection.pop()
+        self._change_players_connection_status(
+            game,
+            self._clients_pending_disconnection_for_game,
+            False,
+        )
+
+    def _change_players_connection_status(self, game, player_ids, status):
+        while len(player_ids) > 0:
+            player_id = player_ids.pop()
             player = game.get_player_by_id(player_id)
-            player.is_connected = False
+            player.is_connected = status
+
+    def _reconnect_pending_players(self, game):
+        self._change_players_connection_status(
+            game,
+            self._clients_pending_reconnection_for_game,
+            True,
+        )
 
     def _get_game(self):
         return self._cache.get_game()

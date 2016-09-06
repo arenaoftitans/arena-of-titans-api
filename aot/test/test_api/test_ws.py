@@ -85,7 +85,7 @@ def test_onClose_not_your_turn(api, game):
     game.get_player_by_id.assert_called_once_with(player.id)
     assert game.pass_turn.call_count == 0
     assert len(api._clients_pending_disconnection) == 1
-    assert api._clients_pending_disconnection[None] == [0]
+    assert api._clients_pending_disconnection[None] == set([0])
 
 
 def test_onClose_just_before_ai(api, game):
@@ -235,6 +235,7 @@ def test_reconnect_reconnect_to_game(api, game):
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
     assert api.sendMessage.call_count == 1
+    assert api._clients_pending_reconnection_for_game == set(['player_id'])
 
 
 def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
@@ -264,6 +265,7 @@ def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
     assert api.sendMessage.call_count == 1
+    assert api._clients_pending_reconnection_for_game == set(['player_id'])
 
 
 def test_reconnect_to_game(api, game):
@@ -274,5 +276,26 @@ def test_reconnect_to_game(api, game):
 
     api._reconnect_to_game(game)
 
-    assert game.active_player.is_connected
     api._get_action_message.assert_called_once_with(None)
+
+
+def test_append_to_clients_pending_reconnection(api):
+    api._game_id = 'game_id'
+    api._id = 'player_id'
+    api._clients_pending_disconnection_for_game.add('player_id')
+
+    api._append_to_clients_pending_reconnection()
+
+    assert api._clients_pending_reconnection_for_game == set(['player_id'])
+    assert api._clients_pending_disconnection_for_game == set()
+
+
+def test_append_to_clients_pending_disconnection(api):
+    api._game_id = 'game_id'
+    api._id = 'player_id'
+    api._clients_pending_reconnection_for_game.add('player_id')
+
+    api._append_to_clients_pending_disconnection()
+
+    assert api._clients_pending_disconnection_for_game == set(['player_id'])
+    assert api._clients_pending_reconnection_for_game == set()

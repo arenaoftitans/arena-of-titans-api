@@ -363,11 +363,31 @@ def test_create_game(mock, api):
 
 def test_disconnect_pending_players(api, game):
     api._clients_pending_disconnection = {
-        'game_id': [1, 2],
+        'game_id': [0, 1],
     }
     api._game_id = 'game_id'
+    game.players[0].is_connected = True
+    game.players[1].is_connected = True
 
     api._disconnect_pending_players(game)
 
     assert len(api._clients_pending_disconnection) == 1
     assert len(api._clients_pending_disconnection['game_id']) == 0
+    assert not game.players[0].is_connected
+    assert not game.players[1].is_connected
+
+
+def test_reconnect_pending_players(api, game):
+    api._clients_pending_reconnection = {
+        'game_id': [0, 1],
+    }
+    api._game_id = 'game_id'
+    game.players[0].is_connected = False
+    game.players[1].is_connected = False
+
+    api._reconnect_pending_players(game)
+
+    assert len(api._clients_pending_reconnection) == 1
+    assert len(api._clients_pending_reconnection['game_id']) == 0
+    assert game.players[0].is_connected
+    assert game.players[1].is_connected
