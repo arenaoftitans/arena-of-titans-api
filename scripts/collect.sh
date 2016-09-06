@@ -20,11 +20,14 @@ collect-on-server() {
     local api_dir="${DEPLOY_BASE_DIR}/${type}/api"
     local front_dir="${DEPLOY_BASE_DIR}/${type}/front"
     local versions_to_collect=()
+    local latest
 
     pushd "${front_dir}" > /dev/null
-        for version in $(ls -1 | grep -v latest | head -n -1); do
+        latest=$(readlink -f latest)
+        latest="${latest##*/}"
+        for version in $(ls -1 | grep -v latest); do
             keys=$(redis-cli -s "${REDIS_SOCKET_DIR}/aot-api-${type}-${version}.sock" keys \*)
-            if [[ -z "${keys}" ]]; then
+            if [[ -z "${keys}" && "${version}" != "${latest}" ]]; then
                 versions_to_collect+=("${version}")
             fi
         done
