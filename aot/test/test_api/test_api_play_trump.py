@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
@@ -30,11 +32,10 @@ from unittest.mock import MagicMock
 
 
 def test_play_trump_wrong_trump(api, game):
-    try:
+    with pytest.raises(AotError) as e:
         api._play_trump(game, {})
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'wrong_trump'
+
+    assert 'wrong_trump' in str(e)
 
 
 def test_play_trump_missing_target(api, game):
@@ -42,13 +43,12 @@ def test_play_trump_missing_target(api, game):
         if trump['must_target_player']:
             break
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_trump(game, {
             'name': trump['name'],
         })
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'missing_trump_target'
+
+    assert 'missing_trump_target' in str(e)
 
 
 def test_play_trump_with_wrong_target(api, game):
@@ -56,14 +56,13 @@ def test_play_trump_with_wrong_target(api, game):
         if trump['must_target_player']:
             break
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_trump(game, {
             'name': trump['name'],
             'target_index': 10,
         })
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'wrong_trump_target'
+
+    assert 'wrong_trump_target' in str(e)
 
 
 def test_play_trump_max_number_trumps_played(api, game):
@@ -72,14 +71,13 @@ def test_play_trump_max_number_trumps_played(api, game):
     game.active_player.play_trump = MagicMock(return_value=False)
     game.active_player._can_play = False
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_trump(game, {
             'name': trump['name'],
             'target_index': 0,
         })
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'max_number_played_trumps'
+
+    assert 'max_number_played_trumps' in str(e)
 
 
 def test_play_trump_max_number_affecting_trumps(api, game):
@@ -87,14 +85,13 @@ def test_play_trump_max_number_affecting_trumps(api, game):
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_trump(game, {
             'name': trump['name'],
             'target_index': 0,
         })
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'max_number_trumps'
+
+    assert 'max_number_trumps' in str(e)
 
 
 def test_play_trump_with_target(api, game):

@@ -144,11 +144,10 @@ def test_process_create_game_request_not_allowed(api):
     api._cache.is_game_master = MagicMock(return_value=False)
     api._rt = RequestTypes.CREATE_GAME
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._process_create_game_request()
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'game_master_request'
+
+    assert 'game_master_request' in str(e)
 
 
 def test_process_create_game_request_update_slot_not_game_master(api):
@@ -178,11 +177,10 @@ def test_process_create_game_request_join_cannot_join(api):
     api._cache = MagicMock()
     api._cache.game_exists = MagicMock(return_value=False)
 
-    try:
+    with pytest.raises(AotError) as e:
         api._process_create_game_request()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'cannot_join'
+
+    assert 'cannot_join' in str(e)
 
 
 def test_process_create_game_request_join(api):
@@ -246,11 +244,10 @@ def test_join(api):
 def test_modify_slots_empty_request(api):
     api._message = {}
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._modify_slots()
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'no_slot'
+
+    assert 'no_slot' in str(e)
 
 
 def test_modify_slots_inexistant_slot(api):
@@ -260,11 +257,10 @@ def test_modify_slots_inexistant_slot(api):
     api._cache = MagicMock()
     api._cache.slot_exists = MagicMock(return_value=False)
 
-    try:
+    with pytest.raises(AotError) as e:
         api._modify_slots()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'inexistant_slot'
+
+    assert 'inexistant_slot' in str(e)
 
 
 def test_modify_slots(api):
@@ -290,11 +286,10 @@ def test_create_game_no_create_game_request(api):
     api._message = {
     }
 
-    try:
+    with pytest.raises(AotError) as e:
         api._create_game()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'no_request'
+
+    assert 'no_request' in str(e)
 
 
 def test_create_game_too_many_players(api):
@@ -304,11 +299,10 @@ def test_create_game_too_many_players(api):
         'create_game_request': [{'name': i} for i in range(9)],
     }
 
-    try:
+    with pytest.raises(AotError) as e:
         api._create_game()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'registered_different_description'
+
+    assert 'registered_different_description' in str(e)
 
 
 def test_create_game_too_few_players(api):
@@ -318,11 +312,10 @@ def test_create_game_too_few_players(api):
         'create_game_request': [{'name': 0}],
     }
 
-    try:
+    with pytest.raises(AotError) as e:
         api._create_game()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'registered_different_description'
+
+    assert 'registered_different_description' in str(e)
 
 
 def test_create_game_wrong_registration(api):
@@ -332,11 +325,10 @@ def test_create_game_wrong_registration(api):
         'create_game_request': [],
     }
 
-    try:
+    with pytest.raises(AotError) as e:
         api._create_game()
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'registered_different_description'
+
+    assert 'registered_different_description' in str(e)
 
 
 def test_create_game(mock, api):

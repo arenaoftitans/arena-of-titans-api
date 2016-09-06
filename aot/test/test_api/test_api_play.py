@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
@@ -35,12 +37,11 @@ def test_process_play_request_not_your_turn(api, game):
     api._save_game = MagicMock()
     api.id = 'wrong_id'
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._process_play_request()
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'not_your_turn'
-        assert api._save_game.call_count == 0
+
+    assert 'not_your_turn' in str(e)
+    assert api._save_game.call_count == 0
 
 
 def test_process_play_request_your_turn(api, game):
@@ -124,11 +125,10 @@ def test_play_ai_mode_debug(api, game):
 def test_play_game_no_request(api, game):
     api._message = {}
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_game(game)
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'no_request'
+
+    assert 'no_request' in str(e)
 
 
 def test_play_game_unknown_request(api, game):
@@ -137,11 +137,10 @@ def test_play_game_unknown_request(api, game):
         'rt': 'TOTO',
     }
 
-    try:
+    with pytest.raises(AotError) as e:
         api._play_game(game)
-        raise AssertionError
-    except AotError as e:
-        assert str(e) == 'unknown_request'
+
+    assert 'unknown_request' in str(e)
 
 
 def test_play_game(api, game):
@@ -162,11 +161,10 @@ def test_play_game(api, game):
 
 
 def test_view_possible_squares_wrong_card(api, game):
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._view_possible_squares(game, {})
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'wrong_card'
+
+    assert 'wrong_card' in str(e)
 
 
 def test_view_possible_squares(api, game):
@@ -194,12 +192,11 @@ def test_play_pass(api, game):
 def test_play_discard_wrong_card(api, game):
     game.discard = MagicMock()
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._play(game, {'discard': True})
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'wrong_card'
-        assert game.discard.call_count == 0
+
+    assert 'wrong_card' in str(e)
+    assert game.discard.call_count == 0
 
 
 def test_play_discard(api, game):
@@ -221,12 +218,11 @@ def test_play_wrong_card(api, game):
     game.play_card = MagicMock()
     api._send_play_message = MagicMock()
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._play(game, {})
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'wrong_card'
-        assert game.play_card.call_count == 0
+
+    assert 'wrong_card' in str(e)
+    assert game.play_card.call_count == 0
 
 
 def test_play_wrong_square(api, game):
@@ -234,15 +230,14 @@ def test_play_wrong_square(api, game):
     api._send_play_message = MagicMock()
     card = game.active_player.hand[0]
 
-    try:
+    with pytest.raises(AotErrorToDisplay) as e:
         api._play(game, {
             'card_name': card.name,
             'card_color': card.color,
         })
-        raise AssertionError
-    except AotErrorToDisplay as e:
-        assert str(e) == 'wrong_square'
-        assert game.play_card.call_count == 0
+
+    assert 'wrong_square' in str(e)
+    assert game.play_card.call_count == 0
 
 
 def test_play_card(api, game):
