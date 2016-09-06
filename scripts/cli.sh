@@ -32,7 +32,7 @@ source ./scripts/cli-conf.sh 2> /dev/null || echo "No user configuration file fo
 
 # Values that don't change neither per user nor per type
 API_GIT_URL="https://bitbucket.org/arenaoftitans/arena-of-titans-api.git"
-API_RETRIES_TIME=1
+API_RETRIES_TIME=3
 INTLJS_POLYFILL="node_modules/intl/dist/Intl.js"
 MAX_API_RETRIES=5
 
