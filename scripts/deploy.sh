@@ -92,6 +92,7 @@ deploy-api() {
         export MAX_API_RETRIES=\"${MAX_API_RETRIES}\" && \
         export REDIS_CONF_DIR=\"${REDIS_CONF_DIR}\" && \
         export REDIS_USER=\"${REDIS_USER}\" && \
+        export REDIS_SOCKET_DIR=\"${REDIS_SOCKET_DIR}\" && \
         export REDIS_WORKING_DIR=\"${REDIS_WORKING_DIR}\" && \
         export UWSGI_DEPLOY_FOLDER=\"${UWSGI_DEPLOY_FOLDER}\" && \
         export UWSGI_GROUP=\"${UWSGI_GROUP}\" && \
@@ -146,6 +147,10 @@ deploy-api-server() {
 
     echo -e "\tWaiting for API to start"
     wait-api-to-start "${type}" "${version}"
+    if [[ ! -S "${REDIS_SOCKET_DIR}/aot-api-${type}-${version}.sock" ]]; then
+        echo "Redis failed to start" >&2
+        exit 1
+    fi
 }
 
 
