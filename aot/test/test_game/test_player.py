@@ -198,12 +198,12 @@ def test_pass(player):
     player.deck.init_turn = MagicMock()
     player.init_turn()
     assert player.can_play
-    assert player._number_turn_passed_not_connected == 0
+    assert player._number_turns_passed_not_connected == 0
     player.pass_turn()
 
     player.deck.init_turn.assert_called_once_with()
     assert not player.can_play
-    assert player._number_turn_passed_not_connected == 0
+    assert player._number_turns_passed_not_connected == 0
 
 
 def test_pass_not_connected(player):
@@ -211,25 +211,25 @@ def test_pass_not_connected(player):
     player.deck.init_turn = MagicMock()
     player.init_turn()
     assert player.can_play
-    assert player._number_turn_passed_not_connected == 0
+    assert player._number_turns_passed_not_connected == 0
     player.pass_turn()
 
     player.deck.init_turn.assert_called_once_with()
-    assert player._number_turn_passed_not_connected == 1
+    assert player._number_turns_passed_not_connected == 1
 
 
 def test_expect_reconnect(player):
     assert player.expect_reconnect
-    player._number_turn_passed_not_connected = Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT + 1
+    player._number_turns_passed_not_connected = Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT + 1
     assert not player.expect_reconnect
 
 
 def test_reconnect(player):
-    player._number_turn_passed_not_connected = 2
+    player._number_turns_passed_not_connected = 2
     player.is_connected = False
-    assert player._number_turn_passed_not_connected == 2
+    assert player._number_turns_passed_not_connected == 2
     player.is_connected = True
-    assert player._number_turn_passed_not_connected == 0
+    assert player._number_turns_passed_not_connected == 0
 
 
 def test_discard(player):
@@ -353,7 +353,7 @@ def test_still_in_game_player_not_connected_may_come_back(player):
 
 def test_still_in_game_player_not_connected_wont_come_back(player):
     player.is_connected = False
-    player._number_turn_passed_not_connected = float('inf')
+    player._number_turns_passed_not_connected = float('inf')
     assert not player.still_in_game
 
 

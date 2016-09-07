@@ -233,7 +233,7 @@ def test_has_enough_players_to_continue(game):
     game.players[1]._has_won = True
     for player in game.players[2:]:
         player.is_connected = False
-        player._number_turn_passed_not_connected = float('inf')
+        player._number_turns_passed_not_connected = float('inf')
 
     assert not game._has_enough_players_to_continue()
 
