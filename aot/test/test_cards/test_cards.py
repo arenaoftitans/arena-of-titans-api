@@ -382,6 +382,20 @@ def test_knight_circle(board):
     assert card.move(board[4, 1]) == set([
         Square(6, 2, 'red'),
         Square(2, 2, 'red'),
+        Square(3, 3, 'red'),
+    ])
+
+
+def test_knight_circle_to_arm(board):
+    card_properties = deepcopy(CARD_DICT)
+    card_properties['movements_types'].append('knight')
+    card_properties['color'] = 'black'
+
+    card = Card(board, **card_properties)
+    assert card.move(board[3, 2]) == set([
+        Square(2, 0, 'black'),
+        Square(4, 0, 'black'),
+        Square(4, 4, 'black'),
     ])
 
 

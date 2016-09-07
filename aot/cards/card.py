@@ -118,12 +118,19 @@ class Card:
         return possible_squares
 
     def __knight_get_vertical_squares(self, origin):
+        probable_squares = self.__knight_get_vertical_squares_vertical_first(origin)
+        probable_squares.update(self.__knight_get_vertical_squares_horizontal_first(origin))
+
+        return [square for square in probable_squares
+                if square.color in self._colors and not square.occupied]
+
+    def __knight_get_vertical_squares_vertical_first(self, origin):
+        probable_squares = set()
         temporary_vertical_squares = set([
             self._board[origin.x, origin.y + 2],
             self._board[origin.x, origin.y - 2],
         ])
 
-        probable_squares = set()
         for square in temporary_vertical_squares:
             # Squares in temporary_vertical_squares are added by board[] so they
             # can be None.
@@ -136,8 +143,25 @@ class Card:
             if left_square:
                 probable_squares.add(left_square)
 
-        return [square for square in probable_squares
-                if square.color in self._colors and not square.occupied]
+        return probable_squares
+
+    def __knight_get_vertical_squares_horizontal_first(self, origin):
+        probable_squares = set()
+        temporary_horizontal_squares = set([
+            self._board[origin.x + 1, origin.y, 'right'],
+            self._board[origin.x - 1, origin.y, 'left'],
+        ])
+
+        for square in temporary_horizontal_squares:
+            if square:
+                upper_square = self._board[square.x, square.y + 2]
+                lower_square = self._board[square.x, square.y - 2]
+                if upper_square:
+                    probable_squares.add(upper_square)
+                if lower_square:
+                    probable_squares.add(lower_square)
+
+        return probable_squares
 
     def __knigt_get_horizontal_square(self, origin):
         probable_squares = set()

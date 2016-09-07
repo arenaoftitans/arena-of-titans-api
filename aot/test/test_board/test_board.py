@@ -37,6 +37,7 @@ def test_get_wrong_squares(board):
     assert board[None, None, None] is None
     assert board[None, 0] is None
     assert board[0, None] is None
+    assert board[200, 200] is None
 
 
 def test_square_coords(board):
