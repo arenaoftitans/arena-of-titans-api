@@ -207,6 +207,7 @@ class Api(AotWs):
                 player['is_ai'] = slots[index]['state'] == 'AI'
 
         game = get_game(players_description, test=self._cache.is_test())
+        game.game_id = self._game_id
         game.is_debug = self._message.get('debug', False) and \
             config['api'].get('allow_debug', False)
         for player in game.players:
@@ -260,6 +261,7 @@ class Api(AotWs):
                 raise AotErrorToDisplay('not_your_turn')
 
     def _play_ai_after_timeout(self):
+        logging.debug('Game n°{game_id}: schedule play for AI'.format(game_id=self._game_id))
         self._pending_ai.add(self._game_id)
         self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
 

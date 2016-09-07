@@ -19,6 +19,7 @@
 
 import asyncio
 import json
+import logging
 
 from abc import abstractmethod
 from aot.api.api_cache import ApiCache
@@ -98,6 +99,10 @@ class AotWs(WebSocketServerProtocol):
         self._cache = ApiCache()
 
     def onClose(self, wasClean, code, reason):
+        msg = 'WS n°{id} was closed cleanly? {wasClean} with code {code} and reason {reason}'\
+            .format(id=self.id, wasClean=wasClean, code=code, reason=reason)
+        logging.info(msg)
+
         if self._cache is not None:
             self._disconnect_timeouts[self.id] = self._loop.call_later(
                 self.DISCONNECTED_TIMEOUT_WAIT,
@@ -121,6 +126,12 @@ class AotWs(WebSocketServerProtocol):
         slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
         if slots:
             slot = slots[0]
+            logging.debug('Game n°{game_id}: slot for player n°{id} ({name}) was freed'
+                          .format(
+                              game_id=self._game_id,
+                              id=self.id,
+                              name=slot.get('player_name', None)
+                          ))
             self._message = {
                 'rt': RequestTypes.SLOT_UPDATED,
                 'slot': {
@@ -134,6 +145,9 @@ class AotWs(WebSocketServerProtocol):
         with self._load_game() as game:
             if game:
                 player = game.get_player_by_id(self.id)
+                logging.debug('Game n°{game_id}: player n°{id} ({name}) was disconnected from '
+                              'the game'
+                              .format(game_id=self._game_id, id=self.id, name=player.name))
                 if not game.is_over and player == game.active_player:
                     player.is_connected = False
                     game.pass_turn()
@@ -168,6 +182,8 @@ class AotWs(WebSocketServerProtocol):
         self._clients[self.id] = self
 
         if self.id in self._disconnect_timeouts:
+            logging.debug('Game n°{game_id}: cancel disconnect timeout for {id}'
+                          .format(game_id=self._game_id, id=self.id))
             self._disconnect_timeouts[self.id].cancel()
 
         message = None
@@ -198,6 +214,8 @@ class AotWs(WebSocketServerProtocol):
 
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player and player.id == self.id][0]
+        logging.debug('Game n°{game_id}: player n°{id} ({name}) was reconnected to the game'
+                      .format(game_id=self._game_id, id=self.id, name=player.name))
         message = self._get_play_message(player, game)
 
         last_action = self._get_action_message(game.last_action)

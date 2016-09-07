@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from aot.board import Square
 from aot.utils import get_time
 
@@ -61,6 +63,7 @@ class Player:
     _available_trumps = None
     _board = None
     _can_play = False
+    _game_id = None
     _is_connected = False
     _current_square = None
     _deck = None
@@ -74,7 +77,7 @@ class Player:
     _name = ''
     _number_moves_to_play = 2
     _number_trumps_played = 0
-    _number_turn_passed_not_connected = 0
+    _number_turns_passed_not_connected = 0
     _rank = -1
     _turn_start_time = 0
 
@@ -98,7 +101,7 @@ class Player:
         self._has_won = False
         self._history = []
         self._number_moves_played = 0
-        self._number_turn_passed_not_connected = 0
+        self._number_turns_passed_not_connected = 0
         self._rank = -1
 
     def _generate_aim(self, board):
@@ -173,8 +176,18 @@ class Player:
         self._complete_action()
 
     def pass_turn(self):
-        if not self.is_connected:
-            self._number_turn_passed_not_connected += 1
+        if not self.is_connected and not self.is_ai:
+            self._number_turns_passed_not_connected += 1
+            logging.debug('Game n°{game_id}: player n°{id} ({name}) pass his/her turn '
+                          'automatically (disconnected). {nb_passed}/{max_pass} before exclusion '
+                          'from the game.'
+                          .format(
+                              game_id=self.game_id,
+                              id=self.id,
+                              name=self.name,
+                              nb_passed=self._number_turns_passed_not_connected,
+                              max_pass=self.MAX_NUMBER_TURN_EXPECTING_RECONNECT
+                          ))
 
         self.last_action = LastAction(
             description='passed_turn',
@@ -313,7 +326,15 @@ class Player:
 
     @property
     def expect_reconnect(self):
-        return self._number_turn_passed_not_connected <= self.MAX_NUMBER_TURN_EXPECTING_RECONNECT
+        return self._number_turns_passed_not_connected <= self.MAX_NUMBER_TURN_EXPECTING_RECONNECT
+
+    @property
+    def game_id(self):
+        return self._game_id
+
+    @game_id.setter
+    def game_id(self, value):
+        self._game_id = value
 
     @property
     def hand(self):
@@ -346,7 +367,7 @@ class Player:
     @is_connected.setter
     def is_connected(self, value):
         if value:
-            self._number_turn_passed_not_connected = 0
+            self._number_turns_passed_not_connected = 0
         self._is_connected = value
 
     @property

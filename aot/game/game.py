@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 
 from aot.game.ai import (
     find_cheapest_card,
@@ -28,6 +29,7 @@ class Game:
     _actions = None
     _active_player = None
     _board = None
+    _game_id = None
     _is_debug = False
     _is_over = False
     _next_rank_available = 1
@@ -90,6 +92,10 @@ class Game:
                     remaining_ai.add(player)
                 else:
                     remaining_humain_players.add(player)
+            elif player is not None and not player.is_ai:
+                logging.debug('Game n°{game_id}: player n°{id} ({name}) has been disconnected '
+                              'too long. Remove from remaining players'
+                              .format(game_id=self.game_id, id=player.id, name=player.name))
         remaining_players = remaining_ai.union(remaining_humain_players)
 
         if len(remaining_humain_players) == 1 and len(remaining_ai) == 0:
@@ -179,6 +185,20 @@ class Game:
     @property
     def active_player(self):
         return self._active_player
+
+    @property
+    def game_id(self):
+        return self._game_id
+
+    @game_id.setter
+    def game_id(self, value):
+        if self._game_id is not None:
+            logging.warn('Changing game id for game {id} to {new_id}'
+                         .format(id=self._game_id, new_id=value))
+        self._game_id = value
+        for player in self.players:
+            if player:
+                player.game_id = value
 
     @property
     def is_debug(self):
