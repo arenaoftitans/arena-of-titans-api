@@ -21,14 +21,21 @@ collect-on-server() {
     local front_dir="${DEPLOY_BASE_DIR}/${type}/front"
     local versions_to_collect=()
     local latest
+    local redis_socket
 
     pushd "${front_dir}" > /dev/null
         latest=$(readlink -f latest)
         latest="${latest##*/}"
         for version in $(ls -1 | grep -v latest); do
-            keys=$(redis-cli -s "${REDIS_SOCKET_DIR}/aot-api-${type}-${version}.sock" keys \*)
-            if [[ -z "${keys}" && "${version}" != "${latest}" ]]; then
+            # If redis failed to deploy, the socket won't exist but we need to collect the version anyway
+            redis_socket="${REDIS_SOCKET_DIR}/aot-api-${type}-${version}.sock"
+            if [[ ! -S "${redis_socket}" ]]; then
                 versions_to_collect+=("${version}")
+	    else
+                keys=$(redis-cli -s "${redis_socket}" keys \*)
+                if [[ -z "${keys}" && "${version}" != "${latest}" ]]; then
+                    versions_to_collect+=("${version}")
+                fi
             fi
         done
     popd > /dev/null
@@ -65,12 +72,12 @@ _collect-api-on-server() {
         for version in "${versions_to_collect[@]}"; do
             echo "Collecting api for ${version}"
             echo -e "\tDisable uwsgi"
-            sudo rm "${UWSGI_DEPLOY_FOLDER}/aot-api-${version}.ini"
+            sudo rm -f "${UWSGI_DEPLOY_FOLDER}/aot-api-${version}.ini"
 
             echo -e "\tDisable redis"
             sudo systemctl disable "redis@${type}-${version}"
             sudo systemctl stop "redis@${type}-${version}"
-            sudo rm "${REDIS_CONF_DIR}/aot-api-${type}-${version}.conf"
+            sudo rm -f "${REDIS_CONF_DIR}/aot-api-${type}-${version}.conf"
             sudo rm -rf "${REDIS_WORKING_DIR}/${type}-${version}"
 
             echo -e "\tDelete API files"

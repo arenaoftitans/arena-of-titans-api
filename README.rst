@@ -244,10 +244,10 @@ Your ``/etc/sudoers`` file must contain the entry below (remplace *testing* by t
     aot ALL=(root) NOPASSWD: /usr/bin/systemctl enable redis@*
 
     # Collect
-    aot ALL=(root) NOPASSWD: /usr/bin/rm /etc/uwsgi.d/aot-api*.ini
+    aot ALL=(root) NOPASSWD: /usr/bin/rm -f /etc/uwsgi.d/aot-api*.ini
     aot ALL=(root) NOPASSWD: /usr/bin/systemctl disable redis@*
     aot ALL=(root) NOPASSWD: /usr/bin/systemctl stop redis@*
-    aot ALL=(root) NOPASSWD: /usr/bin/rm /etc/redis.d/aot-api-*.conf
+    aot ALL=(root) NOPASSWD: /usr/bin/rm -f /etc/redis.d/aot-api-*.conf
     aot ALL=(root) NOPASSWD: /usr/bin/rm -rf /var/lib/redis/testing*
 
 You need to create the folder that will contain the configurations for redis instances: ``/etc/redis.d``. Give it to ``redis:root``.
