@@ -192,7 +192,7 @@ class Game:
 
     @game_id.setter
     def game_id(self, value):
-        if self._game_id is not None:
+        if self._game_id is not None:  # pragma: no cover
             logging.warn('Changing game id for game {id} to {new_id}'
                          .format(id=self._game_id, new_id=value))
         self._game_id = value

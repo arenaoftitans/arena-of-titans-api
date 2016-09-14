@@ -81,7 +81,7 @@ class AotWs(WebSocketServerProtocol):
         pass
 
     @abstractmethod
-    def _play_ai_after_timeout(self):  # pragma: no cover
+    def _play_ai_after_timeout(self, game):  # pragma: no cover
         pass
 
     def sendMessage(self, message):  # pragma: no cover
@@ -153,7 +153,7 @@ class AotWs(WebSocketServerProtocol):
                     game.pass_turn()
                     self._send_play_message(game, player)
                     if game.active_player.is_ai:
-                        self._play_ai_after_timeout()
+                        self._play_ai_after_timeout(game)
                 else:
                     self._append_to_clients_pending_disconnection()
                     self._must_save_game = False
@@ -203,7 +203,7 @@ class AotWs(WebSocketServerProtocol):
                 self._append_to_clients_pending_reconnection()
                 message = self._reconnect_to_game(game)
                 if game.active_player.is_ai and self._game_id not in self._pending_ai:
-                    self._play_ai_after_timeout()
+                    self._play_ai_after_timeout(game)
 
         if message:
             self.sendMessage(message)

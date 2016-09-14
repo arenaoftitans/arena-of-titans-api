@@ -118,7 +118,7 @@ def test_onClose_just_before_ai(api, game):
     api._cache.get_game.assert_called_once_with()
     api._send_play_message.assert_called_once_with(game, player)
     api._save_game.assert_called_once_with(game)
-    api._play_ai_after_timeout.assert_called_once_with()
+    api._play_ai_after_timeout.assert_called_once_with(game)
 
     game.get_player_by_id.assert_called_once_with(player.id)
     game.pass_turn.assert_called_once_with()
@@ -260,7 +260,7 @@ def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(game)
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
-    api._play_ai_after_timeout.assert_called_once_with()
+    api._play_ai_after_timeout.assert_called_once_with(game)
     assert api._save_game.call_count == 0
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
