@@ -114,7 +114,6 @@ class Api(AotWs):
     def _get_initialiazed_game_message(self, index):  # pragma: no cover
         initiliazed_game = {
             'rt': RequestTypes.GAME_INITIALIZED,
-            'is_game_master': False,
             'game_id': self._game_id,
             'player_id': self.id,
             'is_game_master': self._cache.is_game_master(),
