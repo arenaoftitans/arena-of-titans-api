@@ -45,7 +45,7 @@ deploy-front() {
         scp "${INTLJS_POLYFILL}" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
 
         # Reset index.html
-        git checkout index.html
+        git checkout -q index.html
     popd > /dev/null
 }
 
@@ -60,7 +60,7 @@ release() {
 
     if [[ "${type}" == "prod" ]]; then
         git tag "${version}"
-        git push --tags
+        git push -q --tags
     fi
 }
 
@@ -122,16 +122,16 @@ deploy-api-server() {
         fi
 
         # Build config
-        make config type="${type}" version="${version}"
-        make static type="${type}" version="${version}"
+        make config type="${type}" version="${version}" > /dev/null
+        make static type="${type}" version="${version}" > /dev/null
 
         # Setup redis
         sudo cp "redis.conf" "${REDIS_CONF_DIR}/${redis_cgf_file}"
         sudo chown "root:${REDIS_USER}" "${REDIS_CONF_DIR}/${redis_cgf_file}"
         sudo mkdir -p "${REDIS_WORKING_DIR}/${type}-${version}/"
         sudo chown -R "${REDIS_USER}:${REDIS_USER}" "${REDIS_WORKING_DIR}/"
-        sudo systemctl start "redis@${type}-${version}"
-        sudo systemctl enable "redis@${type}-${version}"
+        sudo systemctl -q start "redis@${type}-${version}"
+        sudo systemctl -q enable "redis@${type}-${version}"
 
         # Setup uwsgi
         uwsgi_file="$(pwd)/${uwsgi_file}"

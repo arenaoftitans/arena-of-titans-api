@@ -31,7 +31,7 @@ collect-on-server() {
             redis_socket="${REDIS_SOCKET_DIR}/aot-api-${type}-${version}.sock"
             if [[ ! -S "${redis_socket}" ]]; then
                 versions_to_collect+=("${version}")
-	    else
+            else
                 keys=$(redis-cli -s "${redis_socket}" keys \*)
                 if [[ -z "${keys}" && "${version}" != "${latest}" ]]; then
                     versions_to_collect+=("${version}")
@@ -75,8 +75,8 @@ _collect-api-on-server() {
             sudo rm -f "${UWSGI_DEPLOY_FOLDER}/aot-api-${version}.ini"
 
             echo -e "\tDisable redis"
-            sudo systemctl disable "redis@${type}-${version}"
-            sudo systemctl stop "redis@${type}-${version}"
+            sudo systemctl -q disable "redis@${type}-${version}"
+            sudo systemctl -q stop "redis@${type}-${version}"
             sudo rm -f "${REDIS_CONF_DIR}/aot-api-${type}-${version}.conf"
             sudo rm -rf "${REDIS_WORKING_DIR}/${type}-${version}"
 

@@ -240,13 +240,13 @@ Your ``/etc/sudoers`` file must contain the entry below (remplace *testing* by t
     aot ALL=(root) NOPASSWD: /usr/bin/chown root\:redis /etc/redis.d/*
     aot ALL=(root) NOPASSWD: /usr/bin/mkdir -p /var/lib/redis/*
     aot ALL=(root) NOPASSWD: /usr/bin/chown -R redis\:redis /var/lib/redis/
-    aot ALL=(root) NOPASSWD: /usr/bin/systemctl start redis@*
-    aot ALL=(root) NOPASSWD: /usr/bin/systemctl enable redis@*
+    aot ALL=(root) NOPASSWD: /usr/bin/systemctl -q start redis@*
+    aot ALL=(root) NOPASSWD: /usr/bin/systemctl -q enable redis@*
 
     # Collect
     aot ALL=(root) NOPASSWD: /usr/bin/rm -f /etc/uwsgi.d/aot-api*.ini
-    aot ALL=(root) NOPASSWD: /usr/bin/systemctl disable redis@*
-    aot ALL=(root) NOPASSWD: /usr/bin/systemctl stop redis@*
+    aot ALL=(root) NOPASSWD: /usr/bin/systemctl -q disable redis@*
+    aot ALL=(root) NOPASSWD: /usr/bin/systemctl -q stop redis@*
     aot ALL=(root) NOPASSWD: /usr/bin/rm -f /etc/redis.d/aot-api-*.conf
     aot ALL=(root) NOPASSWD: /usr/bin/rm -rf /var/lib/redis/testing*
 
