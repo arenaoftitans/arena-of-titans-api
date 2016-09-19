@@ -34,6 +34,7 @@ source ./scripts/cli-conf.sh 2> /dev/null || echo "No user configuration file fo
 API_GIT_URL="https://bitbucket.org/arenaoftitans/arena-of-titans-api.git"
 API_RETRIES_TIME=3
 INTLJS_POLYFILL="node_modules/intl/dist/Intl.js"
+TRACKING_SCRIPT="scripts/tracking.js"
 MAX_API_RETRIES=5
 
 # Global variables whose value is set in main.

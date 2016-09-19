@@ -42,7 +42,7 @@ deploy-front() {
 
         # Sync with server
         rsync -a --delete --info=progress2 --exclude="*.map" "index.html" "assets" "dist" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
-        scp "${INTLJS_POLYFILL}" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
+        scp "${INTLJS_POLYFILL}" "${TRACKING_SCRIPT}" "${DEPLOY_USER}@${DEPLOY_HOST}:${front_dir}"
 
         # Reset index.html
         git checkout -q index.html
