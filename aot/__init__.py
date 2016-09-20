@@ -90,6 +90,7 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
     name = card_description['name']
     description = card_description['description']
     cost = card_description['cost']
+    special_actions = _get_special_actions(card_description.get('special_actions', []))
     additional_movements_color = card_description\
         .get('additional_movements_colors', [])
     complementary_colors = card_description\
@@ -109,10 +110,19 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
                 name=name,
                 description=description,
                 movements_types=movements_types,
-                cost=cost
+                cost=cost,
+                special_actions=special_actions,
             )
             cards.append(card)
     return cards
+
+
+def _get_special_actions(description):
+    actions = TrumpList()
+    for action_description in description:
+        actions.extend(_get_trumps(action_description))
+
+    return actions
 
 
 def _get_additionnal_colors(color,
@@ -130,33 +140,40 @@ def get_trumps_list(board_name='standard', test=False):
     trumps_descriptions = get_trumps_descriptions(name=board_name)
     trumps = TrumpList()
     for raw_trump_description in trumps_descriptions:
-        trump_description = copy.deepcopy(raw_trump_description)
-        repeat_for_each_color = trump_description['repeat_for_each_color']
-        del trump_description['repeat_for_each_color']
-        trump_type = trump_description['parameters']['type']
-        del trump_description['parameters']['type']
-        trump_description.update(trump_description['parameters'])
-        del trump_description['parameters']
-        if repeat_for_each_color:
-            for color in Color:
-                color_trump_description = copy.deepcopy(trump_description)
-                if color == Color.ALL:
-                    continue
-                trump_name = color_trump_description['name']
-                trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
-                color_trump_description['name'] = trump_name
-                color_trump_description['color'] = color
-                color_trump_description = copy.deepcopy(color_trump_description)
-                trumps.append(
-                    SimpleTrump(type=trump_type, name=trump_name, args=color_trump_description))
-        else:
-            trump_name = trump_description['name']
-            trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
+        trumps.extend(_get_trumps(raw_trump_description))
 
     # Return 4 trumps at random among all the possible ones
     if not test:
         random.shuffle(trumps)
     return trumps[1:]
+
+
+def _get_trumps(description):
+    trumps = []
+    trump_description = copy.deepcopy(description)
+    repeat_for_each_color = trump_description['repeat_for_each_color']
+    del trump_description['repeat_for_each_color']
+    trump_type = trump_description['parameters']['type']
+    del trump_description['parameters']['type']
+    trump_description.update(trump_description['parameters'])
+    del trump_description['parameters']
+    if repeat_for_each_color:
+        for color in Color:
+            color_trump_description = copy.deepcopy(trump_description)
+            if color == Color.ALL:
+                continue
+            trump_name = color_trump_description['name']
+            trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
+            color_trump_description['name'] = trump_name
+            color_trump_description['color'] = color
+            color_trump_description = copy.deepcopy(color_trump_description)
+            trumps.append(
+                SimpleTrump(type=trump_type, name=trump_name, args=color_trump_description))
+    else:
+        trump_name = trump_description['name']
+        trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
+
+    return trumps
 
 
 def get_trumps_descriptions(name='standard'):
