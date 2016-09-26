@@ -21,6 +21,7 @@ from aot.board import Color
 from aot.cards.trumps import (
     ModifyNumberMoves,
     RemoveColor,
+    Teleport,
 )
 # fixtures, ignore the unsued import warnig
 from aot.test import (
@@ -63,6 +64,55 @@ def test_remove_multiple_colors(player):
     trump.affect(player)
     assert player.deck.remove_color_from_possible_colors.called
     assert player.deck.remove_color_from_possible_colors.call_count == len(colors)
+
+
+def test_teleport_no_target_square(board, player):
+    player.move = MagicMock()
+    trump = Teleport(distance=1)
+
+    trump.affect(player)
+
+    assert not player.move.called
+
+
+def test_teleport_wrong_distance(board, player):
+    player.move = MagicMock()
+    trump = Teleport(distance=1)
+    square = board[5, 8]
+
+    trump.affect(player, square=square)
+
+    assert not player.move.called
+
+
+def test_teleport_wrong_color(board, player):
+    player.move = MagicMock()
+    trump = Teleport(distance=1, color='blue')
+    square = board[0, 7]
+
+    trump.affect(player, square=square)
+
+    assert not player.move.called
+
+
+def test_teleport(board, player):
+    square = None
+    player.move = MagicMock()
+    trump = Teleport(distance=1)
+    square = board[0, 7]
+
+    trump.affect(player, square=square)
+
+    player.move.assert_called_once_with(square)
+
+
+def test_teleport_view_possible_squares(player):
+    trump = Teleport(distance=1)
+    trump._card = MagicMock()
+
+    trump.view_possible_squares(player)
+
+    trump._card.move.assert_called_once_with(player.current_square)
 
 
 def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):

@@ -18,8 +18,8 @@
           "repeat_for_each_color": false,
           "must_target_player": true,
           "parameters": {
-            "type": "ModifyNumberMoves",
-            "delta_moves": 1
+            "type": "Teleport",
+            "distance": 1
            }
         }]
       },

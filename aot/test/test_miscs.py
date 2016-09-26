@@ -32,9 +32,9 @@ def test_bishop():
             assert len(card._special_actions) == 1
             action = card._special_actions[0]
             assert action.name == 'Assassination'
-            assert action.type == 'ModifyNumberMoves'
+            assert action.type == 'Teleport'
             assert action.args['must_target_player']
-            assert action.args['delta_moves'] == 1
+            assert action.args['distance'] == 1
 
 
 def test_access_unitialized_config():

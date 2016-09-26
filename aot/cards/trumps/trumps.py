@@ -17,7 +17,14 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board import Color
+import aot
+
+from aot.board import (
+    all_colors,
+    Color,
+)
+from aot.cards import Card
+from copy import deepcopy
 
 
 class Trump:
@@ -39,6 +46,20 @@ class Trump:
         self._duration = duration
         self._must_target_player = must_target_player
         self._name = name
+
+    def _set_colors(self, color, colors):
+        self._colors = set()
+        if colors is not None:
+            for color in colors:
+                self._add_color(color)
+        if color is not None:
+            self._add_color(color)
+
+    def _add_color(self, color):
+        if isinstance(color, str):  # pragma: no cover
+            self._colors.add(Color[color])
+        else:  # pragma: no cover
+            self._colors.add(color)
 
     def consume(self):
         self._duration -= 1
@@ -127,19 +148,59 @@ class RemoveColor(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name)
-        self._colors = set()
-        if colors is not None:
-            for color in colors:
-                self._add_color(color)
-        if color is not None:
-            self._add_color(color)
-
-    def _add_color(self, color):
-        if isinstance(color, str):  # pragma: no cover
-            self._colors.add(Color[color])
-        else:  # pragma: no cover
-            self._colors.add(color)
+        self._set_colors(color, colors)
 
     def affect(self, player):
         for color in self._colors:
             player.deck.remove_color_from_possible_colors(color)
+
+
+class Teleport(Trump):
+    # Class variables
+    _board = None
+
+    # Instance variables
+    _distance = 0
+    _colors = None
+
+    def __init__(
+            self,
+            distance=0,
+            color=None,
+            colors=None,
+            cost=10,
+            description='',
+            duration=0,
+            name='',
+            must_target_player=False):
+        super().__init__(
+            cost=cost,
+            description=description,
+            duration=duration,
+            must_target_player=must_target_player,
+            name=name,
+        )
+        self._distance = distance
+        if color is None and colors is None:
+            self._colors = deepcopy(all_colors)
+        else:
+            self._set_colors(color, colors)
+        # We use a card to get the list of possible squares for teleportation.
+        if Teleport._board is None:
+            Teleport._board = aot.get_board()
+        self._card = Card(
+            self._board,
+            color=next(iter(self._colors)),
+            complementary_colors=self._colors,
+            name='Teleportation',
+            movements_types=['line', 'diagonal'],
+            number_movements=distance,
+        )
+
+    def affect(self, player, square=None):
+        origin_square = player.current_square
+        if player and square and square in self._card.move(origin_square):
+            player.move(square)
+
+    def view_possible_squares(self, player):
+        return self._card.move(player.current_square)

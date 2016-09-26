@@ -22,6 +22,7 @@ from aot.board.board import (
     get_colors_disposition
 )
 from aot.board.color import (
+    all_colors,
     Color,
     ColorSet
 )
@@ -29,4 +30,12 @@ from aot.board.square import Square
 from aot.board.svg import SvgBoardCreator
 
 
-__all__ = ['Board', 'Color', 'ColorSet', 'get_colors_disposition', 'Square', 'SvgBoardCreator']
+__all__ = [
+    'all_colors',
+    'Board',
+    'Color',
+    'ColorSet',
+    'get_colors_disposition',
+    'Square',
+    'SvgBoardCreator',
+]

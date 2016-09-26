@@ -22,7 +22,8 @@ from collections import namedtuple
 from aot.cards.trumps.trumps import (
     ModifyNumberMoves,
     Trump,
-    RemoveColor
+    RemoveColor,
+    Teleport,
 )
 
 
@@ -52,4 +53,4 @@ class TrumpList(list):
             return TrumpList(trumps=super().__getitem__(key))
 
 
-__all__ = ['ModifyNumberMoves', 'RemoveColor', 'SimpleTrump', 'Trump', 'TrumpList']
+__all__ = ['ModifyNumberMoves', 'RemoveColor', 'SimpleTrump', 'Teleport', 'Trump', 'TrumpList']
