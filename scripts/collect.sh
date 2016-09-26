@@ -42,7 +42,7 @@ collect-on-server() {
 
     # No versions to collect
     if [[ "${#versions_to_collect[@]}" == 0 ]]; then
-        echo "No version to collect." >&2
+        echo "No version to collect."
         exit 0
     fi
 
