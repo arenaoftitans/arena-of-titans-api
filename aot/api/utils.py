@@ -40,6 +40,7 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     CREATE_GAME = ()
     GAME_INITIALIZED = ()
     SLOT_UPDATED = ()
+    SPECIAL_ACTION_NOTIFY = ()
     PLAY = ()
     VIEW_POSSIBLE_SQUARES = ()
     PLAY_TRUMP = ()

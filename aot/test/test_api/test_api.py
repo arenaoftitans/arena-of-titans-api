@@ -23,6 +23,7 @@ from aot import get_game
 from aot.api.utils import (
     AotError,
     AotErrorToDisplay,
+    RequestTypes,
 )
 from aot.api.utils import RequestTypes
 from aot.game import Player
@@ -391,3 +392,14 @@ def test_reconnect_pending_players(api, game):
     assert len(api._clients_pending_reconnection['game_id']) == 0
     assert game.players[0].is_connected
     assert game.players[1].is_connected
+
+
+def test_notify_special_actions(api, game):
+    api._send_all = MagicMock()
+
+    api._notify_special_action('action')
+
+    api._send_all.assert_called_once_with({
+        'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
+        'action': 'action',
+    })

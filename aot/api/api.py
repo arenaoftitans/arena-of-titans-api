@@ -351,6 +351,7 @@ class Api(AotWs):
 
     def _play(self, game, play_request):
         this_player = game.active_player
+        has_special_actions = False
         if play_request.get('pass', False):
             game.pass_turn()
         elif play_request.get('discard', False):
@@ -365,9 +366,11 @@ class Api(AotWs):
                 raise AotErrorToDisplay('wrong_card')
             elif square is None or not game.can_move(card, square):
                 raise AotErrorToDisplay('wrong_square')
-            game.play_card(card, square)
+            has_special_actions = game.play_card(card, square)
 
         self._send_play_message(game, this_player)
+        if has_special_actions:
+            self._notify_special_action(game.active_player.name_next_special_action)
 
     def _get_square(self, play_request, game):
         x = play_request.get('x', None)
@@ -429,6 +432,12 @@ class Api(AotWs):
                 'player_name': game_player.name,
                 'trumps': game_player.affecting_trumps
                 } if game_player else None for game_player in game.players]
+
+    def _notify_special_action(self, special_actions_names):
+        self._send_all({
+            'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
+            'action': special_actions_names,
+        })
 
     def _play_trump(self, game, play_request):
         trump = self._get_trump(game, play_request.get('name', ''))
