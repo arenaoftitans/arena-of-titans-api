@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot.game import Player
 from aot.cards.trumps import (
     SimpleTrump,
@@ -295,8 +297,10 @@ def test_modify_number_moves(player):
 
 
 def test_get_trump(player):
-    assert player.get_trump(None) is None
-    assert player.get_trump('wrong_trump') is None
+    with pytest.raises(IndexError):
+        assert player.get_trump(None)
+    with pytest.raises(IndexError):
+        assert player.get_trump('wrong_trump') is None
     assert isinstance(player.get_trump('Reinforcements'), Trump)
 
 

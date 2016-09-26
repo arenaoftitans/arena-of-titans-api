@@ -47,6 +47,7 @@ class TrumpList(list):
             for trump in self:
                 if trump.name == key:
                     return trump_type_to_class[trump.type](**trump.args)
+            raise IndexError
         elif isinstance(key, int):
             return super().__getitem__(key)
         elif isinstance(key, slice):

@@ -440,11 +440,13 @@ class Api(AotWs):
         })
 
     def _play_trump(self, game, play_request):
-        trump = self._get_trump(game, play_request.get('name', ''))
-        targeted_player_index = play_request.get('target_index', None)
-        if trump is None:
+        try:
+            trump = self._get_trump(game, play_request.get('name', ''))
+        except IndexError:
             raise AotError('wrong_trump')
-        elif trump.must_target_player and targeted_player_index is None:
+
+        targeted_player_index = play_request.get('target_index', None)
+        if trump.must_target_player and targeted_player_index is None:
             raise AotError('missing_trump_target')
 
         if trump.must_target_player:
