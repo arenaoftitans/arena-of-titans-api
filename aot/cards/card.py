@@ -72,7 +72,7 @@ class Card:
         if special_actions:
             self._special_actions = special_actions
         else:
-            self._special_actions = []
+            self._special_actions = None
 
     def move(self, origin):
         number_movements_left = self._number_movements
@@ -230,6 +230,10 @@ class Card:
     @property
     def name(self):  # pragma: no cover
         return self._name
+
+    @property
+    def special_actions(self):
+        return self._special_actions
 
     def __str__(self):  # pragma: no cover
         return "Card(name={name}, color={color}, colors={colors})"\

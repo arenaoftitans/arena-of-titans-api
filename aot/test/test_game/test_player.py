@@ -18,7 +18,11 @@
 ################################################################################
 
 from aot.game import Player
-from aot.cards.trumps import Trump
+from aot.cards.trumps import (
+    SimpleTrump,
+    Trump,
+    TrumpList,
+)
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
@@ -163,7 +167,8 @@ def test_play_card(player):
     player.deck.init_turn = MagicMock()
     start_square = player.current_square
     card = player.deck.first_card_in_hand
-    player.play_card(card, (3, 1), check_move=False)
+
+    assert not player.play_card(card, (3, 1), check_move=False)
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
@@ -178,6 +183,27 @@ def test_play_card(player):
     assert player.deck.play.call_count == 2
     player.deck.play.assert_called_with(card)
     player.deck.init_turn.assert_called_once_with()
+
+
+def test_play_card_with_special_actions(player):
+    player.deck.play = MagicMock()
+    player.deck.init_turn = MagicMock()
+    start_square = player.current_square
+    card = player.deck.first_card_in_hand
+    card._special_actions = TrumpList()
+    card._special_actions.append(SimpleTrump(name='action', type=None, args=None))
+
+    assert player.play_card(card, (3, 1), check_move=False)
+
+    player.deck.play.assert_called_once_with(card)
+    end_square = player.current_square
+    assert not start_square.occupied
+    assert end_square.occupied
+    assert start_square.x != end_square.x and start_square.y != end_square.y
+    assert 3 == end_square.x
+    assert 1 == end_square.y
+    assert player._special_actions_names == ['action']
+    assert player._special_actions is card._special_actions
 
 
 def test_reach_aim(player):

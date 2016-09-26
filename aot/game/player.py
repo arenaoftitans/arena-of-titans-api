@@ -79,6 +79,8 @@ class Player:
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
     _rank = -1
+    _special_actions = None
+    _special_actions_names = None
     _turn_start_time = 0
 
     def __init__(self, name, id, index, board, deck, trumps=None, hero='', is_ai=False):
@@ -146,6 +148,13 @@ class Player:
         else:
             self.last_action = LastAction(description='problem')
         self._complete_action()
+
+        if card is not None and card.special_actions is not None:
+            self.special_actions = card.special_actions
+            return True
+        else:
+            self.special_actions = None
+            return False
 
     def _get_possible_squares(self, card, check_move):
         if card and check_move:
@@ -407,6 +416,21 @@ class Player:
     @property
     def rank(self):
         return self._rank
+
+    @property
+    def special_actions(self):
+        return self._special_actions
+
+    @special_actions.setter
+    def special_actions(self, actions):
+        if actions is not None:
+            self._special_actions_names = [action.name.lower() for action in actions]
+            self._special_actions = actions
+
+    @property
+    def name_next_special_action(self):
+        print(self._special_actions_names)
+        return self._special_actions_names.pop()
 
     @property
     def still_in_game(self):
