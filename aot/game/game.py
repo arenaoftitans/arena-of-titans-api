@@ -63,8 +63,11 @@ class Game:
         return self._active_player.view_possible_squares(card)
 
     def play_card(self, card, square, check_move=True):
-        self._active_player.play_card(card, square, check_move=check_move)
-        self._continue_game_if_enough_players()
+        has_special_actions = self._active_player.play_card(card, square, check_move=check_move)
+        if not has_special_actions:
+            self._continue_game_if_enough_players()
+
+        return has_special_actions
 
     def can_move(self, card, square):
         return self._active_player.can_move(card, square)

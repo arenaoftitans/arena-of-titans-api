@@ -39,8 +39,28 @@ def test_game_creation(player):
     player.init_turn.assert_called_once_with()
 
 
+def test_play_card_with_special_actions(game):
+    game._active_player.play_card = MagicMock(return_value=True)
+    game._continue_game_if_enough_players = MagicMock()
+
+    has_actions = game.play_card(None, None)
+
+    assert not game._continue_game_if_enough_players.called
+    assert has_actions
+
+
+def test_play_card_no_special_action(game):
+    game._active_player.play_card = MagicMock(return_value=False)
+    game._continue_game_if_enough_players = MagicMock()
+
+    has_actions = game.play_card(None, None)
+
+    assert game._continue_game_if_enough_players.called
+    assert not has_actions
+
+
 def test_game_one_player_left(game):
-    game.active_player.play_card = MagicMock()
+    game.active_player.play_card = MagicMock(return_value=None)
     for i in range(7):
         game.players[i] = None
     game.play_card(None, (0, 0), check_move=False)
