@@ -102,7 +102,7 @@ main() {
 
     local cmd="$1"
     local type="$2"
-    local version="$(date +"%s")"
+    local version="$(date '+%Y%m%d%H%M%S')"
 
     case "${type}" in
         'prod'|'staging'|'testing')
