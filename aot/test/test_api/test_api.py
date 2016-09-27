@@ -401,5 +401,5 @@ def test_notify_special_actions(api, game):
 
     api._send_all.assert_called_once_with({
         'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
-        'action': 'action',
+        'name': 'action',
     })

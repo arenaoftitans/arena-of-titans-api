@@ -442,10 +442,10 @@ class Api(AotWs):
                 'trumps': game_player.affecting_trumps
                 } if game_player else None for game_player in game.players]
 
-    def _notify_special_action(self, special_actions_names):
+    def _notify_special_action(self, special_actions_name):
         self._send_all({
             'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
-            'action': special_actions_names,
+            'name': special_actions_name,
         })
 
     def _view_possible_actions(self, game, play_request):
