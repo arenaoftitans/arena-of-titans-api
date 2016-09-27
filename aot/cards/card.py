@@ -71,6 +71,8 @@ class Card:
         self._cost = cost
         if special_actions:
             self._special_actions = special_actions
+            for action in self._special_actions:
+                action.args['color'] = self.color
         else:
             self._special_actions = None
 

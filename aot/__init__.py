@@ -90,7 +90,6 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
     name = card_description['name']
     description = card_description['description']
     cost = card_description['cost']
-    special_actions = _get_special_actions(card_description.get('special_actions', []))
     additional_movements_color = card_description\
         .get('additional_movements_colors', [])
     complementary_colors = card_description\
@@ -102,6 +101,7 @@ def _get_cards(board, card_description, colors, number_cards_per_color):
             additional_movements_color,
             complementary_colors)
         for _ in range(number_cards_per_color):
+            special_actions = _get_special_actions(card_description.get('special_actions', []))
             card = Card(
                 board,
                 number_movements=number_movements,
