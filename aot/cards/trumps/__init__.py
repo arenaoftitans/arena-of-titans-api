@@ -29,7 +29,8 @@ from aot.cards.trumps.trumps import (
 
 trump_type_to_class = {
     'ModifyNumberMoves': ModifyNumberMoves,
-    'RemoveColor': RemoveColor
+    'RemoveColor': RemoveColor,
+    'Teleport': Teleport,
 }
 
 SimpleTrump = namedtuple('SimpleTrump', 'type name args')

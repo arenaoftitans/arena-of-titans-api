@@ -349,3 +349,11 @@ def test_play_auto_no_card_found(game, mocker):
     assert find_cheapeast_card.call_count == 1
     find_cheapeast_card.assert_called_with(game.active_player.hand)
     game.discard.assert_called_once_with(game.active_player.hand[0])
+
+
+def test_complete_special_actions(game):
+    game._continue_game_if_enough_players = MagicMock()
+
+    game.complete_special_actions()
+
+    game._continue_game_if_enough_players.assert_called_once_with()

@@ -208,6 +208,44 @@ def test_play_card_with_special_actions(player):
     assert player._special_actions is card._special_actions
 
 
+def test_has_special_actions(player):
+    actions = TrumpList()
+    actions.append(SimpleTrump(name='action', type=None, args=None))
+    player.special_actions = actions
+
+    assert player.has_special_actions
+    assert player.name_next_special_action == 'action'
+    assert player.has_special_actions
+
+    player._special_actions_names.remove('action')
+    assert not player.has_special_actions
+
+
+def test_play_special_action(player):
+    action = MagicMock()
+    action.name = 'action'
+    target = MagicMock()
+    player._special_actions_names = {'action'}
+    kwargs = {'square': 'square-0-0'}
+
+    player.play_special_action(action, target=target, action_args=kwargs)
+
+    action.affect.assert_called_once_with(target, **kwargs)
+    assert not player.has_special_actions
+
+
+def test_play_special_action_no_args(player):
+    action = MagicMock()
+    action.name = 'action'
+    target = MagicMock()
+    player._special_actions_names = {'action'}
+
+    player.play_special_action(action, target=target)
+
+    action.affect.assert_called_once_with(target)
+    assert not player.has_special_actions
+
+
 def test_reach_aim(player):
     player._aim = {player.current_square}
     player._last_square_previous_turn = player.current_square

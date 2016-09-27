@@ -255,6 +255,21 @@ class Player:
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
 
+    def play_special_action(self, action, target=None, action_args=None):
+        if action_args is None:
+            action_args = {}
+
+        if target is not None:
+            action.affect(target, **action_args)
+            self._special_actions_names.remove(action.name)
+            self.last_action = LastAction(
+                description='played_special_action',
+                trump=action,
+                player_name=self.name,
+                target_name=target.name,
+                player_index=self.index
+            )
+
     def _affect_by(self, trump):
         if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
             self._affecting_trumps.append(trump)
@@ -394,6 +409,10 @@ class Player:
         self._history.append(value)
 
     @property
+    def has_special_actions(self):
+        return len(self._special_actions_names) > 0
+
+    @property
     def last_square_previous_turn(self):
         return self._last_square_previous_turn
 
@@ -429,8 +448,7 @@ class Player:
 
     @property
     def name_next_special_action(self):
-        print(self._special_actions_names)
-        return self._special_actions_names.pop()
+        return next(iter(self._special_actions_names))
 
     @property
     def still_in_game(self):

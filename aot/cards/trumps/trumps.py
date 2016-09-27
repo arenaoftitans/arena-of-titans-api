@@ -204,3 +204,7 @@ class Teleport(Trump):
 
     def view_possible_squares(self, player):
         return self._card.move(player.current_square)
+
+    @property
+    def require_target_square(self):
+        return True

@@ -69,6 +69,9 @@ class Game:
 
         return has_special_actions
 
+    def complete_special_actions(self):
+        self._continue_game_if_enough_players()
+
     def can_move(self, card, square):
         return self._active_player.can_move(card, square)
 

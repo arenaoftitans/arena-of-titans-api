@@ -174,9 +174,21 @@ def test_play_game_unknown_request(api, game):
 
 
 def test_play_game(api, game):
-    requests_to_test = ['VIEW_POSSIBLE_SQUARES', 'PLAY', 'PLAY_TRUMP']
+    requests_to_test = [
+        'VIEW_POSSIBLE_SQUARES',
+        'PLAY',
+        'PLAY_TRUMP',
+        'SPECIAL_ACTION_PLAY',
+        'SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS',
+    ]
+    # If not present, will use '_' + request.lower()
+    requests_to_method = {
+        'SPECIAL_ACTION_PLAY': '_play_special_action',
+        'SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS': '_view_possible_actions',
+    }
     for request in requests_to_test:
-        setattr(api, '_' + request.lower(), MagicMock())
+        method_name = requests_to_method.get(request, '_' + request.lower())
+        setattr(api, method_name, MagicMock())
 
     for request in requests_to_test:
         api._message = {
@@ -186,7 +198,8 @@ def test_play_game(api, game):
         api._play_game(game)
 
     for request in requests_to_test:
-        mm = getattr(api, '_' + request.lower())
+        method_name = requests_to_method.get(request, '_' + request.lower())
+        mm = getattr(api, method_name)
         mm.assert_called_once_with(game, request)
 
 
