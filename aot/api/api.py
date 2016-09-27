@@ -452,6 +452,7 @@ class Api(AotWs):
         action, target_index = self._get_action(game, play_request)
         message = {
             'rt': RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
+            'name': action.name,
         }
         if action.require_target_square:
             message['possible_squares'] = action.view_possible_squares(game.players[target_index])
