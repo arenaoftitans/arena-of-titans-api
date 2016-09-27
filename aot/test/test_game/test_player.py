@@ -223,7 +223,7 @@ def test_has_special_actions(player):
 
 def test_play_special_action(player):
     action = MagicMock()
-    action.name = 'action'
+    action.name = 'Action'
     target = MagicMock()
     player._special_actions_names = {'action'}
     kwargs = {'square': 'square-0-0'}

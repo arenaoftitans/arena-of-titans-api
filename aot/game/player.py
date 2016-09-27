@@ -261,7 +261,7 @@ class Player:
 
         if target is not None:
             action.affect(target, **action_args)
-            self._special_actions_names.remove(action.name)
+            self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
                 description='played_special_action',
                 trump=action,
