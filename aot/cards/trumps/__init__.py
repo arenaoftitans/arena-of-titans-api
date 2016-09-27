@@ -46,7 +46,7 @@ class TrumpList(list):
     def __getitem__(self, key):
         if key is None or isinstance(key, str):
             for trump in self:
-                if trump.name == key:
+                if key is not None and trump.name.lower() == key.lower():
                     return trump_type_to_class[trump.type](**trump.args)
             raise IndexError
         elif isinstance(key, int):
