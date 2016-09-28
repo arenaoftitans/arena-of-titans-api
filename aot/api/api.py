@@ -413,6 +413,7 @@ class Api(AotWs):
                 'description': action.description,
                 'card': action.card,
                 'trump': action.trump,
+                'special_action': action.special_action,
                 'player_name': action.player_name,
                 'target_name': action.target_name,
                 'player_index': action.player_index,
@@ -490,11 +491,23 @@ class Api(AotWs):
 
         last_action = game.active_player.last_action
         game.add_action(last_action)
-        self._send_player_played_message(target, game)
+        self._send_player_played_special_action(game.active_player, target)
         if game.active_player.has_special_actions:
             self._notify_special_action(game.active_player.name_next_special_action)
         else:
             game.complete_special_actions()
+
+    def _send_player_played_special_action(self, player, target):  # pragma: no cover
+        self._send_all({
+            'rt': RequestTypes.SPECIAL_ACTION_PLAY,
+            'player_index': target.index,
+            'new_square': {
+                'x': target.current_square.x,
+                'y': target.current_square.y,
+            },
+            'name': player.last_action.special_action.name,
+            'last_action': self._get_action_message(player.last_action),
+        })
 
     def _play_trump(self, game, play_request):
         try:

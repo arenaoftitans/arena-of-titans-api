@@ -25,7 +25,9 @@ from aot.utils import get_time
 
 class LastAction:
     def __init__(
-            self, description='',
+            self,
+            description='',
+            special_action=None,
             card=None,
             trump=None,
             player_name='',
@@ -35,14 +37,9 @@ class LastAction:
         self.player_name = player_name
         self.target_name = target_name
         self.player_index = player_index
-        if card is None:
-            self.card = None
-        else:
-            self.card = card
-        if trump is None:
-            self.trump = None
-        else:
-            self.trump = trump
+        self.special_action = special_action
+        self.card = card
+        self.trump = trump
 
 
 class Player:
@@ -264,7 +261,7 @@ class Player:
             self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
                 description='played_special_action',
-                trump=action,
+                special_action=action,
                 player_name=self.name,
                 target_name=target.name,
                 player_index=self.index
