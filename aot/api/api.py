@@ -490,6 +490,7 @@ class Api(AotWs):
 
         last_action = game.active_player.last_action
         game.add_action(last_action)
+        self._send_player_played_message(target, game)
         if game.active_player.has_special_actions:
             self._notify_special_action(game.active_player.name_next_special_action)
         else:
