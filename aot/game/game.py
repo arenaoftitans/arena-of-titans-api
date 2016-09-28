@@ -69,6 +69,9 @@ class Game:
 
         return has_special_actions
 
+    def play_special_action(self, action, target=None, action_args=None):
+        self.active_player.play_special_action(action, target=target, action_args=action_args)
+
     def complete_special_actions(self):
         self.active_player.complete_special_actions()
         self._continue_game_if_enough_players()

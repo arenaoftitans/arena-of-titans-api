@@ -359,3 +359,11 @@ def test_complete_special_actions(game):
 
     game.active_player.complete_special_actions.assert_called_once_with()
     game._continue_game_if_enough_players.assert_called_once_with()
+
+
+def test_play_special_action(game):
+    game.active_player.play_special_action = MagicMock()
+
+    game.play_special_action(None, target=None, action_args=None)
+
+    assert game.active_player.play_special_action.called

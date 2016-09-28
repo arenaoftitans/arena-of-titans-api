@@ -490,7 +490,7 @@ class Api(AotWs):
             if kwargs['square'] is None:
                 raise AotErrorToDisplay('wrong_square')
 
-        game.active_player.play_special_action(action, target=target, action_args=kwargs)
+        game.play_special_action(action, target=target, action_args=kwargs)
 
         last_action = game.active_player.last_action
         game.add_action(last_action)

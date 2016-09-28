@@ -138,7 +138,7 @@ def test_play_special_action(api, game):
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
-    game.active_player.play_special_action = MagicMock(side_effect=consume_action)
+    game.play_special_action = MagicMock(side_effect=consume_action)
     game.complete_special_actions = MagicMock()
     game.add_action = MagicMock()
     play_request = {
@@ -150,8 +150,8 @@ def test_play_special_action(api, game):
 
     api._play_special_action(game, play_request)
 
-    assert game.active_player.play_special_action.called
-    args = game.active_player.play_special_action.call_args_list
+    assert game.play_special_action.called
+    args = game.play_special_action.call_args_list
     assert len(args[0][0]) == 1
     assert isinstance(args[0][0][0], Trump)
     assert len(args[0][1]) == 2
@@ -176,7 +176,7 @@ def test_play_special_action_actions_still_remaining(api, game):
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     actions.append(SimpleTrump(name='action2', type='Teleport', args={}))
     game.active_player.special_actions = actions
-    game.active_player.play_special_action = MagicMock(side_effect=consume_action)
+    game.play_special_action = MagicMock(side_effect=consume_action)
     game.complete_special_actions = MagicMock()
     game.add_action = MagicMock()
     play_request = {
@@ -188,8 +188,8 @@ def test_play_special_action_actions_still_remaining(api, game):
 
     api._play_special_action(game, play_request)
 
-    assert game.active_player.play_special_action.called
-    args = game.active_player.play_special_action.call_args_list
+    assert game.play_special_action.called
+    args = game.play_special_action.call_args_list
     assert len(args[0][0]) == 1
     assert isinstance(args[0][0][0], Trump)
     assert len(args[0][1]) == 2
