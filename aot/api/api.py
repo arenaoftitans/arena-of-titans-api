@@ -447,7 +447,7 @@ class Api(AotWs):
                 } if game_player else None for game_player in game.players]
 
     def _notify_special_action(self, special_actions_name):
-        self._send_all({
+        self.sendMessage({
             'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
             'name': special_actions_name,
         })

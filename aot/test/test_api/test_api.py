@@ -395,11 +395,11 @@ def test_reconnect_pending_players(api, game):
 
 
 def test_notify_special_actions(api, game):
-    api._send_all = MagicMock()
+    api.sendMessage = MagicMock()
 
     api._notify_special_action('action')
 
-    api._send_all.assert_called_once_with({
+    api.sendMessage.assert_called_once_with({
         'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
         'name': 'action',
     })
