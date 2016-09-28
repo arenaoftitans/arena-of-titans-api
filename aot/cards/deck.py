@@ -97,7 +97,7 @@ class Deck:
                           if card.name == card_name and
                           card.color == card_color]
 
-        if len(matching_cards) == 1:
+        if len(matching_cards) >= 1:
             return matching_cards[0]
 
     @property
