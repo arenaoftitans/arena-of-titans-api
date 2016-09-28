@@ -133,6 +133,7 @@ def test_play_special_action(api, game):
         game.active_player._special_actions_names.remove('action')
 
     api._send_player_played_special_action = MagicMock()
+    api._send_play_message_to_players = MagicMock()
     api._notify_special_action = MagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
@@ -159,6 +160,7 @@ def test_play_special_action(api, game):
     assert isinstance(args[0][1]['action_args'].get('square', None), Square)
     assert game.add_action.called
     assert api._send_player_played_special_action.called
+    assert api._send_play_message_to_players.called
     game.complete_special_actions.assert_called_once_with()
     assert not api._notify_special_action.called
 
@@ -168,6 +170,7 @@ def test_play_special_action_actions_still_remaining(api, game):
         game.active_player._special_actions_names.remove('action')
 
     api._send_player_played_special_action = MagicMock()
+    api._send_play_message_to_players = MagicMock()
     api._notify_special_action = MagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
@@ -195,5 +198,6 @@ def test_play_special_action_actions_still_remaining(api, game):
     assert isinstance(args[0][1]['action_args'].get('square', None), Square)
     assert game.add_action.called
     assert api._send_player_played_special_action.called
+    assert not api._send_play_message_to_players.called
     assert not game.complete_special_actions.called
     api._notify_special_action.assert_called_once_with('action2')

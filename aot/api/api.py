@@ -390,9 +390,7 @@ class Api(AotWs):
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player, game)
 
-        for player in game.players:
-            if player is not None and player.id in self._clients:
-                self._clients[player.id].sendMessage(self._get_play_message(player, game))
+        self._send_play_message_to_players(game)
 
     def _send_player_played_message(self, player, game):  # pragma: no cover
         self._send_all({
@@ -418,6 +416,11 @@ class Api(AotWs):
                 'target_name': action.target_name,
                 'player_index': action.player_index,
             }
+
+    def _send_play_message_to_players(self, game):
+        for player in game.players:
+            if player is not None and player.id in self._clients:
+                self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _get_play_message(self, player, game):
         return {
@@ -496,6 +499,7 @@ class Api(AotWs):
             self._notify_special_action(game.active_player.name_next_special_action)
         else:
             game.complete_special_actions()
+            self._send_play_message_to_players(game)
 
     def _send_player_played_special_action(self, player, target):  # pragma: no cover
         self._send_all({
