@@ -483,6 +483,21 @@ class Api(AotWs):
 
     def _play_special_action(self, game, play_request):
         action, target_index = self._get_action(game, play_request)
+        if play_request.get('cancel', False):
+            game.cancel_special_action(action)
+            target = game.active_player
+            cancel = True
+        else:
+            cancel = False
+            target = self._play_special_action_on_target(game, play_request, action, target_index)
+
+        self._send_player_played_special_action(game.active_player, target, cancel=cancel)
+        if game.active_player.has_special_actions:
+            self._notify_special_action(game.active_player.name_next_special_action)
+        else:
+            game.complete_special_actions()
+
+    def _play_special_action_on_target(self, game, play_request, action, target_index):
         kwargs = {}
         target = game.players[target_index]
         if action.require_target_square:
@@ -491,17 +506,13 @@ class Api(AotWs):
                 raise AotErrorToDisplay('wrong_square')
 
         game.play_special_action(action, target=target, action_args=kwargs)
-
         last_action = game.active_player.last_action
         game.add_action(last_action)
-        self._send_player_played_special_action(game.active_player, target)
-        if game.active_player.has_special_actions:
-            self._notify_special_action(game.active_player.name_next_special_action)
-        else:
-            game.complete_special_actions()
-            self._send_play_message_to_players(game)
+        self._send_play_message_to_players(game)
 
-    def _send_player_played_special_action(self, player, target):  # pragma: no cover
+        return target
+
+    def _send_player_played_special_action(self, player, target, cancel=False):  # pragma: no cover
         self._send_all({
             'rt': RequestTypes.SPECIAL_ACTION_PLAY,
             'player_index': target.index,
@@ -509,8 +520,8 @@ class Api(AotWs):
                 'x': target.current_square.x,
                 'y': target.current_square.y,
             },
-            'name': player.last_action.special_action.name,
-            'last_action': self._get_action_message(player.last_action),
+            'name': player.last_action.special_action.name if not cancel else None,
+            'last_action': self._get_action_message(player.last_action) if not cancel else None,
         })
 
     def _play_trump(self, game, play_request):

@@ -198,6 +198,36 @@ def test_play_special_action_actions_still_remaining(api, game):
     assert isinstance(args[0][1]['action_args'].get('square', None), Square)
     assert game.add_action.called
     assert api._send_player_played_special_action.called
-    assert not api._send_play_message_to_players.called
+    assert api._send_play_message_to_players.called
     assert not game.complete_special_actions.called
     api._notify_special_action.assert_called_once_with('action2')
+
+
+def test_cancel_special_action(api, game):
+    def consume_action(*args, **kwargs):
+        game.active_player._special_actions_names.remove('action')
+
+    api._send_player_played_special_action = MagicMock()
+    api._send_play_message_to_players = MagicMock()
+    actions = TrumpList()
+    actions.append(SimpleTrump(name='action', type='Teleport', args={}))
+    game.active_player.special_actions = actions
+    game.play_special_action = MagicMock()
+    game.complete_special_actions = MagicMock()
+    game.add_action = MagicMock()
+    game.cancel_special_action = MagicMock(side_effect=consume_action)
+    play_request = {
+        'name': 'action',
+        'target_index': 0,
+        'x': 0,
+        'y': 0,
+        'cancel': True,
+    }
+
+    api._play_special_action(game, play_request)
+
+    assert game.cancel_special_action.called
+    assert not game.add_action.called
+    assert api._send_player_played_special_action.called
+    assert not api._send_play_message_to_players.called
+    assert game.complete_special_actions.called

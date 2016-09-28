@@ -257,6 +257,14 @@ def test_play_special_action_no_args(player):
     assert not player.has_special_actions
 
 
+def test_cancel_special_action(player):
+    player._special_actions_names = ['action', 'action2']
+
+    player.cancel_special_action(SimpleTrump(name='action', type=None, args=None))
+
+    assert player._special_actions_names == ['action2']
+
+
 def test_reach_aim(player):
     player._aim = {player.current_square}
     player._last_square_previous_turn = player.current_square

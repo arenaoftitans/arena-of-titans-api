@@ -367,3 +367,11 @@ def test_play_special_action(game):
     game.play_special_action(None, target=None, action_args=None)
 
     assert game.active_player.play_special_action.called
+
+
+def test_cancel_special_action(game):
+    game.active_player.cancel_special_action = MagicMock()
+
+    game.cancel_special_action(None)
+
+    game.active_player.cancel_special_action.assert_called_once_with(None)

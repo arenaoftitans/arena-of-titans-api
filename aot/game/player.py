@@ -270,6 +270,9 @@ class Player:
                 player_index=self.index
             )
 
+    def cancel_special_action(self, action):
+        self._special_actions_names.remove(action.name.lower())
+
     def _affect_by(self, trump):
         if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
             self._affecting_trumps.append(trump)
