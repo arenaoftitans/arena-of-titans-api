@@ -20,6 +20,7 @@
 import pytest
 
 from aot.game import Player
+from aot.cards import Card
 from aot.cards.trumps import (
     SimpleTrump,
     Trump,
@@ -164,11 +165,11 @@ def test_complet_turn_collect_all_consumed_trumps(player):
     assert len(player.affecting_trumps) == 0
 
 
-def test_play_card(player):
+def test_play_card_cannot_play(board, player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     start_square = player.current_square
-    card = player.deck.first_card_in_hand
+    card = Card(board)
 
     assert not player.play_card(card, (3, 1), check_move=False)
 
@@ -180,6 +181,14 @@ def test_play_card(player):
     assert 3 == end_square.x
     assert 1 == end_square.y
 
+
+def test_play_card(board, player):
+    player.deck.play = MagicMock()
+    player.deck.init_turn = MagicMock()
+    start_square = player.current_square
+    card = Card(board)
+
+    player.play_card(card, (0, 0), check_move=False)
     player.play_card(card, (0, 0), check_move=False)
 
     assert player.deck.play.call_count == 2
@@ -190,6 +199,7 @@ def test_play_card(player):
 def test_play_card_with_special_actions(player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
+    player._complete_action = MagicMock()
     start_square = player.current_square
     card = player.deck.first_card_in_hand
     card._special_actions = TrumpList()
@@ -206,6 +216,7 @@ def test_play_card_with_special_actions(player):
     assert 1 == end_square.y
     assert player._special_actions_names == ['action']
     assert player._special_actions is card._special_actions
+    assert not player._complete_action.called
 
 
 def test_has_special_actions(player):
@@ -434,3 +445,11 @@ def test_ai_aim(player, board):
     # On wrong arm
     player._current_square = board[8, 3]
     assert len(player.ai_aim) == 1
+
+
+def test_complete_special_actions(player):
+    player._complete_action = MagicMock()
+
+    player.complete_special_actions()
+
+    player._complete_action.assert_called_once_with()

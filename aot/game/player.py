@@ -144,12 +144,12 @@ class Player:
                 player_index=self.index)
         else:
             self.last_action = LastAction(description='problem')
-        self._complete_action()
 
         if card is not None and card.special_actions is not None:
             self.special_actions = card.special_actions
             return True
         else:
+            self._complete_action()
             self.special_actions = None
             return False
 
@@ -171,6 +171,9 @@ class Player:
         self._can_play = self._number_moves_played < self._number_moves_to_play
         if not self.can_play:
             self._deck.init_turn()
+
+    def complete_special_actions(self):
+        self._complete_action()
 
     def discard(self, card):
         self._deck.play(card)

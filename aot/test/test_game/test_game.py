@@ -353,7 +353,9 @@ def test_play_auto_no_card_found(game, mocker):
 
 def test_complete_special_actions(game):
     game._continue_game_if_enough_players = MagicMock()
+    game.active_player.complete_special_actions = MagicMock()
 
     game.complete_special_actions()
 
+    game.active_player.complete_special_actions.assert_called_once_with()
     game._continue_game_if_enough_players.assert_called_once_with()
