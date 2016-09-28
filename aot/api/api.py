@@ -417,7 +417,7 @@ class Api(AotWs):
                 'player_index': action.player_index,
             }
 
-    def _send_play_message_to_players(self, game):
+    def _send_play_message_to_players(self, game):  # pragma: no cover
         for player in game.players:
             if player is not None and player.id in self._clients:
                 self._clients[player.id].sendMessage(self._get_play_message(player, game))
