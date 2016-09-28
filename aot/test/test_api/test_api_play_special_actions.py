@@ -198,7 +198,7 @@ def test_play_special_action_actions_still_remaining(api, game):
     assert isinstance(args[0][1]['action_args'].get('square', None), Square)
     assert game.add_action.called
     assert api._send_player_played_special_action.called
-    assert api._send_play_message_to_players.called
+    assert not api._send_play_message_to_players.called
     assert not game.complete_special_actions.called
     api._notify_special_action.assert_called_once_with('action2')
 
@@ -228,6 +228,6 @@ def test_cancel_special_action(api, game):
 
     assert game.cancel_special_action.called
     assert not game.add_action.called
-    assert api._send_player_played_special_action.called
-    assert not api._send_play_message_to_players.called
+    assert not api._send_player_played_special_action.called
+    assert api._send_play_message_to_players.called
     assert game.complete_special_actions.called
