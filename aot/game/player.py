@@ -448,6 +448,7 @@ class Player:
         if actions is not None:
             self._special_actions_names = [action.name.lower() for action in actions]
             self._special_actions = actions
+            self._special_actions.set_additionnal_arguments(board=self._board)
 
     @property
     def name_next_special_action(self):

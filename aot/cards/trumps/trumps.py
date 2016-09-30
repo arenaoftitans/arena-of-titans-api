@@ -165,6 +165,7 @@ class Teleport(Trump):
 
     def __init__(
             self,
+            board=None,
             distance=0,
             color=None,
             colors=None,
@@ -188,8 +189,9 @@ class Teleport(Trump):
         # We use a card to get the list of possible squares for teleportation.
         if Teleport._board is None:
             Teleport._board = aot.get_board()
+        board = board or Teleport._board
         self._card = Card(
-            self._board,
+            board,
             color=next(iter(self._colors)),
             complementary_colors=self._colors,
             name='Teleportation',
