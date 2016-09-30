@@ -449,14 +449,14 @@ class Api(AotWs):
     def _notify_special_action(self, special_actions_name):
         self.sendMessage({
             'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
-            'name': special_actions_name,
+            'special_action_name': special_actions_name,
         })
 
     def _view_possible_actions(self, game, play_request):
         action, target_index = self._get_action(game, play_request)
         message = {
             'rt': RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
-            'name': action.name,
+            'special_action_name': action.name,
         }
         if action.require_target_square:
             message['possible_squares'] = action.view_possible_squares(game.players[target_index])
@@ -464,7 +464,7 @@ class Api(AotWs):
         self.sendMessage(message)
 
     def _get_action(self, game, play_request):
-        action_name = play_request.get('name', '')
+        action_name = play_request.get('special_action_name', '')
         target_index = play_request.get('target_index', None)
         if not action_name:
             raise AotError('missing_action_name')
@@ -515,7 +515,7 @@ class Api(AotWs):
                 'x': target.current_square.x,
                 'y': target.current_square.y,
             },
-            'name': player.last_action.special_action.name,
+            'special_action_name': player.last_action.special_action.name,
             'last_action': self._get_action_message(player.last_action),
         })
 

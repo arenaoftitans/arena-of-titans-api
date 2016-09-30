@@ -47,14 +47,14 @@ def test_view_possible_action_no_name(api, game):
 
 def test_view_possible_action_no_target_index(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'name': 'action'})
+        api._view_possible_actions(game, {'special_action_name': 'action'})
 
     assert 'missing_action_target' in str(e)
 
 
 def test_view_possible_action_no_action_for_player(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'name': 'action', 'target_index': 0})
+        api._view_possible_actions(game, {'special_action_name': 'action', 'target_index': 0})
 
     assert 'no_action' in str(e)
 
@@ -65,7 +65,7 @@ def test_view_possible_action_wrong_action(api, game):
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'name': 'toto', 'target_index': 0})
+        api._view_possible_actions(game, {'special_action_name': 'toto', 'target_index': 0})
 
     assert 'wrong_action' in str(e)
 
@@ -76,7 +76,7 @@ def test_view_possible_action(api, game):
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
 
-    api._view_possible_actions(game, {'name': 'action', 'target_index': 0})
+    api._view_possible_actions(game, {'special_action_name': 'action', 'target_index': 0})
 
     args = api.sendMessage.call_args[0][0]
     assert api.sendMessage.called
@@ -93,14 +93,14 @@ def test_play_special_action_no_name(api, game):
 
 def test_play_special_action_no_target_index(api, game):
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'name': 'action'})
+        api._play_special_action(game, {'special_action_name': 'action'})
 
     assert 'missing_action_target' in str(e)
 
 
 def test_play_special_action_no_action_for_player(api, game):
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'name': 'action', 'target_index': 0})
+        api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
 
     assert 'no_action' in str(e)
 
@@ -111,7 +111,7 @@ def test_play_special_action_wrong_action(api, game):
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'name': 'toto', 'target_index': 0})
+        api._play_special_action(game, {'special_action_name': 'toto', 'target_index': 0})
 
     assert 'wrong_action' in str(e)
 
@@ -123,7 +123,7 @@ def test_play_special_action_no_square(api, game):
     game.active_player.special_actions = actions
 
     with pytest.raises(AotErrorToDisplay) as e:
-        api._play_special_action(game, {'name': 'action', 'target_index': 0})
+        api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
 
     assert 'wrong_square' in str(e)
 
@@ -142,7 +142,7 @@ def test_play_special_action(api, game):
     game.complete_special_actions = MagicMock()
     game.add_action = MagicMock()
     play_request = {
-        'name': 'action',
+        'special_action_name': 'action',
         'target_index': 0,
         'x': 0,
         'y': 0,
@@ -180,7 +180,7 @@ def test_play_special_action_actions_still_remaining(api, game):
     game.complete_special_actions = MagicMock()
     game.add_action = MagicMock()
     play_request = {
-        'name': 'action',
+        'special_action_name': 'action',
         'target_index': 0,
         'x': 0,
         'y': 0,
@@ -217,7 +217,7 @@ def test_cancel_special_action(api, game):
     game.add_action = MagicMock()
     game.cancel_special_action = MagicMock(side_effect=consume_action)
     play_request = {
-        'name': 'action',
+        'special_action_name': 'action',
         'target_index': 0,
         'x': 0,
         'y': 0,

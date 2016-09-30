@@ -234,7 +234,7 @@ class AotWs(WebSocketServerProtocol):
             'trumps': player.trumps,
             'index': player.index,
             'last_action': last_action,
-            'special_action': special_action,
+            'special_action_name': special_action,
             'history': self._get_history(game),
             'game_over': game.is_over,
             'winners': game.winners,
