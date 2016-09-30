@@ -191,6 +191,8 @@ class Game:
         )
         if card:
             self.play_card(card, square)
+            if card.special_actions:
+                self.complete_special_actions()
         else:
             cheapest_card = find_cheapest_card(self.active_player.hand)
             self.discard(cheapest_card)

@@ -286,10 +286,12 @@ def test_continue_game_with_ai(game):
 
 def test_play_auto(game, mocker):
     card = game.active_player.hand[0]
+    card._special_actions = None
     find_move_to_play = MagicMock(return_value=(card, None))
     find_cheapeast_card = MagicMock()
     game.discard = MagicMock()
     game.play_card = MagicMock()
+    game.complete_special_actions = MagicMock()
     mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
     mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
 
@@ -305,6 +307,33 @@ def test_play_auto(game, mocker):
     game.play_card.assert_called_once_with(card, None)
     assert not find_cheapeast_card.called
     assert not game.discard.called
+    assert not game.complete_special_actions.called
+
+
+def test_play_auto_card_with_special_action(game, mocker):
+    card = game.active_player.hand[0]
+    card._special_actions = ['action']
+    find_move_to_play = MagicMock(return_value=(card, None))
+    find_cheapeast_card = MagicMock()
+    game.discard = MagicMock()
+    game.play_card = MagicMock()
+    game.complete_special_actions = MagicMock()
+    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
+    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+
+    game.play_auto()
+
+    assert find_move_to_play.call_count == 1
+    find_move_to_play.assert_called_with(
+        game.active_player.hand,
+        game.active_player.current_square,
+        game.active_player.ai_aim,
+        game.active_player._board
+    )
+    game.play_card.assert_called_once_with(card, None)
+    assert not find_cheapeast_card.called
+    assert not game.discard.called
+    game.complete_special_actions.assert_called_once_with()
 
 
 def test_play_auto_on_last_line(game, mocker):
