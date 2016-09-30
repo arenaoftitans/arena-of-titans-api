@@ -413,7 +413,7 @@ class Player:
 
     @property
     def has_special_actions(self):
-        return len(self._special_actions_names) > 0
+        return self._special_actions_names is not None and len(self._special_actions_names) > 0
 
     @property
     def last_square_previous_turn(self):

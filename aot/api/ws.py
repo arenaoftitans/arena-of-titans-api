@@ -219,6 +219,10 @@ class AotWs(WebSocketServerProtocol):
         message = self._get_play_message(player, game)
 
         last_action = self._get_action_message(game.last_action)
+        if game.active_player.has_special_actions:
+            special_action = game.active_player.name_next_special_action
+        else:
+            special_action = None
 
         message['reconnect'] = {
             'players': [{
@@ -230,6 +234,7 @@ class AotWs(WebSocketServerProtocol):
             'trumps': player.trumps,
             'index': player.index,
             'last_action': last_action,
+            'special_action': special_action,
             'history': self._get_history(game),
             'game_over': game.is_over,
             'winners': game.winners,
