@@ -274,9 +274,24 @@ def test_reconnect_to_game(api, game):
     api.id = 'player_id'
     api._get_action_message = MagicMock()
 
-    api._reconnect_to_game(game)
+    message = api._reconnect_to_game(game)
 
     api._get_action_message.assert_called_once_with(None)
+    assert message['reconnect']['special_action_name'] is None
+
+
+def test_reconnect_to_game_with_special_action(api, game):
+    game.active_player._id = 'player_id'
+    game.active_player.is_connected = False
+    api.id = 'player_id'
+    api._get_action_message = MagicMock()
+    game.active_player._special_actions_names = ['action']
+
+    message = api._reconnect_to_game(game)
+
+    api._get_action_message.assert_called_once_with(None)
+    print(message)
+    assert message['reconnect']['special_action_name'] == 'action'
 
 
 def test_append_to_clients_pending_reconnection(api):
