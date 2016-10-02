@@ -23,16 +23,11 @@ Windows users, read the section about Windows below.
 #. Enable the virtualenv `` source .venv/bin/activate``
 #. Install these libraries so you can build the dependencies:
 
-   - geos
-   - geos-devel
-   - postgresql-devel
    - libxml2-devel
    - libxslt-devel
 
    On debian based system, use this list:
 
-   - libgeos-c1
-   - libgeos-dev
    - libxml2-dev
    - libxslt-dev
 
