@@ -76,6 +76,7 @@ class Player:
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
     _rank = -1
+    _special_action_start_time = 0
     _special_actions = None
     _special_actions_names = None
     _turn_start_time = 0
@@ -147,6 +148,7 @@ class Player:
 
         if card is not None and card.special_actions is not None:
             self.special_actions = card.special_actions
+            self._special_action_start_time = get_time()
             return True
         else:
             self._complete_action()
@@ -438,6 +440,10 @@ class Player:
     @property
     def rank(self):
         return self._rank
+
+    @property
+    def special_action_start_time(self):
+        return self._special_action_start_time
 
     @property
     def special_actions(self):

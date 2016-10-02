@@ -27,6 +27,7 @@ from aot.api.utils import (
     to_json,
     RequestTypes,
 )
+from aot.utils import get_time
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 from contextlib import contextmanager
 
@@ -235,6 +236,7 @@ class AotWs(WebSocketServerProtocol):
             'index': player.index,
             'last_action': last_action,
             'special_action_name': special_action,
+            'special_action_elapsed_time': get_time() - player.special_action_start_time,
             'history': self._get_history(game),
             'game_over': game.is_over,
             'winners': game.winners,

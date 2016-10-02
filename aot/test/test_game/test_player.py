@@ -217,6 +217,7 @@ def test_play_card_with_special_actions(player):
     assert player._special_actions_names == ['action']
     assert player._special_actions is card._special_actions
     assert not player._complete_action.called
+    assert player.special_action_start_time > 0
 
 
 def test_has_special_actions(player):
