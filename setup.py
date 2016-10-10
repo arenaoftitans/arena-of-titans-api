@@ -42,7 +42,9 @@ class PyTest(TestCommand):
     def run_tests(self):
         # import here, cause outside the eggs aren't loaded
         import pytest
-        pytest.main(self.test_args)
+        import sys
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
 
 
 with open('requires.txt', 'r') as requires:
