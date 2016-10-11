@@ -135,7 +135,7 @@ git hooks allow you to launch a script before or after a git command. They are v
 In the case you don't want to launch the hooks, append the ``--no-verify`` option to the git command you want to use.
 
 pre-commit
-~~~~~~~~~~
+++++++++++
 
 .. code:: bash
 
@@ -147,7 +147,7 @@ pre-commit
    pep8 --max-line-length 99 aot/test
 
 pre-push
-~~~~~~~~
+++++++++
 
 This is only useful if you don't use ``npm run tdd`` during development.
 
