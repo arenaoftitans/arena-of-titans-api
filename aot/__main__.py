@@ -40,7 +40,7 @@ def main(debug=False, type='prod', version='latest'):
     # We can pass arguments to the uwsgi entry point so we store the values in the configuration.
     if on_uwsgi:
         uwsgi_config = configparser.ConfigParser()
-        uwsgi_config.read('uwsgi.ini')
+        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
         type = uwsgi_config['aot']['type']
         version = uwsgi_config['aot']['version']
 
@@ -84,10 +84,10 @@ def _create_unix_server(loop, socket):
 
 
 def _correct_permissions_unix_server(socket):
-    os.chmod(socket, 0o660)
+    os.chmod(socket, 0o666)
     try:
         shutil.chown(socket, group=config['api']['socket_group'])
-    except PermissionError as e:
+    except (PermissionError, LookupError) as e:
         logging.exception(e)
 
 
