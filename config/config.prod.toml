@@ -7,6 +7,10 @@ socket_group = 'nginx'
 
 
 [cache]
-host = '127.0.0.1'
-port = 6379
-socket = '/var/run/redis/aot-api-prod-{version}.sock'
+socket = '/aot-api/external/redis.sock'
+
+
+[uwsgi]
+# Don't append .sock, it is appended with the version in the template.
+socket = '/var/run/uwsgi/aot-api-prod'
+user = 'uwsgi'
