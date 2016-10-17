@@ -84,7 +84,7 @@ def _create_unix_server(loop, socket):
 
 
 def _correct_permissions_unix_server(socket):
-    os.chmod(socket, 0o666)
+    os.chmod(socket, 0o660)
     try:
         shutil.chown(socket, group=config['api']['socket_group'])
     except (PermissionError, LookupError) as e:
