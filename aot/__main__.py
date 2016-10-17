@@ -50,6 +50,7 @@ def main(debug=False, type='prod', version='latest'):
         logging.basicConfig(level=logging.DEBUG)
 
     try:
+        cleanup(None, None)
         wsserver, loop = startup(debug=debug)
         loop.run_forever()
     except KeyboardInterrupt:
