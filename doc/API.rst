@@ -155,7 +155,7 @@ avec les joueurs présents.
 
 
 VIEW_POSSIBLE_SQUARES
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Cette requête est effectée lorsqu’un joueur clique sur une carte et pour la
 réponse du serveur.
