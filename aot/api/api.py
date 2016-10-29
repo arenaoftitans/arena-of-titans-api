@@ -238,6 +238,7 @@ class Api(AotWs):
                     'hero': player.hero,
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
+                'can_play_trump': player.can_play_trump,
                 'hand': [{
                     'name': card.name,
                     'color': card.color,
@@ -390,6 +391,7 @@ class Api(AotWs):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
+            'can_play_trump': player.can_play_trump,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -420,6 +422,7 @@ class Api(AotWs):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
+            'can_play_trump': player.can_play_trump,
             'elapsed_time': get_time() - game.active_player.turn_start_time,
         }
 
