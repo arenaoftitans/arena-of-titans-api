@@ -456,6 +456,7 @@ class Api(AotWs):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP,
                     'active_trumps': self._get_active_trumps_message(game),
+                    'can_play_trump': game.active_player.can_play_trump,
                     'last_action': self._get_action_message(last_action),
                 }
                 self._send_all(message)
