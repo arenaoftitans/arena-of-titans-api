@@ -135,6 +135,7 @@ def test_create_game(player1, player2):
     del expected_response['hand']
     del response['trumps']
     del expected_response['trumps']
+    expected_response['can_play_trump'] = False
     assert response == expected_response
     for card in hand_response:
         assert card.keys() == hand_element_keys
@@ -183,6 +184,7 @@ def test_create_game_with_holes(player1, player2):
     del expected_response['hand']
     del response['trumps']
     del expected_response['trumps']
+    expected_response['can_play_trump'] = False
     expected_response['players'].insert(1, None)
     expected_response['active_trumps'].insert(1, None)
     for p in expected_response['players'][1:]:
@@ -216,6 +218,7 @@ def test_pass_turn(player1, player2):
     assert 'elapsed_time' in response
     assert isinstance(response['elapsed_time'], int)
     del response['elapsed_time']
+    expected_response['can_play_trump'] = False
     assert response == expected_response
 
     # Player moved answer
