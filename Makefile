@@ -17,7 +17,6 @@ help:
 	@echo
 	@echo "Possible targets:"
 	@echo "- doc: create the doc"
-	@echo "- config: build config file for nginx"
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- redis: start the redis database"
 	@echo "- nginx: start the nginx webserver"
@@ -27,45 +26,11 @@ help:
 	@echo "- test: launch unit tests with coverage report"
 	@echo "- testintegration: launch integration tests with coverage report. The API must be running on dev mode."
 	@echo "- static: generate all static files for the API like SVG boards"
-	@echo "- deployprod: deploy front and API to the production server"
-	@echo "- deploystaging: deploy front and API to the staging server"
-	@echo "- deploytesting: deploy front and API to the user defined staging server"
-	@echo "- collectprod: remove all unused fronts and APIs from the production server"
-	@echo "- collectstaging: remove all unused fronts and APIs from the staging server"
-	@echo "- collecttesting: remove all unused fronts and APIs from the user defined staging server"
 
 
 .PHONY: doc
 doc:
 	cd doc && make html
-
-
-.PHONY: config
-config:
-	${JINJA2_CLI} --format=toml \
-		-Dtype="${type}" \
-		templates/aot-api.dist.conf \
-		"config/config.${type}.toml" > aot-api.conf
-	${JINJA2_CLI} --format=toml \
-		-Dtype="${type}" \
-		templates/aot.dist.conf \
-		"config/config.${type}.toml" > aot.conf
-	${JINJA2_CLI} --format=toml \
-	    -Dcurrent_dir=$(shell pwd) \
-	    -Dtype="${type}" \
-	    -Dversion="${version}" \
-	    templates/uwsgi.dist.ini \
-	    "config/config.${type}.toml" > uwsgi.ini
-	${JINJA2_CLI} --format=toml \
-	    -Dtype="${type}" \
-	    -Dversion="${version}" \
-	    templates/redis.dist.conf \
-	    "config/config.${type}.toml" > "redis.conf"
-
-
-.PHONY: debuguwsgi
-debuguwsgi: redis nginx uwsgi
-	tail -f api.log
 
 
 .PHONY: dev
@@ -82,13 +47,6 @@ redis:
 .PHONY: nginx
 nginx:
 	sudo systemctl start nginx
-
-
-.PHONY: uwsgi
-uwsgi:
-	echo > api.log
-	chown $(shell whoami):uwsgi api.log
-	sudo systemctl start uwsgi
 
 
 .PHONY: check
@@ -118,36 +76,6 @@ tdd:
 .PHONY: testintegration
 testintegration:
 	"${PYTEST_CMD}" aot/test/integration/
-
-
-.PHONY: deployprod
-deployprod:
-	./scripts/cli.sh deploy prod
-
-
-.PHONY: deploystaging
-deploystaging:
-	./scripts/cli.sh deploy staging
-
-
-.PHONY: deploytesting
-deploytesting:
-	./scripts/cli.sh deploy testing
-
-
-.PHONY: collectprod
-collectprod:
-	./scripts/cli.sh collect prod
-
-
-.PHONY: collectstaging
-collectstaging:
-	./scripts/cli.sh collect staging
-
-
-.PHONY: collecttesting
-collecttesting:
-	./scripts/cli.sh collect testing
 
 
 .PHONY: static

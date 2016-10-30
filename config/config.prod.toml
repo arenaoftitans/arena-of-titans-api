@@ -1,25 +1,13 @@
 [api]
 allow_debug = false
-host = '127.0.0.1'
-root = '/home/aot/prod/api/latest'
-server_name = 'api.arenaoftitans.com'
-# If socket is present and contains a truethy value, the app will be created with unix socket.
-# Update the deploy script if convention changes.
-socket = '/var/run/uwsgi/aot-api-ws-prod-{version}.sock'
+# Keep in sync with config in aot-infra
+socket = '/aot-api/external/aot-api-ws-prod-{version}.sock'
 # The group for the unix socket
 socket_group = 'nginx'
-ws_port = 9000
 
 
 [cache]
-host = '127.0.0.1'
-port = 6379
-socket = '/var/run/redis/aot-api-prod-{version}.sock'
-
-
-[front]
-root = '/home/aot/prod/front'
-server_name = 'www.arenaoftitans.com'
+socket = '/aot-api/external/redis.sock'
 
 
 [uwsgi]
