@@ -1,6 +1,7 @@
 {
     "rt": "PLAY",
     "your_turn": false,
+    "can_play_trump": true,
     "has_won": false,
     "on_last_line": false,
     "rank": -1,

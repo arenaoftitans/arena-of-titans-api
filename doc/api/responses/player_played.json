@@ -14,5 +14,6 @@
         "description": "played a card"
     },
     "winners": [],
+    "can_play_trump": true,
     "game_over": false
 }

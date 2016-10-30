@@ -1,6 +1,7 @@
 {
     "rt": "CREATE_GAME",
     "your_turn": true,
+    "can_play_trump": true,
     "next_player": 0,
     "game_over": false,
     "winners": [],
