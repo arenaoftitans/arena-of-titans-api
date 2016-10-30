@@ -17,8 +17,15 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from aot.game import Player
-from aot.cards.trumps import Trump
+from aot.cards import Card
+from aot.cards.trumps import (
+    SimpleTrump,
+    Trump,
+    TrumpList,
+)
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
@@ -158,12 +165,13 @@ def test_complet_turn_collect_all_consumed_trumps(player):
     assert len(player.affecting_trumps) == 0
 
 
-def test_play_card(player):
+def test_play_card_cannot_play(board, player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     start_square = player.current_square
-    card = player.deck.first_card_in_hand
-    player.play_card(card, (3, 1), check_move=False)
+    card = Card(board)
+
+    assert not player.play_card(card, (3, 1), check_move=False)
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
@@ -173,11 +181,89 @@ def test_play_card(player):
     assert 3 == end_square.x
     assert 1 == end_square.y
 
+
+def test_play_card(board, player):
+    player.deck.play = MagicMock()
+    player.deck.init_turn = MagicMock()
+    start_square = player.current_square
+    card = Card(board)
+
+    player.play_card(card, (0, 0), check_move=False)
     player.play_card(card, (0, 0), check_move=False)
 
     assert player.deck.play.call_count == 2
     player.deck.play.assert_called_with(card)
     player.deck.init_turn.assert_called_once_with()
+
+
+def test_play_card_with_special_actions(player):
+    player.deck.play = MagicMock()
+    player.deck.init_turn = MagicMock()
+    player._complete_action = MagicMock()
+    start_square = player.current_square
+    card = player.deck.first_card_in_hand
+    card._special_actions = TrumpList()
+    card._special_actions.append(SimpleTrump(name='action', type=None, args=None))
+
+    assert player.play_card(card, (3, 1), check_move=False)
+
+    player.deck.play.assert_called_once_with(card)
+    end_square = player.current_square
+    assert not start_square.occupied
+    assert end_square.occupied
+    assert start_square.x != end_square.x and start_square.y != end_square.y
+    assert 3 == end_square.x
+    assert 1 == end_square.y
+    assert player._special_actions_names == ['action']
+    assert player._special_actions is card._special_actions
+    assert not player._complete_action.called
+    assert player.special_action_start_time > 0
+
+
+def test_has_special_actions(player):
+    actions = TrumpList()
+    actions.append(SimpleTrump(name='action', type=None, args=None))
+    player.special_actions = actions
+
+    assert player.has_special_actions
+    assert player.name_next_special_action == 'action'
+    assert player.has_special_actions
+
+    player._special_actions_names.remove('action')
+    assert not player.has_special_actions
+
+
+def test_play_special_action(player):
+    action = MagicMock()
+    action.name = 'Action'
+    target = MagicMock()
+    player._special_actions_names = {'action'}
+    kwargs = {'square': 'square-0-0'}
+
+    player.play_special_action(action, target=target, action_args=kwargs)
+
+    action.affect.assert_called_once_with(target, **kwargs)
+    assert not player.has_special_actions
+
+
+def test_play_special_action_no_args(player):
+    action = MagicMock()
+    action.name = 'action'
+    target = MagicMock()
+    player._special_actions_names = {'action'}
+
+    player.play_special_action(action, target=target)
+
+    action.affect.assert_called_once_with(target)
+    assert not player.has_special_actions
+
+
+def test_cancel_special_action(player):
+    player._special_actions_names = ['action', 'action2']
+
+    player.cancel_special_action(SimpleTrump(name='action', type=None, args=None))
+
+    assert player._special_actions_names == ['action2']
 
 
 def test_reach_aim(player):
@@ -269,8 +355,10 @@ def test_modify_number_moves(player):
 
 
 def test_get_trump(player):
-    assert player.get_trump(None) is None
-    assert player.get_trump('wrong_trump') is None
+    with pytest.raises(IndexError):
+        assert player.get_trump(None)
+    with pytest.raises(IndexError):
+        assert player.get_trump('wrong_trump') is None
     assert isinstance(player.get_trump('Reinforcements'), Trump)
 
 
@@ -366,3 +454,11 @@ def test_ai_aim(player, board):
     # On wrong arm
     player._current_square = board[8, 3]
     assert len(player.ai_aim) == 1
+
+
+def test_complete_special_actions(player):
+    player._complete_action = MagicMock()
+
+    player.complete_special_actions()
+
+    player._complete_action.assert_called_once_with()

@@ -1,0 +1,9 @@
+{
+    "rt": "SPECIAL_ACTION_PLAY",
+    "play_request": {
+        "special_action_name": "Assassination",
+        "x": 6,
+        "y": 5,
+        "target_index": 1
+    }
+}

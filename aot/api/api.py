@@ -46,7 +46,10 @@ class Api(AotWs):
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_trumps': 'trumps.max_number_trumps',
         'max_number_played_trumps': 'trumps.max_number_played_trumps',
+        'missing_action_name': 'You must specify the name of the action you want to do',
+        'missing_action_target': 'You must specify the target for the action',
         'missing_trump_target': 'You must specify a target player.',
+        'no_action': 'You have no special actions to do.',
         'no_slot': 'No slot provided.',
         'not_your_turn': 'Not your turn.',
         'no_request': 'No request was provided',
@@ -55,6 +58,8 @@ class Api(AotWs):
                                             'registered.',
         'unknown_error': 'Unknown error.',
         'unknown_request': 'Unknown request: {rt}.',
+        'wrong_action': 'You provided an invalid action name or you do not have any actions to '
+                        'play',
         'wrong_card': 'This card doesn\'t exist or is not in your hand.',
         'wrong_square': 'This square doesn\'t exist or you cannot move there yet.',
         'wrong_trump': 'Unknown trump.',
@@ -329,6 +334,10 @@ class Api(AotWs):
             self._view_possible_squares(game, play_request)
         elif self._rt == RequestTypes.PLAY:
             self._play(game, play_request)
+        elif self._rt == RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS:
+            self._view_possible_actions(game, play_request)
+        elif self._rt == RequestTypes.SPECIAL_ACTION_PLAY:
+            self._play_special_action(game, play_request)
         elif self._rt == RequestTypes.PLAY_TRUMP:
             self._play_trump(game, play_request)
         else:
@@ -352,6 +361,7 @@ class Api(AotWs):
 
     def _play(self, game, play_request):
         this_player = game.active_player
+        has_special_actions = False
         if play_request.get('pass', False):
             game.pass_turn()
         elif play_request.get('discard', False):
@@ -366,9 +376,11 @@ class Api(AotWs):
                 raise AotErrorToDisplay('wrong_card')
             elif square is None or not game.can_move(card, square):
                 raise AotErrorToDisplay('wrong_square')
-            game.play_card(card, square)
+            has_special_actions = game.play_card(card, square)
 
         self._send_play_message(game, this_player)
+        if has_special_actions:
+            self._notify_special_action(game.active_player.name_next_special_action)
 
     def _get_square(self, play_request, game):
         x = play_request.get('x', None)
@@ -379,9 +391,7 @@ class Api(AotWs):
         game.add_action(this_player.last_action)
         self._send_player_played_message(this_player, game)
 
-        for player in game.players:
-            if player is not None and player.id in self._clients:
-                self._clients[player.id].sendMessage(self._get_play_message(player, game))
+        self._send_play_message_to_players(game)
 
     def _send_player_played_message(self, player, game):  # pragma: no cover
         self._send_all({
@@ -403,10 +413,16 @@ class Api(AotWs):
                 'description': action.description,
                 'card': action.card,
                 'trump': action.trump,
+                'special_action': action.special_action,
                 'player_name': action.player_name,
                 'target_name': action.target_name,
                 'player_index': action.player_index,
             }
+
+    def _send_play_message_to_players(self, game):  # pragma: no cover
+        for player in game.players:
+            if player is not None and player.id in self._clients:
+                self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _get_play_message(self, player, game):
         return {
@@ -433,12 +449,87 @@ class Api(AotWs):
                 'trumps': game_player.affecting_trumps
                 } if game_player else None for game_player in game.players]
 
+    def _notify_special_action(self, special_actions_name):
+        self.sendMessage({
+            'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
+            'special_action_name': special_actions_name,
+        })
+
+    def _view_possible_actions(self, game, play_request):
+        action, target_index = self._get_action(game, play_request)
+        message = {
+            'rt': RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
+            'special_action_name': action.name,
+        }
+        if action.require_target_square:
+            message['possible_squares'] = action.view_possible_squares(game.players[target_index])
+
+        self.sendMessage(message)
+
+    def _get_action(self, game, play_request):
+        action_name = play_request.get('special_action_name', '')
+        target_index = play_request.get('target_index', None)
+        if not action_name:
+            raise AotError('missing_action_name')
+        elif target_index is None:
+            raise AotError('missing_action_target')
+
+        try:
+            return game.active_player.special_actions[action_name], target_index
+        except IndexError:
+            raise AotError('wrong_action')
+        except TypeError as e:
+            if str(e) == "'NoneType' object is not subscriptable":
+                raise AotError('no_action')
+            else:  # pragma: no cover
+                raise e
+
+    def _play_special_action(self, game, play_request):
+        action, target_index = self._get_action(game, play_request)
+        if play_request.get('cancel', False):
+            game.cancel_special_action(action)
+        else:
+            self._play_special_action_on_target(game, play_request, action, target_index)
+
+        if game.active_player.has_special_actions:
+            self._notify_special_action(game.active_player.name_next_special_action)
+        else:
+            game.complete_special_actions()
+            self._send_play_message_to_players(game)
+
+    def _play_special_action_on_target(self, game, play_request, action, target_index):
+        kwargs = {}
+        target = game.players[target_index]
+        if action.require_target_square:
+            kwargs['square'] = self._get_square(play_request, game)
+            if kwargs['square'] is None:
+                raise AotErrorToDisplay('wrong_square')
+
+        game.play_special_action(action, target=target, action_args=kwargs)
+        last_action = game.active_player.last_action
+        game.add_action(last_action)
+        self._send_player_played_special_action(game.active_player, target)
+
+    def _send_player_played_special_action(self, player, target):  # pragma: no cover
+        self._send_all({
+            'rt': RequestTypes.SPECIAL_ACTION_PLAY,
+            'player_index': target.index,
+            'new_square': {
+                'x': target.current_square.x,
+                'y': target.current_square.y,
+            },
+            'special_action_name': player.last_action.special_action.name,
+            'last_action': self._get_action_message(player.last_action),
+        })
+
     def _play_trump(self, game, play_request):
-        trump = self._get_trump(game, play_request.get('name', ''))
-        targeted_player_index = play_request.get('target_index', None)
-        if trump is None:
+        try:
+            trump = self._get_trump(game, play_request.get('name', ''))
+        except IndexError:
             raise AotError('wrong_trump')
-        elif trump.must_target_player and targeted_player_index is None:
+
+        targeted_player_index = play_request.get('target_index', None)
+        if trump.must_target_player and targeted_player_index is None:
             raise AotError('missing_trump_target')
 
         if trump.must_target_player:

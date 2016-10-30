@@ -51,6 +51,7 @@
     "target_name": "Player 2",
     "player_index": 0,
     "card": null,
+    "special_action": null,
     "trump": {
         "cost": 5,
         "description": "Prevent the player to move on some colors.",

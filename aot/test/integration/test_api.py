@@ -419,6 +419,7 @@ def test_reconnect(player1, player2, players):
         'last_action': None,
         'history': [[], []],
         'game_over': False,
+        'special_action_name': None,
         'winners': [],
     }
 
@@ -429,6 +430,8 @@ def test_reconnect(player1, player2, players):
     assert 'elapsed_time' in response
     assert isinstance(response['elapsed_time'], int)
     del response['elapsed_time']
+    assert isinstance(response['reconnect']['special_action_elapsed_time'], int)
+    del response['reconnect']['special_action_elapsed_time']
     assert response == expected_response
 
 
@@ -465,6 +468,7 @@ def test_reconnect_with_holes(player1, player2, players):
         'last_action': None,
         'history': [[], None, []],
         'game_over': False,
+        'special_action_name': None,
         'winners': [],
     }
     expected_response['active_trumps'].insert(1, None)
@@ -479,6 +483,8 @@ def test_reconnect_with_holes(player1, player2, players):
     assert 'elapsed_time' in response
     assert isinstance(response['elapsed_time'], int)
     del response['elapsed_time']
+    assert isinstance(response['reconnect']['special_action_elapsed_time'], int)
+    del response['reconnect']['special_action_elapsed_time']
     assert response == expected_response
 
 
@@ -516,6 +522,7 @@ def test_reconnect_after_action(player1, player2, players):
             'player_name': 'Player 1',
             'target_name': '',
             'player_index': 0,
+            'special_action': None,
             'trump': None,
         },
         "history": [
@@ -526,17 +533,21 @@ def test_reconnect_after_action(player1, player2, players):
                     'player_index': 0,
                     'player_name': 'Player 1',
                     'target_name': '',
-                    'trump': None
+                    'special_action': None,
+                    'trump': None,
                 }
             ],
             []
         ],
         'game_over': False,
+        'special_action_name': None,
         'winners': [],
     }
 
     assert len(response['reconnect']['trumps']) == 4
     del response['reconnect']['trumps']
+    assert isinstance(response['reconnect']['special_action_elapsed_time'], int)
+    del response['reconnect']['special_action_elapsed_time']
     assert response['reconnect'] == expected_response['reconnect']
 
 

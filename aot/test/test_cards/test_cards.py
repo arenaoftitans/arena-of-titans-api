@@ -25,6 +25,10 @@ from aot.board import (
     Square,
 )
 from aot.cards import Card
+from aot.cards.trumps import (
+    SimpleTrump,
+    TrumpList,
+)
 # board is a fixture, ignore the unsued import warnig
 from aot.test import board
 
@@ -45,6 +49,18 @@ def edge_card_properties():
     card_properties['movements_types'].append('line')
     card_properties['color'] = 'all'
     return card_properties
+
+
+def test_set_color_to_special_action():
+    actions = TrumpList()
+    actions.append(SimpleTrump(name='action', type='Teleport', args={}))
+
+    card = Card(None, color='red', special_actions=actions)
+
+    assert len(card.special_actions) == 1
+    assert isinstance(card.special_actions[0], SimpleTrump)
+    action = card.special_actions[0]
+    assert action.args == {'color': 'RED'}
 
 
 def test_line_card(board):

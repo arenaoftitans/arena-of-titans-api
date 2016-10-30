@@ -63,7 +63,20 @@ class Game:
         return self._active_player.view_possible_squares(card)
 
     def play_card(self, card, square, check_move=True):
-        self._active_player.play_card(card, square, check_move=check_move)
+        has_special_actions = self._active_player.play_card(card, square, check_move=check_move)
+        if not has_special_actions:
+            self._continue_game_if_enough_players()
+
+        return has_special_actions
+
+    def play_special_action(self, action, target=None, action_args=None):
+        self.active_player.play_special_action(action, target=target, action_args=action_args)
+
+    def cancel_special_action(self, action):
+        self.active_player.cancel_special_action(action)
+
+    def complete_special_actions(self):
+        self.active_player.complete_special_actions()
         self._continue_game_if_enough_players()
 
     def can_move(self, card, square):
@@ -178,6 +191,8 @@ class Game:
         )
         if card:
             self.play_card(card, square)
+            if card.special_actions:
+                self.complete_special_actions()
         else:
             cheapest_card = find_cheapest_card(self.active_player.hand)
             self.discard(cheapest_card)

@@ -28,6 +28,13 @@ def test_bishop():
     for card in cards:
         if card.name == 'Bishop':
             assert len(card.colors) == 2
+        elif card.name == 'Assassin':
+            assert len(card._special_actions) == 1
+            action = card._special_actions[0]
+            assert action.name == 'Assassination'
+            assert action.type == 'Teleport'
+            assert action.args['must_target_player']
+            assert action.args['distance'] == 1
 
 
 def test_access_unitialized_config():

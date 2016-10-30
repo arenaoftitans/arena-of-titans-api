@@ -9,7 +9,19 @@
         "number_of_movements": 2,
         "movements_type": ["line", "diagonal"],
         "description": "Move two squares in line or diagonal.",
-        "cost": 300
+        "cost": 300,
+        "special_actions": [{
+          "name": "Assassination",
+          "cost": 0,
+          "description": "Allow you to move back another player.",
+          "duration": 0,
+          "repeat_for_each_color": false,
+          "must_target_player": true,
+          "parameters": {
+            "type": "Teleport",
+            "distance": 1
+           }
+        }]
       },
       {
         "name": "King",

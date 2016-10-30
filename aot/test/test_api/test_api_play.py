@@ -24,6 +24,10 @@ from aot.api.utils import (
     AotErrorToDisplay,
 )
 from aot.api.utils import RequestTypes
+from aot.cards.trumps import (
+    SimpleTrump,
+    TrumpList,
+)
 from aot.test import (
     api,
     game,
@@ -170,9 +174,21 @@ def test_play_game_unknown_request(api, game):
 
 
 def test_play_game(api, game):
-    requests_to_test = ['VIEW_POSSIBLE_SQUARES', 'PLAY', 'PLAY_TRUMP']
+    requests_to_test = [
+        'VIEW_POSSIBLE_SQUARES',
+        'PLAY',
+        'PLAY_TRUMP',
+        'SPECIAL_ACTION_PLAY',
+        'SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS',
+    ]
+    # If not present, will use '_' + request.lower()
+    requests_to_method = {
+        'SPECIAL_ACTION_PLAY': '_play_special_action',
+        'SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS': '_view_possible_actions',
+    }
     for request in requests_to_test:
-        setattr(api, '_' + request.lower(), MagicMock())
+        method_name = requests_to_method.get(request, '_' + request.lower())
+        setattr(api, method_name, MagicMock())
 
     for request in requests_to_test:
         api._message = {
@@ -182,7 +198,8 @@ def test_play_game(api, game):
         api._play_game(game)
 
     for request in requests_to_test:
-        mm = getattr(api, '_' + request.lower())
+        method_name = requests_to_method.get(request, '_' + request.lower())
+        mm = getattr(api, method_name)
         mm.assert_called_once_with(game, request)
 
 
@@ -269,10 +286,11 @@ def test_play_wrong_square(api, game):
 def test_play_card(api, game):
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
-    game.play_card = MagicMock()
+    game.play_card = MagicMock(return_value=False)
     game.get_square = MagicMock(return_value=square)
     game.can_move = MagicMock(return_value=True)
     api._send_play_message = MagicMock()
+    api._notify_special_actions = MagicMock()
 
     api._play(game, {
         'card_name': card.name,
@@ -283,3 +301,28 @@ def test_play_card(api, game):
 
     game.play_card.assert_called_once_with(card, square)
     api._send_play_message.assert_called_once_with(game, game.active_player)
+    assert not api._notify_special_actions.called
+
+
+def test_play_card_with_special_actions(api, game):
+    card = game.active_player.hand[0]
+    square = game.get_square(0, 0)
+    special_actions = TrumpList()
+    special_actions.append(SimpleTrump(name='Action', type=None, args=None))
+    game.active_player.special_actions = special_actions
+    game.play_card = MagicMock(return_value=True)
+    game.get_square = MagicMock(return_value=square)
+    game.can_move = MagicMock(return_value=True)
+    api._send_play_message = MagicMock()
+    api._notify_special_action = MagicMock()
+
+    api._play(game, {
+        'card_name': card.name,
+        'card_color': card.color,
+        'x': 0,
+        'y': 0,
+    })
+
+    game.play_card.assert_called_once_with(card, square)
+    api._send_play_message.assert_called_once_with(game, game.active_player)
+    api._notify_special_action.assert_called_once_with('action')

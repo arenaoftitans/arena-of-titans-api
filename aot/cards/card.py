@@ -31,6 +31,7 @@ class Card:
     _movements = []
     _number_movements = 0
     _cost = 0
+    _special_actions = None
     movements_methods = set()
 
     def __init__(
@@ -42,7 +43,8 @@ class Card:
         description='',
         movements_types=None,
         number_movements=1,
-        cost=0
+        cost=0,
+        special_actions=None,
     ):
         if not complementary_colors:
             complementary_colors = set()
@@ -67,6 +69,12 @@ class Card:
         ]
         self._number_movements = number_movements
         self._cost = cost
+        if special_actions:
+            self._special_actions = special_actions
+            for action in self._special_actions:
+                action.args['color'] = self.color
+        else:
+            self._special_actions = None
 
     def move(self, origin):
         number_movements_left = self._number_movements
@@ -224,6 +232,10 @@ class Card:
     @property
     def name(self):  # pragma: no cover
         return self._name
+
+    @property
+    def special_actions(self):
+        return self._special_actions
 
     def __str__(self):  # pragma: no cover
         return "Card(name={name}, color={color}, colors={colors})"\

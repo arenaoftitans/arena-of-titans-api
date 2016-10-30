@@ -36,6 +36,9 @@ Liste des types de requêtes
     view: 'VIEW_POSSIBLE_SQUARES'
     play: 'PLAY'
     play_trump: 'PLAY_TRUMP'
+    special_action_notify: 'SPECIAL_ACTION_NOTIFY'
+    special_action_play: 'SPECIAL_ACTION_PLAY'
+    special_action_view_possible_actions: 'SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS'
 
 Elles sont stockées dans l’enum ``aot.api.utils.RequestType`` et dans le
 controller du jeu en JavaScript dans l’objet rt.
@@ -152,7 +155,7 @@ avec les joueurs présents.
 
 
 VIEW_POSSIBLE_SQUARES
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Cette requête est effectée lorsqu’un joueur clique sur une carte et pour la
 réponse du serveur.
@@ -295,3 +298,51 @@ serveur.
      .. literalinclude:: api/responses/play_trump_with_target.json
             :linenos:
             :language: json
+
+
+SPECIAL_ACTION_NOTIFY
+~~~~~~~~~~~~~~~~~~~~~
+
+Lorsqu'une action spéciale est disponible, le serveur envoie le message suivant:
+
+.. literalinclude:: api/responses/special_action_notify.json
+        :linenos:
+        :language: json
+
+
+SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pour voir les possibilités offertent par l'action spéciale, le client envoie une requête comme celle-ci:
+
+.. literalinclude:: api/requests/special_action_view_actions.json
+        :linenos:
+        :language: json
+
+Le serveur répond alors:
+
+.. literalinclude:: api/responses/special_action_view_actions.json
+        :linenos:
+        :language: json
+
+
+SPECIAL_ACTION_PLAY
+~~~~~~~~~~~~~~~~~~~
+
+Pour jouer une action spéciale, le client envoie une requête comme celle-ci:
+
+.. literalinclude:: api/requests/special_action_play.json
+        :linenos:
+        :language: json
+
+Le serveur répond alors **à tous les joueurs**:
+
+.. literalinclude:: api/responses/special_action_play.json
+    :linenos:
+    :language: json
+
+Pour passer une action spéciale, le client envoie une requête comme celle-ci (le serveur ne répond rien) :
+
+.. literalinclude:: api/responses/special_action_pass.json
+    :linenos:
+    :language: json

@@ -1,0 +1,22 @@
+{
+    "rt": "SPECIAL_ACTION_PLAY",
+    "new_square": {"x": 6, "y": 5},
+    "player_index": 1,
+    "special_action_name": "Assassination",
+    "last_action": {
+        "card": null,
+        "special_action": {
+            "name": "Assassination",
+            "must_target_player": true,
+            "initiator": "",
+            "cost": 0,
+            "duration": 0,
+            "description": "Allow you to move back another player."
+        },
+        "trump": null,
+        "player_index": 0,
+        "target_name": "AI 1",
+        "player_name": "Player",
+        "description": "played_special_action"
+    }
+}

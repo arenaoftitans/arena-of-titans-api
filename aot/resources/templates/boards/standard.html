@@ -1,5 +1,24 @@
+<!--
+# Copyright (C) 2015-2016 by Arena of Titans Contributors.
+#
+# This file is part of Arena of Titans.
+#
+# Arena of Titans is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Arena of Titans is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Arena of Titans. If not, see <http://www.GNU Affero.org/licenses/>.
+-->
+
 <template>
-    <require from="./board.css"></require>
+    <require from="./board.css"> </require>
     <require from="../infos/infos"> </require>
 
      <aot-infos type="player-name"
@@ -25,7 +44,8 @@
         </g>
         <g id="pawnLayer" >
             <g id="player0Container"
-               class="${playerIndexes.indexOf(0) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(0) === -1 ? 'hidden' : ''} ${isPawnClickable[0] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(0)"
                mouseover.delegate="showPlayerName(0, $event)"
                mouseout.delegate="hidePlayerName()">
                 <svg
@@ -81,7 +101,8 @@
                 </svg>
             </g>
             <g id="player1Container"
-               class="${playerIndexes.indexOf(1) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(1) === -1 ? 'hidden' : ''} ${isPawnClickable[1] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(1)"
                transform="rotate(315 985 985)"
                mouseover.delegate="showPlayerName(1, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -138,7 +159,8 @@
                 </svg>
             </g>
             <g id="player2Container"
-               class="${playerIndexes.indexOf(2) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(2) === -1 ? 'hidden' : ''} ${isPawnClickable[2] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(2)"
                transform="rotate(270 985 985)"
                mouseover.delegate="showPlayerName(2, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -195,7 +217,8 @@
                 </svg>
             </g>
             <g id="player3Container"
-               class="${playerIndexes.indexOf(3) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(3) === -1 ? 'hidden' : ''} ${isPawnClickable[3] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(3)"
                transform="rotate(225 985 985)"
                mouseover.delegate="showPlayerName(3, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -252,7 +275,8 @@
                 </svg>
             </g>
             <g id="player4Container"
-               class="${playerIndexes.indexOf(4) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(4) === -1 ? 'hidden' : ''} ${isPawnClickable[4] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(4)"
                transform="rotate(180 985 985)"
                mouseover.delegate="showPlayerName(4, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -309,7 +333,8 @@
                 </svg>
             </g>
             <g id="player5Container"
-               class="${playerIndexes.indexOf(5) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(5) === -1 ? 'hidden' : ''} ${isPawnClickable[5] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(5)"
                transform="rotate(135 985 985)"
                mouseover.delegate="showPlayerName(5, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -366,7 +391,8 @@
                 </svg>
             </g>
             <g id="player6Container"
-               class="${playerIndexes.indexOf(6) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(6) === -1 ? 'hidden' : ''} ${isPawnClickable[6] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(6)"
                transform="rotate(90 985 985)"
                mouseover.delegate="showPlayerName(6, $event)"
                mouseout.delegate="hidePlayerName()">
@@ -423,7 +449,8 @@
                 </svg>
             </g>
             <g id="player7Container"
-               class="${playerIndexes.indexOf(7) === -1 ? 'hidden' : ''}"
+               class="${playerIndexes.indexOf(7) === -1 ? 'hidden' : ''} ${isPawnClickable[7] ? 'pointer' : ''}"
+               click.delegate="pawnClicked(7)"
                transform="rotate(45 985 985)"
                mouseover.delegate="showPlayerName(7, $event)"
                mouseout.delegate="hidePlayerName()">

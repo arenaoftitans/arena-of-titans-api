@@ -1,0 +1,8 @@
+{
+    "rt": "SPECIAL_ACTION_PLAY",
+    "play_request": {
+        "special_action_name": "assassination",
+        "cancel": true,
+        "target_index": -1
+    }
+}

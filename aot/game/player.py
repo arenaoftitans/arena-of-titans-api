@@ -25,7 +25,9 @@ from aot.utils import get_time
 
 class LastAction:
     def __init__(
-            self, description='',
+            self,
+            description='',
+            special_action=None,
             card=None,
             trump=None,
             player_name='',
@@ -35,14 +37,9 @@ class LastAction:
         self.player_name = player_name
         self.target_name = target_name
         self.player_index = player_index
-        if card is None:
-            self.card = None
-        else:
-            self.card = card
-        if trump is None:
-            self.trump = None
-        else:
-            self.trump = trump
+        self.special_action = special_action
+        self.card = card
+        self.trump = trump
 
 
 class Player:
@@ -79,6 +76,9 @@ class Player:
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
     _rank = -1
+    _special_action_start_time = 0
+    _special_actions = None
+    _special_actions_names = None
     _turn_start_time = 0
 
     def __init__(self, name, id, index, board, deck, trumps=None, hero='', is_ai=False):
@@ -145,7 +145,15 @@ class Player:
                 player_index=self.index)
         else:
             self.last_action = LastAction(description='problem')
-        self._complete_action()
+
+        if card is not None and card.special_actions is not None:
+            self.special_actions = card.special_actions
+            self._special_action_start_time = get_time()
+            return True
+        else:
+            self._complete_action()
+            self.special_actions = None
+            return False
 
     def _get_possible_squares(self, card, check_move):
         if card and check_move:
@@ -165,6 +173,9 @@ class Player:
         self._can_play = self._number_moves_played < self._number_moves_to_play
         if not self.can_play:
             self._deck.init_turn()
+
+    def complete_special_actions(self):
+        self._complete_action()
 
     def discard(self, card):
         self._deck.play(card)
@@ -245,6 +256,24 @@ class Player:
 
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
+
+    def play_special_action(self, action, target=None, action_args=None):
+        if action_args is None:
+            action_args = {}
+
+        if target is not None:
+            action.affect(target, **action_args)
+            self._special_actions_names.remove(action.name.lower())
+            self.last_action = LastAction(
+                description='played_special_action',
+                special_action=action,
+                player_name=self.name,
+                target_name=target.name,
+                player_index=self.index
+            )
+
+    def cancel_special_action(self, action):
+        self._special_actions_names.remove(action.name.lower())
 
     def _affect_by(self, trump):
         if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
@@ -385,6 +414,10 @@ class Player:
         self._history.append(value)
 
     @property
+    def has_special_actions(self):
+        return self._special_actions_names is not None and len(self._special_actions_names) > 0
+
+    @property
     def last_square_previous_turn(self):
         return self._last_square_previous_turn
 
@@ -407,6 +440,25 @@ class Player:
     @property
     def rank(self):
         return self._rank
+
+    @property
+    def special_action_start_time(self):
+        return self._special_action_start_time
+
+    @property
+    def special_actions(self):
+        return self._special_actions
+
+    @special_actions.setter
+    def special_actions(self, actions):
+        if actions is not None:
+            self._special_actions_names = [action.name.lower() for action in actions]
+            self._special_actions = actions
+            self._special_actions.set_additionnal_arguments(board=self._board)
+
+    @property
+    def name_next_special_action(self):
+        return next(iter(self._special_actions_names))
 
     @property
     def still_in_game(self):
