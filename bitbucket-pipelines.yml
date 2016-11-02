@@ -6,6 +6,8 @@ pipelines:
           - pip install -U pip
           - pip install -r requires.txt
           - pip install -r tests_requires.txt
+          - flake8 --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
+          - pep8 --max-line-length 99 aot/test
           # Use sample config file as dev config file for redis related unit tests to pass.
           - cp config/config.staging.toml config/config.dev.toml
           - ./setup.py test
