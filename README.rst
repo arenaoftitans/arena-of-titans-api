@@ -138,7 +138,7 @@ pre-commit
 
    set -e
 
-   flake8 --max-line-length 99 --exclude "conf.py" --exclude "aot/test" aot
+   flake8 --max-line-length 99 --exclude "conf.py" --exclude "aot/test" --ignore none aot
    pep8 --max-line-length 99 aot/test
 
 pre-push

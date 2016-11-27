@@ -19,8 +19,8 @@
 
 from aot.board.square import (
     Square,
-    SquareSet
-    )
+    SquareSet,
+)
 from aot.board.color import Color
 
 

@@ -591,7 +591,7 @@ class Api(AotWs):
     @property
     def _current_request_allowed(self):
         return self._cache.is_game_master() or \
-                self._rt in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME)
+            self._rt in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME)
 
     @property
     def id(self):
