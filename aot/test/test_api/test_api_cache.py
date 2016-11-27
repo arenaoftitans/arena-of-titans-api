@@ -67,6 +67,18 @@ def test_connect_tcp_socket(mock):
     redis.assert_called_once_with(host=cfg['cache']['host'], port=cfg['cache']['port'])
 
 
+def test_test(api_cache, mock):
+    now = MagicMock(return_value='the_date')
+    datetime = MagicMock()
+    datetime.now = now
+    mock.patch('aot.api.api_cache.datetime', new=datetime)
+    api_cache._cache.set = MagicMock()
+
+    api_cache.test()
+
+    api_cache._cache.set.assert_called_once_with('test', 'the_date')
+
+
 def test_get_players_ids(api_cache):
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
     api_cache._game_id = None

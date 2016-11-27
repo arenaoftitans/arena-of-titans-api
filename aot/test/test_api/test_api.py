@@ -34,6 +34,35 @@ from aot.test import (
 from unittest.mock import MagicMock
 
 
+def test_test_success(api):
+    api._cache = MagicMock()
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{"rt": "test"}', False)
+
+    api._cache.test.assert_called_once_with()
+    api.sendMessage.assert_called_once_with({
+        'success': True,
+    })
+
+
+def test_test_failure(api):
+    def cache_test():
+        raise Exception('Error in redis')
+
+    api._cache = MagicMock()
+    api._cache.test = MagicMock(side_effect=cache_test)
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{"rt": "test"}', False)
+
+    api._cache.test.assert_called_once_with()
+    api.sendMessage.assert_called_once_with({
+        'success': False,
+        'errors': 'Error in redis',
+    })
+
+
 def test_onMessage_unkwon_request_type(api):
     api._send_error = MagicMock()
 

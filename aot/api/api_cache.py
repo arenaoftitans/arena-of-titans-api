@@ -23,6 +23,7 @@ from aot.config import config
 from aot import get_number_players
 from aot.api.utils import SlotState
 from copy import deepcopy
+from datetime import datetime
 from redis import Redis
 
 
@@ -34,6 +35,7 @@ class ApiCache:
     GAME_MASTER_KEY = 'game_master'
     GAME_KEY = 'game'
     STARTED_KEY = 'started'
+    TEST_KEY = 'test'
 
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
@@ -66,6 +68,9 @@ class ApiCache:
 
     def __init__(self):
         self._cache = self._get_redis_instance(new=True)
+
+    def test(self):
+        self._cache.set(self.TEST_KEY, str(datetime.now()))
 
     def init(self, game_id=None, player_id=None):
         self._game_id = game_id

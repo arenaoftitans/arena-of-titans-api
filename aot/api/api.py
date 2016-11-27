@@ -80,7 +80,9 @@ class Api(AotWs):
                 self._game_id = self._message['game_id']
                 self._cache.init(game_id=self._game_id, player_id=self.id)
 
-            if self._rt not in RequestTypes:
+            if self._rt == 'test':
+                self._test()
+            elif self._rt not in RequestTypes:
                 raise AotError('unknown_request', {'rt': self._rt})
             elif self._is_reconnecting:
                 if self._can_reconnect:
@@ -99,6 +101,19 @@ class Api(AotWs):
             self._send_error(str(e), e.infos)
         except Exception as e:  # pragma: no cover
             logging.exception('onMessage')
+
+    def _test(self):
+        try:
+            self._cache.test()
+        except Exception as e:
+            self.sendMessage({
+                'success': False,
+                'errors': str(e),
+            })
+        else:
+            self.sendMessage({
+                'success': True,
+            })
 
     def _create_new_game(self):
         self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
