@@ -1,6 +1,5 @@
 FLAKE8_CMD ?= /usr/bin/python3-flake8
 JINJA2_CLI ?= /usr/bin/jinja2
-PEP8_CMD ?= /usr/bin/python3-pep8
 PYTHON_CMD ?= /usr/bin/python3
 PYTEST_CMD ?= /usr/bin/py.test-3
 PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
@@ -56,7 +55,7 @@ check: lint testall
 .PHONY: lint
 lint:
 	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" --ignore none aot
-	${PEP8_CMD} --max-line-length 99 aot/test
+	${FLAKE8_CMD} --max-line-length 99 --ignore=F811,F401 aot/test/
 
 
 .PHONY: testall

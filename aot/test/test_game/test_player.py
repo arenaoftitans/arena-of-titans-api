@@ -185,7 +185,6 @@ def test_play_card_cannot_play(board, player):
 def test_play_card(board, player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
-    start_square = player.current_square
     card = Card(board)
 
     player.play_card(card, (0, 0), check_move=False)

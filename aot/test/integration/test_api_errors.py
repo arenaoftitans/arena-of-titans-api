@@ -438,8 +438,8 @@ def test_play_two_trumps_on_same_player(players):
             response = yield from p.recv()
         yield from player.send('pass_turn')
         for p in players:
-            r = yield from p.recv()
-            r = yield from p.recv()
+            yield from p.recv()
+            yield from p.recv()
 
     response = yield from player.recv()
     assert response == {
@@ -462,7 +462,7 @@ def test_play_two_trumps_in_same_turn(player1, player2):
 @pytest.mark.timeout(5)
 def test_reconnect_wrong_game_id(player1, player2, players):
     yield from create_game(player1, player2)
-    game_id = yield from player1.get_game_id()
+    yield from player1.get_game_id()
     player_id = yield from player1.get_player_id()
 
     player1.close()
@@ -485,7 +485,7 @@ def test_reconnect_wrong_game_id(player1, player2, players):
 def test_reconnect_wrong_player_id(player1, player2, players):
     yield from create_game(player1, player2)
     game_id = yield from player1.get_game_id()
-    player_id = yield from player1.get_player_id()
+    yield from player1.get_player_id()
 
     player1.close()
     players.add()

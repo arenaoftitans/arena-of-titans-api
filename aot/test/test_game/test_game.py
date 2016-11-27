@@ -251,7 +251,7 @@ def test_has_enough_players_to_continue(game):
     player1._is_ai = True
     # Players that won shouldn't be counted as connected
     game.players[1]._has_won = True
-    for player in game.players[2:]:
+    for player in game.players[2:]:  # noqa
         player.is_connected = False
         player._number_turns_passed_not_connected = float('inf')
 
@@ -261,7 +261,7 @@ def test_has_enough_players_to_continue(game):
 def test_only_one_player_connected(game):
     player8 = game.players[-1]
 
-    for player in game.players[:-1]:
+    for player in game.players[:-1]:  # noqa
         player.is_connected = False
 
     for i in range(Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT):

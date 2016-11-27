@@ -333,7 +333,8 @@ def test_create_game_wrong_registration(api):
 
 
 def test_create_game(mock, api):
-    create_game_request = [{
+    create_game_request = [
+        {
             'name': str(i),
             'index': i,
             'id': str(i),
