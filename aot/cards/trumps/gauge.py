@@ -21,6 +21,8 @@ from aot.utils.pathfinding import a_star
 
 
 class Gauge:
+    MAX_VALUE = 100
+
     def __init__(self, board, value=0):
         self._board = board
         self._value = value
@@ -40,6 +42,9 @@ class Gauge:
                 distance = len(a_star(from_, to, self._board)) - 1
                 if distance > 0:
                     self._value += distance
+
+        if self.value > self.MAX_VALUE:
+            self._value = self.MAX_VALUE
 
     def can_play_trump(self, trump):
         # We are dealing with a SimpleTrump. play_trump must be called with a trump.

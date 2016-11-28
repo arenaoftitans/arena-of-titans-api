@@ -76,6 +76,19 @@ def test_move_empty(gauge, mock):
     assert gauge.value == 10
 
 
+def test_move_max(gauge, mock):
+    a_star = MagicMock(return_value=[])
+    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    gauge._value = gauge.MAX_VALUE
+    from_ = MagicMock()
+    to = MagicMock()
+
+    gauge.move(from_, to)
+
+    a_star.assert_called_once_with(from_, to, None)
+    assert gauge.value == gauge.MAX_VALUE
+
+
 def test_move_knight(gauge, mock):
     a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
