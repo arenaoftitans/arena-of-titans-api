@@ -35,8 +35,11 @@ class Gauge:
             if is_knight:
                 self._value += 1
             else:
-                distance = len(a_star(from_, to, self._board))
-                self._value += distance
+                # The list returned by a_star always contain the 1st and last square. Which means
+                # it over-evaluate the distance by 1.
+                distance = len(a_star(from_, to, self._board)) - 1
+                if distance > 0:
+                    self._value += distance
 
     def can_play_trump(self, trump):
         # We are dealing with a SimpleTrump. play_trump must be called with a trump.
