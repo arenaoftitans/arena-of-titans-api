@@ -61,6 +61,7 @@ class Player:
     _board = None
     _can_play = False
     _game_id = None
+    _gauge = None
     _is_connected = False
     _current_square = None
     _deck = None
@@ -81,13 +82,25 @@ class Player:
     _special_actions_names = None
     _turn_start_time = 0
 
-    def __init__(self, name, id, index, board, deck, trumps=None, hero='', is_ai=False):
+    def __init__(
+            self,
+            name,
+            id,
+            index,
+            board,
+            deck,
+            gauge,
+            trumps=None,
+            hero='',
+            is_ai=False,
+    ):
         self._name = name
         self._id = id
         self._index = index
         self._hero = hero
         self._is_ai = is_ai
         self._board = board
+        self._gauge = gauge
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
@@ -132,12 +145,14 @@ class Player:
 
         possible_squares = self._get_possible_squares(card, check_move)
         dest_square = self._get_dest_square(square)
+        start_square = self.current_square
 
         if dest_square in possible_squares or not check_move:
             self._deck.play(card)
             self.move(dest_square)
 
         if card is not None:
+            self._gauge.move(start_square, dest_square)
             self.last_action = LastAction(
                 description='played_card',
                 card=card.infos,

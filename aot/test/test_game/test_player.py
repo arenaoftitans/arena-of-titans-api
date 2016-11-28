@@ -17,25 +17,17 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pytest
-
-from aot.game import Player
 from aot.cards import Card
-from aot.cards.trumps import (
-    SimpleTrump,
-    Trump,
-    TrumpList,
-)
-# fixtures, ignore the unsued import warnig
-from aot.test import (
-    board,
-    deck,
-    player,
-)
-from unittest.mock import (
-    MagicMock,
-    patch,
-)
+from aot.cards.trumps import SimpleTrump
+from aot.cards.trumps import Trump
+from aot.cards.trumps import TrumpList
+from aot.game import Player
+from aot.test import board
+from aot.test import deck
+from aot.test import player
+import pytest
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 
 def test_view_possible_squares(player):
@@ -105,7 +97,7 @@ def test_init_game_player_0(player, board):
 
 
 def test_init_game_player_1(board, deck):
-    player = Player(None, None, 1, board, deck)
+    player = Player(None, None, 1, board, deck, MagicMock())
     start_square = player.current_square
     assert start_square.occupied
     assert 4 == start_square.x
@@ -175,6 +167,7 @@ def test_play_card_cannot_play(board, player):
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
+    player._gauge.move.assert_called_once_with(start_square, end_square)
     assert not start_square.occupied
     assert end_square.occupied
     assert start_square.x != end_square.x and start_square.y != end_square.y
@@ -186,11 +179,16 @@ def test_play_card(board, player):
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     card = Card(board)
+    start_square = player.current_square
 
     player.play_card(card, (0, 0), check_move=False)
+
+    end_square = player.current_square
+    player._gauge.move.assert_called_once_with(start_square, end_square)
     player.play_card(card, (0, 0), check_move=False)
 
     assert player.deck.play.call_count == 2
+    assert player._gauge.move.call_count == 2
     player.deck.play.assert_called_with(card)
     player.deck.init_turn.assert_called_once_with()
 
@@ -208,6 +206,7 @@ def test_play_card_with_special_actions(player):
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
+    player._gauge.move.assert_called_once_with(start_square, end_square)
     assert not start_square.occupied
     assert end_square.occupied
     assert start_square.x != end_square.x and start_square.y != end_square.y
@@ -241,7 +240,7 @@ def test_play_special_action(player):
 
     player.play_special_action(action, target=target, action_args=kwargs)
 
-    action.affect.assert_called_once_with(target, **kwargs)
+    action.affect.assert_called_once_with(target, ** kwargs)
     assert not player.has_special_actions
 
 
@@ -275,8 +274,10 @@ def test_play_wrong_card(player):
     player.deck.play = MagicMock()
     # None of these tests must throw.
     player.play_card(None, None)
-    player.play_card(player.hand[0], None)
     player.play_card(None, (0, 0))
+    assert not player._gauge.move.called
+    player.play_card(player.hand[0], None)
+    assert player._gauge.move.called
 
 
 def test_pass(player):

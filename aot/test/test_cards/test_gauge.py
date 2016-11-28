@@ -1,0 +1,64 @@
+################################################################################
+# Copyright (C) 2016 by Arena of Titans Contributors.
+#
+# This file is part of Arena of Titans.
+#
+# Arena of Titans is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Arena of Titans is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+import pytest
+
+from aot.test import (
+    board,
+    gauge,
+)
+from unittest.mock import MagicMock
+
+
+def test_can_play(gauge):
+    assert not gauge.can_play_trump(5)
+    assert gauge.can_play_trump(0)
+    gauge._value = 6
+    assert gauge.can_play_trump(5)
+
+
+def test_move(gauge, mock):
+    a_star = MagicMock(return_value=[None, None, None])
+    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    gauge._value = 10
+    from_ = MagicMock()
+    to = MagicMock()
+
+    gauge.move(from_, to)
+
+    a_star.assert_called_once_with(from_, to, None)
+    assert gauge.value == 13
+    assert gauge.can_play_trump(5)
+
+
+def test_move_wrong(gauge):
+    gauge.move(None, None)
+    assert gauge.value == 0
+    gauge.move(MagicMock(), None)
+    assert gauge.value == 0
+    gauge.move(None, MagicMock())
+    assert gauge.value == 0
+
+
+def test_play_trump(gauge):
+    gauge._value = 10
+
+    gauge.play_trump(7)
+
+    assert gauge.value == 3

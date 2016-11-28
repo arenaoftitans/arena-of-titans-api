@@ -28,8 +28,8 @@ from aot import (
 )
 from aot.api import Api
 from aot.api.api_cache import ApiCache
-from aot.board import Board
 from aot.cards import Deck
+from aot.cards.trumps import Gauge
 from aot.game import Player
 from unittest.mock import MagicMock
 
@@ -57,7 +57,7 @@ def deck(board):
 
 @pytest.fixture
 def player(board, deck):
-    player = Player(None, None, 0, board, deck, trumps=get_trumps_list(test=True))
+    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list(test=True))
     player.is_connected = True
     return player
 
@@ -74,6 +74,11 @@ def game():
         player.is_connected = True
 
     return g
+
+
+@pytest.fixture
+def gauge():
+    return Gauge(None)
 
 
 @pytest.fixture
