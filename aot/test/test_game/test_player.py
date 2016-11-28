@@ -477,3 +477,17 @@ def test_complete_special_actions(player):
     player.complete_special_actions()
 
     player._complete_action.assert_called_once_with()
+
+
+def test_trumps_statuses(player):
+    trump1 = MagicMock()
+    trump2 = MagicMock()
+
+    def can_play_trump(trump):
+        return trump is trump1
+
+    player.can_play_trump = MagicMock(side_effect=can_play_trump)
+
+    player._available_trumps = [trump1, trump2]
+
+    assert player.trumps_statuses == [True, False]

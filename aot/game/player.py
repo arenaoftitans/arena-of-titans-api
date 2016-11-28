@@ -502,3 +502,7 @@ class Player:
                 "cost": trump.args['cost'],
                 "must_target_player": trump.args['must_target_player']
             } for trump in self._available_trumps]
+
+    @property
+    def trumps_statuses(self):
+        return [self.can_play_trump(trump) for trump in self._available_trumps]

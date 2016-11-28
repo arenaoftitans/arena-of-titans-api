@@ -270,13 +270,13 @@ class Api(AotWs):
                     'hero': player.hero,
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
-                'can_play_trump': player.can_play_trump,
+                'trumps_statuses': player.trumps_statuses,
                 'hand': [{
                     'name': card.name,
                     'color': card.color,
                     'description': card.description,
                 } for card in player.hand],
-                'trumps': player.trumps
+                'trumps': player.trumps,
             }
             self._send_to(message, player.id)
 
@@ -428,7 +428,7 @@ class Api(AotWs):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
-            'can_play_trump': player.can_play_trump,
+            'trumps_statuses': player.trumps_statuses,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -465,7 +465,7 @@ class Api(AotWs):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
-            'can_play_trump': player.can_play_trump,
+            'trumps_statuses': player.trumps_statuses,
             'elapsed_time': get_time() - game.active_player.turn_start_time,
         }
 
@@ -574,7 +574,7 @@ class Api(AotWs):
                 message = {
                     'rt': RequestTypes.PLAY_TRUMP,
                     'active_trumps': self._get_active_trumps_message(game),
-                    'can_play_trump': game.active_player.can_play_trump,
+                    'trumps_statuses': game.active_player.trumps_statuses,
                     'last_action': self._get_action_message(last_action),
                 }
                 self._send_all(message)
