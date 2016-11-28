@@ -306,6 +306,7 @@ class Player:
         if self.can_play_trump(trump) and target is not None:
             if target._affect_by(trump):
                 self._number_trumps_played += 1
+                self._gauge.play_trump(trump)
                 self.last_action = LastAction(
                     description='played_trump',
                     trump=trump,
