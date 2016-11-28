@@ -38,14 +38,14 @@ class Gauge:
                 distance = len(a_star(from_, to, self._board))
                 self._value += distance
 
-    def can_play_trump(self, cost):
-        if self.value >= cost:
+    def can_play_trump(self, trump):
+        if self.value >= trump.cost:
             return True
         else:
             return False
 
-    def play_trump(self, cost):
-        self._value -= cost
+    def play_trump(self, trump):
+        self._value -= trump.cost
 
     @property
     def value(self):

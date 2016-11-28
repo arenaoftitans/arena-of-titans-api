@@ -27,10 +27,17 @@ from unittest.mock import MagicMock
 
 
 def test_can_play(gauge):
-    assert not gauge.can_play_trump(5)
-    assert gauge.can_play_trump(0)
+    trump = MagicMock()
+    trump.cost = 5
+
+    assert not gauge.can_play_trump(trump)
+
+    trump.cost = 0
+    assert gauge.can_play_trump(trump)
     gauge._value = 6
-    assert gauge.can_play_trump(5)
+
+    trump.cost = 5
+    assert gauge.can_play_trump(trump)
 
 
 def test_move(gauge, mock):
@@ -44,7 +51,6 @@ def test_move(gauge, mock):
 
     a_star.assert_called_once_with(from_, to, None)
     assert gauge.value == 13
-    assert gauge.can_play_trump(5)
 
 
 def test_move_knight(gauge, mock):
@@ -73,7 +79,9 @@ def test_move_wrong(gauge):
 
 def test_play_trump(gauge):
     gauge._value = 10
+    trump = MagicMock()
+    trump.cost = 7
 
-    gauge.play_trump(7)
+    gauge.play_trump(trump)
 
     assert gauge.value == 3
