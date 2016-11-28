@@ -271,6 +271,7 @@ class Api(AotWs):
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
                 'trumps_statuses': player.trumps_statuses,
+                'gauge_value': player.gauge.value,
                 'hand': [{
                     'name': card.name,
                     'color': card.color,
@@ -429,6 +430,7 @@ class Api(AotWs):
                 'y': player.current_square.y,
             },
             'trumps_statuses': player.trumps_statuses,
+            'gauge_value': player.gauge.value,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -466,6 +468,7 @@ class Api(AotWs):
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
             'trumps_statuses': player.trumps_statuses,
+            'gauge_value': player.gauge.value,
             'elapsed_time': get_time() - game.active_player.turn_start_time,
         }
 
@@ -575,6 +578,7 @@ class Api(AotWs):
                     'rt': RequestTypes.PLAY_TRUMP,
                     'active_trumps': self._get_active_trumps_message(game),
                     'trumps_statuses': game.active_player.trumps_statuses,
+                    'gauge_value': game.active_player.gauge.value,
                     'last_action': self._get_action_message(last_action),
                 }
                 self._send_all(message)
