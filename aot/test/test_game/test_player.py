@@ -391,6 +391,7 @@ def test_play_trump(player):
 
     assert player.play_trump(trump, target=player)
     trump.affect.assert_called_once_with(player)
+    player._gauge.can_play_trump.assert_called_once_with(trump)
     assert not player.play_trump(trump, target=player)
     assert trump.affect.call_count == 1
 
@@ -398,6 +399,7 @@ def test_play_trump(player):
     player.init_turn()
     assert player.play_trump(trump, target=player)
     assert trump.affect.call_count == 2
+    assert player._gauge.can_play_trump.call_count == 2
     trump.affect.assert_called_with(player)
 
 
@@ -411,6 +413,17 @@ def test_number_affecting_trumps(player):
     assert player._affect_by(trump)
     assert not player._affect_by(trump)
     player.init_turn()
+    assert not player.play_trump(trump, target=player)
+    assert player._number_trumps_played == 0
+
+
+def test_number_gauge_empty(player):
+    # Check that the number of played trumps is only increased if the targeted
+    # player can be affected.
+    trump = player.get_trump('Reinforcements')
+    player._gauge.can_play_trump = MagicMock(return_value=False)
+    player.init_turn()
+
     assert not player.play_trump(trump, target=player)
     assert player._number_trumps_played == 0
 

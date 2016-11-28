@@ -303,7 +303,7 @@ class Player:
         return self._available_trumps[trump_name]
 
     def play_trump(self, trump, target=None):
-        if self.can_play_trump and target is not None:
+        if self.can_play_trump(trump) and target is not None:
             if target._affect_by(trump):
                 self._number_trumps_played += 1
                 self.last_action = LastAction(
@@ -317,6 +317,11 @@ class Player:
                 return False
         else:
             return False
+
+    def can_play_trump(self, trump):
+        return self.can_play and \
+            self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED and \
+            self._gauge.can_play_trump(trump)
 
     def __str__(self):  # pragma: no cover
         return 'Player(id={id}, name={name}, index={index})'\
@@ -357,10 +362,6 @@ class Player:
         self._can_play = bool(value)
 
     @property
-    def can_play_trump(self):
-        return self.can_play and self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED
-
-    @property
     def current_square(self):
         return self._current_square
 
@@ -379,6 +380,10 @@ class Player:
     @game_id.setter
     def game_id(self, value):
         self._game_id = value
+
+    @property
+    def gauge(self):
+        return self._gauge
 
     @property
     def hand(self):

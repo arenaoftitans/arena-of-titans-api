@@ -69,6 +69,7 @@ def test_play_trump_max_number_trumps_played(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     game.active_player._can_play = False
 
     with pytest.raises(AotError) as e:
@@ -84,6 +85,7 @@ def test_play_trump_max_number_affecting_trumps(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
 
     with pytest.raises(AotError) as e:
         api._play_trump(game, {
@@ -92,9 +94,27 @@ def test_play_trump_max_number_affecting_trumps(api, game):
         })
 
     assert 'max_number_trumps' in str(e)
+    assert game.active_player._gauge.can_play_trump.called
+
+
+def test_play_trump_gauge_too_low(api, game):
+    trump = game.active_player.trumps[0]
+    trump['must_target_player'] = True
+    game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=False)
+
+    with pytest.raises(AotError) as e:
+        api._play_trump(game, {
+            'name': trump['name'],
+            'target_index': 0,
+        })
+
+    assert 'gauge_too_low' in str(e)
+    assert game.active_player._gauge.can_play_trump.called
 
 
 def test_play_trump_with_target(api, game):
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
@@ -108,9 +128,11 @@ def test_play_trump_with_target(api, game):
 
     assert api._send_all.call_count == 1
     assert game.add_action.call_count == 1
+    assert game.active_player._gauge.can_play_trump.called
 
 
 def test_play_trump_without_target(api, game):
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:
             break
@@ -123,3 +145,4 @@ def test_play_trump_without_target(api, game):
 
     assert api._send_all.call_count == 1
     assert game.add_action.call_count == 1
+    assert game.active_player._gauge.can_play_trump.called

@@ -43,6 +43,7 @@ class Api(AotWs):
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
+        'gauge_too_low': 'trumps.gauge_too_low',
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_trumps': 'trumps.max_number_trumps',
         'max_number_played_trumps': 'trumps.max_number_played_trumps',
@@ -578,12 +579,14 @@ class Api(AotWs):
                 }
                 self._send_all(message)
             else:
-                self._send_trump_error(game.active_player)
+                self._send_trump_error(game.active_player, trump)
         else:
             raise AotError('wrong_trump_target')
 
-    def _send_trump_error(self, active_player):
-        if not active_player.can_play_trump:
+    def _send_trump_error(self, active_player, trump):
+        if not active_player.gauge.can_play_trump(trump):
+            raise AotErrorToDisplay('gauge_too_low')
+        elif not active_player.can_play_trump(trump):
             raise AotErrorToDisplay(
                 'max_number_played_trumps',
                 {'num': Player.MAX_NUMBER_TRUMPS_PLAYED},
