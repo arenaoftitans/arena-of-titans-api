@@ -72,6 +72,23 @@ class ApiCache:
     def test(self):
         self._cache.set(self.TEST_KEY, str(datetime.now()))
 
+    def info(self):
+        infos = {}
+        for key in self._cache.keys():
+            key = key.decode('utf-8')
+            if key.startswith('game:'):
+                _, game_id = key.split(':')
+                self._game_id = game_id
+                infos['number_games'] = infos.get('number_games', 0) + 1
+                infos['average_number_players'] = \
+                    infos.get('average_number_players', 0) + len(self.get_players_ids(game_id))
+                if self.has_game_started:
+                    infos['number_started_games'] = infos.get('number_started_games', 0) + 1
+
+        infos['average_number_players'] = \
+            infos.get('average_number_players', 0) / infos.get('number_games', 1)
+        return infos
+
     def init(self, game_id=None, player_id=None):
         self._game_id = game_id
         self._player_id = player_id

@@ -82,6 +82,8 @@ class Api(AotWs):
 
             if self._rt == 'test':
                 self._test()
+            elif self._rt == 'info':
+                self._info()
             elif self._rt not in RequestTypes:
                 raise AotError('unknown_request', {'rt': self._rt})
             elif self._is_reconnecting:
@@ -101,6 +103,15 @@ class Api(AotWs):
             self._send_error(str(e), e.infos)
         except Exception as e:  # pragma: no cover
             logging.exception('onMessage')
+
+    def _info(self):
+        info = {
+            # The client making the info request is in the clients dict. We must not count it.
+            'number_connected_players': len(self._clients) - 1,
+        }
+        info.update(self._cache.info())
+
+        self.sendMessage(info)
 
     def _test(self):
         try:

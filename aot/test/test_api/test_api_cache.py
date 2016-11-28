@@ -79,6 +79,21 @@ def test_test(api_cache, mock):
     api_cache._cache.set.assert_called_once_with('test', 'the_date')
 
 
+def test_info(api_cache, mock):
+    api_cache._cache.keys = MagicMock(return_value=[b'game:game_id', b'toto'])
+    api_cache.get_players_ids = MagicMock(return_value=['id1', 'id2'])
+    api_cache._cache.hget = MagicMock(return_value=b'True')
+
+    infos = api_cache.info()
+
+    api_cache._cache.keys.assert_called_once_with()
+    assert infos == {
+        'average_number_players': 2.0,
+        'number_games': 1,
+        'number_started_games': 1,
+    }
+
+
 def test_get_players_ids(api_cache):
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
     api_cache._game_id = None

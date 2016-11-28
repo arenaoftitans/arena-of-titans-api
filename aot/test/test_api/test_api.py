@@ -63,6 +63,24 @@ def test_test_failure(api):
     })
 
 
+def test_info(api):
+    api._clients = {
+        'client',
+        'info_request',
+    }
+    api._cache = MagicMock()
+    api._cache.info = MagicMock(return_value={'success': True})
+    api.sendMessage = MagicMock()
+
+    api.onMessage(b'{"rt": "info"}', False)
+
+    api._cache.info.assert_called_once_with()
+    api.sendMessage.assert_called_once_with({
+        'success': True,
+        'number_connected_players': 1,
+    })
+
+
 def test_onMessage_unkwon_request_type(api):
     api._send_error = MagicMock()
 
