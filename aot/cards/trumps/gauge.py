@@ -39,7 +39,13 @@ class Gauge:
                 self._value += distance
 
     def can_play_trump(self, trump):
-        if self.value >= trump.cost:
+        # We are dealing with a SimpleTrump. play_trump must be called with a trump.
+        if hasattr(trump, 'cost'):
+            cost = trump.cost
+        else:
+            cost = trump.args['cost']
+
+        if self.value >= cost:
             return True
         else:
             return False

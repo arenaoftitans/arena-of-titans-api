@@ -19,6 +19,7 @@
 
 import pytest
 
+from aot.cards.trumps import SimpleTrump
 from aot.test import (
     board,
     gauge,
@@ -37,6 +38,15 @@ def test_can_play(gauge):
     gauge._value = 6
 
     trump.cost = 5
+    assert gauge.can_play_trump(trump)
+
+
+def test_can_play_simple_trump(gauge):
+    trump = SimpleTrump('type', 'name', {'cost': 5})
+
+    assert not gauge.can_play_trump(trump)
+
+    gauge._value = 6
     assert gauge.can_play_trump(trump)
 
 
