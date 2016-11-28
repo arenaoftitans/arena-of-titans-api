@@ -152,7 +152,7 @@ class Player:
             self.move(dest_square)
 
         if card is not None:
-            self._gauge.move(start_square, dest_square)
+            self._gauge.move(start_square, dest_square, card=card)
             self.last_action = LastAction(
                 description='played_card',
                 card=card.infos,

@@ -25,10 +25,18 @@ class Gauge:
         self._board = board
         self._value = value
 
-    def move(self, from_, to):
+    def move(self, from_, to, card=None):
+        if card is not None and card.is_knight:
+            is_knight = True
+        else:
+            is_knight = False
+
         if from_ is not None and to is not None:
-            distance = len(a_star(from_, to, self._board))
-            self._value += distance
+            if is_knight:
+                self._value += 1
+            else:
+                distance = len(a_star(from_, to, self._board))
+                self._value += distance
 
     def can_play_trump(self, cost):
         if self.value >= cost:

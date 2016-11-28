@@ -47,6 +47,21 @@ def test_move(gauge, mock):
     assert gauge.can_play_trump(5)
 
 
+def test_move_knight(gauge, mock):
+    a_star = MagicMock(return_value=[None, None, None])
+    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    gauge._value = 10
+    from_ = MagicMock()
+    to = MagicMock()
+    card = MagicMock()
+    card.is_knight = True
+
+    gauge.move(from_, to, card=card)
+
+    assert not a_star.called
+    assert gauge.value == 11
+
+
 def test_move_wrong(gauge):
     gauge.move(None, None)
     assert gauge.value == 0

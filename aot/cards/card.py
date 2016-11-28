@@ -222,6 +222,10 @@ class Card:
         return self._description
 
     @property
+    def is_knight(self):  # pragma: no cover
+        return self._movements == [self._knight_move]
+
+    @property
     def infos(self):
         return {
             'name': self.name,

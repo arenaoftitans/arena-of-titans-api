@@ -167,7 +167,7 @@ def test_play_card_cannot_play(board, player):
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
-    player._gauge.move.assert_called_once_with(start_square, end_square)
+    player._gauge.move.assert_called_once_with(start_square, end_square, card=card)
     assert not start_square.occupied
     assert end_square.occupied
     assert start_square.x != end_square.x and start_square.y != end_square.y
@@ -184,7 +184,7 @@ def test_play_card(board, player):
     player.play_card(card, (0, 0), check_move=False)
 
     end_square = player.current_square
-    player._gauge.move.assert_called_once_with(start_square, end_square)
+    player._gauge.move.assert_called_once_with(start_square, end_square, card=card)
     player.play_card(card, (0, 0), check_move=False)
 
     assert player.deck.play.call_count == 2
@@ -206,7 +206,7 @@ def test_play_card_with_special_actions(player):
 
     player.deck.play.assert_called_once_with(card)
     end_square = player.current_square
-    player._gauge.move.assert_called_once_with(start_square, end_square)
+    player._gauge.move.assert_called_once_with(start_square, end_square, card=card)
     assert not start_square.occupied
     assert end_square.occupied
     assert start_square.x != end_square.x and start_square.y != end_square.y
