@@ -20,7 +20,7 @@ help:
 	@echo "- redis: start the redis database"
 	@echo "- nginx: start the nginx webserver"
 	@echo "- check: launch lint and testall"
-	@echo "- lint: launch pep8 and pyflakes"
+	@echo "- lint: launch flake8"
 	@echo "- testall: launch all tests with corverage report (equivalent to make test && make testintegration)"
 	@echo "- test: launch unit tests with coverage report"
 	@echo "- testintegration: launch integration tests with coverage report. The API must be running on dev mode."
