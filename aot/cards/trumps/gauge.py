@@ -21,7 +21,7 @@ from aot.utils.pathfinding import a_star
 
 
 class Gauge:
-    MAX_VALUE = 100
+    MAX_VALUE = 40
 
     def __init__(self, board, value=0):
         self._board = board
