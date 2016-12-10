@@ -118,7 +118,7 @@ def test_play_trump_with_target(api, game):
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
-    api._send_all = MagicMock()
+    api._send_trump_played_message = MagicMock()
     game.add_action = MagicMock()
 
     api._play_trump(game, {
@@ -126,7 +126,7 @@ def test_play_trump_with_target(api, game):
         'target_index': 0,
     })
 
-    assert api._send_all.call_count == 1
+    assert api._send_trump_played_message.called
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called
 
@@ -136,13 +136,13 @@ def test_play_trump_without_target(api, game):
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:
             break
-    api._send_all = MagicMock()
+    api._send_trump_played_message = MagicMock()
     game.add_action = MagicMock()
 
     api._play_trump(game, {
         'name': trump['name'],
     })
 
-    assert api._send_all.call_count == 1
+    assert api._send_trump_played_message.called
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called

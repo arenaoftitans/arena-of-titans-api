@@ -430,7 +430,6 @@ class Api(AotWs):
                 'y': player.current_square.y,
             },
             'trumps_statuses': player.trumps_statuses,
-            'gauge_value': player.gauge.value,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -574,18 +573,22 @@ class Api(AotWs):
             if target and game.active_player.play_trump(trump, target=target):
                 last_action = game.active_player.last_action
                 game.add_action(last_action)
-                message = {
-                    'rt': RequestTypes.PLAY_TRUMP,
-                    'active_trumps': self._get_active_trumps_message(game),
-                    'trumps_statuses': game.active_player.trumps_statuses,
-                    'gauge_value': game.active_player.gauge.value,
-                    'last_action': self._get_action_message(last_action),
-                }
-                self._send_all(message)
+                self._send_trump_played_message(game, last_action)
             else:
                 self._send_trump_error(game.active_player, trump)
         else:
             raise AotError('wrong_trump_target')
+
+    def _send_trump_played_message(self, game, last_action):
+        message = {
+            'rt': RequestTypes.PLAY_TRUMP,
+            'active_trumps': self._get_active_trumps_message(game),
+            'trumps_statuses': game.active_player.trumps_statuses,
+            'last_action': self._get_action_message(last_action),
+        }
+        self._send_all_others(message)
+        message['gauge_value'] = game.active_player.gauge.value
+        self.sendMessage(message)
 
     def _send_trump_error(self, active_player, trump):
         if not active_player.gauge.can_play_trump(trump):
