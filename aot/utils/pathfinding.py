@@ -18,7 +18,7 @@
 ################################################################################
 
 
-def a_star(start, goal, board):
+def a_star(start, goal, board, movements_types=None):
     '''A* algorithom to find shortest path from start to goal
 
     Take and adapted from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
@@ -51,7 +51,7 @@ def a_star(start, goal, board):
 
         open_set.remove(current)
         closed_set.add(current)
-        for neighbor in board.get_neighbors(current):
+        for neighbor in board.get_neighbors(current, movements_types=movements_types):
             if neighbor in closed_set:
                 continue  # Ignore the neighbor which is already evaluated.
             # The distance from start to a neighbor. The dist between current and neighbors is

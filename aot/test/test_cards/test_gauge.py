@@ -19,7 +19,10 @@
 
 import pytest
 
-from aot.cards.trumps import SimpleTrump
+from aot.cards.trumps import (
+    Gauge,
+    SimpleTrump,
+)
 from aot.test import (
     board,
     gauge,
@@ -50,17 +53,35 @@ def test_can_play_simple_trump(gauge):
     assert gauge.can_play_trump(trump)
 
 
-def test_move(gauge, mock):
+def test_move_all_movements_types(gauge, mock):
     a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line', 'diagonal']
 
-    gauge.move(from_, to)
+    gauge.move(from_, to, card)
 
-    a_star.assert_called_once_with(from_, to, None)
+    a_star.assert_called_once_with(from_, to, None, movements_types=card.movements_types)
     assert gauge.value == 12
+
+
+def test_move_line(board):
+    # We use the real implementation of a_start with the goal of finding the correct distance
+    # traveled by the card.
+    gauge = Gauge(board)
+    from_ = board[0, 8]
+    to = board[1, 7]
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line']
+
+    gauge.move(from_, to, card)
+
+    assert gauge.value == 2
 
 
 def test_move_empty(gauge, mock):
@@ -69,10 +90,13 @@ def test_move_empty(gauge, mock):
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line', 'diagonal']
 
-    gauge.move(from_, to)
+    gauge.move(from_, to, card)
 
-    a_star.assert_called_once_with(from_, to, None)
+    a_star.assert_called_once_with(from_, to, None, movements_types=['line', 'diagonal'])
     assert gauge.value == 10
 
 
@@ -82,10 +106,13 @@ def test_move_max(gauge, mock):
     gauge._value = gauge.MAX_VALUE
     from_ = MagicMock()
     to = MagicMock()
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line', 'diagonal']
 
-    gauge.move(from_, to)
+    gauge.move(from_, to, card)
 
-    a_star.assert_called_once_with(from_, to, None)
+    a_star.assert_called_once_with(from_, to, None, movements_types=['line', 'diagonal'])
     assert gauge.value == gauge.MAX_VALUE
 
 
@@ -98,18 +125,22 @@ def test_move_knight(gauge, mock):
     card = MagicMock()
     card.is_knight = True
 
-    gauge.move(from_, to, card=card)
+    gauge.move(from_, to, card)
 
     assert not a_star.called
     assert gauge.value == 11
 
 
 def test_move_wrong(gauge):
-    gauge.move(None, None)
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line', 'diagonal']
+
+    gauge.move(None, None, card)
     assert gauge.value == 0
-    gauge.move(MagicMock(), None)
+    gauge.move(MagicMock(), None, card)
     assert gauge.value == 0
-    gauge.move(None, MagicMock())
+    gauge.move(None, MagicMock(), card)
     assert gauge.value == 0
 
 

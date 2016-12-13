@@ -156,3 +156,30 @@ def test_get_neighbors(board):
         board[1, 6],
         board[2, 6],
     ])
+
+
+def test_get_neighbors_with_movements_types_line(board):
+    square = board[0, 8]
+    neighbors = board.get_neighbors(square, movements_types={'line'})
+    assert neighbors == set([
+        board[1, 8],
+        board[0, 7],
+    ])
+
+
+def test_get_neighbors_with_movements_types_diagonal(board):
+    square = board[0, 8]
+    neighbors = board.get_neighbors(square, movements_types={'diagonal'})
+    assert neighbors == set([
+        board[1, 7],
+    ])
+
+
+def test_get_neighbors_with_movements_types_all(board):
+    square = board[0, 8]
+    neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
+    assert neighbors == set([
+        board[1, 8],
+        board[1, 7],
+        board[0, 7],
+    ])

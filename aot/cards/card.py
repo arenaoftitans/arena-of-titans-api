@@ -67,6 +67,7 @@ class Card:
         self._movements = [
             self.movements_methods[mvt] for mvt in movements_types
         ]
+        self._movements_types = movements_types
         self._number_movements = number_movements
         self._cost = cost
         if special_actions:
@@ -232,6 +233,10 @@ class Card:
             'color': self.color,
             'description': self.description,
         }
+
+    @property
+    def movements_types(self):
+        return self._movements_types
 
     @property
     def name(self):  # pragma: no cover

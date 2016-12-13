@@ -27,7 +27,7 @@ class Gauge:
         self._board = board
         self._value = value
 
-    def move(self, from_, to, card=None):
+    def move(self, from_, to, card):
         if card is not None and card.is_knight:
             is_knight = True
         else:
@@ -39,7 +39,8 @@ class Gauge:
             else:
                 # The list returned by a_star always contain the 1st and last square. Which means
                 # it over-evaluate the distance by 1.
-                distance = len(a_star(from_, to, self._board)) - 1
+                path = a_star(from_, to, self._board, movements_types=card.movements_types)
+                distance = len(path) - 1
                 if distance > 0:
                     self._value += distance
 

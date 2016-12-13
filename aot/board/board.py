@@ -97,10 +97,12 @@ class Board:
         squares.add(self[square.x + 1, square.y + 1, 'right', on_circle])
         return squares
 
-    def get_neighbors(self, square):
+    def get_neighbors(self, square, movements_types=None):
         neighbors = set()
-        neighbors.update(self.get_line_squares(square, ['all']))
-        neighbors.update(self.get_diagonal_squares(square, ['all']))
+        if movements_types is None or 'line' in movements_types:
+            neighbors.update(self.get_line_squares(square, ['all']))
+        if movements_types is None or 'diagonal' in movements_types:
+            neighbors.update(self.get_diagonal_squares(square, ['all']))
         return neighbors
 
     def _correct_x(self, x):
