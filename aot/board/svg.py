@@ -28,7 +28,7 @@ class SvgBoardCreator:
     _LAST_LINE_CLASS_TEMPLATE = "${{playerIndex == {} ? 'last-line-square' : ''}}"
     _SQUARE_ID_TEMPLATE = 'square-{}-{}'
     _ROTATE_TEMPLATE = 'rotate({} {} {})'
-    _NG_PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
+    _PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
@@ -102,7 +102,7 @@ class SvgBoardCreator:
                     element['tag'])
                 svg_element.set('d', element['d'])
                 self._set_id(svg_element, current_xid, self._yid)
-                self._set_ng_click_attr(svg_element, current_xid, self._yid)
+                self._set_click_attr(svg_element, current_xid, self._yid)
                 self._board_layer.append(svg_element)
                 xid_delta += 1
             self._yid += 1
@@ -113,10 +113,10 @@ class SvgBoardCreator:
     def _set_id(self, element, x, y):
         element.set('id', self._get_id(x, y))
 
-    def _set_ng_click_attr(self, element, x, y):
+    def _set_click_attr(self, element, x, y):
         square_id = self._get_id(x, y)
-        ng_click_attr = self._NG_PLAY_ATTR_TEMPLATE.format(square_id, x, y)
-        element.set('click.delegate', ng_click_attr)
+        click_attr = self._PLAY_ATTR_TEMPLATE.format(square_id, x, y)
+        element.set('click.delegate', click_attr)
 
     def _fill_svg(self):
         delta_xid = 0
@@ -134,7 +134,7 @@ class SvgBoardCreator:
                 element.set('y', str(y))
                 element.set('height', str(self._fill_element_height))
                 element.set('width', str(self._fill_element_width))
-                self._set_ng_click_attr(element, current_xid, self._yid)
+                self._set_click_attr(element, current_xid, self._yid)
                 self._yid += 1
                 self._board_layer.append(element)
             delta_xid += 1
@@ -151,10 +151,10 @@ class SvgBoardCreator:
                 square_id = self._get_id(x, y)
                 class_template = \
                     "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"
-                ng_class = class_template.format(primary_class, square_id)
+                class_ = class_template.format(primary_class, square_id)
                 if self._is_on_last_line(y):
-                    ng_class += ' ' + self._last_line_class(x)
-                square.set('class', ng_class)
+                    class_ += ' ' + self._last_line_class(x)
+                square.set('class', class_)
 
     def _is_on_last_line(self, y):
         return y == 8
