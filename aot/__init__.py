@@ -30,8 +30,9 @@ from aot.cards import (
     Deck,
 )
 from aot.cards.trumps import (
+    Gauge,
     SimpleTrump,
-    TrumpList
+    TrumpList,
 )
 from aot.game import (
     Game,
@@ -186,12 +187,14 @@ def get_game(players_description, name='standard', test=False):
     for player in players_description:
         if player:
             deck = get_deck(board)
+            gauge = get_gauge(board)
             player = Player(
                 player['name'],
                 player['id'],
                 player['index'],
                 board,
                 deck,
+                gauge,
                 trumps=get_trumps_list(board_name=name, test=test),
                 hero=player.get('hero', ''),
                 is_ai=player.get('is_ai', False))
@@ -201,3 +204,7 @@ def get_game(players_description, name='standard', test=False):
 
 def get_board(name='standard'):
     return Board(get_board_description(name=name))
+
+
+def get_gauge(board):
+    return Gauge(board)

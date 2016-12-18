@@ -25,7 +25,7 @@ from aot.game.ai import (
     find_move_to_play,
     distance_covered,
 )
-from aot.game.ai.pathfinding import a_star
+from aot.utils.pathfinding import a_star
 # board is a fixture, ignore the unsued import warnig
 from aot.test import board
 

@@ -43,6 +43,7 @@ class Api(AotWs):
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
+        'gauge_too_low': 'trumps.gauge_too_low',
         'inexistant_slot': 'Trying to update non existant slot.',
         'max_number_trumps': 'trumps.max_number_trumps',
         'max_number_played_trumps': 'trumps.max_number_played_trumps',
@@ -269,13 +270,14 @@ class Api(AotWs):
                     'hero': player.hero,
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
-                'can_play_trump': player.can_play_trump,
+                'trumps_statuses': player.trumps_statuses,
+                'gauge_value': player.gauge.value,
                 'hand': [{
                     'name': card.name,
                     'color': card.color,
                     'description': card.description,
                 } for card in player.hand],
-                'trumps': player.trumps
+                'trumps': player.trumps,
             }
             self._send_to(message, player.id)
 
@@ -427,7 +429,7 @@ class Api(AotWs):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
-            'can_play_trump': player.can_play_trump,
+            'trumps_statuses': player.trumps_statuses,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -464,7 +466,8 @@ class Api(AotWs):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
-            'can_play_trump': player.can_play_trump,
+            'trumps_statuses': player.trumps_statuses,
+            'gauge_value': player.gauge.value,
             'elapsed_time': get_time() - game.active_player.turn_start_time,
         }
 
@@ -570,20 +573,27 @@ class Api(AotWs):
             if target and game.active_player.play_trump(trump, target=target):
                 last_action = game.active_player.last_action
                 game.add_action(last_action)
-                message = {
-                    'rt': RequestTypes.PLAY_TRUMP,
-                    'active_trumps': self._get_active_trumps_message(game),
-                    'can_play_trump': game.active_player.can_play_trump,
-                    'last_action': self._get_action_message(last_action),
-                }
-                self._send_all(message)
+                self._send_trump_played_message(game, last_action)
             else:
-                self._send_trump_error(game.active_player)
+                self._send_trump_error(game.active_player, trump)
         else:
             raise AotError('wrong_trump_target')
 
-    def _send_trump_error(self, active_player):
-        if not active_player.can_play_trump:
+    def _send_trump_played_message(self, game, last_action):
+        message = {
+            'rt': RequestTypes.PLAY_TRUMP,
+            'active_trumps': self._get_active_trumps_message(game),
+            'trumps_statuses': game.active_player.trumps_statuses,
+            'last_action': self._get_action_message(last_action),
+        }
+        self._send_all_others(message)
+        message['gauge_value'] = game.active_player.gauge.value
+        self.sendMessage(message)
+
+    def _send_trump_error(self, active_player, trump):
+        if not active_player.gauge.can_play_trump(trump):
+            raise AotErrorToDisplay('gauge_too_low')
+        elif not active_player.can_play_trump(trump):
             raise AotErrorToDisplay(
                 'max_number_played_trumps',
                 {'num': Player.MAX_NUMBER_TRUMPS_PLAYED},

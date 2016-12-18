@@ -61,6 +61,7 @@ class Player:
     _board = None
     _can_play = False
     _game_id = None
+    _gauge = None
     _is_connected = False
     _current_square = None
     _deck = None
@@ -81,13 +82,25 @@ class Player:
     _special_actions_names = None
     _turn_start_time = 0
 
-    def __init__(self, name, id, index, board, deck, trumps=None, hero='', is_ai=False):
+    def __init__(
+            self,
+            name,
+            id,
+            index,
+            board,
+            deck,
+            gauge,
+            trumps=None,
+            hero='',
+            is_ai=False,
+    ):
         self._name = name
         self._id = id
         self._index = index
         self._hero = hero
         self._is_ai = is_ai
         self._board = board
+        self._gauge = gauge
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
@@ -132,12 +145,14 @@ class Player:
 
         possible_squares = self._get_possible_squares(card, check_move)
         dest_square = self._get_dest_square(square)
+        start_square = self.current_square
 
         if dest_square in possible_squares or not check_move:
             self._deck.play(card)
             self.move(dest_square)
 
         if card is not None:
+            self._gauge.move(start_square, dest_square, card)
             self.last_action = LastAction(
                 description='played_card',
                 card=card.infos,
@@ -288,9 +303,10 @@ class Player:
         return self._available_trumps[trump_name]
 
     def play_trump(self, trump, target=None):
-        if self.can_play_trump and target is not None:
+        if self.can_play_trump(trump) and target is not None:
             if target._affect_by(trump):
                 self._number_trumps_played += 1
+                self._gauge.play_trump(trump)
                 self.last_action = LastAction(
                     description='played_trump',
                     trump=trump,
@@ -302,6 +318,11 @@ class Player:
                 return False
         else:
             return False
+
+    def can_play_trump(self, trump):
+        return self.can_play and \
+            self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED and \
+            self._gauge.can_play_trump(trump)
 
     def __str__(self):  # pragma: no cover
         return 'Player(id={id}, name={name}, index={index})'\
@@ -342,10 +363,6 @@ class Player:
         self._can_play = bool(value)
 
     @property
-    def can_play_trump(self):
-        return self.can_play and self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED
-
-    @property
     def current_square(self):
         return self._current_square
 
@@ -364,6 +381,10 @@ class Player:
     @game_id.setter
     def game_id(self, value):
         self._game_id = value
+
+    @property
+    def gauge(self):
+        return self._gauge
 
     @property
     def hand(self):
@@ -481,3 +502,7 @@ class Player:
                 "cost": trump.args['cost'],
                 "must_target_player": trump.args['must_target_player']
             } for trump in self._available_trumps]
+
+    @property
+    def trumps_statuses(self):
+        return [self.can_play_trump(trump) for trump in self._available_trumps]
