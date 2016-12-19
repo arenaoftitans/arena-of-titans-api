@@ -268,6 +268,10 @@ class Api(AotWs):
                     'index': player.index,
                     'name': player.name,
                     'hero': player.hero,
+                    'square': {
+                        'x': player.current_square.x,
+                        'y': player.current_square.y,
+                    },
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
                 'trumps_statuses': player.trumps_statuses,

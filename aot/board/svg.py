@@ -27,13 +27,20 @@ class SvgBoardCreator:
     NS = {'ns': 'http://www.w3.org/2000/svg'}
     _LAST_LINE_CLASS_TEMPLATE = "${{playerIndex == {} ? 'last-line-square' : ''}}"
     _SQUARE_ID_TEMPLATE = 'square-{}-{}'
-    _ROTATE_TEMPLATE = 'rotate({} {} {})'
-    _NG_PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
+    _ARRIVAL_SPOT_CLASS_TEMPLATE = 'arrival arrival-{index}'
+    _PAWN_CLASS_TEMPLATE = r"${{playerIndexes.indexOf({index}) === -1 ? 'hidden' : ''}} ${{isPawnClickable[{index}] ? 'pointer' : ''}}"  # noqa
+    _PAWN_DELETAGE_TEMPLATE = '{attr}.delegate'
+    _PAWN_DELETAGE_TEMPLATES = {
+        'click': 'pawnClicked({index})',
+        'mouseover': 'showPlayerName({index}, $event)',
+        'mouseout': 'hidePlayerName()',
+    }
+    _PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
+    _SQUARE_CLASS_TEMPLATE = "square {} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"  # noqa
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
     def __init__(self, board_description):
-        svg = board_description['svg']
         self._xid = 0
         self._yid = 0
         self._number_arms = board_description['number_arms']
@@ -43,12 +50,6 @@ class SvgBoardCreator:
             board_description['number_arms'])
         self._arms_width = board_description['arms_width']
         self._arms_length = board_description['arms_length']
-        self._x_origin, self._y_origin = svg['fill_origin']
-        self._rotation_x, self._rotation_y = svg['rotation_center']
-        self._lines = svg['lines']
-        self._fill_element_width = svg['fill']['width']
-        self._fill_element_height = svg['fill']['height']
-        self._fill_element_tag = svg['fill']['tag']
 
         self._svg, self._board_layer, self._pawn_layer = self._load_template()
         self._create_svg_board()
@@ -65,47 +66,9 @@ class SvgBoardCreator:
             return svg, board_layer, pawn_layer
 
     def _create_svg_board(self):
-        for _ in range(self._number_arms):
-            self._rotate_board()
-            self._draw_lines()
-            self._fill_svg()
-
-        self._rotate_board()
-        self._paint_svg()
-
-    def _rotate_board(self):
-        delta_angle = int(360 / self._number_arms)
-        for element in self._board_layer:
-            if element.get(self._TRANSFORM):
-                transformation = element.get('transform')
-                if transformation[9] == ' ':
-                    angle = int(transformation[7:9])
-                else:
-                    angle = int(transformation[7:10])
-                angle += delta_angle
-            else:
-                angle = delta_angle
-            transformation = self._ROTATE_TEMPLATE.format(
-                angle,
-                self._rotation_x,
-                self._rotation_y)
-            element.set(self._TRANSFORM, transformation)
-
-    def _draw_lines(self):
-        self._yid = 0
-        for line in self._lines:
-            xid_delta = 0
-            for element in line:
-                current_xid = self._xid + xid_delta
-                svg_element = etree.SubElement(
-                    self._board_layer,
-                    element['tag'])
-                svg_element.set('d', element['d'])
-                self._set_id(svg_element, current_xid, self._yid)
-                self._set_ng_click_attr(svg_element, current_xid, self._yid)
-                self._board_layer.append(svg_element)
-                xid_delta += 1
-            self._yid += 1
+        self._setup_board_layer()
+        self._setup_arrival_line()
+        self._setup_pawn_layer()
 
     def _get_id(self, x, y):
         return self._SQUARE_ID_TEMPLATE.format(x, y)
@@ -113,48 +76,25 @@ class SvgBoardCreator:
     def _set_id(self, element, x, y):
         element.set('id', self._get_id(x, y))
 
-    def _set_ng_click_attr(self, element, x, y):
+    def _set_click_attr(self, element, x, y):
         square_id = self._get_id(x, y)
-        ng_click_attr = self._NG_PLAY_ATTR_TEMPLATE.format(square_id, x, y)
-        element.set('click.delegate', ng_click_attr)
+        click_attr = self._PLAY_ATTR_TEMPLATE.format(square_id, x, y)
+        element.set('click.delegate', click_attr)
 
-    def _fill_svg(self):
-        delta_xid = 0
-        for i in range(self._arms_width):
-            self._yid = len(self._lines)
-            for j in range(self._arms_length):
-                current_xid = self._xid + delta_xid
-                x = i * self._fill_element_height + self._x_origin
-                y = j * self._fill_element_width + self._y_origin
-                element = etree.SubElement(
-                    self._board_layer,
-                    self._fill_element_tag)
-                self._set_id(element, current_xid, self._yid)
-                element.set('x', str(x))
-                element.set('y', str(y))
-                element.set('height', str(self._fill_element_height))
-                element.set('width', str(self._fill_element_width))
-                self._set_ng_click_attr(element, current_xid, self._yid)
-                self._yid += 1
-                self._board_layer.append(element)
-            delta_xid += 1
-        self._xid += self._arms_width
-
-    def _paint_svg(self):
+    def _setup_board_layer(self):
         for y, line in enumerate(self._colors_disposition):
             for x in range(len(line)):
                 path = './/*[@id="square-{}-{}"]'.format(x, y)
                 square = self._svg.xpath(path, namespaces=self.NS)[0]
+                self._set_click_attr(square, x, y)
                 color = self._colors_disposition[y][x]
                 svg_color = color.lower()
                 primary_class = svg_color + '-square'
                 square_id = self._get_id(x, y)
-                class_template = \
-                    "{} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"
-                ng_class = class_template.format(primary_class, square_id)
+                class_ = self._SQUARE_CLASS_TEMPLATE.format(primary_class, square_id)
                 if self._is_on_last_line(y):
-                    ng_class += ' ' + self._last_line_class(x)
-                square.set('class', ng_class)
+                    class_ += ' ' + self._last_line_class(x)
+                square.set('class', class_)
 
     def _is_on_last_line(self, y):
         return y == 8
@@ -179,6 +119,23 @@ class SvgBoardCreator:
             index = 3
 
         return self._LAST_LINE_CLASS_TEMPLATE.format(index)
+
+    def _setup_arrival_line(self):
+        arrival_layer = self._board_layer.xpath(
+            './/ns:g[@id="arrivalLayer"]',
+            namespaces=self.NS
+        )[0]
+        for index, arrival_spot in enumerate(arrival_layer):
+            arrival_spot.set('class', self._ARRIVAL_SPOT_CLASS_TEMPLATE.format(index=index))
+
+    def _setup_pawn_layer(self):
+        for index, pawn in enumerate(self._pawn_layer):
+            pawn.set('class', self._PAWN_CLASS_TEMPLATE.format(index=index))
+            for attr, value in self._PAWN_DELETAGE_TEMPLATES.items():
+                pawn.set(
+                    self._PAWN_DELETAGE_TEMPLATE.format(attr=attr),
+                    value.format(index=index)
+                )
 
     @property
     def svg(self):  # pragma: no cover
