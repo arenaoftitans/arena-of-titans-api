@@ -47,7 +47,7 @@ def width():
 
 def test_number_square(svg_board, height, width):
     board_layer = svg_board.svg.xpath(
-        './/ns:g[@id="boardLayer"]',
+        './/ns:g[@id="squaresLayer"]',
         namespaces=SvgBoardCreator.NS)[0]
     assert len(board_layer) == height * width
 
