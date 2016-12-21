@@ -183,3 +183,33 @@ def test_get_neighbors_with_movements_types_all(board):
         board[1, 7],
         board[0, 7],
     ])
+
+
+def test_get_neighbors_x1_circle(board):
+    square = board[0, 1]
+    neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
+    assert neighbors == set([
+        board[0, 0],
+        board[1, 0],
+        board[1, 1],
+        board[1, 2],
+        board[0, 2],
+        board[31, 2],
+        board[31, 1],
+        board[31, 0],
+    ])
+
+
+def test_get_neighbors_x31_circle(board):
+    square = board[31, 1]
+    neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
+    assert neighbors == set([
+        board[0, 0],
+        board[0, 1],
+        board[0, 2],
+        board[30, 2],
+        board[30, 1],
+        board[30, 0],
+        board[31, 0],
+        board[31, 2],
+    ])
