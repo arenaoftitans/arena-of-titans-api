@@ -124,7 +124,7 @@ def test_find_move_distance_null(board, goal_squares):
 @pytest.mark.timeout(1)
 def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=300)
-    card2 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=400)
+    card2 = Card(board, name='card2', movements_types=['line', 'diagonal'], cost=400)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
@@ -136,7 +136,7 @@ def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
 @pytest.mark.timeout(1)
 def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=300)
-    card2 = Card(board, name='card1', movements_types=['line'], cost=400)
+    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
@@ -148,7 +148,7 @@ def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
 @pytest.mark.timeout(1)
 def test_find_move_distance_null_with_cheaper_card(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
-    card2 = Card(board, name='card1', movements_types=['line'], cost=400)
+    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
