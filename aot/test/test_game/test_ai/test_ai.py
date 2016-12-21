@@ -37,18 +37,18 @@ def goal_squares(board):
 
 @pytest.mark.timeout(1)
 def test_a_star(board):
-    assert len(a_star(board[0, 8], board[19, 8], board)) == 25
-    assert len(a_star(board[0, 8], board[18, 8], board)) == 25
-    assert len(a_star(board[0, 8], board[17, 8], board)) == 25
-    assert len(a_star(board[0, 8], board[16, 8], board)) == 25
+    assert len(a_star(board[0, 8], board[19, 8], board)) == 24
+    assert len(a_star(board[0, 8], board[18, 8], board)) == 24
+    assert len(a_star(board[0, 8], board[17, 8], board)) == 24
+    assert len(a_star(board[0, 8], board[16, 8], board)) == 24
     assert len(a_star(board[18, 8], board[19, 8], board)) == 2
 
 
 @pytest.mark.timeout(1)
 def test_distance_difference(board):
     goal = board[19, 8]
-    assert distance_covered(board[0, 8], board[18, 8], goal, board) == 23
-    assert distance_covered(board[18, 8], board[0, 8], goal, board) == -23
+    assert distance_covered(board[0, 8], board[18, 8], goal, board) == 22
+    assert distance_covered(board[18, 8], board[0, 8], goal, board) == -22
     assert distance_covered(board[18, 8], board[18, 8], goal, board) == 0
 
 
@@ -126,6 +126,9 @@ def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=300)
     card2 = Card(board, name='card2', movements_types=['line', 'diagonal'], cost=400)
     hand = [card1, card2]
+    # Square (2, 3) is possible for card1 and reduce the distance to the goal square
+    # Make it occupied so we cannot go there and the test tests what it must.
+    board[2, 3].occupied = True
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
 
@@ -138,6 +141,9 @@ def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=300)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]
+    # Square (2, 3) is possible for card1 and reduce the distance to the goal square
+    # Make it occupied so we cannot go there and the test tests what it must.
+    board[2, 3].occupied = True
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
 

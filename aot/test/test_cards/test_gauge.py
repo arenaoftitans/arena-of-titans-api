@@ -84,6 +84,21 @@ def test_move_line(board):
     assert gauge.value == 2
 
 
+def test_move_from_x1_to_x31_circle(board):
+    # We use the real implementation of a_start with the goal of finding the correct distance
+    # traveled by the card.
+    gauge = Gauge(board)
+    from_ = board[1, 2]
+    to = board[31, 1]
+    card = MagicMock()
+    card.is_knight = False
+    card.movements_types = ['line']
+
+    gauge.move(from_, to, card)
+
+    assert gauge.value == 3
+
+
 def test_move_empty(gauge, mock):
     a_star = MagicMock(return_value=[])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
