@@ -116,7 +116,7 @@ def test_move_empty(gauge, mock):
 
 
 def test_move_max(gauge, mock):
-    a_star = MagicMock(return_value=[])
+    a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = gauge.MAX_VALUE
     from_ = MagicMock()

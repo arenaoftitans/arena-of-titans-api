@@ -73,9 +73,6 @@ class SvgBoardCreator:
     def _get_id(self, x, y):
         return self._SQUARE_ID_TEMPLATE.format(x, y)
 
-    def _set_id(self, element, x, y):
-        element.set('id', self._get_id(x, y))
-
     def _set_click_attr(self, element, x, y):
         square_id = self._get_id(x, y)
         click_attr = self._PLAY_ATTR_TEMPLATE.format(square_id, x, y)

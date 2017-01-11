@@ -583,7 +583,7 @@ class Api(AotWs):
         else:
             raise AotError('wrong_trump_target')
 
-    def _send_trump_played_message(self, game, last_action):
+    def _send_trump_played_message(self, game, last_action):  # pragma: no cover
         message = {
             'rt': RequestTypes.PLAY_TRUMP,
             'active_trumps': self._get_active_trumps_message(game),

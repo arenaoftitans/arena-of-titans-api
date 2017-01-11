@@ -235,7 +235,7 @@ class Card:
         }
 
     @property
-    def movements_types(self):
+    def movements_types(self):  # pragma: no cover
         return self._movements_types
 
     @property
