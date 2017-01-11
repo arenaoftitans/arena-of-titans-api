@@ -290,7 +290,6 @@ def test_reconnect_to_game_with_special_action(api, game):
     message = api._reconnect_to_game(game)
 
     api._get_action_message.assert_called_once_with(None)
-    print(message)
     assert message['reconnect']['special_action_name'] == 'action'
 
 
