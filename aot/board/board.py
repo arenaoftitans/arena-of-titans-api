@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import math
+
 from aot.board.square import (
     Square,
     SquareSet,
@@ -79,6 +81,9 @@ class Board:
                 x += 1
             self._board.append(line_board)
             y += 1
+
+    def get_arm_id(self, square):
+        return math.floor(square.x / self.arms_width)
 
     def get_line_squares(self, square, colors):
         squares = SquareSet(colors)
@@ -180,6 +185,14 @@ class Board:
 
     def is_in_arm(self, square):
         return square.y > self._inner_circle_higher_y
+
+    @property
+    def arms_width(self):
+        return self._arms_width
+
+    @property
+    def inner_circle_higher_y(self):  # pragma: no cover
+        return self._inner_circle_higher_y
 
     @property
     def _x_max(self):

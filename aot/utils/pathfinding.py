@@ -17,6 +17,12 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from aot.utils.heuristic import (
+    CORRECT_X_LEFT,
+    DISTANCE_BRANCH_TO_BRANCH,
+    Side,
+)
+
 
 def a_star(start, goal, board, movements_types=None):
     '''A* algorithom to find shortest path from start to goal
@@ -42,7 +48,7 @@ def a_star(start, goal, board, movements_types=None):
     # by passing by that node. That value is partly known, partly heuristic.
     fscore = {}
     # For the first node, that value is completely heuristic.
-    fscore[start] = heuristic_cost_estimate(start, goal)
+    fscore[start] = heuristic_cost_estimate(start, goal, board)
 
     while len(open_set) > 0:
         current = get_node_lowest_fscore(fscore, open_set)
@@ -65,13 +71,49 @@ def a_star(start, goal, board, movements_types=None):
             # This path is the best until now. Record it!
             came_from[neighbor] = current
             gscore[neighbor] = tentative_gscore
-            fscore[neighbor] = gscore[neighbor] + heuristic_cost_estimate(neighbor, goal)
+            fscore[neighbor] = gscore[neighbor] + heuristic_cost_estimate(neighbor, goal, board)
 
     return []  # pragma: no cover
 
 
-def heuristic_cost_estimate(start, goal):
-    return 10 * (abs(start.x - goal.x) + abs(start.y - goal.y))
+def heuristic_cost_estimate(start, goal, board):
+    '''Give an estimation of the cost required to go from start to goal.
+
+    The cost is calculated as follows:
+
+    1. If the two squares are in the same arm, we compute the absolute difference between the
+       two abscissas and the two ordinates.
+    2. If they are not, we get the distance between the two branches from a static map. We then
+       estimate the distance to get from on to the other. To do that, we compute the adjusted
+       distance depending on the side in x (x0 is at 1 from x31, at 2 from x30 but at 4 from
+       x4, 5 from x5 and so on) and the distance in ordinate.
+    '''
+    no_arm_start = board.get_arm_id(start)
+    no_arm_goal = board.get_arm_id(goal)
+
+    if no_arm_start == no_arm_goal:
+        xx = abs(start.x - goal.x)
+        yy = abs(start.y - goal.y)
+        if xx == yy:
+            # Moving in diagonal
+            return 10 * xx
+        else:
+            if xx == 0 or yy == 0:
+                return 10 * (xx + yy)
+            else:
+                return 10 * (xx + yy - 1)
+    else:
+        branch_distance = DISTANCE_BRANCH_TO_BRANCH[no_arm_start][no_arm_goal]
+        start_x_corrected = start.x % board.arms_width
+        goal_x_corrected = goal.x % board.arms_width
+        if branch_distance.side == Side.LEFT:
+            goal_x_corrected = CORRECT_X_LEFT[goal_x_corrected]
+            arm_distance = start_x_corrected + goal_x_corrected
+        else:
+            goal_x_corrected += board.arms_width
+            arm_distance = goal_x_corrected - start_x_corrected
+
+        return 20 * branch_distance.distance + arm_distance + abs(start.y - goal.y)
 
 
 def get_node_lowest_fscore(fscore, open_set):
