@@ -32,6 +32,8 @@ from aot.utils.pathfinding import a_star
 from aot.test import board
 
 
+# If hostname match a SHA1 (ie run in docker), increase value of TIMEOUT to prevent deploy
+# errors. Leave it to 1 in all other cases to detect slowness.
 TIMEOUT = 1
 if re.match(r'[0-9a-f]{5,40}', socket.gethostname()):
     TIMEOUT = 2
