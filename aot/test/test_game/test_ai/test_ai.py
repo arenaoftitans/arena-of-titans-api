@@ -18,6 +18,8 @@
 ################################################################################
 
 import pytest
+import re
+import socket
 
 from aot.cards import Card
 from aot.game.ai import (
@@ -30,12 +32,17 @@ from aot.utils.pathfinding import a_star
 from aot.test import board
 
 
+TIMEOUT = 1
+if re.match(r'[0-9a-f]{5,40}', socket.gethostname()):
+    TIMEOUT = 2
+
+
 @pytest.fixture
 def goal_squares(board):
     return set([board[19, 8]])
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_a_star(board):
     assert len(a_star(board[0, 8], board[19, 8], board)) == 24
     assert len(a_star(board[0, 8], board[18, 8], board)) == 24
@@ -44,7 +51,7 @@ def test_a_star(board):
     assert len(a_star(board[18, 8], board[19, 8], board)) == 2
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_distance_difference(board):
     goal = board[19, 8]
     assert distance_covered(board[0, 8], board[18, 8], goal, board) == 22
@@ -52,7 +59,7 @@ def test_distance_difference(board):
     assert distance_covered(board[18, 8], board[18, 8], goal, board) == 0
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_best_distance(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=400)
     card2 = Card(board, name='card2', movements_types=['line'], number_movements=2, cost=400)
@@ -63,7 +70,7 @@ def test_find_move_to_play_best_distance(board, goal_squares):
     assert result.square == board[0, 6]
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_same_cost(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=500)
@@ -74,7 +81,7 @@ def test_find_move_to_play_same_cost(board, goal_squares):
     assert result.square == board[0, 7]
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_best_cost(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
@@ -85,7 +92,7 @@ def test_find_move_to_play_best_cost(board, goal_squares):
     assert result.square == board[0, 7]
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_no_move(board, goal_squares):
     card1 = Card(board, name='card1')
     card2 = Card(board, name='card2')
@@ -96,7 +103,7 @@ def test_find_move_to_play_no_move(board, goal_squares):
     assert result.square is None
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_backward(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'])
     card2 = Card(board, name='card2', movements_types=['line'])
@@ -110,7 +117,7 @@ def test_find_move_to_play_backward(board, goal_squares):
     assert result.square is None
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'])
     hand = [card1]
@@ -121,7 +128,7 @@ def test_find_move_distance_null(board, goal_squares):
     assert result.card is card1
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=300)
     card2 = Card(board, name='card2', movements_types=['line', 'diagonal'], cost=400)
@@ -136,7 +143,7 @@ def test_find_move_distance_null_card1_positive_card2(board, goal_squares):
     assert result.card is card2
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=300)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
@@ -151,7 +158,7 @@ def test_find_move_distance_null_card2_positive_card1(board, goal_squares):
     assert result.card is card1
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_with_cheaper_card(board, goal_squares):
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
@@ -163,7 +170,7 @@ def test_find_move_distance_null_with_cheaper_card(board, goal_squares):
     assert result.card is card2
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_full_set_of_goal(board):
     goal_squares = set([board[19, 8], board[18, 8], board[17, 8], board[16, 8]])
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
@@ -175,7 +182,7 @@ def test_find_move_to_play_full_set_of_goal(board):
     assert result.square is board[19, 4]
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_move_to_goal(board):
     # We can use a set here to be sure of the order in which the square will be iterated trough
     # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
@@ -189,7 +196,7 @@ def test_move_to_goal(board):
     assert result.square is board[16, 8]
 
 
-@pytest.mark.timeout(1)
+@pytest.mark.timeout(TIMEOUT)
 def test_move_to_goal_same_distance_cheapest_card(board):
     # We can use a set here to be sure of the order in which the square will be iterated trough
     # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
