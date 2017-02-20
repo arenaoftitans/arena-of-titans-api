@@ -36,7 +36,7 @@ class SvgBoardCreator:
         'mouseout': 'hidePlayerName()',
     }
     _PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
-    _SQUARE_CLASS_TEMPLATE = "square {} ${{_possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"  # noqa
+    _SQUARE_CLASS_TEMPLATE = "square {} ${{possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"  # noqa
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
