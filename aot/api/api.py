@@ -40,6 +40,7 @@ class Api(AotWs):
     # Class variables.
     INDEX_FIRST_PLAYER = 0
     AI_TIMEOUT = 6
+    MIN_ELAPSED_TIME_TO_CONSIDER = 5
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
@@ -457,6 +458,13 @@ class Api(AotWs):
                 self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _get_play_message(self, player, game):
+        # Since between the request arrives (game.active_player.turn_start_time) and the time we
+        # get here some time has passed. Which means, the elapsed time sent to the frontend could
+        # be greater than 0 at the beginning of a turn.
+        elapsed_time = get_time() - game.active_player.turn_start_time
+        if elapsed_time < self.MIN_ELAPSED_TIME_TO_CONSIDER:
+            elapsed_time = 0
+
         return {
             'rt': RequestTypes.PLAY,
             'your_turn': player.id == game.active_player.id,
@@ -472,7 +480,7 @@ class Api(AotWs):
             'active_trumps': self._get_active_trumps_message(game),
             'trumps_statuses': player.trumps_statuses,
             'gauge_value': player.gauge.value,
-            'elapsed_time': get_time() - game.active_player.turn_start_time,
+            'elapsed_time': elapsed_time,
         }
 
     def _get_active_trumps_message(self, game):
