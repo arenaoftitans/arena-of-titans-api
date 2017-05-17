@@ -284,6 +284,28 @@ def test_continue_game_with_ai(game):
     assert game.players[1].is_ai
 
 
+def test_dont_increase_nb_turns_if_same_player(game):
+    assert game.nb_turns == 0
+
+    game._active_player.can_play = True
+
+    game._find_next_player()
+
+    assert game.nb_turns == 0
+
+
+def test_increase_nb_turns(game):
+    assert game.nb_turns == 0
+
+    game._active_player.can_play = False
+    # Make sure the next player is the active player.
+    game._players = [game._active_player]
+
+    game._find_next_player()
+
+    assert game.nb_turns == 1
+
+
 def test_play_auto(game, mocker):
     card = game.active_player.hand[0]
     card._special_actions = None

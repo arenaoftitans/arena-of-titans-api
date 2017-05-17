@@ -481,6 +481,7 @@ class Api(AotWs):
             'trumps_statuses': player.trumps_statuses,
             'gauge_value': player.gauge.value,
             'elapsed_time': elapsed_time,
+            'nb_turns': game.nb_turns,
         }
 
     def _get_active_trumps_message(self, game):

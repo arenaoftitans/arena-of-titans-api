@@ -30,8 +30,10 @@ class Game:
     _active_player = None
     _board = None
     _game_id = None
+    _index_first_player = 0
     _is_debug = False
     _is_over = False
+    _nb_turns = 0
     _next_rank_available = 1
     _players = []
     _players_id_to_index = None
@@ -40,11 +42,13 @@ class Game:
     def __init__(self, board, players):
         self._actions = []
         self._active_player = players[0]
+        self._index_first_player = self._active_player.index
         self._board = board
         self._is_over = False
         self._players = players
         self._players_id_to_index = {player.id: index for index, player in enumerate(players)
                                      if player}
+        self._nb_turns = 0
         self._next_rank_available = 1
         self._winners = []
 
@@ -151,6 +155,8 @@ class Game:
 
         while index_next_player < len(self._players):
             player = self._players[index_next_player]
+            if player is not None and player.index == self._index_first_player:
+                self._nb_turns += 1
             if player is not None and not player.has_won:
                 break
             index_next_player += 1
@@ -233,6 +239,10 @@ class Game:
             return None
         else:
             return self._actions[-1]
+
+    @property
+    def nb_turns(self):
+        return self._nb_turns
 
     @property
     def players(self):

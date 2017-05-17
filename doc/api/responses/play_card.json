@@ -6,6 +6,7 @@
     "on_last_line": false,
     "rank": -1,
     "next_player": 0,
+    "nb_turns": 1,
     "hand": [
         {
             "color": "RED",
