@@ -56,8 +56,14 @@ check: lint testall
 
 .PHONY: lint
 lint:
-	${FLAKE8_CMD} --max-line-length 99 --exclude "conf.py" --exclude "aot/test" --ignore none aot
-	${FLAKE8_CMD} --max-line-length 99 --ignore=F811,F401 aot/test/
+	${FLAKE8_CMD} --max-line-length 99 \
+	    --exclude "conf.py" \
+	    --exclude "aot/test" \
+	    --ignore none \
+	    aot
+	${FLAKE8_CMD} --max-line-length 99 \
+	    --ignore=F811,F401 \
+	    aot/test/
 
 
 .PHONY: testall
