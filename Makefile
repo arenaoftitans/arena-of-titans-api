@@ -1,10 +1,9 @@
 -include Makefile.in
 
-FLAKE8_CMD ?= /usr/bin/python3-flake8
-JINJA2_CLI ?= /usr/bin/jinja2
-PYTHON_CMD ?= /usr/bin/python3
-PYTEST_CMD ?= /usr/bin/py.test-3
-PYTEST_WATCH_CMD ?= /usr/bin/ptw-3
+FLAKE8_CMD ?= flake8
+PYTHON_CMD ?= python3
+PYTEST_CMD ?= py.test
+PYTEST_WATCH_CMD ?= ptw
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
