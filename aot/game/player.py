@@ -496,11 +496,11 @@ class Player:
     def trumps(self):
         return [
             {
-                "name": trump.args['name'],
-                "description": trump.args['description'],
-                "duration": trump.args['duration'],
-                "cost": trump.args['cost'],
-                "must_target_player": trump.args['must_target_player'],
+                'name': trump.args['name'],
+                'description': trump.args['description'],
+                'duration': trump.args['duration'],
+                'cost': trump.args['cost'],
+                'must_target_player': trump.args['must_target_player'],
             } for trump in self._available_trumps]
 
     @property

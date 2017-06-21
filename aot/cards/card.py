@@ -247,7 +247,7 @@ class Card:
         return self._special_actions
 
     def __str__(self):  # pragma: no cover
-        return "Card(name={name}, color={color}, colors={colors})"\
+        return 'Card(name={name}, color={color}, colors={colors})'\
             .format(name=self.name, color=self.color, colors=self.colors)
 
     def __repr__(self):  # pragma: no cover

@@ -59,9 +59,13 @@ lint:
 	${FLAKE8_CMD} --max-line-length 99 \
 	    --exclude "conf.py" \
 	    --exclude "aot/test" \
+	    --inline-quotes "'" \
+	    --multiline-quotes "'''" \
 	    --ignore none \
 	    aot
 	${FLAKE8_CMD} --max-line-length 99 \
+	    --inline-quotes "'" \
+	    --multiline-quotes "'''" \
 	    --ignore=F811,F401 \
 	    aot/test/
 

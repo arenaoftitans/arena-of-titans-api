@@ -525,7 +525,7 @@ def test_reconnect_after_action(player1, player2, players):
             'special_action': None,
             'trump': None,
         },
-        "history": [
+        'history': [
             [
                 {
                     'card': None,

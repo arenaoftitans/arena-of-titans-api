@@ -111,12 +111,12 @@ class Board:
         return neighbors
 
     def _correct_x(self, x):
-        """Correct the absissa, ie make it positive and congrent to _x_max
+        '''Correct the absissa, ie make it positive and congrent to _x_max
 
         **PARAMETERS**
 
         * *x* - integer or tuple of coordonates
-        """
+        '''
         coords = None
         if isinstance(x, tuple):
             coords = x
@@ -160,14 +160,14 @@ class Board:
         return len(self._board) * len(self._board[0])
 
     def __getitem__(self, coords):
-        """Return the square at the given coordonates
+        '''Return the square at the given coordonates
 
         **PARAMTERS**
 
         * *coords* - tuple of coordonates. Use a third optional element to
           indicate horizontal direction (among 'left', 'right'). Use a forth optional element to
           indicate if you are currenctly on the circle.
-        """
+        '''
         x, y, x_direction, on_circle = self._correct_x(coords)
 
         if y is not None and \

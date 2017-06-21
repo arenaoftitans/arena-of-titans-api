@@ -29,9 +29,9 @@ from aot.config import config
 
 
 class AotEventHandler(FileSystemEventHandler):
-    """Inspired by RegexMatchingEventHandler
+    '''Inspired by RegexMatchingEventHandler
 
-    https://github.com/gorakhargosh/watchdog/blob/d7ceb7ddd48037f6d04ab37297a63116655926d9/src/watchdog/events.py#L457."""  # noqa
+    https://github.com/gorakhargosh/watchdog/blob/d7ceb7ddd48037f6d04ab37297a63116655926d9/src/watchdog/events.py#L457.'''  # noqa
 
     IGNORE_REGEXES = [re.compile(r'.*test.*'), re.compile(r'__pycache__')]
     EVENT_TYPE_MOVED = 'moved'

@@ -39,8 +39,8 @@ logging.basicConfig(level=logging.DEBUG)
 def test_not_enough_players(player1):
     yield from player1.send('init_game')
     create_game_request = [{
-        "name": "Player 1",
-        "index": 0,
+        'name': 'Player 1',
+        'index': 0,
     }]
     yield from player1.send(
         'create_game',
@@ -77,10 +77,10 @@ def test_cannot_join(player1, player2, players):
     yield from player1.send('init_game')
     for i in range(1, get_number_players()):
         take_slot_message = {
-            "rt": "SLOT_UPDATED",
-            "slot": {
-                "index": i,
-                "state": "TAKEN",
+            'rt': 'SLOT_UPDATED',
+            'slot': {
+                'index': i,
+                'state': 'TAKEN',
             },
         }
         yield from player1.send('update_slot', message_override=take_slot_message)

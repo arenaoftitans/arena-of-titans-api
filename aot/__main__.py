@@ -116,7 +116,7 @@ def cleanup(wsserver, loop):
             pass
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Start the AoT API')
     parser.add_argument(
         '--debug',
