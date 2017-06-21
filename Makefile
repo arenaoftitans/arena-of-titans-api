@@ -28,6 +28,12 @@ help:
 	@echo "- static: generate all static files for the API like SVG boards"
 
 
+.PHONY: deps
+deps:
+	pip install -U pip
+	pip install -r requires.txt
+	pip install -r tests_requires.txt
+
 .PHONY: doc
 doc:
 	cd doc && make html
@@ -51,6 +57,16 @@ nginx:
 
 .PHONY: check
 check: lint testall
+
+
+.PHONY: ci
+ci: deps cicfg lint test
+
+
+.PHONY: cicfg
+cicfg:
+	# Use sample config file as dev config file for redis related unit tests to pass.
+	cp config/config.staging.toml config/config.dev.toml
 
 
 .PHONY: lint
