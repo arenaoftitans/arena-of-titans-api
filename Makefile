@@ -1,3 +1,5 @@
+-include Makefile.in
+
 FLAKE8_CMD ?= /usr/bin/python3-flake8
 JINJA2_CLI ?= /usr/bin/jinja2
 PYTHON_CMD ?= /usr/bin/python3

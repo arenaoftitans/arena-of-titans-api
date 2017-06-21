@@ -105,6 +105,10 @@ Use the ``make`` command to launch task. Use ``make help`` to view the list of p
 
 - To launch the integration tests: ``py.test aot/test/integration``
 
+.. note::
+
+    You can override any variables in the Makefile by creating a ``Makefile.in`` and specifying the values there like that: ``FLAKE8_CMD = ~/.virtualenvs/aot/bin/flake8``
+
 
 Contributing
 ============

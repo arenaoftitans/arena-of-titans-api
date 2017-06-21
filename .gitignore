@@ -10,3 +10,4 @@
 /uwsgi.ini
 /.testmondata
 /redis.conf
+/Makefile.in
