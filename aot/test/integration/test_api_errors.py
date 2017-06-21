@@ -40,7 +40,7 @@ def test_not_enough_players(player1):
     yield from player1.send('init_game')
     create_game_request = [{
         "name": "Player 1",
-        "index": 0
+        "index": 0,
     }]
     yield from player1.send(
         'create_game',
@@ -49,7 +49,7 @@ def test_not_enough_players(player1):
     assert response == {
         'error': 'Number of registered players differs with number of '
                  'players descriptions or too many/too few players are '
-                 'registered.'
+                 'registered.',
     }
 
 
@@ -80,8 +80,8 @@ def test_cannot_join(player1, player2, players):
             "rt": "SLOT_UPDATED",
             "slot": {
                 "index": i,
-                "state": "TAKEN"
-            }
+                "state": "TAKEN",
+            },
         }
         yield from player1.send('update_slot', message_override=take_slot_message)
 
@@ -136,11 +136,12 @@ def test_view_squares_wrong_card(player1, player2):
     for card in response['hand']:
         play_request = {
             'card_name': card['name'],
-            'card_color': card['color']
+            'card_color': card['color'],
         }
         yield from player1.send(
             'view_possible_squares',
-            message_override={'play_request': play_request})
+            message_override={'play_request': play_request},
+        )
         response = yield from player1.recv()
         if len(response['possible_squares']) > 0:
             break
@@ -148,10 +149,12 @@ def test_view_squares_wrong_card(player1, player2):
     # Wrong card to play.
     # Wrong color
     new_square = response['possible_squares'][0]
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'card_color': 'wrong_color',
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'card_color': 'wrong_color',
+        },
+    }
     yield from player1.send('view_possible_squares', message_override=msg)
 
     response = yield from player1.recv()
@@ -161,7 +164,7 @@ def test_view_squares_wrong_card(player1, player2):
     msg = {
         'card_name': card['name'],
         'x': new_square['x'],
-        'y': new_square['y']
+        'y': new_square['y'],
     }
     yield from player1.send('view_possible_squares', message_override={'play_request': msg})
 
@@ -169,23 +172,27 @@ def test_view_squares_wrong_card(player1, player2):
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
     # Wrong name
-    msg = {'play_request': {
-        'card_name': 'wrong_name',
-        'card_color': card['color'],
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': 'wrong_name',
+            'card_color': card['color'],
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('view_possible_squares', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
     # Missing name
-    msg = {'play_request': {
-        'card_color': card['color'],
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_color': card['color'],
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('view_possible_squares', message_override=msg)
 
     response = yield from player1.recv()
@@ -201,57 +208,66 @@ def test_play_wrong_card(player1, player2):
     for card in response['hand']:
         play_request = {
             'card_name': card['name'],
-            'card_color': card['color']
+            'card_color': card['color'],
         }
         yield from player1.send(
             'view_possible_squares',
-            message_override={'play_request': play_request})
+            message_override={'play_request': play_request},
+        )
         response = yield from player1.recv()
         if len(response['possible_squares']) > 0:
             break
 
     # Wrong color
     new_square = response['possible_squares'][0]
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'card_color': 'wrong_color',
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'card_color': 'wrong_color',
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
     # Missing color
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
     # Wrong name
-    msg = {'play_request': {
-        'card_name': 'wrong_name',
-        'card_color': card['color'],
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': 'wrong_name',
+            'card_color': card['color'],
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
 
     # Missing name
-    msg = {'play_request': {
-        'card_color': card['color'],
-        'x': new_square['x'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_color': card['color'],
+            'x': new_square['x'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
@@ -267,7 +283,7 @@ def test_play_wrong_square(player1, player2):
     for card in response['hand']:
         play_request = {
             'card_name': card['name'],
-            'card_color': card['color']
+            'card_color': card['color'],
         }
         yield from player1.send(
             'view_possible_squares',
@@ -278,70 +294,82 @@ def test_play_wrong_square(player1, player2):
 
     # Wrong x
     new_square = response['possible_squares'][0]
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'card_color': card['color'],
-        'x': 5,
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'card_color': card['color'],
+            'x': 5,
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.'
+        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.',
     }
 
     # Wrong y
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'card_color': card['color'],
-        'x': new_square['x'],
-        'y': -1
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'card_color': card['color'],
+            'x': new_square['x'],
+            'y': -1,
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.'
+        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.',
     }
 
     # Missing x
-    msg = {'play_request': {
-        'card_name': card['name'],
-        'card_color': card['color'],
-        'y': new_square['y']
-    }}
+    msg = {
+        'play_request': {
+            'card_name': card['name'],
+            'card_color': card['color'],
+            'y': new_square['y'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.'
+        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.',
     }
 
     # Missing y
-    msg = {'play_request': {
-        'card_color': card['color'],
-        'card_name': card['name'],
-        'x': new_square['x'],
-    }}
+    msg = {
+        'play_request': {
+            'card_color': card['color'],
+            'card_name': card['name'],
+            'x': new_square['x'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
     assert response == {
-        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.'
+        'error_to_display': 'This square doesn\'t exist or you cannot move there yet.',
     }
 
     # Wrong card and wrong coords
     # Missing y
-    msg = {'play_request': {
-        'card_color': card['color'],
-        'card_name': 'wrong_name',
-        'x': new_square['x'],
-    }}
+    msg = {
+        'play_request': {
+            'card_color': card['color'],
+            'card_name': 'wrong_name',
+            'x': new_square['x'],
+        },
+    }
     yield from player1.send('play_card', message_override=msg)
 
     response = yield from player1.recv()
-    assert response == {'error_to_display': 'This card doesn\'t exist or is not in your hand.'}
+    assert response == {
+        'error_to_display': 'This card doesn\'t exist or is not in your hand.',
+    }
 
 
 @pytest.mark.asyncio(forbid_global_loop=True)
@@ -351,20 +379,21 @@ def test_play_wrong_trump_without_target(player1, player2):
 
     # Unknown
     play_request = {
-        'name': 'TOTO'
+        'name': 'TOTO',
     }
     yield from player1.send(
         'play_trump_with_target',
-        message_override={'play_request': play_request})
+        message_override={'play_request': play_request},
+    )
     response = yield from player1.recv()
     assert response == {'error': 'Unknown trump.'}
 
     # Missing
-    play_request = {
-    }
+    play_request = {}
     yield from player1.send(
         'play_trump_with_target',
-        message_override={'play_request': play_request})
+        message_override={'play_request': play_request},
+    )
     response = yield from player1.recv()
     assert response == {'error': 'Unknown trump.'}
 
@@ -376,18 +405,19 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Unknown
     play_request = {
-        'name': 'TOTO'
+        'name': 'TOTO',
     }
     yield from player1.send(
         'play_trump_with_target',
-        message_override={'play_request': play_request})
+        message_override={'play_request': play_request},
+    )
     response = yield from player1.recv()
     assert response == {'error': 'Unknown trump.'}
 
     # Wrong index
     play_request = {
         'name': 'Tower Blue',
-        'target_index': 78
+        'target_index': 78,
     }
     yield from player1.send(
         'play_trump_with_target',
@@ -397,11 +427,12 @@ def test_play_wrong_trump_with_target(player1, player2):
 
     # Missing index
     play_request = {
-        'name': 'Tower Blue'
+        'name': 'Tower Blue',
     }
     yield from player1.send(
         'play_trump_with_target',
-        message_override={'play_request': play_request})
+        message_override={'play_request': play_request},
+    )
     response = yield from player1.recv()
     assert response == {'error': 'You must specify a target player.'}
 
@@ -410,7 +441,8 @@ def test_play_wrong_trump_with_target(player1, player2):
     }
     yield from player1.send(
         'play_trump_with_target',
-        message_override={'play_request': play_request})
+        message_override={'play_request': play_request},
+    )
     response = yield from player1.recv()
     assert response == {'error': 'Unknown trump.'}
 
@@ -443,7 +475,7 @@ def test_play_two_trumps_on_same_player(players):
 
     response = yield from player.recv()
     assert response == {
-        'error_to_display': 'trumps.max_number_trumps'
+        'error_to_display': 'trumps.max_number_trumps',
     }
 
 
@@ -472,7 +504,7 @@ def test_reconnect_wrong_game_id(player1, player2, players):
 
     msg = {
         'game_id': 'toto',
-        'player_id': player_id
+        'player_id': player_id,
     }
     yield from new_player.send('join_game', message_override=msg)
     response = yield from new_player.recv()
@@ -494,7 +526,7 @@ def test_reconnect_wrong_player_id(player1, player2, players):
 
     msg = {
         'game_id': game_id,
-        'player_id': 'toto'
+        'player_id': 'toto',
     }
     yield from new_player.send('join_game', message_override=msg)
     response = yield from new_player.recv()

@@ -212,7 +212,7 @@ class Player:
                               id=self.id,
                               name=self.name,
                               nb_passed=self._number_turns_passed_not_connected,
-                              max_pass=self.MAX_NUMBER_TURN_EXPECTING_RECONNECT
+                              max_pass=self.MAX_NUMBER_TURN_EXPECTING_RECONNECT,
                           ))
 
         self.last_action = LastAction(
@@ -284,7 +284,7 @@ class Player:
                 special_action=action,
                 player_name=self.name,
                 target_name=target.name,
-                player_index=self.index
+                player_index=self.index,
             )
 
     def cancel_special_action(self, action):
@@ -500,7 +500,7 @@ class Player:
                 "description": trump.args['description'],
                 "duration": trump.args['duration'],
                 "cost": trump.args['cost'],
-                "must_target_player": trump.args['must_target_player']
+                "must_target_player": trump.args['must_target_player'],
             } for trump in self._available_trumps]
 
     @property

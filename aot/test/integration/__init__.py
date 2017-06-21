@@ -42,7 +42,8 @@ def flush_cache():
     config.load_config('dev')
     cache = redis.Redis(
         host=config['cache']['host'],
-        port=config['cache']['port'])
+        port=config['cache']['port'],
+    )
     flush(cache)
     yield
     flush(cache)
@@ -86,8 +87,8 @@ def create_game(*players, with_holes=False):
             'slot': {
                 'player_name': '',
                 'state': 'CLOSED',
-                'index': 1
-            }
+                'index': 1,
+            },
         }
         yield from player1.send('update_slot2', message_override=msg)
         yield from player1.recv()
@@ -118,7 +119,7 @@ def create_game(*players, with_holes=False):
             create_game_msg['create_game_request'].append({
                 'index': i,
                 'hero': 'daemon',
-                'name': 'Player ' + str(i + 1)
+                'name': 'Player ' + str(i + 1),
             })
 
     # Correct player indexes (expect 1st) if there is holes

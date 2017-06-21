@@ -9,7 +9,7 @@ class Config:
         if self._config is None:
             raise RuntimeError(
                 'Configuration is not loaded. '
-                'Call load_config(type) before trying to use the coniguration'
+                'Call load_config(type) before trying to use the coniguration',
             )
         else:
             return self._config[key]

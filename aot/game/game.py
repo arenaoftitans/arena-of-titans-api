@@ -193,7 +193,7 @@ class Game:
             self.active_player.hand,
             self.active_player.current_square,
             self.active_player.ai_aim,
-            self._board
+            self._board,
         )
         if card:
             self.play_card(card, square)

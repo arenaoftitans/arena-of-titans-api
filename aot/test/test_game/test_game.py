@@ -324,7 +324,7 @@ def test_play_auto(game, mocker):
         game.active_player.hand,
         game.active_player.current_square,
         game.active_player.ai_aim,
-        game.active_player._board
+        game.active_player._board,
     )
     game.play_card.assert_called_once_with(card, None)
     assert not find_cheapeast_card.called
@@ -350,7 +350,7 @@ def test_play_auto_card_with_special_action(game, mocker):
         game.active_player.hand,
         game.active_player.current_square,
         game.active_player.ai_aim,
-        game.active_player._board
+        game.active_player._board,
     )
     game.play_card.assert_called_once_with(card, None)
     assert not find_cheapeast_card.called
@@ -394,7 +394,7 @@ def test_play_auto_no_card_found(game, mocker):
         game.active_player.hand,
         game.active_player.current_square,
         game.active_player._ai_direction_aim,
-        game.active_player._board
+        game.active_player._board,
     )
     assert not game.play_card.called
     assert find_cheapeast_card.call_count == 1

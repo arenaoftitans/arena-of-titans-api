@@ -48,7 +48,7 @@ def test_square_coords(board):
 
 def test_get_lines_squares(board):
     assert board.get_line_squares(board[0, 0], set(['blue'])) == set([
-        Square(0, 1, 'blue')
+        Square(0, 1, 'blue'),
     ])
     assert board.get_line_squares(board[7, 0], set(['yellow'])) == set([
         Square(6, 0, 'yellow'),

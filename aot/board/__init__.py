@@ -19,12 +19,12 @@
 
 from aot.board.board import (
     Board,
-    get_colors_disposition
+    get_colors_disposition,
 )
 from aot.board.color import (
     all_colors,
     Color,
-    ColorSet
+    ColorSet,
 )
 from aot.board.square import Square
 from aot.board.svg import SvgBoardCreator

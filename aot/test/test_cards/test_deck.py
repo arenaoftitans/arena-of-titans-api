@@ -24,7 +24,7 @@ from aot.cards import (
 # fixtures, ignore the unsued import warnig
 from aot.test import (
     board,
-    deck
+    deck,
 )
 from unittest.mock import MagicMock
 

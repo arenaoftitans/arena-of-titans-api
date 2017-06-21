@@ -63,7 +63,7 @@ def to_json(python_object):  # pragma: no cover
     elif isinstance(python_object, Square):
         return {
             'x': python_object.x,
-            'y': python_object.y
+            'y': python_object.y,
         }
     elif isinstance(python_object, Trump):
         return {

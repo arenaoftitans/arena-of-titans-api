@@ -151,7 +151,7 @@ class Api(AotWs):
             'player_id': self.id,
             'is_game_master': self._cache.is_game_master(),
             'index': index,
-            'slots': self._cache.get_slots(include_player_id=False)
+            'slots': self._cache.get_slots(include_player_id=False),
         }
 
         return initiliazed_game
@@ -203,7 +203,7 @@ class Api(AotWs):
                 del slot['player_id']
             response = {
                 'rt': RequestTypes.SLOT_UPDATED,
-                'slot': slot
+                'slot': slot,
             }
             self._send_all(response)
         else:
@@ -382,7 +382,7 @@ class Api(AotWs):
             possible_squares = game.view_possible_squares(card)
             self.sendMessage({
                 'rt': RequestTypes.VIEW_POSSIBLE_SQUARES,
-                'possible_squares': possible_squares
+                'possible_squares': possible_squares,
             })
         else:
             raise AotErrorToDisplay('wrong_card')
@@ -488,7 +488,7 @@ class Api(AotWs):
         return [{
                 'player_index': game_player.index,
                 'player_name': game_player.name,
-                'trumps': game_player.affecting_trumps
+                'trumps': game_player.affecting_trumps,
                 } if game_player else None for game_player in game.players]
 
     def _notify_special_action(self, special_actions_name):

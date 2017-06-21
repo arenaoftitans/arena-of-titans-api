@@ -107,7 +107,7 @@ class AotWs(WebSocketServerProtocol):
         if self._cache is not None:
             self._disconnect_timeouts[self.id] = self._loop.call_later(
                 self.DISCONNECTED_TIMEOUT_WAIT,
-                self._disconnect_player
+                self._disconnect_player,
             )
 
         if self.id in self._clients:
@@ -131,7 +131,7 @@ class AotWs(WebSocketServerProtocol):
                           .format(
                               game_id=self._game_id,
                               id=self.id,
-                              name=slot.get('player_name', None)
+                              name=slot.get('player_name', None),
                           ))
             self._message = {
                 'rt': RequestTypes.SLOT_UPDATED,

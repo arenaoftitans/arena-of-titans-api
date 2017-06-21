@@ -120,7 +120,7 @@ class SvgBoardCreator:
     def _setup_arrival_line(self):
         arrival_layer = self._board_layer.xpath(
             './/ns:g[@id="arrivalLayer"]',
-            namespaces=self.NS
+            namespaces=self.NS,
         )[0]
         for index, arrival_spot in enumerate(arrival_layer):
             arrival_spot.set('class', self._ARRIVAL_SPOT_CLASS_TEMPLATE.format(index=index))
@@ -131,7 +131,7 @@ class SvgBoardCreator:
             for attr, value in self._PAWN_DELETAGE_TEMPLATES.items():
                 pawn.set(
                     self._PAWN_DELETAGE_TEMPLATE.format(attr=attr),
-                    value.format(index=index)
+                    value.format(index=index),
                 )
 
     @property

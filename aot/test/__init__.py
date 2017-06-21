@@ -67,7 +67,7 @@ def game():
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,
-        'id': i
+        'id': i,
     } for i in range(get_number_players())]
     g = get_game(players_description, test=True)
     for player in g.players:

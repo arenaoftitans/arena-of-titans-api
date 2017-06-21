@@ -74,7 +74,7 @@ def test_line_card(board):
     card = Card(board, **card_properties)
     assert card.move(Square(7, 0, 'YELLOW')) == set([
         Square(8, 0, 'YELLOW'),
-        Square(6, 0, 'YELLOW')
+        Square(6, 0, 'YELLOW'),
     ])
 
 
@@ -88,7 +88,7 @@ def test_line_card_two_moves(board):
         Square(0, 1, 'BLUE'),
         Square(1, 1, 'BLUE'),
         Square(0, 2, 'BLUE'),
-        Square(31, 1, 'BLUE')
+        Square(31, 1, 'BLUE'),
     ])
 
 
@@ -111,7 +111,7 @@ def test_line_card_over_occupied_square(board):
     assert card.move(board[0, 0]) == set([
         board[0, 2],
         board[31, 1],
-        board[1, 1]
+        board[1, 1],
     ])
 
 
@@ -157,7 +157,7 @@ def test_diagonal_card_over_occupied_square(board):
     board[0, 2].occupied = True
     assert card.move(Square(0, 0, 'BLUE')) == set([
         board[30, 2],
-        board[2, 2]
+        board[2, 2],
     ])
 
 

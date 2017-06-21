@@ -246,7 +246,7 @@ def test_discard_card(player1, player2):
     play_request = {
         'card_name': first_card['name'],
         'card_color': first_card['color'],
-        'discard': True
+        'discard': True,
     }
     yield from player1.send('discard_card', message_override={'play_request': play_request})
     # Player moved answer
@@ -274,7 +274,7 @@ def test_view_squares(player1, player2):
     first_card = response['hand'][0]
     play_request = {
         'card_name': first_card['name'],
-        'card_color': first_card['color']
+        'card_color': first_card['color'],
     }
     yield from player1.send(
         'view_possible_squares',
@@ -294,7 +294,7 @@ def test_play_card(player1, player2):
     for card in response['hand']:
         play_request = {
             'card_name': card['name'],
-            'card_color': card['color']
+            'card_color': card['color'],
         }
         yield from player1.send(
             'view_possible_squares',
@@ -308,14 +308,14 @@ def test_play_card(player1, player2):
         'card_name': card['name'],
         'card_color': card['color'],
         'x': new_square['x'],
-        'y': new_square['y']
+        'y': new_square['y'],
     }
     yield from player1.send('play_card', message_override={'play_request': play_request})
 
     response, player_moved_expected_response = yield from player1.recv('player_played')
     player_moved_expected_response['new_square'] = {
         'x': new_square['x'],
-        'y': new_square['y']
+        'y': new_square['y'],
     }
     # last_action, elapsed_time will always differ
     assert 'last_action' in response
@@ -401,7 +401,7 @@ def test_reconnect(player1, player2, players):
 
     msg = {
         'game_id': game_id,
-        'player_id': player_id
+        'player_id': player_id,
     }
     yield from new_player.send('join_game', message_override=msg)
     response, expected_response = yield from new_player.recv('play_card')
@@ -449,7 +449,7 @@ def test_reconnect_with_holes(player1, player2, players):
 
     msg = {
         'game_id': game_id,
-        'player_id': player_id
+        'player_id': player_id,
     }
     yield from new_player.send('join_game', message_override=msg)
     response, expected_response = yield from new_player.recv('play_card')
@@ -504,7 +504,7 @@ def test_reconnect_after_action(player1, player2, players):
 
     msg = {
         'game_id': game_id,
-        'player_id': player_id
+        'player_id': player_id,
     }
     yield from new_player.send('join_game', message_override=msg)
     response, expected_response = yield from new_player.recv('play_card')
@@ -535,9 +535,9 @@ def test_reconnect_after_action(player1, player2, players):
                     'target_name': '',
                     'special_action': None,
                     'trump': None,
-                }
+                },
             ],
-            []
+            [],
         ],
         'game_over': False,
         'special_action_name': None,
@@ -565,7 +565,7 @@ def test_reconnect_game_creation(player1, player2, players):
 
     msg = {
         'game_id': game_id,
-        'player_id': player_id
+        'player_id': player_id,
     }
     yield from new_player.send('join_game', message_override=msg)
     response, expected_response = yield from new_player.recv('join_game')

@@ -43,7 +43,7 @@ def test_onClose(api, game):
 
     api._loop.call_later.assert_called_once_with(
         api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
+        api._disconnect_player,
     )
     api._disconnect_player()
 
@@ -74,7 +74,7 @@ def test_onClose_not_your_turn(api, game):
 
     api._loop.call_later.assert_called_once_with(
         api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
+        api._disconnect_player,
     )
     api._disconnect_player()
 
@@ -111,7 +111,7 @@ def test_onClose_just_before_ai(api, game):
 
     api._loop.call_later.assert_called_once_with(
         api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
+        api._disconnect_player,
     )
     api._disconnect_player()
 
@@ -148,7 +148,7 @@ def test_onClose_creating_game(api, game):
 
     api._loop.call_later.assert_called_once_with(
         api.DISCONNECTED_TIMEOUT_WAIT,
-        api._disconnect_player
+        api._disconnect_player,
     )
     api._disconnect_player()
 

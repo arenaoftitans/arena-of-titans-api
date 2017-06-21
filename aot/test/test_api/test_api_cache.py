@@ -40,7 +40,7 @@ def test_connect_unix_socket(mock):
             'socket': '/var/run/redis/aot-api-staging-latest.sock',
             'host': '127.0.0.1',
             'server_port': '6379',
-        }
+        },
     }
     redis = MagicMock()
     mock.patch('aot.api.api_cache.config', new=cfg)
@@ -56,7 +56,7 @@ def test_connect_tcp_socket(mock):
         'cache': {
             'host': '127.0.0.1',
             'port': '6379',
-        }
+        },
     }
     redis = MagicMock()
     mock.patch('aot.api.api_cache.config', new=cfg)
@@ -137,7 +137,7 @@ def test_get_slots_with_game_id(mock, api_cache):
         {
             'state': 'CLOSED',
             'player_id': 'id1',
-        }
+        },
     ]
     api_cache._cache.lrange = MagicMock(return_value=deepcopy(slots))
 
@@ -154,7 +154,7 @@ def test_get_slots_without_game_id(mock, api_cache):
         {
             'state': 'CLOSED',
             'player_id': 'id1',
-        }
+        },
     ]
     api_cache._cache.lrange = MagicMock(return_value=deepcopy(slots))
 
@@ -171,7 +171,7 @@ def test_get_slots_exclude_player_ids(api_cache):
         {
             'state': 'CLOSED',
             'player_id': 'id1',
-        }
+        },
     ]
     api_cache._cache.lrange = MagicMock(return_value=deepcopy(slots))
     for slot in slots:
