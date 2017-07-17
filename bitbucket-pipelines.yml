@@ -2,5 +2,7 @@ image: python:3.6
 pipelines:
   default:
     - step:
+        caches:
+          - pip
         script:
           - make ci
