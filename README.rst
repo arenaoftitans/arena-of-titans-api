@@ -10,8 +10,20 @@ or use the Arena of Titans API.
 Requirements
 ============
 
-#. `Python <https://www.python.org/>`__ 3.5 or above.
+#. `Python <https://www.python.org/>`__ 3.6 or above.
+#. Recent version of `docker <https://www.docker.com/>`__ and `docker-compose <https://docs.docker.com/compose/install/>`__. Versions that are known work: ``Docker version 1.13.1, build 27e468e/1.13.1``, ``docker-compose version 1.14.0, build c7bdf9e``.
 #. `git <https://www.git-scm.com>`__ 2.0 or above.
+
+Using with docker
+-----------------
+
+**Note:** If you intend to use the API with docker and docker-compose, this is the only relevant section.
+
+Run ``docker-compose up`` to run the API. You can check it is fine by opening http://localhost:8181 in a browser. You should see the default autobahn page.
+
+You can also use ``make dev`` to start docker compose.
+
+Each time you edit a file, the API will be reloaded automatically to ease development.
 
 
 Installing Python dependencies
@@ -94,7 +106,7 @@ On Windows, download the last release from `MS Open Tech <https://github.com/MSO
 Usage
 =====
 
-Use the ``make`` command to launch task. Use ``make help`` to view the list of possible targets and their description. Currently, you need the dependencies to be installed system wide for make targets to work. Alternatively, you can use:
+Use the ``make`` command to launch task. Tasks will be launched from the host within the docker container by default. Use ``make venvlint`` to run the linter from within a venv instead. Use ``make`` to view the list of possible targets and their description. Alternatively, you can use:
 
 - To launch the API in development mode (reload on modification): ``python3 aot/test_main.py``
 - To launch the unit tests with code coverage: ``python3 setup.py test``
