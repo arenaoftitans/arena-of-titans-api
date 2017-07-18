@@ -29,8 +29,10 @@ services:
       - aot-dev-redis
     ports:
       - "8181:8181"
+    tty: true
     volumes:
       - ./:/opt/aot-api
     working_dir: /opt/aot-api
   aot-dev-redis:
     image: docker.io/redis
+    tty: true
