@@ -1,7 +1,12 @@
+import logging
 import toml
+
+from os.path import exists
 
 
 class Config:
+    CONF_FILE_TEMPLATE = 'config/config.{type}.toml'
+
     def __init__(self):
         self._config = None
 
@@ -15,7 +20,14 @@ class Config:
             return self._config[key]
 
     def load_config(self, type, version='latest'):
-        with open('config/config.{type}.toml'.format(type=type), 'r') as config_file:
+        config_path = self.CONF_FILE_TEMPLATE.format(type=type)
+
+        if type == 'dev' and not exists(config_path):
+            docker_config_file = self.CONF_FILE_TEMPLATE.format(type='docker')
+            logging.info(f'Note: {config_path} not found, using {docker_config_file}')
+            config_path = docker_config_file
+
+        with open(config_path, 'r') as config_file:
             self._config = toml.load(config_file)
 
         self._set_version_in_socket_name('api', version)
