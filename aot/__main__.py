@@ -97,9 +97,10 @@ def _create_tcp_server(loop):
     ws_endpoint = 'ws://{host}:{port}'.format(
         host=host,
         port=config['api']['ws_port'])
+    port = config['api']['ws_port']
     factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
-    return loop.create_server(factory, host, config['api']['ws_port'])
+    return loop.create_server(factory, host, port)
 
 
 def cleanup(wsserver, loop):
