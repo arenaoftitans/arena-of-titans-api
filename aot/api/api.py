@@ -516,9 +516,11 @@ class Api(AotWs):
     def _get_action(self, game, play_request):
         action_name = play_request.get('special_action_name', '')
         target_index = play_request.get('target_index', None)
+        allow_no_target = play_request.get('cancel', False)
+
         if not action_name:
             raise AotError('missing_action_name')
-        elif target_index is None:
+        elif target_index is None and not allow_no_target:
             raise AotError('missing_action_target')
 
         try:

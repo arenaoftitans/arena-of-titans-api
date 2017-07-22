@@ -45,6 +45,13 @@ def test_view_possible_action_no_name(api, game):
     assert 'missing_action_name' in str(e)
 
 
+def test_view_possible_action_no_name_and_cancel(api, game):
+    with pytest.raises(AotError) as e:
+        api._view_possible_actions(game, {'cancel': True})
+
+    assert 'missing_action_name' in str(e)
+
+
 def test_view_possible_action_no_target_index(api, game):
     with pytest.raises(AotError) as e:
         api._view_possible_actions(game, {'special_action_name': 'action'})
@@ -218,9 +225,6 @@ def test_cancel_special_action(api, game):
     game.cancel_special_action = MagicMock(side_effect=consume_action)
     play_request = {
         'special_action_name': 'action',
-        'target_index': 0,
-        'x': 0,
-        'y': 0,
         'cancel': True,
     }
 
