@@ -37,16 +37,10 @@ except ImportError:
 
 
 def main(debug=False, type='prod', version='latest'):
-    config.load_config(type, version)
+    setup_config(type=type, version=version)
     setup_logging(debug=debug)
 
     wsserver, loop = None, None
-    # We can pass arguments to the uwsgi entry point so we store the values in the configuration.
-    if on_uwsgi:
-        uwsgi_config = configparser.ConfigParser()
-        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
-        type = uwsgi_config['aot']['type']
-        version = uwsgi_config['aot']['version']
 
     try:
         cleanup(None, None)
@@ -56,6 +50,18 @@ def main(debug=False, type='prod', version='latest'):
         pass
     finally:
         cleanup(wsserver, loop)
+
+
+def setup_config(type='prod', version='latest'):
+    # We cannot pass arguments to the uwsgi entry point.
+    # So we store the values in the configuration.
+    if on_uwsgi:
+        uwsgi_config = configparser.ConfigParser()
+        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
+        type = uwsgi_config['aot']['type']
+        version = uwsgi_config['aot']['version']
+
+    config.load_config(type, version)
 
 
 def setup_logging(debug=False):
