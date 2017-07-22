@@ -20,6 +20,7 @@
 import argparse
 import asyncio
 import configparser
+import daiquiri
 import logging
 import os
 import shutil
@@ -36,6 +37,9 @@ except ImportError:
 
 
 def main(debug=False, type='prod', version='latest'):
+    config.load_config(type, version)
+    setup_logging(debug=debug)
+
     wsserver, loop = None, None
     # We can pass arguments to the uwsgi entry point so we store the values in the configuration.
     if on_uwsgi:
@@ -43,11 +47,6 @@ def main(debug=False, type='prod', version='latest'):
         uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
         type = uwsgi_config['aot']['type']
         version = uwsgi_config['aot']['version']
-
-    config.load_config(type, version)
-
-    if debug:
-        logging.basicConfig(level=logging.DEBUG)
 
     try:
         cleanup(None, None)
@@ -57,6 +56,22 @@ def main(debug=False, type='prod', version='latest'):
         pass
     finally:
         cleanup(wsserver, loop)
+
+
+def setup_logging(debug=False):
+    if debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    log_file = config['api']['log_file']
+    logs_dir = os.path.dirname(log_file)
+    os.makedirs(logs_dir, exist_ok=True)
+    outputs = (
+        'stderr',
+        daiquiri.output.File(log_file),
+    )
+    daiquiri.setup(level=level, outputs=outputs)
 
 
 def startup(debug=False):
