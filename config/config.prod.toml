@@ -1,5 +1,6 @@
 [api]
 allow_debug = false
+log_file = 'logs/aot-api.log'
 # Keep in sync with config in aot-infra
 socket = '/aot-api/external/aot-api-ws-prod-{version}.sock'
 # The group for the unix socket

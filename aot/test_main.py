@@ -17,9 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 import re
 import time
+import sys
+
 from subprocess import Popen
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -65,10 +66,10 @@ class AotEventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         super().on_any_event(event)
-        logging.debug('Reload: start')
+        print('Reload: start', file=sys.stderr)
         self.stop_app()
         self.start_app()
-        logging.debug('Reload: done')
+        print('Reload: done', file=sys.stderr)
 
     def start_app(self):
         self.app = Popen([
@@ -93,7 +94,6 @@ class AotEventHandler(FileSystemEventHandler):
 
 def test_main():
     config.load_config('dev')
-    logging.basicConfig(level=logging.DEBUG)
 
     aot_event_handler = AotEventHandler()
     aot_event_handler.start_app()
