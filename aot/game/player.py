@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import daiquiri
 
 from aot.board import Square
 from aot.utils import get_time
@@ -51,6 +51,7 @@ class Player:
     #: Maximum number of turn the game will pass before considering that the player will never
     # reconnect and not take him/her into account in the remaining players.
     MAX_NUMBER_TURN_EXPECTING_RECONNECT = 4
+    LOGGER = daiquiri.getLogger(__name__)
 
     _ai_direction_aim = None
     _aim = set()
@@ -204,16 +205,13 @@ class Player:
     def pass_turn(self):
         if not self.is_connected and not self.is_ai:
             self._number_turns_passed_not_connected += 1
-            logging.debug('Game n°{game_id}: player n°{id} ({name}) pass his/her turn '
-                          'automatically (disconnected). {nb_passed}/{max_pass} before exclusion '
-                          'from the game.'
-                          .format(
-                              game_id=self.game_id,
-                              id=self.id,
-                              name=self.name,
-                              nb_passed=self._number_turns_passed_not_connected,
-                              max_pass=self.MAX_NUMBER_TURN_EXPECTING_RECONNECT,
-                          ))
+            self.LOGGER.debug(
+                f'Game n°{self.game_id}: player n°{self.id} ({self.name}) pass his/her turn '
+                'automatically (disconnected). '
+                '{self._number_turns_passed_not_connected}/'
+                '{self.MAX_NUMBER_TURN_EXPECTING_RECONNECT} before exclusion '
+                'from the game.',
+            )
 
         self.last_action = LastAction(
             description='passed_turn',

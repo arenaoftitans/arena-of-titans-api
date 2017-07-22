@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import daiquiri
 
 from aot.game.ai import (
     find_cheapest_card,
@@ -26,6 +26,8 @@ from aot.game.ai import (
 
 
 class Game:
+    LOGGER = daiquiri.getLogger(__name__)
+
     _actions = None
     _active_player = None
     _board = None
@@ -110,9 +112,10 @@ class Game:
                 else:
                     remaining_humain_players.add(player)
             elif player is not None and not player.is_ai:
-                logging.debug('Game n°{game_id}: player n°{id} ({name}) has been disconnected '
-                              'too long. Remove from remaining players'
-                              .format(game_id=self.game_id, id=player.id, name=player.name))
+                self.LOGGER.debug(
+                    'Game n°{self.game_id}: player n°{self.id} ({self.name}) has '
+                    'been disconnected too long. Remove from remaining players',
+                )
         remaining_players = remaining_ai.union(remaining_humain_players)
 
         if len(remaining_humain_players) == 1 and len(remaining_ai) == 0:
@@ -214,8 +217,9 @@ class Game:
     @game_id.setter
     def game_id(self, value):
         if self._game_id is not None:  # pragma: no cover
-            logging.warn('Changing game id for game {id} to {new_id}'
-                         .format(id=self._game_id, new_id=value))
+            self.LOGGER.warn(
+                f'Changing game id for game {self._game_id} to {value}',
+            )
         self._game_id = value
         for player in self.players:
             if player:

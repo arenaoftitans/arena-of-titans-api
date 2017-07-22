@@ -19,7 +19,7 @@
 
 import base64
 import json
-import logging
+import daiquiri
 import uuid
 
 from aot.config import config
@@ -41,6 +41,7 @@ class Api(AotWs):
     INDEX_FIRST_PLAYER = 0
     AI_TIMEOUT = 6
     MIN_ELAPSED_TIME_TO_CONSIDER = 5
+    LOGGER = daiquiri.getLogger(__name__)
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
@@ -75,6 +76,8 @@ class Api(AotWs):
     _pending_ai = set()
 
     def onMessage(self, payload, isBinary):
+        self.LOGGER.debug(payload)
+
         try:
             self._message = json.loads(payload.decode('utf-8'))
             self._rt = self._message.get('rt', '')
@@ -104,7 +107,7 @@ class Api(AotWs):
         except AotError as e:
             self._send_error(str(e), e.infos)
         except Exception as e:  # pragma: no cover
-            logging.exception('onMessage')
+            self.LOGGER.exception('onMessage')
 
     def _info(self):
         info = {
@@ -300,7 +303,9 @@ class Api(AotWs):
 
     def _play_ai_after_timeout(self, game):
         if not game.is_over:
-            logging.debug('Game n°{game_id}: schedule play for AI'.format(game_id=self._game_id))
+            self.LOGGER.debug(
+                f'Game n°{self._game_id}: schedule play for AI',
+            )
             self._pending_ai.add(self._game_id)
             self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
 
