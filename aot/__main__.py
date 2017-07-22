@@ -94,12 +94,11 @@ def _correct_permissions_unix_server(socket):
 
 def _create_tcp_server(loop):
     host = config['api']['host']
-    ws_endpoint = 'ws://{host}:{port}'.format(
-        host=host,
-        port=config['api']['ws_port'])
+    port = config['api']['ws_port']
+    ws_endpoint = f'ws://{host}:{port}'
     factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
-    return loop.create_server(factory, host, config['api']['ws_port'])
+    return loop.create_server(factory, host, port)
 
 
 def cleanup(wsserver, loop):
