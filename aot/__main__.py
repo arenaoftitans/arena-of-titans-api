@@ -43,8 +43,10 @@ def main(debug=False, type='prod', version='latest'):
     wsserver, loop = None, None
 
     try:
+        logging.info('API is starting')
         cleanup(None, None)
         wsserver, loop = startup(debug=debug)
+        logging.info('API is ready')
         loop.run_forever()
     except KeyboardInterrupt:
         pass
