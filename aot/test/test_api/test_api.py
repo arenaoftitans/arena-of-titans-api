@@ -34,11 +34,12 @@ from aot.test import (
 from unittest.mock import MagicMock
 
 
-def test_test_success(api):
+@pytest.mark.asyncio
+async def test_test_success(api):
     api._cache = MagicMock()
     api.sendMessage = MagicMock()
 
-    api.onMessage(b'{"rt": "test"}', False)
+    await api.onMessage(b'{"rt": "test"}', False)
 
     api._cache.test.assert_called_once_with()
     api.sendMessage.assert_called_once_with({
@@ -46,7 +47,8 @@ def test_test_success(api):
     })
 
 
-def test_test_failure(api):
+@pytest.mark.asyncio
+async def test_test_failure(api):
     def cache_test():
         raise Exception('Error in redis')
 
@@ -54,7 +56,7 @@ def test_test_failure(api):
     api._cache.test = MagicMock(side_effect=cache_test)
     api.sendMessage = MagicMock()
 
-    api.onMessage(b'{"rt": "test"}', False)
+    await api.onMessage(b'{"rt": "test"}', False)
 
     api._cache.test.assert_called_once_with()
     api.sendMessage.assert_called_once_with({
@@ -63,7 +65,8 @@ def test_test_failure(api):
     })
 
 
-def test_info(api):
+@pytest.mark.asyncio
+async def test_info(api):
     api._clients = {
         'client',
         'info_request',
@@ -72,7 +75,7 @@ def test_info(api):
     api._cache.info = MagicMock(return_value={'success': True})
     api.sendMessage = MagicMock()
 
-    api.onMessage(b'{"rt": "info"}', False)
+    await api.onMessage(b'{"rt": "info"}', False)
 
     api._cache.info.assert_called_once_with()
     api.sendMessage.assert_called_once_with({
@@ -81,67 +84,79 @@ def test_info(api):
     })
 
 
-def test_onMessage_unkwon_request_type(api):
+@pytest.mark.asyncio
+async def test_onMessage_unkwon_request_type(api):
     api._send_error = MagicMock()
 
-    api.onMessage(b'{}', False)
+    await api.onMessage(b'{}', False)
 
     api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
 
 
-def test_onMessage_reconnect(api):
+@pytest.mark.asyncio
+async def test_onMessage_reconnect(api):
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=True)
 
-    api.onMessage(b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False)
+    await api.onMessage(
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
+        False,
+    )
 
     api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
     api._reconnect.assert_called_once_with()
 
 
-def test_onMessage_reconnect_cannot_join(api):
+@pytest.mark.asyncio
+async def test_onMessage_reconnect_cannot_join(api):
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=False)
     api._send_error_to_display = MagicMock()
 
-    api.onMessage(b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False)
+    await api.onMessage(
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
+        False,
+    )
 
     api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
     assert api._reconnect.call_count == 0
     api._send_error_to_display.assert_called_once_with('cannot_join', {})
 
 
-def test_onMessage_new_game(api):
+@pytest.mark.asyncio
+async def test_onMessage_new_game(api):
     api._game_id = None
     api._create_new_game = MagicMock()
     api.sendMessage = MagicMock()
 
-    api.onMessage(b'{"rt": "INIT_GAME"}', False)
+    await api.onMessage(b'{"rt": "INIT_GAME"}', False)
 
     api._create_new_game.assert_called_once_with()
 
 
-def test_onMessage_creating_game(api):
+@pytest.mark.asyncio
+async def test_onMessage_creating_game(api):
     api._process_create_game_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=False)
     api._game_id = 'game_id'
     api.sendMessage = MagicMock()
 
-    api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
+    await api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
 
     api._process_create_game_request.assert_called_once_with()
 
 
-def test_onMessage_process_play_request(api):
+@pytest.mark.asyncio
+async def test_onMessage_process_play_request(api):
     api._process_play_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)
     api._game_id = 'game_id'
 
-    api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
+    await api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
 
     api._process_play_request.assert_called_once_with()
 
