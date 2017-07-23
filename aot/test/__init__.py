@@ -44,6 +44,11 @@ class PickleStub:
         return arg
 
 
+class AsyncMagicMock(MagicMock):
+    async def __call__(self, *args, **kwargs):
+        return super().__call__(*args, **kwargs)
+
+
 @pytest.fixture
 def board():
     return get_board()
