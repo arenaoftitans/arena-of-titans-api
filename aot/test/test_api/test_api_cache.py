@@ -264,7 +264,7 @@ async def test_save_session(api_cache):
 
     await api_cache.save_session(1)
 
-    api_cache._cache.zadd.assert_called_once_with('players:game_id', 'player_id', 1)
+    api_cache._cache.zadd.assert_called_once_with('players:game_id', 1, 'player_id')
     api_cache._cache.expire.call_count == 1
 
 

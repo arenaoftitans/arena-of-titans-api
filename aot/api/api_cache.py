@@ -189,7 +189,9 @@ class ApiCache:
     async def save_session(self, player_index):
         await self._cache.zadd(
             self.PLAYERS_KEY_TEMPLATE.format(self._game_id),
-            self._player_id, player_index)
+            player_index,
+            self._player_id,
+        )
         await self._cache.expire(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
 
     async def get_player_index(self):
