@@ -185,7 +185,7 @@ class AotWs(WebSocketServerProtocol):
 
         if self.id in self._disconnect_timeouts:
             self.LOGGER.debug(
-                'Game n°{self._game_id}: cancel disconnect timeout for {self.id}',
+                f'Game n°{self._game_id}: cancel disconnect timeout for {self.id}',
             )
             self._disconnect_timeouts[self.id].cancel()
 
@@ -219,7 +219,7 @@ class AotWs(WebSocketServerProtocol):
         player = [player for player in game.players if player and player.id == self.id][0]
         self.LOGGER.debug(
             f'Game n°{self._game_id}: player n°{self.id} ({player.name}) was reconnected '
-            'to the game',
+            f'to the game',
         )
         message = self._get_play_message(player, game)
 

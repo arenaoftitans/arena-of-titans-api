@@ -207,10 +207,10 @@ class Player:
             self._number_turns_passed_not_connected += 1
             self.LOGGER.debug(
                 f'Game n°{self.game_id}: player n°{self.id} ({self.name}) pass his/her turn '
-                'automatically (disconnected). '
-                '{self._number_turns_passed_not_connected}/'
-                '{self.MAX_NUMBER_TURN_EXPECTING_RECONNECT} before exclusion '
-                'from the game.',
+                f'automatically (disconnected). '
+                f'{self._number_turns_passed_not_connected}/'
+                f'{self.MAX_NUMBER_TURN_EXPECTING_RECONNECT} before exclusion '
+                f'from the game.',
             )
 
         self.last_action = LastAction(
