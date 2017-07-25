@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import asyncio
 import base64
 import json
 import daiquiri
@@ -33,7 +34,7 @@ from aot.api.utils import (
 )
 from aot.api.ws import AotWs
 from aot.utils import get_time
-from contextlib import contextmanager
+from asyncio_extras.contextmanager import async_contextmanager
 
 
 class Api(AotWs):
@@ -86,22 +87,22 @@ class Api(AotWs):
                 self._cache.init(game_id=self._game_id, player_id=self.id)
 
             if self._rt == 'test':
-                self._test()
+                await self._test()
             elif self._rt == 'info':
-                self._info()
+                await self._info()
             elif self._rt not in RequestTypes:
                 raise AotError('unknown_request', {'rt': self._rt})
             elif self._is_reconnecting:
-                if self._can_reconnect:
-                    self._reconnect()
+                if await self._can_reconnect:
+                    await self._reconnect()
                 else:
                     raise AotErrorToDisplay('cannot_join')
             elif self._creating_new_game:
-                self._create_new_game()
-            elif self._creating_game:
-                self._process_create_game_request()
+                await self._create_new_game()
+            elif await self._creating_game:
+                await self._process_create_game_request()
             else:
-                self._process_play_request()
+                await self._process_play_request()
         except AotErrorToDisplay as e:  # pragma: no cover
             self._send_error_to_display(str(e), e.infos)
         except AotError as e:
@@ -109,18 +110,18 @@ class Api(AotWs):
         except Exception as e:  # pragma: no cover
             self.LOGGER.exception('onMessage')
 
-    def _info(self):
+    async def _info(self):
         info = {
             # The client making the info request is in the clients dict. We must not count it.
             'number_connected_players': len(self._clients) - 1,
         }
-        info.update(self._cache.info())
+        info.update(await self._cache.info())
 
         self.sendMessage(info)
 
-    def _test(self):
+    async def _test(self):
         try:
-            self._cache.test()
+            await self._cache.test()
         except Exception as e:
             self.sendMessage({
                 'success': False,
@@ -131,73 +132,73 @@ class Api(AotWs):
                 'success': True,
             })
 
-    def _create_new_game(self):
+    async def _create_new_game(self):
         self._game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes)\
             .replace(b'=', b'')\
             .decode('ascii')
-        self._initialize_cache(new_game=True)
-        response = self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
+        await self._initialize_cache(new_game=True)
+        response = await self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
         self.sendMessage(response)
 
-    def _initialize_cache(self, new_game=False):
+    async def _initialize_cache(self, new_game=False):
         self._cache.init(game_id=self._game_id, player_id=self._id)
         if new_game:
-            self._cache.create_new_game(test=self._message.get('test', False))
-        index = self._affect_current_slot()
-        self._cache.save_session(index)
+            await self._cache.create_new_game(test=self._message.get('test', False))
+        index = await self._affect_current_slot()
+        await self._cache.save_session(index)
         return index
 
-    def _get_initialiazed_game_message(self, index):  # pragma: no cover
+    async def _get_initialiazed_game_message(self, index):  # pragma: no cover
         initiliazed_game = {
             'rt': RequestTypes.GAME_INITIALIZED,
             'game_id': self._game_id,
             'player_id': self.id,
-            'is_game_master': self._cache.is_game_master(),
+            'is_game_master': await self._cache.is_game_master(),
             'index': index,
-            'slots': self._cache.get_slots(include_player_id=False),
+            'slots': await self._cache.get_slots(include_player_id=False),
         }
 
         return initiliazed_game
 
-    def _affect_current_slot(self):
+    async def _affect_current_slot(self):
         player_name = self._message.get('player_name', '')
         hero = self._message.get('hero', '')
-        return self._cache.affect_next_slot(player_name, hero)
+        return await self._cache.affect_next_slot(player_name, hero)
 
-    def _process_create_game_request(self):
-        if not self._current_request_allowed:
+    async def _process_create_game_request(self):
+        if not await self._current_request_allowed:
             raise AotErrorToDisplay('game_master_request', {'rt': self._rt})
         elif self._rt == RequestTypes.INIT_GAME:
-            if self._can_join:
-                self._join()
+            if await self._can_join:
+                await self._join()
             else:
                 raise AotErrorToDisplay('cannot_join')
         elif self._rt == RequestTypes.SLOT_UPDATED:
-            self._modify_slots()
+            await self._modify_slots()
         elif self._rt == RequestTypes.CREATE_GAME:
-            self._create_game()
+            await self._create_game()
         else:  # pragma: no cover
             raise AotError('unknown_error')
 
-    def _join(self):
-        index = self._initialize_cache()
-        response = self._get_initialiazed_game_message(index)
+    async def _join(self):
+        index = await self._initialize_cache()
+        response = await self._get_initialiazed_game_message(index)
         self.sendMessage(response)
-        self._send_updated_slot_new_player(response['slots'][index])
+        await self._send_updated_slot_new_player(response['slots'][index])
 
-    def _send_updated_slot_new_player(self, slot):
+    async def _send_updated_slot_new_player(self, slot):
         message = {
             'rt': RequestTypes.SLOT_UPDATED,
             'slot': slot,
         }
-        self._send_all_others(message)
+        await self._send_all_others(message)
 
-    def _modify_slots(self):
+    async def _modify_slots(self):
         slot = self._message.get('slot', None)
         if slot is None:
             raise AotErrorToDisplay('no_slot')
-        elif self._cache.slot_exists(slot):
-            self._cache.update_slot(slot)
+        elif await self._cache.slot_exists(slot):
+            await self._cache.update_slot(slot)
             # The player_id is stored in the cache so we can know to which player which slot is
             # associated. We don't pass this information to the frontend. If the slot is new, it
             # doesn't have a player_id yet, so we have to check for its existance before attempting
@@ -208,12 +209,12 @@ class Api(AotWs):
                 'rt': RequestTypes.SLOT_UPDATED,
                 'slot': slot,
             }
-            self._send_all(response)
+            await self._send_all(response)
         else:
             raise AotError('inexistant_slot')
 
-    def _create_game(self):
-        number_players = self._cache.number_taken_slots()
+    async def _create_game(self):
+        number_players = await self._cache.number_taken_slots()
         create_game_request = self._message.get('create_game_request', None)
         if create_game_request is None:
             raise AotError('no_request')
@@ -224,8 +225,8 @@ class Api(AotWs):
                 not self._good_number_player_registered(number_players):
             raise AotError('registered_different_description')
 
-        self._initialize_game(players_description)
-        self._cache.game_has_started()
+        await self._initialize_game(players_description)
+        await self._cache.game_has_started()
 
     def _good_number_player_registered(self, number_players):
         return number_players >= 2 and number_players <= get_number_players()
@@ -233,15 +234,15 @@ class Api(AotWs):
     def _good_number_players_description(self, number_players, players_description):
         return number_players == len([player for player in players_description if player])
 
-    def _initialize_game(self, players_description):
-        slots = self._cache.get_slots()
+    async def _initialize_game(self, players_description):
+        slots = await self._cache.get_slots()
         for player in players_description:
             if player:
                 index = player['index']
                 player['id'] = slots[index].get('player_id', None)
                 player['is_ai'] = slots[index]['state'] == 'AI'
 
-        game = get_game(players_description, test=self._cache.is_test())
+        game = get_game(players_description, test=await self._cache.is_test())
         game.game_id = self._game_id
         game.is_debug = self._message.get('debug', False) and \
             config['api'].get('allow_debug', False)
@@ -249,7 +250,7 @@ class Api(AotWs):
             if player is not None and player.id in self._clients:
                 player.is_connected = True
 
-        self._cache.save_game(game)
+        await self._cache.save_game(game)
         self._send_game_created_message(game)
 
     def _send_game_created_message(self, game):  # pragma: no cover
@@ -289,14 +290,14 @@ class Api(AotWs):
             }
             self._send_to(message, player.id)
 
-    def _process_play_request(self):
-        with self._load_game() as game:
+    async def _process_play_request(self):
+        async with self._load_game() as game:
             if self._is_player_id_correct(game):
-                self._play_game(game)
+                await self._play_game(game)
                 if game.active_player.is_ai:
                     self._play_ai_after_timeout(game)
             elif game.active_player.is_ai:
-                self._play_ai(game)
+                await self._play_ai(game)
             else:
                 self._must_save_game = False
                 raise AotErrorToDisplay('not_your_turn')
@@ -307,33 +308,36 @@ class Api(AotWs):
                 f'Game n°{self._game_id}: schedule play for AI',
             )
             self._pending_ai.add(self._game_id)
-            self._loop.call_later(self.AI_TIMEOUT, self._process_play_request)
+            self._loop.call_later(
+                self.AI_TIMEOUT,
+                lambda: asyncio.ensure_future(self._process_play_request()),
+            )
 
-    def _play_ai(self, game):
+    async def _play_ai(self, game):
         self._pending_ai.discard(self._game_id)
         if game.active_player.is_ai:
             this_player = game.active_player
             if game.is_debug:
-                self._send_debug({
+                await self._send_debug({
                     'player': this_player.name,
                     'hand': this_player.hand_for_debug,
                 })
             game.play_auto()
-            self._send_play_message(game, this_player)
+            await self._send_play_message(game, this_player)
             if game.active_player.is_ai:
                 self._play_ai_after_timeout(game)
 
-    @contextmanager
-    def _load_game(self):
+    @async_contextmanager
+    async def _load_game(self):
         self._must_save_game = True
-        game = self._get_game()
+        game = await self._get_game()
         self._disconnect_pending_players(game)
         self._reconnect_pending_players(game)
 
         yield game
 
         if self._must_save_game:
-            self._save_game(game)
+            await self._save_game(game)
 
     def _disconnect_pending_players(self, game):
         self._change_players_connection_status(
@@ -355,33 +359,33 @@ class Api(AotWs):
             True,
         )
 
-    def _get_game(self):
-        return self._cache.get_game()
+    async def _get_game(self):
+        return await self._cache.get_game()
 
-    def _save_game(self, game):
-        self._cache.save_game(game)
+    async def _save_game(self, game):
+        await self._cache.save_game(game)
 
     def _is_player_id_correct(self, game):
         return self.id is not None and self.id == game.active_player.id
 
-    def _play_game(self, game):
+    async def _play_game(self, game):
         play_request = self._message.get('play_request', None)
         if play_request is None:
             raise AotError('no_request')
         elif self._rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
-            self._view_possible_squares(game, play_request)
+            await self._view_possible_squares(game, play_request)
         elif self._rt == RequestTypes.PLAY:
-            self._play(game, play_request)
+            await self._play(game, play_request)
         elif self._rt == RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS:
-            self._view_possible_actions(game, play_request)
+            await self._view_possible_actions(game, play_request)
         elif self._rt == RequestTypes.SPECIAL_ACTION_PLAY:
-            self._play_special_action(game, play_request)
+            await self._play_special_action(game, play_request)
         elif self._rt == RequestTypes.PLAY_TRUMP:
-            self._play_trump(game, play_request)
+            await self._play_trump(game, play_request)
         else:
             raise AotError('unknown_request', {'rt': self._rt})
 
-    def _view_possible_squares(self, game, play_request):
+    async def _view_possible_squares(self, game, play_request):
         card = self._get_card(game, play_request)
         if card is not None:
             possible_squares = game.view_possible_squares(card)
@@ -397,7 +401,7 @@ class Api(AotWs):
         color = play_request.get('card_color', None)
         return game.active_player.get_card(name, color)
 
-    def _play(self, game, play_request):
+    async def _play(self, game, play_request):
         this_player = game.active_player
         has_special_actions = False
         if play_request.get('pass', False):
@@ -416,7 +420,7 @@ class Api(AotWs):
                 raise AotErrorToDisplay('wrong_square')
             has_special_actions = game.play_card(card, square)
 
-        self._send_play_message(game, this_player)
+        await self._send_play_message(game, this_player)
         if has_special_actions:
             self._notify_special_action(game.active_player.name_next_special_action)
 
@@ -425,14 +429,14 @@ class Api(AotWs):
         y = play_request.get('y', None)
         return game.get_square(x, y)
 
-    def _send_play_message(self, game, this_player):  # pragma: no cover
+    async def _send_play_message(self, game, this_player):  # pragma: no cover
         game.add_action(this_player.last_action)
-        self._send_player_played_message(this_player, game)
+        await self._send_player_played_message(this_player, game)
 
         self._send_play_message_to_players(game)
 
-    def _send_player_played_message(self, player, game):  # pragma: no cover
-        self._send_all({
+    async def _send_player_played_message(self, player, game):  # pragma: no cover
+        await self._send_all({
             'rt': RequestTypes.PLAYER_PLAYED,
             'player_index': player.index,
             'new_square': {
@@ -502,7 +506,7 @@ class Api(AotWs):
             'special_action_name': special_actions_name,
         })
 
-    def _view_possible_actions(self, game, play_request):
+    async def _view_possible_actions(self, game, play_request):
         action, target_index = self._get_action(game, play_request)
         message = {
             'rt': RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
@@ -533,12 +537,12 @@ class Api(AotWs):
             else:  # pragma: no cover
                 raise e
 
-    def _play_special_action(self, game, play_request):
+    async def _play_special_action(self, game, play_request):
         action, target_index = self._get_action(game, play_request)
         if play_request.get('cancel', False):
             game.cancel_special_action(action)
         else:
-            self._play_special_action_on_target(game, play_request, action, target_index)
+            await self._play_special_action_on_target(game, play_request, action, target_index)
 
         if game.active_player.has_special_actions:
             self._notify_special_action(game.active_player.name_next_special_action)
@@ -546,7 +550,7 @@ class Api(AotWs):
             game.complete_special_actions()
             self._send_play_message_to_players(game)
 
-    def _play_special_action_on_target(self, game, play_request, action, target_index):
+    async def _play_special_action_on_target(self, game, play_request, action, target_index):
         kwargs = {}
         target = game.players[target_index]
         if action.require_target_square:
@@ -557,10 +561,10 @@ class Api(AotWs):
         game.play_special_action(action, target=target, action_args=kwargs)
         last_action = game.active_player.last_action
         game.add_action(last_action)
-        self._send_player_played_special_action(game.active_player, target)
+        await self._send_player_played_special_action(game.active_player, target)
 
-    def _send_player_played_special_action(self, player, target):  # pragma: no cover
-        self._send_all({
+    async def _send_player_played_special_action(self, player, target):  # pragma: no cover
+        await self._send_all({
             'rt': RequestTypes.SPECIAL_ACTION_PLAY,
             'player_index': target.index,
             'new_square': {
@@ -571,7 +575,7 @@ class Api(AotWs):
             'last_action': self._get_action_message(player.last_action),
         })
 
-    def _play_trump(self, game, play_request):
+    async def _play_trump(self, game, play_request):
         try:
             trump = self._get_trump(game, play_request.get('name', ''))
         except IndexError:
@@ -583,30 +587,30 @@ class Api(AotWs):
 
         if trump.must_target_player:
             trump.initiator = game.active_player.name
-            self._play_trump_with_target(game, trump, targeted_player_index)
+            await self._play_trump_with_target(game, trump, targeted_player_index)
         else:
-            self._play_trump_without_target(game, trump)
+            await self._play_trump_without_target(game, trump)
 
-    def _play_trump_with_target(self, game, trump, targeted_player_index):
+    async def _play_trump_with_target(self, game, trump, targeted_player_index):
         if targeted_player_index < len(game.players):
             target = game.players[targeted_player_index]
             if target and game.active_player.play_trump(trump, target=target):
                 last_action = game.active_player.last_action
                 game.add_action(last_action)
-                self._send_trump_played_message(game, last_action)
+                await self._send_trump_played_message(game, last_action)
             else:
                 self._send_trump_error(game.active_player, trump)
         else:
             raise AotError('wrong_trump_target')
 
-    def _send_trump_played_message(self, game, last_action):  # pragma: no cover
+    async def _send_trump_played_message(self, game, last_action):  # pragma: no cover
         message = {
             'rt': RequestTypes.PLAY_TRUMP,
             'active_trumps': self._get_active_trumps_message(game),
             'trumps_statuses': game.active_player.trumps_statuses,
             'last_action': self._get_action_message(last_action),
         }
-        self._send_all_others(message)
+        await self._send_all_others(message)
         message['gauge_value'] = game.active_player.gauge.value
         self.sendMessage(message)
 
@@ -624,20 +628,20 @@ class Api(AotWs):
                 {'num': Player.MAX_NUMBER_AFFECTING_TRUMPS},
             )
 
-    def _play_trump_without_target(self, game, trump):
-        self._play_trump_with_target(game, trump, game.active_player.index)
+    async def _play_trump_without_target(self, game, trump):
+        await self._play_trump_with_target(game, trump, game.active_player.index)
 
     def _get_trump(self, game, play_request):
         return game.active_player.get_trump(play_request.title())
 
     @property
-    def _can_join(self):
-        return self._cache.game_exists(self._game_id) and \
-            self._cache.has_opened_slots(self._game_id)
+    async def _can_join(self):
+        return await self._cache.game_exists(self._game_id) and \
+            await self._cache.has_opened_slots(self._game_id)
 
     @property
-    def _creating_game(self):
-        return not self._cache.has_game_started()
+    async def _creating_game(self):
+        return not await self._cache.has_game_started()
 
     @property
     def _creating_new_game(self):
@@ -645,8 +649,8 @@ class Api(AotWs):
             (self._rt == RequestTypes.INIT_GAME and 'game_id' not in self._message)
 
     @property
-    def _current_request_allowed(self):
-        return self._cache.is_game_master() or \
+    async def _current_request_allowed(self):
+        return await self._cache.is_game_master() or \
             self._rt in (RequestTypes.SLOT_UPDATED, RequestTypes.INIT_GAME)
 
     @property

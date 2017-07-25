@@ -28,6 +28,7 @@ from aot.api.utils import (
 from aot.api.utils import RequestTypes
 from aot.game import Player
 from aot.test import (
+    AsyncMagicMock,
     api,
     game,
 )
@@ -37,6 +38,7 @@ from unittest.mock import MagicMock
 @pytest.mark.asyncio
 async def test_test_success(api):
     api._cache = MagicMock()
+    api._cache.test = AsyncMagicMock()
     api.sendMessage = MagicMock()
 
     await api.onMessage(b'{"rt": "test"}', False)
@@ -72,7 +74,7 @@ async def test_info(api):
         'info_request',
     }
     api._cache = MagicMock()
-    api._cache.info = MagicMock(return_value={'success': True})
+    api._cache.info = AsyncMagicMock(return_value={'success': True})
     api.sendMessage = MagicMock()
 
     await api.onMessage(b'{"rt": "info"}', False)
@@ -97,7 +99,7 @@ async def test_onMessage_unkwon_request_type(api):
 async def test_onMessage_reconnect(api):
     api._reconnect = MagicMock()
     api._cache = MagicMock()
-    api._cache.is_member_game = MagicMock(return_value=True)
+    api._cache.is_member_game = AsyncMagicMock(return_value=True)
 
     await api.onMessage(
         b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
@@ -112,7 +114,7 @@ async def test_onMessage_reconnect(api):
 async def test_onMessage_reconnect_cannot_join(api):
     api._reconnect = MagicMock()
     api._cache = MagicMock()
-    api._cache.is_member_game = MagicMock(return_value=False)
+    api._cache.is_member_game = AsyncMagicMock(return_value=False)
     api._send_error_to_display = MagicMock()
 
     await api.onMessage(
@@ -140,7 +142,7 @@ async def test_onMessage_new_game(api):
 async def test_onMessage_creating_game(api):
     api._process_create_game_request = MagicMock()
     api._cache = MagicMock()
-    api._cache.has_game_started = MagicMock(return_value=False)
+    api._cache.has_game_started = AsyncMagicMock(return_value=False)
     api._game_id = 'game_id'
     api.sendMessage = MagicMock()
 
@@ -153,7 +155,7 @@ async def test_onMessage_creating_game(api):
 async def test_onMessage_process_play_request(api):
     api._process_play_request = MagicMock()
     api._cache = MagicMock()
-    api._cache.has_game_started = MagicMock(return_value=True)
+    api._cache.has_game_started = AsyncMagicMock(return_value=True)
     api._game_id = 'game_id'
 
     await api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
@@ -178,17 +180,20 @@ def test_new_game_request_on_old_connection(api):
     assert api._creating_new_game
 
 
-def test_create_new_game(api, mock):
+@pytest.mark.asyncio
+async def test_create_new_game(api, mock):
     api._cache = MagicMock()
-    api._get_initialiazed_game_message = MagicMock()
-    api._cache.affect_next_slot = MagicMock(return_value=api.INDEX_FIRST_PLAYER)
+    api._cache.create_new_game = AsyncMagicMock()
+    api._cache.save_session = AsyncMagicMock()
+    api._get_initialiazed_game_message = AsyncMagicMock()
+    api._cache.affect_next_slot = AsyncMagicMock(return_value=api.INDEX_FIRST_PLAYER)
     api._message = {
         'player_name': 'Game Master',
         'hero': 'daemon',
     }
     api.sendMessage = MagicMock()
 
-    api._create_new_game()
+    await api._create_new_game()
 
     assert isinstance(api._game_id, str)
     assert len(api._game_id) == 22
@@ -202,74 +207,83 @@ def test_create_new_game(api, mock):
     assert api.sendMessage.call_count == 1
 
 
-def test_process_create_game_request_not_allowed(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_not_allowed(api):
     api._cache = MagicMock()
-    api._cache.is_game_master = MagicMock(return_value=False)
+    api._cache.is_game_master = AsyncMagicMock(return_value=False)
     api._rt = RequestTypes.CREATE_GAME
 
     with pytest.raises(AotErrorToDisplay) as e:
-        api._process_create_game_request()
+        await api._process_create_game_request()
 
     assert 'game_master_request' in str(e)
 
 
-def test_process_create_game_request_update_slot_not_game_master(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_update_slot_not_game_master(api):
     api._cache = MagicMock()
-    api._cache.is_game_master = MagicMock(return_value=False)
+    api._cache.is_game_master = AsyncMagicMock(return_value=False)
     api._rt = RequestTypes.SLOT_UPDATED
-    api._modify_slots = MagicMock()
+    api._modify_slots = AsyncMagicMock()
 
-    api._process_create_game_request()
+    await api._process_create_game_request()
 
     api._modify_slots.assert_called_once_with()
 
 
-def test_process_create_game_request_update_slot_game_master(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_update_slot_game_master(api):
     api._cache = MagicMock()
-    api._cache.is_game_master = MagicMock(return_value=True)
+    api._cache.is_game_master = AsyncMagicMock(return_value=True)
     api._rt = RequestTypes.SLOT_UPDATED
-    api._modify_slots = MagicMock()
+    api._modify_slots = AsyncMagicMock()
 
-    api._process_create_game_request()
+    await api._process_create_game_request()
 
     api._modify_slots.assert_called_once_with()
 
 
-def test_process_create_game_request_join_cannot_join(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_join_cannot_join(api):
     api._rt = RequestTypes.INIT_GAME
     api._cache = MagicMock()
-    api._cache.game_exists = MagicMock(return_value=False)
+    api._cache.game_exists = AsyncMagicMock(return_value=False)
+    api._cache.is_game_master = AsyncMagicMock(return_value=False)
 
     with pytest.raises(AotError) as e:
-        api._process_create_game_request()
+        await api._process_create_game_request()
 
     assert 'cannot_join' in str(e)
 
 
-def test_process_create_game_request_join(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_join(api):
     api._rt = RequestTypes.INIT_GAME
     api._cache = MagicMock()
-    api._cache.game_exists = MagicMock(return_value=True)
-    api._cache.has_opened_slots = MagicMock(return_value=True)
-    api._join = MagicMock()
+    api._cache.game_exists = AsyncMagicMock(return_value=True)
+    api._cache.has_opened_slots = AsyncMagicMock(return_value=True)
+    api._cache.is_game_master = AsyncMagicMock(return_value=False)
+    api._join = AsyncMagicMock()
 
-    api._process_create_game_request()
+    await api._process_create_game_request()
 
     api._join.assert_called_once_with()
 
 
-def test_process_create_game_request_create_game(api):
+@pytest.mark.asyncio
+async def test_process_create_game_request_create_game(api):
     api._cache = MagicMock()
-    api._cache.is_game_master = MagicMock(return_value=True)
+    api._cache.is_game_master = AsyncMagicMock(return_value=True)
     api._rt = RequestTypes.CREATE_GAME
-    api._create_game = MagicMock()
+    api._create_game = AsyncMagicMock()
 
-    api._process_create_game_request()
+    await api._process_create_game_request()
 
     api._create_game.assert_called_once_with()
 
 
-def test_join(api):
+@pytest.mark.asyncio
+async def test_join(api):
     game_message = {
         'slots': [
             None,
@@ -278,11 +292,12 @@ def test_join(api):
             },
         ],
     }
-    api._get_initialiazed_game_message = MagicMock(return_value=game_message)
+    api._get_initialiazed_game_message = AsyncMagicMock(return_value=game_message)
     api.sendMessage = MagicMock()
-    api._send_all_others = MagicMock()
+    api._send_all_others = AsyncMagicMock()
     api._cache = MagicMock()
-    api._cache.affect_next_slot = MagicMock(return_value=1)
+    api._cache.affect_next_slot = AsyncMagicMock(return_value=1)
+    api._cache.save_session = AsyncMagicMock()
     api.id = 'player_id'
     api._game_id = 'game_id'
     api._message = {
@@ -290,7 +305,7 @@ def test_join(api):
         'player_name': 'Player 2',
     }
 
-    api._join()
+    await api._join()
 
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
     assert api._cache.create_new_game.call_count == 0
@@ -304,32 +319,36 @@ def test_join(api):
     })
 
 
-def test_modify_slots_empty_request(api):
+@pytest.mark.asyncio
+async def test_modify_slots_empty_request(api):
     api._message = {}
 
     with pytest.raises(AotErrorToDisplay) as e:
-        api._modify_slots()
+        await api._modify_slots()
 
     assert 'no_slot' in str(e)
 
 
-def test_modify_slots_inexistant_slot(api):
+@pytest.mark.asyncio
+async def test_modify_slots_inexistant_slot(api):
     api._message = {
         'slot': {},
     }
     api._cache = MagicMock()
-    api._cache.slot_exists = MagicMock(return_value=False)
+    api._cache.slot_exists = AsyncMagicMock(return_value=False)
 
     with pytest.raises(AotError) as e:
-        api._modify_slots()
+        await api._modify_slots()
 
     assert 'inexistant_slot' in str(e)
 
 
-def test_modify_slots(api):
-    api._send_all = MagicMock()
+@pytest.mark.asyncio
+async def test_modify_slots(api):
+    api._send_all = AsyncMagicMock()
     api._cache = MagicMock()
-    api._cache.slot_exists = MagicMock(return_value=True)
+    api._cache.slot_exists = AsyncMagicMock(return_value=True)
+    api._cache.update_slot = AsyncMagicMock()
     slot = {
         'player_id': 'player_id',
     }
@@ -337,70 +356,80 @@ def test_modify_slots(api):
         'slot': slot,
     }
 
-    api._modify_slots()
+    await api._modify_slots()
 
     api._cache.update_slot.assert_called_once_with(slot)
     assert api._send_all.call_count == 1
 
 
-def test_create_game_no_create_game_request(api):
+@pytest.mark.asyncio
+async def test_create_game_no_create_game_request(api):
     api._cache = MagicMock()
-    api._cache.number_taken_slots = MagicMock(return_value=2)
+    api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
     api._message = {
     }
 
     with pytest.raises(AotError) as e:
-        api._create_game()
+        await api._create_game()
 
     assert 'no_request' in str(e)
 
 
-def test_create_game_too_many_players(api):
+@pytest.mark.asyncio
+async def test_create_game_too_many_players(api):
     api._cache = MagicMock()
-    api._cache.number_taken_slots = MagicMock(return_value=9)
+    api._cache.number_taken_slots = AsyncMagicMock(return_value=9)
     api._message = {
         'create_game_request': [{'name': i} for i in range(9)],
     }
 
     with pytest.raises(AotError) as e:
-        api._create_game()
+        await api._create_game()
 
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game_too_few_players(api):
+@pytest.mark.asyncio
+async def test_create_game_too_few_players(api):
     api._cache = MagicMock()
-    api._cache.number_taken_slots = MagicMock(return_value=1)
+    api._cache.number_taken_slots = AsyncMagicMock(return_value=1)
     api._message = {
         'create_game_request': [{'name': 0}],
     }
 
     with pytest.raises(AotError) as e:
-        api._create_game()
+        await api._create_game()
 
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game_wrong_registration(api):
+@pytest.mark.asyncio
+async def test_create_game_wrong_registration(api):
     api._cache = MagicMock()
-    api._cache.number_taken_slots = MagicMock(return_value=2)
+    api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
     api._message = {
         'create_game_request': [],
     }
 
     with pytest.raises(AotError) as e:
-        api._create_game()
+        await api._create_game()
 
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game(mock, api):
+@pytest.mark.asyncio
+async def test_create_game(mock, api):
     create_game_request = [
         {
             'name': str(i),
             'index': i,
             'id': str(i),
         } for i in range(3)
+    ]
+    slots = [
+        {'state': None},
+        None,
+        {'state': None},
     ]
     create_game_request[1] = None
 
@@ -409,13 +438,17 @@ def test_create_game(mock, api):
     api._cache = MagicMock()
     api._send_to = MagicMock()
     api._send_game_created_message = MagicMock()
-    api._cache.number_taken_slots = MagicMock(return_value=2)
+    api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
+    api._cache.get_slots = AsyncMagicMock(return_value=slots)
+    api._cache.is_test = AsyncMagicMock(return_value=False)
+    api._cache.save_game = AsyncMagicMock()
+    api._cache.game_has_started = AsyncMagicMock(return_value=False)
     api._message = {
         'create_game_request': create_game_request,
     }
     api._clients['0'] = None
 
-    api._create_game()
+    await api._create_game()
 
     api._cache.save_game.assert_called_once_with(game)
     api._send_game_created_message.assert_called_once_with(game)
