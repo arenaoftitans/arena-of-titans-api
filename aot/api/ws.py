@@ -29,7 +29,7 @@ from aot.api.utils import (
 )
 from aot.utils import get_time
 from autobahn.asyncio.websocket import WebSocketServerProtocol
-from contextlib import contextmanager
+from asyncio_extras.contextmanager import async_contextmanager
 
 
 class AotWs(WebSocketServerProtocol):
@@ -58,7 +58,7 @@ class AotWs(WebSocketServerProtocol):
 
     @property
     @abstractmethod
-    def _creating_game(self):  # pragma: no cover
+    async def _creating_game(self):  # pragma: no cover
         pass
 
     @abstractmethod
@@ -74,8 +74,8 @@ class AotWs(WebSocketServerProtocol):
         pass
 
     @abstractmethod
-    @contextmanager
-    def _load_game(self):  # pragma: no cover
+    @async_contextmanager
+    async def _load_game(self):  # pragma: no cover
         pass
 
     @abstractmethod
@@ -109,7 +109,7 @@ class AotWs(WebSocketServerProtocol):
         if self._cache is not None:
             self._disconnect_timeouts[self.id] = self._loop.call_later(
                 self.DISCONNECTED_TIMEOUT_WAIT,
-                self._disconnect_player,
+                lambda: asyncio.ensure_future(self._disconnect_player()),
             )
 
         if self.id in self._clients:
@@ -118,14 +118,14 @@ class AotWs(WebSocketServerProtocol):
     def onPong(self, payload):  # pragma: no cover
         self._set_up_connection_keep_alive()
 
-    def _disconnect_player(self):
-        if self._creating_game:
-            self._free_slot()
+    async def _disconnect_player(self):
+        if await self._creating_game:
+            await self._free_slot()
         else:
-            self._disconnect_player_from_game()
+            await self._disconnect_player_from_game()
 
-    def _free_slot(self):
-        slots = self._cache.get_slots()
+    async def _free_slot(self):
+        slots = await self._cache.get_slots()
         slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
         if slots:
             slot = slots[0]
@@ -140,10 +140,10 @@ class AotWs(WebSocketServerProtocol):
                     'state': 'OPEN',
                 },
             }
-            self._modify_slots()
+            await self._modify_slots()
 
-    def _disconnect_player_from_game(self):
-        with self._load_game() as game:
+    async def _disconnect_player_from_game(self):
+        async with self._load_game() as game:
             if game:
                 player = game.get_player_by_id(self.id)
                 self.LOGGER.debug(
@@ -174,10 +174,13 @@ class AotWs(WebSocketServerProtocol):
             'game_id' in self._message
 
     @property
-    def _can_reconnect(self):
-        return self._cache.is_member_game(self._message['game_id'], self._message['player_id'])
+    async def _can_reconnect(self):
+        return await self._cache.is_member_game(
+            self._message['game_id'],
+            self._message['player_id'],
+        )
 
-    def _reconnect(self):
+    async def _reconnect(self):
         self.id = self._message['player_id']
         self._game_id = self._message['game_id']
         self._cache.init(game_id=self._game_id, player_id=self.id)
@@ -191,17 +194,17 @@ class AotWs(WebSocketServerProtocol):
 
         message = None
 
-        if self._creating_game:
+        if await self._creating_game:
             try:
-                index = self._cache.get_player_index()
+                index = await self._cache.get_player_index()
             except IndexError:
                 # We were disconnected and we must register again
                 self._game_id = None
                 index = -1
             finally:
-                message = self._get_initialiazed_game_message(index)
+                message = await self._get_initialiazed_game_message(index)
         else:
-            with self._load_game() as game:
+            async with self._load_game() as game:
                 self._must_save_game = False
                 self._append_to_clients_pending_reconnection()
                 message = self._reconnect_to_game(game)
@@ -253,14 +256,14 @@ class AotWs(WebSocketServerProtocol):
             [self._get_action_message(action) for action in player.history]
             if player else None for player in game.players]
 
-    def _send_all(self, message, excluded_players=set()):  # pragma: no cover
-        for player_id in self._cache.get_players_ids():
+    async def _send_all(self, message, excluded_players=set()):  # pragma: no cover
+        for player_id in await self._cache.get_players_ids():
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
                 player.sendMessage(message)
 
-    def _send_all_others(self, message):  # pragma: no cover
-        self._send_all(message, excluded_players=set([self.id]))
+    async def _send_all_others(self, message):  # pragma: no cover
+        await self._send_all(message, excluded_players=set([self.id]))
 
     def _send_to(self, message, id):  # pragma: no cover
         if id in self._clients:
@@ -278,11 +281,11 @@ class AotWs(WebSocketServerProtocol):
     def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
         self.sendMessage(self._format_error_to_display(message, format_opt))
 
-    def _send_debug(self, message):  # pragma: no cover
-        self._send_all({'debug': message})
+    async def _send_debug(self, message):  # pragma: no cover
+        await self._send_all({'debug': message})
 
-    def _send_all_error(self, message, format_opt={}):  # pragma: no cover
-        self._send_all(self._format_error(message, format_opt))
+    async def _send_all_error(self, message, format_opt={}):  # pragma: no cover
+        await self._send_all(self._format_error(message, format_opt))
 
     def _format_error(self, message, format_opt={}):  # pragma: no cover
         return {'error': self._get_error(message, format_opt)}
