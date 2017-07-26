@@ -88,7 +88,7 @@ async def test_info(api):
 
 @pytest.mark.asyncio
 async def test_onMessage_unkwon_request_type(api):
-    api._send_error = MagicMock()
+    api._send_error = AsyncMagicMock()
 
     await api.onMessage(b'{}', False)
 
@@ -97,7 +97,7 @@ async def test_onMessage_unkwon_request_type(api):
 
 @pytest.mark.asyncio
 async def test_onMessage_reconnect(api):
-    api._reconnect = MagicMock()
+    api._reconnect = AsyncMagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = AsyncMagicMock(return_value=True)
 
@@ -112,10 +112,10 @@ async def test_onMessage_reconnect(api):
 
 @pytest.mark.asyncio
 async def test_onMessage_reconnect_cannot_join(api):
-    api._reconnect = MagicMock()
+    api._reconnect = AsyncMagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = AsyncMagicMock(return_value=False)
-    api._send_error_to_display = MagicMock()
+    api._send_error_to_display = AsyncMagicMock()
 
     await api.onMessage(
         b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
@@ -191,7 +191,7 @@ async def test_create_new_game(api, mock):
         'player_name': 'Game Master',
         'hero': 'daemon',
     }
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api._create_new_game()
 
@@ -293,7 +293,7 @@ async def test_join(api):
         ],
     }
     api._get_initialiazed_game_message = AsyncMagicMock(return_value=game_message)
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
     api._send_all_others = AsyncMagicMock()
     api._cache = MagicMock()
     api._cache.affect_next_slot = AsyncMagicMock(return_value=1)
@@ -436,8 +436,8 @@ async def test_create_game(mock, api):
     game = get_game(create_game_request)
     mock.patch('aot.api.api.get_game', return_value=game)
     api._cache = MagicMock()
-    api._send_to = MagicMock()
-    api._send_game_created_message = MagicMock()
+    api._send_to = AsyncMagicMock()
+    api._send_game_created_message = AsyncMagicMock()
     api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
     api._cache.get_slots = AsyncMagicMock(return_value=slots)
     api._cache.is_test = AsyncMagicMock(return_value=False)
@@ -490,10 +490,11 @@ def test_reconnect_pending_players(api, game):
     assert game.players[1].is_connected
 
 
-def test_notify_special_actions(api, game):
-    api.sendMessage = MagicMock()
+@pytest.mark.asyncio
+async def test_notify_special_actions(api, game):
+    api.sendMessage = AsyncMagicMock()
 
-    api._notify_special_action('action')
+    await api._notify_special_action('action')
 
     api.sendMessage.assert_called_once_with({
         'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,

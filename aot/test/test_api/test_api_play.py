@@ -231,7 +231,7 @@ async def test_view_possible_squares_wrong_card(api, game):
 
 @pytest.mark.asyncio
 async def test_view_possible_squares(api, game):
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
     card = game.active_player.hand[0]
 
     await api._view_possible_squares(game, {
@@ -341,7 +341,7 @@ async def test_play_card_with_special_actions(api, game):
     game.get_square = MagicMock(return_value=square)
     game.can_move = MagicMock(return_value=True)
     api._send_play_message = AsyncMagicMock()
-    api._notify_special_action = MagicMock()
+    api._notify_special_action = AsyncMagicMock()
 
     await api._play(game, {
         'card_name': card.name,

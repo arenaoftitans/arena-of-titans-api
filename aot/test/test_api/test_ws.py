@@ -35,7 +35,7 @@ async def test_onClose(api, game):
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
     api._clients[0] = None
-    api._send_play_message = MagicMock()
+    api._send_play_message = AsyncMagicMock()
     api._save_game = AsyncMagicMock()
     api._loop = MagicMock()
 
@@ -43,7 +43,7 @@ async def test_onClose(api, game):
     game.pass_turn = MagicMock()
     game.get_player_by_id = MagicMock(return_value=player)
 
-    api.onClose(True, 1001, None)
+    await api.onClose(True, 1001, None)
 
     assert 0 not in api._clients
 
@@ -75,7 +75,7 @@ async def test_onClose_not_your_turn(api, game):
     game.pass_turn = MagicMock()
     game.get_player_by_id = MagicMock(return_value=player)
 
-    api.onClose(True, 1001, None)
+    await api.onClose(True, 1001, None)
 
     assert 0 not in api._clients
 
@@ -103,7 +103,7 @@ async def test_onClose_just_before_ai(api, game):
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._clients[0] = None
-    api._send_play_message = MagicMock()
+    api._send_play_message = AsyncMagicMock()
     api._save_game = AsyncMagicMock()
     api._loop = MagicMock()
     api._play_ai_after_timeout = MagicMock()
@@ -113,7 +113,7 @@ async def test_onClose_just_before_ai(api, game):
     game.get_player_by_id = MagicMock(return_value=player)
     game.players[1]._is_ai = True
 
-    api.onClose(True, 1001, None)
+    await api.onClose(True, 1001, None)
 
     assert 0 not in api._clients
 
@@ -150,7 +150,7 @@ async def test_onClose_creating_game(api, game):
     api._clients[0] = None
     api._loop = MagicMock()
 
-    api.onClose(True, 1001, None)
+    await api.onClose(True, 1001, None)
 
     assert 0 not in api._clients
 
@@ -183,7 +183,7 @@ async def test_reconnect_creating_game(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api._reconnect()
 
@@ -209,7 +209,7 @@ async def test_reconnect_creating_game_slot_freed(api, game):
         'game_id': 'game_id',
     }
     api._disconnect_timeouts['player_id'] = timer
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api._reconnect()
 
@@ -233,7 +233,7 @@ async def test_reconnect_reconnect_to_game(api, game):
     }
     api._disconnect_timeouts['player_id'] = timer
     api._play_ai_after_timeout = MagicMock()
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api._reconnect()
 
@@ -262,7 +262,7 @@ async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
     }
     api._disconnect_timeouts['player_id'] = timer
     api._play_ai_after_timeout = MagicMock()
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
     game._active_player = game.players[1]
     game._active_player._is_ai = True
 

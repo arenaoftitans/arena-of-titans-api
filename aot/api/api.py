@@ -104,9 +104,9 @@ class Api(AotWs):
             else:
                 await self._process_play_request()
         except AotErrorToDisplay as e:  # pragma: no cover
-            self._send_error_to_display(str(e), e.infos)
+            await self._send_error_to_display(str(e), e.infos)
         except AotError as e:
-            self._send_error(str(e), e.infos)
+            await self._send_error(str(e), e.infos)
         except Exception as e:  # pragma: no cover
             self.LOGGER.exception('onMessage')
 
@@ -117,18 +117,18 @@ class Api(AotWs):
         }
         info.update(await self._cache.info())
 
-        self.sendMessage(info)
+        await self.sendMessage(info)
 
     async def _test(self):
         try:
             await self._cache.test()
         except Exception as e:
-            self.sendMessage({
+            await self.sendMessage({
                 'success': False,
                 'errors': str(e),
             })
         else:
-            self.sendMessage({
+            await self.sendMessage({
                 'success': True,
             })
 
@@ -138,7 +138,7 @@ class Api(AotWs):
             .decode('ascii')
         await self._initialize_cache(new_game=True)
         response = await self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
-        self.sendMessage(response)
+        await self.sendMessage(response)
 
     async def _initialize_cache(self, new_game=False):
         self._cache.init(game_id=self._game_id, player_id=self._id)
@@ -183,7 +183,7 @@ class Api(AotWs):
     async def _join(self):
         index = await self._initialize_cache()
         response = await self._get_initialiazed_game_message(index)
-        self.sendMessage(response)
+        await self.sendMessage(response)
         await self._send_updated_slot_new_player(response['slots'][index])
 
     async def _send_updated_slot_new_player(self, slot):
@@ -251,9 +251,9 @@ class Api(AotWs):
                 player.is_connected = True
 
         await self._cache.save_game(game)
-        self._send_game_created_message(game)
+        await self._send_game_created_message(game)
 
-    def _send_game_created_message(self, game):  # pragma: no cover
+    async def _send_game_created_message(self, game):  # pragma: no cover
         # Some session can be used for multiple players (mostly for debug purpose). We use the set
         # below to keep track of players' id and only send the first request for these sessions.
         # Otherwise, the list of cards for the first player to play would be overriden by the cards
@@ -288,7 +288,7 @@ class Api(AotWs):
                 } for card in player.hand],
                 'trumps': player.trumps,
             }
-            self._send_to(message, player.id)
+            await self._send_to(message, player.id)
 
     async def _process_play_request(self):
         async with self._load_game() as game:
@@ -389,7 +389,7 @@ class Api(AotWs):
         card = self._get_card(game, play_request)
         if card is not None:
             possible_squares = game.view_possible_squares(card)
-            self.sendMessage({
+            await self.sendMessage({
                 'rt': RequestTypes.VIEW_POSSIBLE_SQUARES,
                 'possible_squares': possible_squares,
             })
@@ -422,7 +422,7 @@ class Api(AotWs):
 
         await self._send_play_message(game, this_player)
         if has_special_actions:
-            self._notify_special_action(game.active_player.name_next_special_action)
+            await self._notify_special_action(game.active_player.name_next_special_action)
 
     def _get_square(self, play_request, game):
         x = play_request.get('x', None)
@@ -433,7 +433,7 @@ class Api(AotWs):
         game.add_action(this_player.last_action)
         await self._send_player_played_message(this_player, game)
 
-        self._send_play_message_to_players(game)
+        await self._send_play_message_to_players(game)
 
     async def _send_player_played_message(self, player, game):  # pragma: no cover
         await self._send_all({
@@ -461,10 +461,10 @@ class Api(AotWs):
                 'player_index': action.player_index,
             }
 
-    def _send_play_message_to_players(self, game):  # pragma: no cover
+    async def _send_play_message_to_players(self, game):  # pragma: no cover
         for player in game.players:
             if player is not None and player.id in self._clients:
-                self._clients[player.id].sendMessage(self._get_play_message(player, game))
+                await self._clients[player.id].sendMessage(self._get_play_message(player, game))
 
     def _get_play_message(self, player, game):
         # Since between the request arrives (game.active_player.turn_start_time) and the time we
@@ -500,8 +500,8 @@ class Api(AotWs):
                 'trumps': game_player.affecting_trumps,
                 } if game_player else None for game_player in game.players]
 
-    def _notify_special_action(self, special_actions_name):
-        self.sendMessage({
+    async def _notify_special_action(self, special_actions_name):
+        await self.sendMessage({
             'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
             'special_action_name': special_actions_name,
         })
@@ -515,7 +515,7 @@ class Api(AotWs):
         if action.require_target_square:
             message['possible_squares'] = action.view_possible_squares(game.players[target_index])
 
-        self.sendMessage(message)
+        await self.sendMessage(message)
 
     def _get_action(self, game, play_request):
         action_name = play_request.get('special_action_name', '')
@@ -545,10 +545,10 @@ class Api(AotWs):
             await self._play_special_action_on_target(game, play_request, action, target_index)
 
         if game.active_player.has_special_actions:
-            self._notify_special_action(game.active_player.name_next_special_action)
+            await self._notify_special_action(game.active_player.name_next_special_action)
         else:
             game.complete_special_actions()
-            self._send_play_message_to_players(game)
+            await self._send_play_message_to_players(game)
 
     async def _play_special_action_on_target(self, game, play_request, action, target_index):
         kwargs = {}
@@ -612,7 +612,7 @@ class Api(AotWs):
         }
         await self._send_all_others(message)
         message['gauge_value'] = game.active_player.gauge.value
-        self.sendMessage(message)
+        await self.sendMessage(message)
 
     def _send_trump_error(self, active_player, trump):
         if not active_player.gauge.can_play_trump(trump):

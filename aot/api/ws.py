@@ -86,22 +86,23 @@ class AotWs(WebSocketServerProtocol):
     def _play_ai_after_timeout(self, game):  # pragma: no cover
         pass
 
-    def sendMessage(self, message):  # pragma: no cover
+    async def sendMessage(self, message):  # pragma: no cover
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
         self.LOGGER.debug(message)
         message = message.encode('utf-8')
         if isinstance(message, bytes):
+            # Must not use await here: sendMessage in the base class is not a coroutine.
             super().sendMessage(message)
 
-    def onOpen(self):  # pragma: no cover
+    async def onOpen(self):  # pragma: no cover
         self.id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
         self._set_up_connection_keep_alive()
         self._cache = ApiCache()
 
-    def onClose(self, wasClean, code, reason):
+    async def onClose(self, wasClean, code, reason):
         self.LOGGER.info(
             f'WS n°{self.id} was closed cleanly? {wasClean} with code {code} and reason {reason}',
         )
@@ -115,7 +116,7 @@ class AotWs(WebSocketServerProtocol):
         if self.id in self._clients:
             del self._clients[self.id]
 
-    def onPong(self, payload):  # pragma: no cover
+    async def onPong(self, payload):  # pragma: no cover
         self._set_up_connection_keep_alive()
 
     async def _disconnect_player(self):
@@ -153,7 +154,7 @@ class AotWs(WebSocketServerProtocol):
                 if not game.is_over and player == game.active_player:
                     player.is_connected = False
                     game.pass_turn()
-                    self._send_play_message(game, player)
+                    await self._send_play_message(game, player)
                     if game.active_player.is_ai:
                         self._play_ai_after_timeout(game)
                 else:
@@ -212,7 +213,7 @@ class AotWs(WebSocketServerProtocol):
                     self._play_ai_after_timeout(game)
 
         if message:
-            self.sendMessage(message)
+            await self.sendMessage(message)
 
     def _append_to_clients_pending_reconnection(self):
         self._clients_pending_reconnection_for_game.add(self.id)
@@ -257,17 +258,21 @@ class AotWs(WebSocketServerProtocol):
             if player else None for player in game.players]
 
     async def _send_all(self, message, excluded_players=set()):  # pragma: no cover
+        messages = []
+
         for player_id in await self._cache.get_players_ids():
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
-                player.sendMessage(message)
+                messages.append(player.sendMessage(message))
+
+        await asyncio.gather(*messages)
 
     async def _send_all_others(self, message):  # pragma: no cover
         await self._send_all(message, excluded_players=set([self.id]))
 
-    def _send_to(self, message, id):  # pragma: no cover
+    async def _send_to(self, message, id):  # pragma: no cover
         if id in self._clients:
-            self._clients[id].sendMessage(message)
+            await self._clients[id].sendMessage(message)
 
     def _format_error_to_display(self, message, format_opt={}):  # pragma: no cover
         return {'error_to_display': self._get_error(message, format_opt)}
@@ -275,11 +280,11 @@ class AotWs(WebSocketServerProtocol):
     def _get_error(self, message, format_opt):  # pragma: no cover
         return self._error_messages.get(message, message).format(**format_opt)
 
-    def _send_error(self, message, format_opt={}):  # pragma: no cover
-        self.sendMessage(self._format_error(message, format_opt))
+    async def _send_error(self, message, format_opt={}):  # pragma: no cover
+        await self.sendMessage(self._format_error(message, format_opt))
 
-    def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
-        self.sendMessage(self._format_error_to_display(message, format_opt))
+    async def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
+        await self.sendMessage(self._format_error_to_display(message, format_opt))
 
     async def _send_debug(self, message):  # pragma: no cover
         await self._send_all({'debug': message})

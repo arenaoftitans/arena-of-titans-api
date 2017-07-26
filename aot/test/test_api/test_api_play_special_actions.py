@@ -88,7 +88,7 @@ async def test_view_possible_action_wrong_action(api, game):
 
 @pytest.mark.asyncio
 async def test_view_possible_action(api, game):
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
@@ -139,7 +139,7 @@ async def test_play_special_action_wrong_action(api, game):
 
 @pytest.mark.asyncio
 async def test_play_special_action_no_square(api, game):
-    api.sendMessage = MagicMock()
+    api.sendMessage = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
@@ -156,8 +156,8 @@ async def test_play_special_action(api, game):
         game.active_player._special_actions_names.remove('action')
 
     api._send_player_played_special_action = AsyncMagicMock()
-    api._send_play_message_to_players = MagicMock()
-    api._notify_special_action = MagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
+    api._notify_special_action = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
@@ -194,8 +194,8 @@ async def test_play_special_action_actions_still_remaining(api, game):
         game.active_player._special_actions_names.remove('action')
 
     api._send_player_played_special_action = AsyncMagicMock()
-    api._send_play_message_to_players = MagicMock()
-    api._notify_special_action = MagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
+    api._notify_special_action = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     actions.append(SimpleTrump(name='action2', type='Teleport', args={}))
@@ -232,8 +232,8 @@ async def test_cancel_special_action(api, game):
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove('action')
 
-    api._send_player_played_special_action = MagicMock()
-    api._send_play_message_to_players = MagicMock()
+    api._send_player_played_special_action = AsyncMagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
