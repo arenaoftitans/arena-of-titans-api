@@ -40,7 +40,7 @@ class Api(AotWs):
     # Class variables.
     INDEX_FIRST_PLAYER = 0
     AI_TIMEOUT = 6
-    MIN_ELAPSED_TIME_TO_CONSIDER = 5
+    MIN_ELAPSED_TIME_TO_CONSIDER = 8
     LOGGER = daiquiri.getLogger(__name__)
     _error_messages = {
         'cannot_join': 'You cannot join this game. No slots opened.',
