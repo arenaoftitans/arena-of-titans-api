@@ -44,6 +44,17 @@ class PickleStub:
         return arg
 
 
+class AsyncMagicMock(MagicMock):
+    async def __call__(self, *args, **kwargs):
+        return super().__call__(*args, **kwargs)
+
+
+def aredis():
+    redis = MagicMock()
+    redis.keys = AsyncMagicMock()
+    return redis
+
+
 @pytest.fixture
 def board():
     return get_board()
@@ -94,7 +105,7 @@ def api():
 
 @pytest.fixture
 def api_cache(mock):
-    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
+    mock.patch('aot.api.api_cache.Redis', site_effect=aredis())
     mock.patch('aot.api.api_cache.pickle', PickleStub)
     cache = ApiCache()
     cache.init('game_id', 'player_id')

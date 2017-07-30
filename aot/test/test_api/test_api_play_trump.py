@@ -25,39 +25,43 @@ from aot.api.utils import (
 )
 from aot.api.utils import RequestTypes
 from aot.test import (
+    AsyncMagicMock,
     api,
     game,
 )
 from unittest.mock import MagicMock
 
 
-def test_play_trump_wrong_trump(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_wrong_trump(api, game):
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {})
+        await api._play_trump(game, {})
 
     assert 'wrong_trump' in str(e)
 
 
-def test_play_trump_missing_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_missing_target(api, game):
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
 
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {
+        await api._play_trump(game, {
             'name': trump['name'],
         })
 
     assert 'missing_trump_target' in str(e)
 
 
-def test_play_trump_with_wrong_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_wrong_target(api, game):
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
 
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {
+        await api._play_trump(game, {
             'name': trump['name'],
             'target_index': 10,
         })
@@ -65,7 +69,8 @@ def test_play_trump_with_wrong_target(api, game):
     assert 'wrong_trump_target' in str(e)
 
 
-def test_play_trump_max_number_trumps_played(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_max_number_trumps_played(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
@@ -73,7 +78,7 @@ def test_play_trump_max_number_trumps_played(api, game):
     game.active_player._can_play = False
 
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {
+        await api._play_trump(game, {
             'name': trump['name'],
             'target_index': 0,
         })
@@ -81,14 +86,15 @@ def test_play_trump_max_number_trumps_played(api, game):
     assert 'max_number_played_trumps' in str(e)
 
 
-def test_play_trump_max_number_affecting_trumps(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_max_number_affecting_trumps(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
 
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {
+        await api._play_trump(game, {
             'name': trump['name'],
             'target_index': 0,
         })
@@ -97,14 +103,15 @@ def test_play_trump_max_number_affecting_trumps(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_gauge_too_low(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_gauge_too_low(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
     game.active_player._gauge.can_play_trump = MagicMock(return_value=False)
 
     with pytest.raises(AotError) as e:
-        api._play_trump(game, {
+        await api._play_trump(game, {
             'name': trump['name'],
             'target_index': 0,
         })
@@ -113,15 +120,16 @@ def test_play_trump_gauge_too_low(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_with_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_target(api, game):
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
-    api._send_trump_played_message = MagicMock()
+    api._send_trump_played_message = AsyncMagicMock()
     game.add_action = MagicMock()
 
-    api._play_trump(game, {
+    await api._play_trump(game, {
         'name': trump['name'],
         'target_index': 0,
     })
@@ -131,15 +139,16 @@ def test_play_trump_with_target(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_without_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_without_target(api, game):
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:
             break
-    api._send_trump_played_message = MagicMock()
+    api._send_trump_played_message = AsyncMagicMock()
     game.add_action = MagicMock()
 
-    api._play_trump(game, {
+    await api._play_trump(game, {
         'name': trump['name'],
     })
 
