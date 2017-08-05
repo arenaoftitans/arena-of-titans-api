@@ -113,8 +113,8 @@ class Game:
                     remaining_humain_players.add(player)
             elif player is not None and not player.is_ai:
                 self.LOGGER.debug(
-                    'Game n°{self.game_id}: player n°{self.id} ({self.name}) has '
-                    'been disconnected too long. Remove from remaining players',
+                    f'Game n°{self.game_id}: player n°{player.id} ({player.name}) has '
+                    f'been disconnected too long. Remove from remaining players',
                 )
         remaining_players = remaining_ai.union(remaining_humain_players)
 
