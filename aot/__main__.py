@@ -67,6 +67,15 @@ if __name__ == '__main__':  # pragma: no cover
         default='dev',
         choices=['prod', 'dev', 'testing', 'staging'],
     )
+    parser.add_argument(
+        '--reload',
+        help='Start the API in development mode and reload it on each modification',
+        dest='reload',
+        action='store_true',
+    )
     args = parser.parse_args()
 
-    main(debug=args.debug, version=args.version, type=args.type)
+    if args.reload:
+        run_reload()
+    else:
+        main(debug=args.debug, version=args.version, type=args.type)
