@@ -18,22 +18,15 @@
 ################################################################################
 
 import argparse
-import asyncio
-import configparser
-import daiquiri
 import logging
-import os
-import shutil
-from autobahn.asyncio.websocket import WebSocketServerFactory
 
-from aot.api import Api
-from aot.config import config
-
-try:
-    import uwsgi  # noqa
-    on_uwsgi = True
-except ImportError:
-    on_uwsgi = False
+from .run import (
+    cleanup,
+    setup_config,
+    setup_logging,
+    startup,
+)
+from .reload import run_reload
 
 
 def main(debug=False, type='prod', version='latest'):
@@ -52,90 +45,6 @@ def main(debug=False, type='prod', version='latest'):
         pass
     finally:
         cleanup(wsserver, loop)
-
-
-def setup_config(type='prod', version='latest'):
-    # We cannot pass arguments to the uwsgi entry point.
-    # So we store the values in the configuration.
-    if on_uwsgi:
-        uwsgi_config = configparser.ConfigParser()
-        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
-        type = uwsgi_config['aot']['type']
-        version = uwsgi_config['aot']['version']
-
-    config.load_config(type, version)
-
-
-def setup_logging(debug=False):
-    if debug:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    log_file = config['api']['log_file']
-    logs_dir = os.path.dirname(log_file)
-    os.makedirs(logs_dir, exist_ok=True)
-    outputs = (
-        'stderr',
-        daiquiri.output.File(log_file),
-    )
-    daiquiri.setup(level=level, outputs=outputs)
-
-
-def startup(debug=False):
-    loop = asyncio.get_event_loop()
-    loop.set_debug(debug)
-
-    socket = config['api'].get('socket', None)
-    if socket:
-        server = _create_unix_server(loop, socket)
-    else:
-        server = _create_tcp_server(loop)
-
-    wsserver = loop.run_until_complete(server)
-    if socket:
-        _correct_permissions_unix_server(socket)
-
-    return wsserver, loop
-
-
-def _create_unix_server(loop, socket):
-    factory = WebSocketServerFactory(None)
-    factory.protocol = Api
-    server = loop.create_unix_server(factory, socket)
-
-    return server
-
-
-def _correct_permissions_unix_server(socket):
-    os.chmod(socket, 0o660)
-    try:
-        shutil.chown(socket, group=config['api']['socket_group'])
-    except (PermissionError, LookupError) as e:
-        logging.exception(e)
-
-
-def _create_tcp_server(loop):
-    host = config['api']['host']
-    port = config['api']['ws_port']
-    ws_endpoint = f'ws://{host}:{port}'
-    factory = WebSocketServerFactory(ws_endpoint)
-    factory.protocol = Api
-    return loop.create_server(factory, host, port)
-
-
-def cleanup(wsserver, loop):
-    if wsserver is not None:
-        wsserver.close()
-    if loop is not None:
-        loop.close()
-
-    socket = config['api'].get('socket', None)
-    if socket:
-        try:
-            os.remove(socket)
-        except FileNotFoundError:
-            pass
 
 
 if __name__ == '__main__':  # pragma: no cover
