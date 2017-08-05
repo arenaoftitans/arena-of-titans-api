@@ -35,8 +35,6 @@ class PyTest(TestCommand):
             'aot',
             '--cov-report',
             'html',
-            '--cov-config',
-            '.coveragerc',
         ]
         self.test_suite = True
 
