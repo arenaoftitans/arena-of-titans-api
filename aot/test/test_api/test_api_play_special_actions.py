@@ -22,6 +22,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from .. import (  # noqa: F401
+    AsyncMagicMock,
     api,
     game,
 )
@@ -36,55 +37,64 @@ from ...cards.trumps import (
     Trump,
     TrumpList,
 )
-from ...game import Player
+from ...game.player import Player
 
 
-def test_view_possible_action_no_name(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action_no_name(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {})
+        await api._view_possible_actions(game, {})
 
     assert 'missing_action_name' in str(e)
 
 
-def test_view_possible_action_no_name_and_cancel(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action_no_name_and_cancel(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'cancel': True})
+        await api._view_possible_actions(game, {'cancel': True})
 
     assert 'missing_action_name' in str(e)
 
 
-def test_view_possible_action_no_target_index(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action_no_target_index(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'special_action_name': 'action'})
+        await api._view_possible_actions(game, {'special_action_name': 'action'})
 
     assert 'missing_action_target' in str(e)
 
 
-def test_view_possible_action_no_action_for_player(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action_no_action_for_player(api, game):
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'special_action_name': 'action', 'target_index': 0})
+        await api._view_possible_actions(
+            game,
+            {'special_action_name': 'action', 'target_index': 0},
+        )
 
     assert 'no_action' in str(e)
 
 
-def test_view_possible_action_wrong_action(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action_wrong_action(api, game):
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type=None, args=None))
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:
-        api._view_possible_actions(game, {'special_action_name': 'toto', 'target_index': 0})
+        await api._view_possible_actions(game, {'special_action_name': 'toto', 'target_index': 0})
 
     assert 'wrong_action' in str(e)
 
 
-def test_view_possible_action(api, game):  # noqa: F811
-    api.sendMessage = MagicMock()
+@pytest.mark.asyncio  # noqa: F811
+async def test_view_possible_action(api, game):
+    api.sendMessage = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
 
-    api._view_possible_actions(game, {'special_action_name': 'action', 'target_index': 0})
+    await api._view_possible_actions(game, {'special_action_name': 'action', 'target_index': 0})
 
     args = api.sendMessage.call_args[0][0]
     assert api.sendMessage.called
@@ -92,57 +102,63 @@ def test_view_possible_action(api, game):  # noqa: F811
     assert isinstance(args['possible_squares'], set)
 
 
-def test_play_special_action_no_name(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_no_name(api, game):
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {})
+        await api._play_special_action(game, {})
 
     assert 'missing_action_name' in str(e)
 
 
-def test_play_special_action_no_target_index(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_no_target_index(api, game):
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'special_action_name': 'action'})
+        await api._play_special_action(game, {'special_action_name': 'action'})
 
     assert 'missing_action_target' in str(e)
 
 
-def test_play_special_action_no_action_for_player(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_no_action_for_player(api, game):
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
+        await api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
 
     assert 'no_action' in str(e)
 
 
-def test_play_special_action_wrong_action(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_wrong_action(api, game):
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type=None, args=None))
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:
-        api._play_special_action(game, {'special_action_name': 'toto', 'target_index': 0})
+        await api._play_special_action(game, {'special_action_name': 'toto', 'target_index': 0})
 
     assert 'wrong_action' in str(e)
 
 
-def test_play_special_action_no_square(api, game):  # noqa: F811
-    api.sendMessage = MagicMock()
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_no_square(api, game):
+    api.sendMessage = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
 
     with pytest.raises(AotErrorToDisplay) as e:
-        api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
+        await api._play_special_action(game, {'special_action_name': 'action', 'target_index': 0})
 
     assert 'wrong_square' in str(e)
 
 
-def test_play_special_action(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action(api, game):
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove('action')
 
-    api._send_player_played_special_action = MagicMock()
-    api._send_play_message_to_players = MagicMock()
-    api._notify_special_action = MagicMock()
+    api._send_player_played_special_action = AsyncMagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
+    api._notify_special_action = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
@@ -156,7 +172,7 @@ def test_play_special_action(api, game):  # noqa: F811
         'y': 0,
     }
 
-    api._play_special_action(game, play_request)
+    await api._play_special_action(game, play_request)
 
     assert game.play_special_action.called
     args = game.play_special_action.call_args_list
@@ -173,13 +189,14 @@ def test_play_special_action(api, game):  # noqa: F811
     assert not api._notify_special_action.called
 
 
-def test_play_special_action_actions_still_remaining(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_special_action_actions_still_remaining(api, game):
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove('action')
 
-    api._send_player_played_special_action = MagicMock()
-    api._send_play_message_to_players = MagicMock()
-    api._notify_special_action = MagicMock()
+    api._send_player_played_special_action = AsyncMagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
+    api._notify_special_action = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     actions.append(SimpleTrump(name='action2', type='Teleport', args={}))
@@ -194,7 +211,7 @@ def test_play_special_action_actions_still_remaining(api, game):  # noqa: F811
         'y': 0,
     }
 
-    api._play_special_action(game, play_request)
+    await api._play_special_action(game, play_request)
 
     assert game.play_special_action.called
     args = game.play_special_action.call_args_list
@@ -211,12 +228,13 @@ def test_play_special_action_actions_still_remaining(api, game):  # noqa: F811
     api._notify_special_action.assert_called_once_with('action2')
 
 
-def test_cancel_special_action(api, game):  # noqa: F811
+@pytest.mark.asyncio  # noqa: F811
+async def test_cancel_special_action(api, game):
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove('action')
 
-    api._send_player_played_special_action = MagicMock()
-    api._send_play_message_to_players = MagicMock()
+    api._send_player_played_special_action = AsyncMagicMock()
+    api._send_play_message_to_players = AsyncMagicMock()
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
     game.active_player.special_actions = actions
@@ -229,7 +247,7 @@ def test_cancel_special_action(api, game):  # noqa: F811
         'cancel': True,
     }
 
-    api._play_special_action(game, play_request)
+    await api._play_special_action(game, play_request)
 
     assert game.cancel_special_action.called
     assert not game.add_action.called
