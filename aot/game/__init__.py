@@ -17,8 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.game.game import Game
-from aot.game.player import Player
+from .game import Game
+from .player import Player
 
 
 __all__ = ['Game', 'Player']

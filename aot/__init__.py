@@ -21,20 +21,20 @@ import copy
 import json
 import random
 
-from aot.board import (
+from .board import (
     Board,
     Color,
 )
-from aot.cards import (
+from .cards import (
     Card,
     Deck,
 )
-from aot.cards.trumps import (
+from .cards.trumps import (
     Gauge,
     SimpleTrump,
     TrumpList,
 )
-from aot.game import (
+from .game import (
     Game,
     Player,
 )

@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.utils.pathfinding import a_star
+from ...utils.pathfinding import a_star
 
 
 class Gauge:
