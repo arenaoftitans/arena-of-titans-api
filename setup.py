@@ -19,8 +19,11 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
+from setuptools import (
+    find_packages,
+    setup,
+)
+from setuptools.command.test import test as TestCommand  # noqa: N812
 
 
 class PyTest(TestCommand):
