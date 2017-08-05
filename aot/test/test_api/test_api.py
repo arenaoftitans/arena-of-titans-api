@@ -81,7 +81,7 @@ def test_info(api):
     })
 
 
-def test_onMessage_unkwon_request_type(api):
+def test_onMessage_unkwon_request_type(api):  # noqa: N802
     api._send_error = MagicMock()
 
     api.onMessage(b'{}', False)
@@ -89,7 +89,7 @@ def test_onMessage_unkwon_request_type(api):
     api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
 
 
-def test_onMessage_reconnect(api):
+def test_onMessage_reconnect(api):  # noqa: N802
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=True)
@@ -100,7 +100,7 @@ def test_onMessage_reconnect(api):
     api._reconnect.assert_called_once_with()
 
 
-def test_onMessage_reconnect_cannot_join(api):
+def test_onMessage_reconnect_cannot_join(api):  # noqa: N802
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=False)
@@ -113,7 +113,7 @@ def test_onMessage_reconnect_cannot_join(api):
     api._send_error_to_display.assert_called_once_with('cannot_join', {})
 
 
-def test_onMessage_new_game(api):
+def test_onMessage_new_game(api):  # noqa: N802
     api._game_id = None
     api._create_new_game = MagicMock()
     api.sendMessage = MagicMock()
@@ -123,7 +123,7 @@ def test_onMessage_new_game(api):
     api._create_new_game.assert_called_once_with()
 
 
-def test_onMessage_creating_game(api):
+def test_onMessage_creating_game(api):  # noqa: N802
     api._process_create_game_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=False)
@@ -135,7 +135,7 @@ def test_onMessage_creating_game(api):
     api._process_create_game_request.assert_called_once_with()
 
 
-def test_onMessage_process_play_request(api):
+def test_onMessage_process_play_request(api):  # noqa: N802
     api._process_play_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)

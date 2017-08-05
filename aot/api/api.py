@@ -75,7 +75,7 @@ class Api(AotWs):
     _must_save_game = True
     _pending_ai = set()
 
-    def onMessage(self, payload, isBinary):
+    def onMessage(self, payload, is_binary):  # noqa: N802
         self.LOGGER.debug(payload)
 
         try:
