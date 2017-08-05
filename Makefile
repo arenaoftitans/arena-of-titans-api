@@ -107,14 +107,7 @@ venvlint:
 
 .PHONY: runlint
 runlint:
-	${FLAKE8_CMD} --max-line-length 99 \
-	   --exclude "conf.py" \
-	   --exclude "aot/test" \
-	   --inline-quotes "'" \
-	   --multiline-quotes "'''" \
-	   --ignore none \
-	   --import-order-style	smarkets \
-	   aot
+	${FLAKE8_CMD}
 	${FLAKE8_CMD} --max-line-length 99 \
 	    --inline-quotes "'" \
 	    --multiline-quotes "'''" \
