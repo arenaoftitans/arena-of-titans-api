@@ -19,21 +19,25 @@
 
 import base64
 import json
-import daiquiri
 import uuid
 
-from aot.config import config
-from aot import get_game
-from aot import get_number_players
-from aot.game import Player
-from aot.api.utils import (
+from contextlib import contextmanager
+
+import daiquiri
+
+from .utils import (
     AotError,
     AotErrorToDisplay,
     RequestTypes,
 )
-from aot.api.ws import AotWs
-from aot.utils import get_time
-from contextlib import contextmanager
+from .ws import AotWs
+from .. import (
+    get_game,
+    get_number_players,
+)
+from ..config import config
+from ..game import Player
+from ..utils import get_time
 
 
 class Api(AotWs):

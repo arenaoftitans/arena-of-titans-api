@@ -17,18 +17,19 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot.api.utils import (
-    AotError,
-    AotErrorToDisplay,
-)
-from aot.api.utils import RequestTypes
-from aot.test import (
+from .. import (
     api,
     game,
 )
-from unittest.mock import MagicMock
+from ...api.utils import (
+    AotError,
+    AotErrorToDisplay,
+)
+from ...api.utils import RequestTypes
 
 
 def test_play_trump_wrong_trump(api, game):

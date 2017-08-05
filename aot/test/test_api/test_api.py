@@ -17,21 +17,21 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot import get_game
-from aot.api.utils import (
+from ... import get_game
+from ...api.utils import (
     AotError,
     AotErrorToDisplay,
     RequestTypes,
 )
-from aot.api.utils import RequestTypes
-from aot.game import Player
-from aot.test import (
+from ...game import Player
+from ...test import (
     api,
     game,
 )
-from unittest.mock import MagicMock
 
 
 def test_test_success(api):

@@ -17,25 +17,26 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot.api.utils import (
+from .. import (
+    api,
+    game,
+)
+from ...api.utils import (
     AotError,
     AotErrorToDisplay,
     RequestTypes,
 )
-from aot.board import Square
-from aot.cards.trumps import (
+from ...board import Square
+from ...cards.trumps import (
     SimpleTrump,
     Trump,
     TrumpList,
 )
-from aot.game import Player
-from aot.test import (
-    api,
-    game,
-)
-from unittest.mock import MagicMock
+from ...game import Player
 
 
 def test_view_possible_action_no_name(api, game):

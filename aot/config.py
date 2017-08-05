@@ -1,7 +1,8 @@
-import toml
 import sys
 
 from os.path import exists
+
+import toml
 
 
 class Config:

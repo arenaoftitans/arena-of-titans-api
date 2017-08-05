@@ -17,17 +17,18 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot.cards.trumps import (
-    Gauge,
-    SimpleTrump,
-)
-from aot.test import (
+from .. import (
     board,
     gauge,
 )
-from unittest.mock import MagicMock
+from ...cards.trumps import (
+    Gauge,
+    SimpleTrump,
+)
 
 
 def test_can_play(gauge):

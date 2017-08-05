@@ -18,12 +18,13 @@
 ################################################################################
 
 import re
-import time
 import sys
+import time
 
 from subprocess import Popen
-from watchdog.observers import Observer
+
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from .config import config
 from .run import cleanup

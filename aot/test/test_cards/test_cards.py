@@ -17,20 +17,20 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pytest
 from copy import deepcopy
 
-from aot.board import (
+import pytest
+
+from .. import board
+from ...board import (
     Color,
     Square,
 )
-from aot.cards import Card
-from aot.cards.trumps import (
+from ...cards import Card
+from ...cards.trumps import (
     SimpleTrump,
     TrumpList,
 )
-# board is a fixture, ignore the unsued import warnig
-from aot.test import board
 
 
 CARD_DICT = {

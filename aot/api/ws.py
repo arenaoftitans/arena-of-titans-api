@@ -19,17 +19,20 @@
 
 import asyncio
 import json
-import daiquiri
 
 from abc import abstractmethod
-from aot.api.api_cache import ApiCache
-from aot.api.utils import (
-    to_json,
-    RequestTypes,
-)
-from aot.utils import get_time
-from autobahn.asyncio.websocket import WebSocketServerProtocol
 from contextlib import contextmanager
+
+import daiquiri
+
+from autobahn.asyncio.websocket import WebSocketServerProtocol
+
+from .api_cache import ApiCache
+from .utils import (
+    RequestTypes,
+    to_json,
+)
+from ..utils import get_time
 
 
 class AotWs(WebSocketServerProtocol):

@@ -17,12 +17,13 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.api.utils import RequestTypes
-from aot.test import (
+from unittest.mock import MagicMock
+
+from .. import (
     api,
     game,
 )
-from unittest.mock import MagicMock
+from ...api.utils import RequestTypes
 
 
 def test_onClose(api, game):  # noqa: N802

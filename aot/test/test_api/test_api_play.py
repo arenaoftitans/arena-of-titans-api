@@ -17,22 +17,23 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot.api.utils import (
-    AotError,
-    AotErrorToDisplay,
-)
-from aot.api.utils import RequestTypes
-from aot.cards.trumps import (
-    SimpleTrump,
-    TrumpList,
-)
-from aot.test import (
+from .. import (
     api,
     game,
 )
-from unittest.mock import MagicMock
+from ...api.utils import (
+    AotError,
+    AotErrorToDisplay,
+    RequestTypes,
+)
+from ...cards.trumps import (
+    SimpleTrump,
+    TrumpList,
+)
 
 
 def test_process_play_request_not_your_turn(api, game):

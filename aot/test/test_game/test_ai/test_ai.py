@@ -17,19 +17,20 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pytest
 import re
 import socket
 
-from aot.cards import Card
-from aot.game.ai import (
+import pytest
+
+from ... import board
+from ....cards import Card
+from ....game.ai import (
+    distance_covered,
     find_cheapest_card,
     find_move_to_play,
-    distance_covered,
 )
-from aot.utils.pathfinding import a_star
+from ....utils.pathfinding import a_star
 # board is a fixture, ignore the unsued import warnig
-from aot.test import board
 
 
 # If hostname match a SHA1 (ie run in docker), increase value of TIMEOUT to prevent deploy

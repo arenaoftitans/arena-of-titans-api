@@ -19,8 +19,8 @@
 
 import pytest
 
-from aot import get_cards_list
-from aot.config import config
+from .. import get_cards_list
+from ..config import config
 
 
 def test_bishop():

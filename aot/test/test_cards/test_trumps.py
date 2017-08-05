@@ -17,20 +17,20 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board import Color
-from aot.cards.trumps import (
-    ModifyNumberMoves,
-    RemoveColor,
-    Teleport,
-)
-# fixtures, ignore the unsued import warnig
-from aot.test import (
+from unittest.mock import MagicMock
+
+from .. import (
     board,
     deck,
     game,
     player,
 )
-from unittest.mock import MagicMock
+from ...board import Color
+from ...cards.trumps import (
+    ModifyNumberMoves,
+    RemoveColor,
+    Teleport,
+)
 
 
 def test_affect_modify_number_moves(player):

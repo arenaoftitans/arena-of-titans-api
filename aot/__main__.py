@@ -20,13 +20,13 @@
 import argparse
 import logging
 
+from .reload import run_reload
 from .run import (
     cleanup,
     setup_config,
     setup_logging,
     startup,
 )
-from .reload import run_reload
 
 
 def main(debug=False, type='prod', version='latest'):
