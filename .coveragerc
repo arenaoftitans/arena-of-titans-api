@@ -2,7 +2,8 @@
 omit =
     aot/test/*
     aot/__main__.py
-    aot/test_main.py
+    aot/reload.py
+    aot/run.py
 
 
 [html]
