@@ -108,11 +108,6 @@ venvlint:
 .PHONY: runlint
 runlint:
 	${FLAKE8_CMD}
-	${FLAKE8_CMD} --max-line-length 99 \
-	    --inline-quotes "'" \
-	    --multiline-quotes "'''" \
-	    --ignore=F811,F401 \
-	    aot/test/
 
 
 .PHONY: testall

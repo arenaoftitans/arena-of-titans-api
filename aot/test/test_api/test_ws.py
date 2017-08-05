@@ -19,14 +19,14 @@
 
 from unittest.mock import MagicMock
 
-from .. import (
+from .. import (  # noqa: F401
     api,
     game,
 )
 from ...api.utils import RequestTypes
 
 
-def test_onClose(api, game):  # noqa: N802
+def test_onClose(api, game):  # noqa: N802,F811
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._clients[0] = None
@@ -56,7 +56,7 @@ def test_onClose(api, game):  # noqa: N802
     game.pass_turn.assert_called_once_with()
 
 
-def test_onClose_not_your_turn(api, game):  # noqa: N802
+def test_onClose_not_your_turn(api, game):  # noqa: N802,F811
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._clients[0] = None
@@ -89,7 +89,7 @@ def test_onClose_not_your_turn(api, game):  # noqa: N802
     assert api._clients_pending_disconnection[None] == set([0])
 
 
-def test_onClose_just_before_ai(api, game):  # noqa: N802
+def test_onClose_just_before_ai(api, game):  # noqa: N802,F811
     def pass_turn():
         game._active_player = game.players[1]
 
@@ -125,7 +125,7 @@ def test_onClose_just_before_ai(api, game):  # noqa: N802
     game.pass_turn.assert_called_once_with()
 
 
-def test_onClose_creating_game(api, game):  # noqa: N802
+def test_onClose_creating_game(api, game):  # noqa: N802,F811
     api._cache = MagicMock()
     slots = [
         {
@@ -163,7 +163,7 @@ def test_onClose_creating_game(api, game):  # noqa: N802
     api._modify_slots.assert_called_once_with()
 
 
-def test_reconnect_creating_game(api, game):
+def test_reconnect_creating_game(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=False)
@@ -188,7 +188,7 @@ def test_reconnect_creating_game(api, game):
     assert api.sendMessage.call_count == 1
 
 
-def test_reconnect_creating_game_slot_freed(api, game):
+def test_reconnect_creating_game_slot_freed(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=False)
@@ -211,7 +211,7 @@ def test_reconnect_creating_game_slot_freed(api, game):
     assert api.sendMessage.call_count == 1
 
 
-def test_reconnect_reconnect_to_game(api, game):
+def test_reconnect_reconnect_to_game(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)
@@ -239,7 +239,7 @@ def test_reconnect_reconnect_to_game(api, game):
     assert api._clients_pending_reconnection_for_game == set(['player_id'])
 
 
-def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
+def test_reconnect_reconnect_to_game_during_turn_ai(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)
@@ -269,7 +269,7 @@ def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
     assert api._clients_pending_reconnection_for_game == set(['player_id'])
 
 
-def test_reconnect_to_game(api, game):
+def test_reconnect_to_game(api, game):  # noqa: F811
     game.active_player._id = 'player_id'
     game.active_player.is_connected = False
     api.id = 'player_id'
@@ -281,7 +281,7 @@ def test_reconnect_to_game(api, game):
     assert message['reconnect']['special_action_name'] is None
 
 
-def test_reconnect_to_game_with_special_action(api, game):
+def test_reconnect_to_game_with_special_action(api, game):  # noqa: F811
     game.active_player._id = 'player_id'
     game.active_player.is_connected = False
     api.id = 'player_id'
@@ -294,7 +294,7 @@ def test_reconnect_to_game_with_special_action(api, game):
     assert message['reconnect']['special_action_name'] == 'action'
 
 
-def test_append_to_clients_pending_reconnection(api):
+def test_append_to_clients_pending_reconnection(api):  # noqa: F811
     api._game_id = 'game_id'
     api._id = 'player_id'
     api._clients_pending_disconnection_for_game.add('player_id')
@@ -305,7 +305,7 @@ def test_append_to_clients_pending_reconnection(api):
     assert api._clients_pending_disconnection_for_game == set()
 
 
-def test_append_to_clients_pending_disconnection(api):
+def test_append_to_clients_pending_disconnection(api):  # noqa: F811
     api._game_id = 'game_id'
     api._id = 'player_id'
     api._clients_pending_reconnection_for_game.add('player_id')

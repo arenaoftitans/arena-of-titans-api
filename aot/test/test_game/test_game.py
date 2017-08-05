@@ -19,7 +19,7 @@
 
 from unittest.mock import MagicMock
 
-from .. import (
+from .. import (  # noqa: F401
     board,
     deck,
     game,
@@ -33,13 +33,13 @@ from ...game import (
 )
 
 
-def test_game_creation(player):
+def test_game_creation(player):  # noqa: F811
     player.init_turn = MagicMock()
     Game(None, [player])
     player.init_turn.assert_called_once_with()
 
 
-def test_play_card_with_special_actions(game):
+def test_play_card_with_special_actions(game):  # noqa: F811
     game._active_player.play_card = MagicMock(return_value=True)
     game._continue_game_if_enough_players = MagicMock()
 
@@ -49,7 +49,7 @@ def test_play_card_with_special_actions(game):
     assert has_actions
 
 
-def test_play_card_no_special_action(game):
+def test_play_card_no_special_action(game):  # noqa: F811
     game._active_player.play_card = MagicMock(return_value=False)
     game._continue_game_if_enough_players = MagicMock()
 
@@ -59,7 +59,7 @@ def test_play_card_no_special_action(game):
     assert not has_actions
 
 
-def test_game_one_player_left(game):
+def test_game_one_player_left(game):  # noqa: F811
     game.active_player.play_card = MagicMock(return_value=None)
     for i in range(7):
         game.players[i] = None
@@ -68,7 +68,7 @@ def test_game_one_player_left(game):
     assert game.is_over
 
 
-def test_play_turn_winning_player(game):
+def test_play_turn_winning_player(game):  # noqa: F811
     player1 = game.players[0]
     player2 = game.players[1]
 
@@ -97,7 +97,7 @@ def test_play_turn_winning_player(game):
     assert 1 == winner.rank
 
 
-def test_move_last_line_before_winning(game):
+def test_move_last_line_before_winning(game):  # noqa: F811
     game.play_card(None, (16, 8), check_move=False)
     assert not game.players[0].has_won
     assert not game.is_over
@@ -119,7 +119,7 @@ def test_move_last_line_before_winning(game):
     assert 1 == winner.rank
 
 
-def test_move_back_before_winning(game):
+def test_move_back_before_winning(game):  # noqa: F811
     game.play_card(None, (16, 8), check_move=False)
     assert not game.players[0].has_won
     assert not game.is_over
@@ -134,13 +134,13 @@ def test_move_back_before_winning(game):
         game.play_card(None, (0, i), check_move=False)
         game.play_card(None, (i, 0), check_move=False)
 
-    player = game.players[0]
+    player = game.players[0]  # noqa: 811
     assert game.active_player is not player
     assert not game.is_over
     assert not player.has_won
 
 
-def test_game_over(game):
+def test_game_over(game):  # noqa: F811
     for i in range(2, 8):
         game.players[i] = None
 
@@ -157,7 +157,7 @@ def test_game_over(game):
     assert len(game.winners) == 2
 
 
-def test_game_over_simultanous_winners(game):
+def test_game_over_simultanous_winners(game):  # noqa: F811
     for i in range(2, 8):
         game.players[i] = None
 
@@ -174,7 +174,7 @@ def test_game_over_simultanous_winners(game):
     assert len(game.winners) == 2
 
 
-def test_play_missing_players(game):
+def test_play_missing_players(game):  # noqa: F811
     game.players[1] = None
     player3 = game.players[2]
 
@@ -183,22 +183,22 @@ def test_play_missing_players(game):
     assert player3 is game.active_player
 
 
-def test_pass_turn(game):
+def test_pass_turn(game):  # noqa: F811
     first_player = game.active_player
     game.pass_turn()
     assert game.active_player is not first_player
 
 
-def test_discard(game):
+def test_discard(game):  # noqa: F811
     first_player = game.active_player
-    deck = first_player.deck
+    deck = first_player.deck  # noqa: 811
     card = deck.first_card_in_hand
     game.discard(card)
     assert first_player.can_play
     assert card not in deck.hand
 
 
-def test_view_possible_squares(game):
+def test_view_possible_squares(game):  # noqa: F811
     # Must not throw. Correctness of the list is tested in card module
     card = game.active_player.deck.first_card_in_hand
     game.active_player.view_possible_squares = MagicMock()
@@ -207,14 +207,14 @@ def test_view_possible_squares(game):
     game.active_player.view_possible_squares.assert_called_once_with(card_properties)
 
 
-def test_get_square(game):
+def test_get_square(game):  # noqa: F811
     assert isinstance(game.get_square(0, 0), Square)
     assert game.get_square(None, 0) is None
     assert game.get_square(0, None) is None
     assert game.get_square(None, None) is None
 
 
-def test_can_move(game):
+def test_can_move(game):  # noqa: F811
     game.active_player.can_move = MagicMock(return_value=True)
     card = game.active_player.deck.first_card_in_hand
     square = game.get_square(4, 0)
@@ -226,7 +226,7 @@ def test_can_move(game):
     game.active_player.can_move.assert_called_once_with(card, square)
 
 
-def test_actions(game):
+def test_actions(game):  # noqa: F811
     assert len(game._actions) == 0
     assert game.last_action is None
     game.add_action('An action')
@@ -234,7 +234,7 @@ def test_actions(game):
     assert game.last_action == 'An action'
 
 
-def test_disconnect(game):
+def test_disconnect(game):  # noqa: F811
     player0 = game.players[0]
     assert player0 is game.active_player
     assert player0.is_connected
@@ -243,7 +243,7 @@ def test_disconnect(game):
     assert ret is player0
 
 
-def test_has_enough_players_to_continue(game):
+def test_has_enough_players_to_continue(game):  # noqa: F811
     player1 = game.players[0]
     assert player1 is game.active_player
 
@@ -258,7 +258,7 @@ def test_has_enough_players_to_continue(game):
     assert not game._has_enough_players_to_continue()
 
 
-def test_only_one_player_connected(game):
+def test_only_one_player_connected(game):  # noqa: F811
     player8 = game.players[-1]
 
     for player in game.players[:-1]:  # noqa
@@ -273,7 +273,7 @@ def test_only_one_player_connected(game):
     assert game.winners[0] == player8.name
 
 
-def test_continue_game_with_ai(game):
+def test_continue_game_with_ai(game):  # noqa: F811
     game._has_enough_players_to_continue = MagicMock(return_value=True)
     game._find_next_player = MagicMock(return_value=game.players[1])
     game.players[1]._is_ai = True
@@ -284,7 +284,7 @@ def test_continue_game_with_ai(game):
     assert game.players[1].is_ai
 
 
-def test_dont_increase_nb_turns_if_same_player(game):
+def test_dont_increase_nb_turns_if_same_player(game):  # noqa: F811
     assert game.nb_turns == 0
 
     game._active_player.can_play = True
@@ -294,7 +294,7 @@ def test_dont_increase_nb_turns_if_same_player(game):
     assert game.nb_turns == 0
 
 
-def test_increase_nb_turns(game):
+def test_increase_nb_turns(game):  # noqa: F811
     assert game.nb_turns == 0
 
     game._active_player.can_play = False
@@ -306,7 +306,7 @@ def test_increase_nb_turns(game):
     assert game.nb_turns == 1
 
 
-def test_play_auto(game, mocker):
+def test_play_auto(game, mocker):  # noqa: F811
     card = game.active_player.hand[0]
     card._special_actions = None
     find_move_to_play = MagicMock(return_value=(card, None))
@@ -332,7 +332,7 @@ def test_play_auto(game, mocker):
     assert not game.complete_special_actions.called
 
 
-def test_play_auto_card_with_special_action(game, mocker):
+def test_play_auto_card_with_special_action(game, mocker):  # noqa: F811
     card = game.active_player.hand[0]
     card._special_actions = ['action']
     find_move_to_play = MagicMock(return_value=(card, None))
@@ -358,7 +358,7 @@ def test_play_auto_card_with_special_action(game, mocker):
     game.complete_special_actions.assert_called_once_with()
 
 
-def test_play_auto_on_last_line(game, mocker):
+def test_play_auto_on_last_line(game, mocker):  # noqa: F811
     card = game.active_player.hand[0]
     find_move_to_play = MagicMock(return_value=(card, None))
     find_cheapeast_card = MagicMock()
@@ -379,7 +379,7 @@ def test_play_auto_on_last_line(game, mocker):
     assert not game.discard.called
 
 
-def test_play_auto_no_card_found(game, mocker):
+def test_play_auto_no_card_found(game, mocker):  # noqa: F811
     find_move_to_play = MagicMock(return_value=(None, None))
     find_cheapeast_card = MagicMock(return_value=game.active_player.hand[0])
     game.discard = MagicMock()
@@ -402,7 +402,7 @@ def test_play_auto_no_card_found(game, mocker):
     game.discard.assert_called_once_with(game.active_player.hand[0])
 
 
-def test_complete_special_actions(game):
+def test_complete_special_actions(game):  # noqa: F811
     game._continue_game_if_enough_players = MagicMock()
     game.active_player.complete_special_actions = MagicMock()
 
@@ -412,7 +412,7 @@ def test_complete_special_actions(game):
     game._continue_game_if_enough_players.assert_called_once_with()
 
 
-def test_play_special_action(game):
+def test_play_special_action(game):  # noqa: F811
     game.active_player.play_special_action = MagicMock()
 
     game.play_special_action(None, target=None, action_args=None)
@@ -420,7 +420,7 @@ def test_play_special_action(game):
     assert game.active_player.play_special_action.called
 
 
-def test_cancel_special_action(game):
+def test_cancel_special_action(game):  # noqa: F811
     game.active_player.cancel_special_action = MagicMock()
 
     game.cancel_special_action(None)

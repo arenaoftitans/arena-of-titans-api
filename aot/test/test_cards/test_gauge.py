@@ -19,9 +19,7 @@
 
 from unittest.mock import MagicMock
 
-import pytest
-
-from .. import (
+from .. import (  # noqa: F401
     board,
     gauge,
 )
@@ -31,7 +29,7 @@ from ...cards.trumps import (
 )
 
 
-def test_can_play(gauge):
+def test_can_play(gauge):  # noqa: F811
     trump = MagicMock()
     trump.cost = 5
 
@@ -45,7 +43,7 @@ def test_can_play(gauge):
     assert gauge.can_play_trump(trump)
 
 
-def test_can_play_simple_trump(gauge):
+def test_can_play_simple_trump(gauge):  # noqa: F811
     trump = SimpleTrump('type', 'name', {'cost': 5})
 
     assert not gauge.can_play_trump(trump)
@@ -54,7 +52,7 @@ def test_can_play_simple_trump(gauge):
     assert gauge.can_play_trump(trump)
 
 
-def test_move_all_movements_types(gauge, mock):
+def test_move_all_movements_types(gauge, mock):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
@@ -70,10 +68,10 @@ def test_move_all_movements_types(gauge, mock):
     assert gauge.value == 12
 
 
-def test_move_line(board):
+def test_move_line(board):  # noqa: F811
     # We use the real implementation of a_start with the goal of finding the correct distance
     # traveled by the card.
-    gauge = Gauge(board)
+    gauge = Gauge(board)  # noqa: F811
     from_ = board[0, 8]
     to = board[1, 7]
     card = MagicMock()
@@ -85,10 +83,10 @@ def test_move_line(board):
     assert gauge.value == 2
 
 
-def test_move_from_x1_to_x31_circle(board):
+def test_move_from_x1_to_x31_circle(board):  # noqa: F811
     # We use the real implementation of a_start with the goal of finding the correct distance
     # traveled by the card.
-    gauge = Gauge(board)
+    gauge = Gauge(board)  # noqa: 811
     from_ = board[1, 2]
     to = board[31, 1]
     card = MagicMock()
@@ -100,7 +98,7 @@ def test_move_from_x1_to_x31_circle(board):
     assert gauge.value == 3
 
 
-def test_move_empty(gauge, mock):
+def test_move_empty(gauge, mock):  # noqa: F811
     a_star = MagicMock(return_value=[])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
@@ -116,7 +114,7 @@ def test_move_empty(gauge, mock):
     assert gauge.value == 10
 
 
-def test_move_max(gauge, mock):
+def test_move_max(gauge, mock):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = gauge.MAX_VALUE
@@ -132,7 +130,7 @@ def test_move_max(gauge, mock):
     assert gauge.value == gauge.MAX_VALUE
 
 
-def test_move_knight(gauge, mock):
+def test_move_knight(gauge, mock):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
     mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
@@ -147,7 +145,7 @@ def test_move_knight(gauge, mock):
     assert gauge.value == 11
 
 
-def test_move_wrong(gauge):
+def test_move_wrong(gauge):  # noqa: F811
     card = MagicMock()
     card.is_knight = False
     card.movements_types = ['line', 'diagonal']
@@ -160,7 +158,7 @@ def test_move_wrong(gauge):
     assert gauge.value == 0
 
 
-def test_play_trump(gauge):
+def test_play_trump(gauge):  # noqa: F811
     gauge._value = 10
     trump = MagicMock()
     trump.cost = 7

@@ -17,12 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pickle
-
 from copy import deepcopy
 from unittest.mock import MagicMock
 
-from .. import (
+from .. import (  # noqa: F401
     api_cache,
     api_cache_cls,
     game,
@@ -35,7 +33,7 @@ def setup_module():
     config.load_config('dev')
 
 
-def test_connect_unix_socket(mock):
+def test_connect_unix_socket(mock):  # noqa: F811
     cfg = {
         'cache': {
             'socket': '/var/run/redis/aot-api-staging-latest.sock',
@@ -52,7 +50,7 @@ def test_connect_unix_socket(mock):
     redis.assert_called_once_with(unix_socket_path=cfg['cache']['socket'])
 
 
-def test_connect_tcp_socket(mock):
+def test_connect_tcp_socket(mock):  # noqa: F811
     cfg = {
         'cache': {
             'host': '127.0.0.1',
@@ -68,7 +66,7 @@ def test_connect_tcp_socket(mock):
     redis.assert_called_once_with(host=cfg['cache']['host'], port=cfg['cache']['port'])
 
 
-def test_test(api_cache, mock):
+def test_test(api_cache, mock):  # noqa: F811
     now = MagicMock(return_value='the_date')
     datetime = MagicMock()
     datetime.now = now
@@ -80,7 +78,7 @@ def test_test(api_cache, mock):
     api_cache._cache.set.assert_called_once_with('test', 'the_date')
 
 
-def test_info(api_cache, mock):
+def test_info(api_cache, mock):  # noqa: F811
     api_cache._cache.keys = MagicMock(return_value=[b'game:game_id', b'toto'])
     api_cache.get_players_ids = MagicMock(return_value=['id1', 'id2'])
     api_cache._cache.hget = MagicMock(return_value=b'True')
@@ -95,7 +93,7 @@ def test_info(api_cache, mock):
     }
 
 
-def test_get_players_ids(api_cache):
+def test_get_players_ids(api_cache):  # noqa: F811
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
     api_cache._game_id = None
 
@@ -104,7 +102,7 @@ def test_get_players_ids(api_cache):
     api_cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
 
 
-def test_get_players_ids_without_game_id(api_cache):
+def test_get_players_ids_without_game_id(api_cache):  # noqa: F811
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
 
     assert api_cache.get_players_ids() == ['id0', 'id1']
@@ -112,7 +110,7 @@ def test_get_players_ids_without_game_id(api_cache):
     api_cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
 
 
-def test_game_exists(api_cache, game):
+def test_game_exists(api_cache, game):  # noqa: F811
     api_cache._cache.hget = MagicMock(return_value=None)
     assert not api_cache.game_exists('game_id')
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
@@ -122,14 +120,14 @@ def test_game_exists(api_cache, game):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 
 
-def test_has_opened_slots(mock, api_cache):
+def test_has_opened_slots(mock, api_cache):  # noqa: F811
     api_cache._cache.lrange = MagicMock(return_value=[{'state': 'OPEN'}, {'state': 'CLOSED'}])
 
     assert api_cache.has_opened_slots('game_id')
     api_cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-def test_get_slots_with_game_id(mock, api_cache):
+def test_get_slots_with_game_id(mock, api_cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -146,7 +144,7 @@ def test_get_slots_with_game_id(mock, api_cache):
     api_cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-def test_get_slots_without_game_id(mock, api_cache):
+def test_get_slots_without_game_id(mock, api_cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -163,7 +161,7 @@ def test_get_slots_without_game_id(mock, api_cache):
     api_cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-def test_get_slots_exclude_player_ids(api_cache):
+def test_get_slots_exclude_player_ids(api_cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -182,14 +180,14 @@ def test_get_slots_exclude_player_ids(api_cache):
     api_cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-def test_is_member_game(api_cache):
+def test_is_member_game(api_cache):  # noqa: F811
     api_cache._cache.zrange = MagicMock(return_value=[b'id0', b'id1'])
 
     assert api_cache.is_member_game('game_id', 'id0')
     assert not api_cache.is_member_game('game_id', 'id100')
 
 
-def test_create_new_game(api_cache):
+def test_create_new_game(api_cache):  # noqa: F811
     slots = []
 
     def add_slot_cache_side_effect(key, slot):
@@ -211,7 +209,7 @@ def test_create_new_game(api_cache):
     assert api_cache._cache.rpush.call_count == 8
 
 
-def test_is_test(api_cache):
+def test_is_test(api_cache):  # noqa: F811
     api_cache._cache.hget = MagicMock(return_value=b'True')
     assert api_cache.is_test()
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'test')
@@ -221,7 +219,7 @@ def test_is_test(api_cache):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'test')
 
 
-def test_get_game(api_cache, game):
+def test_get_game(api_cache, game):  # noqa: F811
     api_cache._cache.hget = MagicMock(return_value=game)
     assert api_cache.get_game() == game
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game')
@@ -231,13 +229,13 @@ def test_get_game(api_cache, game):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game')
 
 
-def test_save_session(api_cache):
+def test_save_session(api_cache):  # noqa: F811
     api_cache.save_session(1)
 
     api_cache._cache.zadd.assert_called_once_with('players:game_id', 'player_id', 1)
 
 
-def test_get_player_index(api_cache):
+def test_get_player_index(api_cache):  # noqa: F811
     slots = [
         {
             'player_id': 'player_id',
@@ -249,7 +247,7 @@ def test_get_player_index(api_cache):
     assert api_cache.get_player_index() == 0
 
 
-def test_is_game_master(api_cache):
+def test_is_game_master(api_cache):  # noqa: F811
     api_cache._cache.hget = MagicMock(return_value=b'player_id')
     assert api_cache.is_game_master()
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
@@ -263,13 +261,13 @@ def test_is_game_master(api_cache):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 
 
-def test_number_taken_slots(api_cache):
+def test_number_taken_slots(api_cache):  # noqa: F811
     slots = [{'state': 'TAKEN'}, {'state': 'OPEN'}, {'state': 'AI'}]
     api_cache.get_slots = MagicMock(return_value=deepcopy(slots))
     assert api_cache.number_taken_slots() == 2
 
 
-def test_affect_next_slot(api_cache):
+def test_affect_next_slot(api_cache):  # noqa: F811
     slots = [{'state': 'TAKEN'}, {'state': 'OPEN', 'index': 1}, {'state': 'AI'}]
     api_cache.get_slots = MagicMock(return_value=deepcopy(slots))
     api_cache.update_slot = MagicMock()
@@ -283,7 +281,7 @@ def test_affect_next_slot(api_cache):
     api_cache.update_slot.assert_called_once_with(slot)
 
 
-def test_update_slot_free(api_cache):
+def test_update_slot_free(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'player_id': 'player_id',
@@ -304,7 +302,7 @@ def test_update_slot_free(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_update_slot_close(api_cache):
+def test_update_slot_close(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'AI',
         'player_name': 'AI 2',
@@ -326,7 +324,7 @@ def test_update_slot_close(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_update_slot_open(api_cache):
+def test_update_slot_open(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'AI',
         'player_name': 'AI 2',
@@ -348,7 +346,7 @@ def test_update_slot_open(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_update_slot_update_not_game_master(api_cache):
+def test_update_slot_update_not_game_master(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'player_id': 'player_id',
@@ -369,7 +367,7 @@ def test_update_slot_update_not_game_master(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_update_slot_update_game_master(api_cache):
+def test_update_slot_update_game_master(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'OPEN',
         'index': 0,
@@ -388,7 +386,7 @@ def test_update_slot_update_game_master(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_update_slot_update_game_master_taken(api_cache):
+def test_update_slot_update_game_master_taken(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'index': 0,
@@ -407,7 +405,7 @@ def test_update_slot_update_game_master_taken(api_cache):
     assert api_cache._save_slot.call_count == 0
 
 
-def test_update_slot_take(api_cache):
+def test_update_slot_take(api_cache):  # noqa: F811
     cache_slot = {
         'state': 'OPEN',
         'index': 0,
@@ -427,7 +425,7 @@ def test_update_slot_take(api_cache):
     api_cache._save_slot.assert_called_once_with(cache_slot)
 
 
-def test_save_slot(api_cache):
+def test_save_slot(api_cache):  # noqa: F811
     slot = {
         'state': 'TAKEN',
         'index': 0,
@@ -438,7 +436,7 @@ def test_save_slot(api_cache):
     api_cache._cache.lset.assert_called_once_with('slots:game_id', 0, slot)
 
 
-def test_slot_exists(api_cache):
+def test_slot_exists(api_cache):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -455,7 +453,7 @@ def test_slot_exists(api_cache):
     cache.lindex.assert_called_once_with('slots:game_id', 0)
 
 
-def test_get_slot_from_game_id(api_cache_cls):
+def test_get_slot_from_game_id(api_cache_cls):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -467,7 +465,7 @@ def test_get_slot_from_game_id(api_cache_cls):
     cache.lindex.assert_called_once_with('slots:game_id', 0)
 
 
-def test_get_slot(api_cache):
+def test_get_slot(api_cache):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -478,7 +476,7 @@ def test_get_slot(api_cache):
     assert api_cache.get_slot(0) == slot
 
 
-def test_has_game_started(api_cache):
+def test_has_game_started(api_cache):  # noqa: F811
     api_cache._cache.hget = MagicMock(return_value=b'true')
     assert api_cache.has_game_started()
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'started')
@@ -488,13 +486,13 @@ def test_has_game_started(api_cache):
     api_cache._cache.hget.assert_called_once_with('game:game_id', 'started')
 
 
-def test_game_has_started(api_cache):
+def test_game_has_started(api_cache):  # noqa: F811
     api_cache.game_has_started()
 
     api_cache._cache.hset.assert_called_once_with('game:game_id', 'started', b'true')
 
 
-def test_save_game(api_cache, game):
+def test_save_game(api_cache, game):  # noqa: F811
     api_cache.save_game(game)
 
     api_cache._cache.hset.assert_called_once_with('game:game_id', 'game', game)

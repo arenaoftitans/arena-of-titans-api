@@ -21,14 +21,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (
+from .. import (  # noqa: F401
     api,
     game,
 )
 from ...api.utils import (
     AotError,
     AotErrorToDisplay,
-    RequestTypes,
 )
 from ...cards.trumps import (
     SimpleTrump,
@@ -36,7 +35,7 @@ from ...cards.trumps import (
 )
 
 
-def test_process_play_request_not_your_turn(api, game):
+def test_process_play_request_not_your_turn(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._save_game = MagicMock()
@@ -49,7 +48,7 @@ def test_process_play_request_not_your_turn(api, game):
     assert api._save_game.call_count == 0
 
 
-def test_process_play_request_your_turn(api, game):
+def test_process_play_request_your_turn(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api.id = game.active_player.id
@@ -61,7 +60,7 @@ def test_process_play_request_your_turn(api, game):
     api._cache.save_game.assert_called_once_with(game)
 
 
-def test_process_play_request_ai_after_player(api, game):
+def test_process_play_request_ai_after_player(api, game):  # noqa: F811
     game.active_player._is_ai = True
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
@@ -77,7 +76,7 @@ def test_process_play_request_ai_after_player(api, game):
     api._loop.call_later.assert_called_once_with(api.AI_TIMEOUT, api._process_play_request)
 
 
-def test_process_play_request_ai_after_ai(api, game):
+def test_process_play_request_ai_after_ai(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._is_player_id_correct = MagicMock(return_value=False)
@@ -91,7 +90,7 @@ def test_process_play_request_ai_after_ai(api, game):
     api._play_ai.assert_called_once_with(game)
 
 
-def test_play_ai(api, game):
+def test_play_ai(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._send_play_message = MagicMock()
     api._send_debug = MagicMock()
@@ -109,7 +108,7 @@ def test_play_ai(api, game):
     assert api._send_debug.call_count == 0
 
 
-def test_play_ai_after_timeout(api, game):
+def test_play_ai_after_timeout(api, game):  # noqa: F811
     api._loop = MagicMock()
     api._game_id = 'game_id'
     assert 'game_id' not in api._pending_ai
@@ -120,7 +119,7 @@ def test_play_ai_after_timeout(api, game):
     assert 'game_id' in api._pending_ai
 
 
-def test_play_ai_after_timeout_game_over(api, game):
+def test_play_ai_after_timeout_game_over(api, game):  # noqa: F811
     api._loop = MagicMock()
     api._game_id = 'game_id'
     game._is_over = True
@@ -131,7 +130,7 @@ def test_play_ai_after_timeout_game_over(api, game):
     assert api._loop.call_later.call_count == 0
 
 
-def test_play_ai_mode_debug(api, game):
+def test_play_ai_mode_debug(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._send_play_message = MagicMock()
     api._send_debug = MagicMock()
@@ -153,7 +152,7 @@ def test_play_ai_mode_debug(api, game):
     assert len(args_last_call['hand']) == 5
 
 
-def test_play_game_no_request(api, game):
+def test_play_game_no_request(api, game):  # noqa: F811
     api._message = {}
 
     with pytest.raises(AotError) as e:
@@ -162,7 +161,7 @@ def test_play_game_no_request(api, game):
     assert 'no_request' in str(e)
 
 
-def test_play_game_unknown_request(api, game):
+def test_play_game_unknown_request(api, game):  # noqa: F811
     api._message = {
         'play_request': {},
         'rt': 'TOTO',
@@ -174,7 +173,7 @@ def test_play_game_unknown_request(api, game):
     assert 'unknown_request' in str(e)
 
 
-def test_play_game(api, game):
+def test_play_game(api, game):  # noqa: F811
     requests_to_test = [
         'VIEW_POSSIBLE_SQUARES',
         'PLAY',
@@ -204,14 +203,14 @@ def test_play_game(api, game):
         mm.assert_called_once_with(game, request)
 
 
-def test_view_possible_squares_wrong_card(api, game):
+def test_view_possible_squares_wrong_card(api, game):  # noqa: F811
     with pytest.raises(AotErrorToDisplay) as e:
         api._view_possible_squares(game, {})
 
     assert 'wrong_card' in str(e)
 
 
-def test_view_possible_squares(api, game):
+def test_view_possible_squares(api, game):  # noqa: F811
     api.sendMessage = MagicMock()
     card = game.active_player.hand[0]
 
@@ -223,7 +222,7 @@ def test_view_possible_squares(api, game):
     assert api.sendMessage.call_count == 1
 
 
-def test_play_pass(api, game):
+def test_play_pass(api, game):  # noqa: F811
     game.pass_turn = MagicMock()
     api._send_play_message = MagicMock()
 
@@ -233,7 +232,7 @@ def test_play_pass(api, game):
     api._send_play_message.assert_called_once_with(game, game.active_player)
 
 
-def test_play_discard_wrong_card(api, game):
+def test_play_discard_wrong_card(api, game):  # noqa: F811
     game.discard = MagicMock()
 
     with pytest.raises(AotErrorToDisplay) as e:
@@ -243,7 +242,7 @@ def test_play_discard_wrong_card(api, game):
     assert game.discard.call_count == 0
 
 
-def test_play_discard(api, game):
+def test_play_discard(api, game):  # noqa: F811
     game.discard = MagicMock()
     api._send_play_message = MagicMock()
     card = game.active_player.hand[0]
@@ -258,7 +257,7 @@ def test_play_discard(api, game):
     api._send_play_message.assert_called_once_with(game, game.active_player)
 
 
-def test_play_wrong_card(api, game):
+def test_play_wrong_card(api, game):  # noqa: F811
     game.play_card = MagicMock()
     api._send_play_message = MagicMock()
 
@@ -269,7 +268,7 @@ def test_play_wrong_card(api, game):
     assert game.play_card.call_count == 0
 
 
-def test_play_wrong_square(api, game):
+def test_play_wrong_square(api, game):  # noqa: F811
     game.play_card = MagicMock()
     api._send_play_message = MagicMock()
     card = game.active_player.hand[0]
@@ -284,7 +283,7 @@ def test_play_wrong_square(api, game):
     assert game.play_card.call_count == 0
 
 
-def test_play_card(api, game):
+def test_play_card(api, game):  # noqa: F811
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
     game.play_card = MagicMock(return_value=False)
@@ -305,7 +304,7 @@ def test_play_card(api, game):
     assert not api._notify_special_actions.called
 
 
-def test_play_card_with_special_actions(api, game):
+def test_play_card_with_special_actions(api, game):  # noqa: F811
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
     special_actions = TrumpList()

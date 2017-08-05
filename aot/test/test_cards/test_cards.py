@@ -21,7 +21,7 @@ from copy import deepcopy
 
 import pytest
 
-from .. import board
+from .. import board  # noqa: F401
 from ...board import (
     Color,
     Square,
@@ -51,7 +51,7 @@ def edge_card_properties():
     return card_properties
 
 
-def test_set_color_to_special_action():
+def test_set_color_to_special_action():  # noqa: F811
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type='Teleport', args={}))
 
@@ -63,7 +63,7 @@ def test_set_color_to_special_action():
     assert action.args == {'color': 'RED'}
 
 
-def test_line_card(board):
+def test_line_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('line')
 
@@ -78,7 +78,7 @@ def test_line_card(board):
     ])
 
 
-def test_line_card_two_moves(board):
+def test_line_card_two_moves(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['number_movements'] = 2
     card_properties['movements_types'].append('line')
@@ -92,7 +92,7 @@ def test_line_card_two_moves(board):
     ])
 
 
-def test_line_card_occupied_square(board):
+def test_line_card_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('line')
 
@@ -101,7 +101,7 @@ def test_line_card_occupied_square(board):
     assert card.move(board[0, 0]) == set()
 
 
-def test_line_card_over_occupied_square(board):
+def test_line_card_over_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('line')
     card_properties['number_movements'] = 2
@@ -115,7 +115,7 @@ def test_line_card_over_occupied_square(board):
     ])
 
 
-def test_diagonal_card(board):
+def test_diagonal_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
 
@@ -134,7 +134,7 @@ def test_diagonal_card(board):
     ])
 
 
-def test_diagonal_card_occupied_square(board):
+def test_diagonal_card_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
 
@@ -145,7 +145,7 @@ def test_diagonal_card_occupied_square(board):
     assert card.move(Square(0, 0, 'BLUE')) == set()
 
 
-def test_diagonal_card_over_occupied_square(board):
+def test_diagonal_card_over_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
     card_properties['number_movements'] = 2
@@ -161,7 +161,7 @@ def test_diagonal_card_over_occupied_square(board):
     ])
 
 
-def test_line_diagonal_card(board):
+def test_line_diagonal_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
     card_properties['movements_types'].append('line')
@@ -174,7 +174,7 @@ def test_line_diagonal_card(board):
     ])
 
 
-def test_line_diagonal_card_two_moves(board):
+def test_line_diagonal_card_two_moves(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['number_movements'] = 2
     card_properties['complementary_colors'] = set(['RED'])
@@ -194,7 +194,7 @@ def test_line_diagonal_card_two_moves(board):
     ])
 
 
-def test_line_diagonal_card_two_moves2(board):
+def test_line_diagonal_card_two_moves2(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['number_movements'] = 2
     card_properties['movements_types'].append('diagonal')
@@ -209,7 +209,7 @@ def test_line_diagonal_card_two_moves2(board):
     ])
 
 
-def test_line_diagonal_card_two_moves3(board):
+def test_line_diagonal_card_two_moves3(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['number_movements'] = 2
     card_properties['movements_types'].append('diagonal')
@@ -223,7 +223,7 @@ def test_line_diagonal_card_two_moves3(board):
     ])
 
 
-def test_multiple_colors_card(board):
+def test_multiple_colors_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('diagonal')
     card_properties['movements_types'].append('line')
@@ -238,7 +238,7 @@ def test_multiple_colors_card(board):
     ])
 
 
-def test_line_diagonal_arms_edges(board, edge_card_properties):
+def test_line_diagonal_arms_edges(board, edge_card_properties):  # noqa: F811
     # Bottom left
     edge_card_properties['color'] = 'black'
     card = Card(board, **edge_card_properties)
@@ -274,7 +274,7 @@ def test_line_diagonal_arms_edges(board, edge_card_properties):
     ])
 
 
-def test_line_diagonal_arms_edges_from_circle(board, edge_card_properties):
+def test_line_diagonal_arms_edges_from_circle(board, edge_card_properties):  # noqa: F811
     edge_card_properties['movements_types'].remove('line')
     edge_card_properties['color'] = 'black'
     card = Card(board, **edge_card_properties)
@@ -289,7 +289,7 @@ def test_line_diagonal_arms_edges_from_circle(board, edge_card_properties):
     ])
 
 
-def test_knight_no_move(board):
+def test_knight_no_move(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'red'
@@ -298,7 +298,7 @@ def test_knight_no_move(board):
     assert card.move(board[3, 8]) == set()
 
 
-def test_knight_card(board):
+def test_knight_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'red'
@@ -327,7 +327,7 @@ def test_knight_card(board):
     ])
 
 
-def test_knight_arm_edge(board):
+def test_knight_arm_edge(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'red'
@@ -339,7 +339,7 @@ def test_knight_arm_edge(board):
     ])
 
 
-def test_knight_arm_edge_horizontal(board):
+def test_knight_arm_edge_horizontal(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'yellow'
@@ -352,7 +352,7 @@ def test_knight_arm_edge_horizontal(board):
     ])
 
 
-def test_knight_arm_edge_horizontal2(board):
+def test_knight_arm_edge_horizontal2(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'black'
@@ -365,7 +365,7 @@ def test_knight_arm_edge_horizontal2(board):
     ])
 
 
-def test_knight_arm_edge_vertical(board):
+def test_knight_arm_edge_vertical(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'black'
@@ -377,7 +377,7 @@ def test_knight_arm_edge_vertical(board):
     ])
 
 
-def test_knight_arm_edge_vertical2(board):
+def test_knight_arm_edge_vertical2(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'yellow'
@@ -389,7 +389,7 @@ def test_knight_arm_edge_vertical2(board):
     ])
 
 
-def test_knight_circle(board):
+def test_knight_circle(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'red'
@@ -402,7 +402,7 @@ def test_knight_circle(board):
     ])
 
 
-def test_knight_circle_to_arm(board):
+def test_knight_circle_to_arm(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'black'
@@ -415,7 +415,7 @@ def test_knight_circle_to_arm(board):
     ])
 
 
-def test_knight_occupied_square(board):
+def test_knight_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties['movements_types'].append('knight')
     card_properties['color'] = 'red'
@@ -427,7 +427,7 @@ def test_knight_occupied_square(board):
     ])
 
 
-def test_remove_color_from_possible_colors(board):
+def test_remove_color_from_possible_colors(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card = Card(board, **card_properties)
 

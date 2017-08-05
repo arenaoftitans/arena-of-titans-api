@@ -46,20 +46,20 @@ def width():
         return game_description['number_arms'] * game_description['arms_width']
 
 
-def test_number_square(svg_board, height, width):
+def test_number_square(svg_board, height, width):  # noqa: F811
     board_layer = svg_board.svg.xpath(
         './/ns:g[@id="squaresLayer"]',
         namespaces=SvgBoardCreator.NS)[0]
     assert len(board_layer) == height * width
 
 
-def test_paws(svg_board):
+def test_paws(svg_board):  # noqa: F811
     pawn_layer = svg_board.svg.xpath(
         './/ns:g[@id="pawnLayer"]',
         namespaces=SvgBoardCreator.NS)[0]
     assert len(pawn_layer) == 8
 
 
-def test_str(svg_board):
+def test_str(svg_board):  # noqa: F811
     assert str(svg_board)
     assert '&gt;' not in str(svg_board)

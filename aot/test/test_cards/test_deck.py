@@ -19,7 +19,7 @@
 
 from unittest.mock import MagicMock
 
-from .. import (
+from .. import (  # noqa: F401
     board,
     deck,
 )
@@ -35,7 +35,7 @@ NUMBER_CARDS_HAND = 5
 NUMBER_TOTAL_CARDS = NUMBER_CARD_TYPES * NUMBER_COLORS
 
 
-def test_get_card(deck):
+def test_get_card(deck):  # noqa: F811
     card = deck.first_card_in_hand
     assert card is deck.get_card(card.name, card.color)
     assert deck.get_card('Azerty', 'Black') is None
@@ -45,7 +45,7 @@ def test_get_card(deck):
     assert deck.get_card(None, None) is None
 
 
-def test_init_deck(deck):
+def test_init_deck(deck):  # noqa: F811
     assert NUMBER_TOTAL_CARDS == deck.number_cards_in_hand + \
         deck.number_cards_in_stock + \
         deck.number_cards_in_graveyard
@@ -54,7 +54,7 @@ def test_init_deck(deck):
     assert NUMBER_TOTAL_CARDS - NUMBER_CARDS_HAND == deck.number_cards_in_stock
 
 
-def test_play_existing_card(deck):
+def test_play_existing_card(deck):  # noqa: F811
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     played_card = deck.first_card_in_hand
     played_card.revert_to_default = MagicMock()
@@ -74,7 +74,7 @@ def test_play_existing_card(deck):
     assert played_card in deck.graveyard
 
 
-def test_play_card_from_name_color(deck):
+def test_play_card_from_name_color(deck):  # noqa: F811
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     played_card = deck.first_card_in_hand
     played_card.revert_to_default = MagicMock()
@@ -87,7 +87,7 @@ def test_play_card_from_name_color(deck):
     played_card.revert_to_default.assert_called_once_with()
 
 
-def test_play_no_card(deck):
+def test_play_no_card(deck):  # noqa: F811
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     deck.play(None)
 
@@ -96,7 +96,7 @@ def test_play_no_card(deck):
     assert 0 == deck.number_cards_in_graveyard
 
 
-def test_play_unexisting_card(board, deck):
+def test_play_unexisting_card(board, deck):  # noqa: F811
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     card = Card(board)
     deck.play(card)
@@ -106,7 +106,7 @@ def test_play_unexisting_card(board, deck):
     assert 0 == deck.number_cards_in_graveyard
 
 
-def test_play_more_cards_than_total_in_deck(deck):
+def test_play_more_cards_than_total_in_deck(deck):  # noqa: F811
     # Empty stock
     for _ in range(NUMBER_TOTAL_CARDS - NUMBER_CARDS_HAND):
         card = deck.first_card_in_hand
@@ -127,7 +127,7 @@ def test_play_more_cards_than_total_in_deck(deck):
     assert NUMBER_TOTAL_CARDS - 4 == deck.number_cards_in_graveyard
 
 
-def test_view_possible_square(deck):
+def test_view_possible_square(deck):  # noqa: F811
     assert isinstance(deck.view_possible_squares(None, None), set)
     assert isinstance(deck.view_possible_squares(deck.first_card_in_hand, None), set)
     card = deck.first_card_in_hand
@@ -135,7 +135,7 @@ def test_view_possible_square(deck):
     assert isinstance(deck.view_possible_squares(card, None), set)
 
 
-def test_remove_color_from_possible_colors(deck):
+def test_remove_color_from_possible_colors(deck):  # noqa: F811
     for card in deck.hand:
         card.remove_color_from_possible_colors = MagicMock()
 
@@ -145,7 +145,7 @@ def test_remove_color_from_possible_colors(deck):
         card.remove_color_from_possible_colors.assert_called_once_with(color)
 
 
-def test_revert_to_default(deck):
+def test_revert_to_default(deck):  # noqa: F811
     for card in deck.hand:
         card.revert_to_default = MagicMock()
 

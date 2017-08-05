@@ -19,12 +19,11 @@
 
 from unittest.mock import (
     MagicMock,
-    patch,
 )
 
 import pytest
 
-from .. import (
+from .. import (  # noqa: F401
     board,
     deck,
     player,
@@ -38,14 +37,14 @@ from ...cards.trumps import (
 from ...game import Player
 
 
-def test_view_possible_squares(player):
+def test_view_possible_squares(player):  # noqa: F811
     player.deck.view_possible_squares = MagicMock()
     card = player.deck.first_card_in_hand
     player.view_possible_squares(card)
     player.deck.view_possible_squares.assert_called_once_with(card, player.current_square)
 
 
-def test_can_move(player):
+def test_can_move(player):  # noqa: F811
     square = player.current_square
     card = player.deck.first_card_in_hand
     player.deck.view_possible_squares = MagicMock(return_value={square})
@@ -57,7 +56,7 @@ def test_can_move(player):
     player.deck.view_possible_squares.assert_called_with(card, square)
 
 
-def test_move(player, board):
+def test_move(player, board):  # noqa: F811
     start_square = player.current_square
     assert start_square.occupied
     assert 0 == start_square.x
@@ -76,21 +75,21 @@ def test_move(player, board):
     assert square is player.current_square
 
 
-def test_wins(player):
+def test_wins(player):  # noqa: F811
     player.wins(rank=1)
 
     assert player.has_won
     assert 1 == player.rank
 
 
-def test_init_game_player_0(player, board):
+def test_init_game_player_0(player, board):  # noqa: F811
     start_square = player.current_square
     assert start_square.occupied
     assert 0 == start_square.x
     assert 8 == start_square.y
 
     # Check the deck
-    deck = player.deck
+    deck = player.deck  # noqa: 811
     assert deck is not None
     assert 5 == deck.number_cards_in_hand
 
@@ -104,8 +103,8 @@ def test_init_game_player_0(player, board):
     assert expected_aim == player.aim
 
 
-def test_init_game_player_1(board, deck):
-    player = Player(None, None, 1, board, deck, MagicMock())
+def test_init_game_player_1(board, deck):  # noqa: F811
+    player = Player(None, None, 1, board, deck, MagicMock())  # noqa: 811
     start_square = player.current_square
     assert start_square.occupied
     assert 4 == start_square.x
@@ -126,14 +125,14 @@ def test_init_game_player_1(board, deck):
     assert expected_aim == player.aim
 
 
-def test_init_turn(player):
+def test_init_turn(player):  # noqa: F811
     player.can_play = False
     player.init_turn()
     assert player.can_play
     assert player.current_square == player.last_square_previous_turn
 
 
-def test_complete_turn(player):
+def test_complete_turn(player):  # noqa: F811
     player.deck.revert_to_default = MagicMock()
     trump1 = MagicMock()
     trump1.duration = 0
@@ -152,7 +151,7 @@ def test_complete_turn(player):
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
 
 
-def test_complet_turn_collect_all_consumed_trumps(player):
+def test_complet_turn_collect_all_consumed_trumps(player):  # noqa: F811
     trump1 = MagicMock()
     trump1.duration = 0
     trump2 = MagicMock()
@@ -165,7 +164,7 @@ def test_complet_turn_collect_all_consumed_trumps(player):
     assert len(player.affecting_trumps) == 0
 
 
-def test_play_card_cannot_play(board, player):
+def test_play_card_cannot_play(board, player):  # noqa: F811
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     start_square = player.current_square
@@ -183,7 +182,7 @@ def test_play_card_cannot_play(board, player):
     assert 1 == end_square.y
 
 
-def test_play_card(board, player):
+def test_play_card(board, player):  # noqa: F811
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     card = Card(board)
@@ -201,7 +200,7 @@ def test_play_card(board, player):
     player.deck.init_turn.assert_called_once_with()
 
 
-def test_play_card_with_special_actions(player):
+def test_play_card_with_special_actions(player):  # noqa: F811
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
     player._complete_action = MagicMock()
@@ -226,7 +225,7 @@ def test_play_card_with_special_actions(player):
     assert player.special_action_start_time > 0
 
 
-def test_has_special_actions(player):
+def test_has_special_actions(player):  # noqa: F811
     actions = TrumpList()
     actions.append(SimpleTrump(name='action', type=None, args=None))
     player.special_actions = actions
@@ -239,7 +238,7 @@ def test_has_special_actions(player):
     assert not player.has_special_actions
 
 
-def test_play_special_action(player):
+def test_play_special_action(player):  # noqa: F811
     action = MagicMock()
     action.name = 'Action'
     target = MagicMock()
@@ -252,7 +251,7 @@ def test_play_special_action(player):
     assert not player.has_special_actions
 
 
-def test_play_special_action_no_args(player):
+def test_play_special_action_no_args(player):  # noqa: F811
     action = MagicMock()
     action.name = 'action'
     target = MagicMock()
@@ -264,7 +263,7 @@ def test_play_special_action_no_args(player):
     assert not player.has_special_actions
 
 
-def test_cancel_special_action(player):
+def test_cancel_special_action(player):  # noqa: F811
     player._special_actions_names = ['action', 'action2']
 
     player.cancel_special_action(SimpleTrump(name='action', type=None, args=None))
@@ -272,13 +271,13 @@ def test_cancel_special_action(player):
     assert player._special_actions_names == ['action2']
 
 
-def test_reach_aim(player):
+def test_reach_aim(player):  # noqa: F811
     player._aim = {player.current_square}
     player._last_square_previous_turn = player.current_square
     assert player.has_reached_aim
 
 
-def test_play_wrong_card(player):
+def test_play_wrong_card(player):  # noqa: F811
     player.deck.play = MagicMock()
     # None of these tests must throw.
     player.play_card(None, None)
@@ -288,7 +287,7 @@ def test_play_wrong_card(player):
     assert player._gauge.move.called
 
 
-def test_pass(player):
+def test_pass(player):  # noqa: F811
     player.deck.init_turn = MagicMock()
     player.init_turn()
     assert player.can_play
@@ -300,7 +299,7 @@ def test_pass(player):
     assert player._number_turns_passed_not_connected == 0
 
 
-def test_pass_not_connected(player):
+def test_pass_not_connected(player):  # noqa: F811
     player.is_connected = False
     player.deck.init_turn = MagicMock()
     player.init_turn()
@@ -312,13 +311,13 @@ def test_pass_not_connected(player):
     assert player._number_turns_passed_not_connected == 1
 
 
-def test_expect_reconnect(player):
+def test_expect_reconnect(player):  # noqa: F811
     assert player.expect_reconnect
     player._number_turns_passed_not_connected = Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT + 1
     assert not player.expect_reconnect
 
 
-def test_reconnect(player):
+def test_reconnect(player):  # noqa: F811
     player._number_turns_passed_not_connected = 2
     player.is_connected = False
     assert player._number_turns_passed_not_connected == 2
@@ -326,7 +325,7 @@ def test_reconnect(player):
     assert player._number_turns_passed_not_connected == 0
 
 
-def test_discard(player):
+def test_discard(player):  # noqa: F811
     player.deck.play = MagicMock()
     player.deck.init_turn = MagicMock()
 
@@ -343,14 +342,14 @@ def test_discard(player):
     player.deck.init_turn.assert_called_once_with()
 
 
-def test_get_card(player):
+def test_get_card(player):  # noqa: F811
     player.deck.get_card = MagicMock()
     card = player.deck.first_card_in_hand
     player.get_card(card.name, card.color)
     player.deck.get_card.assert_called_once_with(card.name, card.color)
 
 
-def test_modify_number_moves(player):
+def test_modify_number_moves(player):  # noqa: F811
     player.modify_number_moves(5)
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY + 5
     player.complete_turn()
@@ -362,7 +361,7 @@ def test_modify_number_moves(player):
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
 
 
-def test_get_trump(player):
+def test_get_trump(player):  # noqa: F811
     with pytest.raises(IndexError):
         assert player.get_trump(None)
     with pytest.raises(IndexError):
@@ -370,7 +369,7 @@ def test_get_trump(player):
     assert isinstance(player.get_trump('Reinforcements'), Trump)
 
 
-def test_trumps_property(player):
+def test_trumps_property(player):  # noqa: F811
     assert len(player.trumps) == 4
     trump = player.trumps[0]
     assert 'name' in trump
@@ -380,7 +379,7 @@ def test_trumps_property(player):
     assert 'must_target_player' in trump
 
 
-def test_affecting_trumps(player):
+def test_affecting_trumps(player):  # noqa: F811
     trump = player.get_trump('Reinforcements')
     trump.affect = MagicMock()
     trump.consume = MagicMock()
@@ -392,7 +391,7 @@ def test_affecting_trumps(player):
     trump.affect.assert_called_once_with(player)
 
 
-def test_play_trump(player):
+def test_play_trump(player):  # noqa: F811
     player.init_turn()
     trump = player.get_trump('Reinforcements')
     trump.affect = MagicMock()
@@ -413,7 +412,7 @@ def test_play_trump(player):
     trump.affect.assert_called_with(player)
 
 
-def test_number_affecting_trumps(player):
+def test_number_affecting_trumps(player):  # noqa: F811
     # Check that the number of played trumps is only increased if the targeted
     # player can be affected.
     trump = player.get_trump('Reinforcements')
@@ -428,7 +427,7 @@ def test_number_affecting_trumps(player):
     assert player._number_trumps_played == 0
 
 
-def test_number_gauge_empty(player):
+def test_number_gauge_empty(player):  # noqa: F811
     trump = player.get_trump('Reinforcements')
     player._gauge.can_play_trump = MagicMock(return_value=False)
     player.init_turn()
@@ -438,7 +437,7 @@ def test_number_gauge_empty(player):
     assert player._number_trumps_played == 0
 
 
-def test_still_in_game_ai(player):
+def test_still_in_game_ai(player):  # noqa: F811
     player._is_ai = True
     player.is_connected = False
     assert player.still_in_game
@@ -446,29 +445,29 @@ def test_still_in_game_ai(player):
     assert not player.still_in_game
 
 
-def test_still_in_game_has_won(player):
+def test_still_in_game_has_won(player):  # noqa: F811
     player.is_connected = True
     player._has_won = True
     assert not player.still_in_game
 
 
-def test_still_in_game_player_connected(player):
+def test_still_in_game_player_connected(player):  # noqa: F811
     player.is_connected = True
     assert player.still_in_game
 
 
-def test_still_in_game_player_not_connected_may_come_back(player):
+def test_still_in_game_player_not_connected_may_come_back(player):  # noqa: F811
     player.is_connected = False
     assert player.still_in_game
 
 
-def test_still_in_game_player_not_connected_wont_come_back(player):
+def test_still_in_game_player_not_connected_wont_come_back(player):  # noqa: F811
     player.is_connected = False
     player._number_turns_passed_not_connected = float('inf')
     assert not player.still_in_game
 
 
-def test_ai_aim(player, board):
+def test_ai_aim(player, board):  # noqa: F811
     # Just direction
     assert len(player.ai_aim) == 1
     # On arm: full aim
@@ -479,7 +478,7 @@ def test_ai_aim(player, board):
     assert len(player.ai_aim) == 1
 
 
-def test_complete_special_actions(player):
+def test_complete_special_actions(player):  # noqa: F811
     player._complete_action = MagicMock()
 
     player.complete_special_actions()
@@ -487,7 +486,7 @@ def test_complete_special_actions(player):
     player._complete_action.assert_called_once_with()
 
 
-def test_trumps_statuses(player):
+def test_trumps_statuses(player):  # noqa: F811
     trump1 = MagicMock()
     trump2 = MagicMock()
 

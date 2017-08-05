@@ -19,7 +19,7 @@
 
 from unittest.mock import MagicMock
 
-from .. import (
+from .. import (  # noqa: F401
     board,
     deck,
     game,
@@ -33,14 +33,14 @@ from ...cards.trumps import (
 )
 
 
-def test_affect_modify_number_moves(player):
+def test_affect_modify_number_moves(player):  # noqa: F811
     player.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=1, duration=1)
     trump.affect(player)
     player.modify_number_moves.assert_called_once_with(1)
 
 
-def test_remove_color(player):
+def test_remove_color(player):  # noqa: F811
     player.deck.remove_color_from_possible_colors = MagicMock()
     card = player.deck.first_card_in_hand
     color = card.color
@@ -49,14 +49,14 @@ def test_remove_color(player):
     player.deck.remove_color_from_possible_colors.assert_called_once_with(color)
 
 
-def test_remove_all_colors(player):
+def test_remove_all_colors(player):  # noqa: F811
     player.deck.remove_color_from_possible_colors = MagicMock()
     trump = RemoveColor(color=Color['ALL'], duration=1)
     trump.affect(player)
     player.deck.remove_color_from_possible_colors.assert_called_once_with(Color['ALL'])
 
 
-def test_remove_multiple_colors(player):
+def test_remove_multiple_colors(player):  # noqa: F811
     player.deck.remove_color_from_possible_colors = MagicMock()
     card = player.deck.first_card_in_hand
     colors = {card.color, Color['BLACK']}
@@ -66,7 +66,7 @@ def test_remove_multiple_colors(player):
     assert player.deck.remove_color_from_possible_colors.call_count == len(colors)
 
 
-def test_teleport_no_target_square(board, player):
+def test_teleport_no_target_square(board, player):  # noqa: F811
     player.move = MagicMock()
     trump = Teleport(distance=1)
 
@@ -75,7 +75,7 @@ def test_teleport_no_target_square(board, player):
     assert not player.move.called
 
 
-def test_teleport_wrong_distance(board, player):
+def test_teleport_wrong_distance(board, player):  # noqa: F811
     player.move = MagicMock()
     trump = Teleport(distance=1)
     square = board[5, 8]
@@ -85,7 +85,7 @@ def test_teleport_wrong_distance(board, player):
     assert not player.move.called
 
 
-def test_teleport_wrong_color(board, player):
+def test_teleport_wrong_color(board, player):  # noqa: F811
     player.move = MagicMock()
     trump = Teleport(distance=1, color='blue')
     square = board[0, 7]
@@ -95,7 +95,7 @@ def test_teleport_wrong_color(board, player):
     assert not player.move.called
 
 
-def test_teleport(board, player):
+def test_teleport(board, player):  # noqa: F811
     square = None
     player.move = MagicMock()
     trump = Teleport(distance=1)
@@ -106,7 +106,7 @@ def test_teleport(board, player):
     player.move.assert_called_once_with(square)
 
 
-def test_teleport_view_possible_squares(player):
+def test_teleport_view_possible_squares(player):  # noqa: F811
     trump = Teleport(distance=1)
     trump._card = MagicMock()
 
@@ -115,7 +115,7 @@ def test_teleport_view_possible_squares(player):
     trump._card.move.assert_called_once_with(player.current_square)
 
 
-def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):
+def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):  # noqa: F811
     player1 = game.players[0]
 
     for i in range(player1.MAX_NUMBER_AFFECTING_TRUMPS):

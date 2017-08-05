@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .. import board
+from .. import board  # noqa: F401
 from ...board import (
     Color,
     ColorSet,
@@ -26,11 +26,11 @@ from ...board import (
 from ...board.square import SquareSet
 
 
-def test_number_squares(board):
+def test_number_squares(board):  # noqa: F811
     assert len(board) == 288
 
 
-def test_get_wrong_squares(board):
+def test_get_wrong_squares(board):  # noqa: F811
     assert board[None] is None
     assert board[None, None] is None
     assert board[None, None, None] is None
@@ -39,13 +39,13 @@ def test_get_wrong_squares(board):
     assert board[200, 200] is None
 
 
-def test_square_coords(board):
+def test_square_coords(board):  # noqa: F811
     assert board[0, 0] == Square(0, 0, 'yellow')
     assert board[7, 2] == Square(7, 2, 'yellow')
     assert board[-1, 0] == Square(31, 0, 'yellow')
 
 
-def test_get_lines_squares(board):
+def test_get_lines_squares(board):  # noqa: F811
     assert board.get_line_squares(board[0, 0], set(['blue'])) == set([
         Square(0, 1, 'blue'),
     ])
@@ -55,7 +55,7 @@ def test_get_lines_squares(board):
     ])
 
 
-def test_get_line_squares_multiple_colors(board):
+def test_get_line_squares_multiple_colors(board):  # noqa: F811
     colors = set(['blue', 'yellow'])
     assert board.get_line_squares(board[0, 0], colors) == set([
         Square(0, 1, 'blue'),
@@ -64,7 +64,7 @@ def test_get_line_squares_multiple_colors(board):
     ])
 
 
-def test_get_line_squares_all_colors(board):
+def test_get_line_squares_all_colors(board):  # noqa: F811
     assert board.get_line_squares(board[0, 0], set(['all'])) == set([
         Square(0, 1, 'blue'),
         Square(1, 0, 'yellow'),
@@ -72,7 +72,7 @@ def test_get_line_squares_all_colors(board):
     ])
 
 
-def test_get_diagonal_squares(board):
+def test_get_diagonal_squares(board):  # noqa: F811
     assert board.get_diagonal_squares(board[0, 0], set(['blue'])) == set([
         Square(1, 1, 'blue'),
         Square(31, 1, 'blue'),
@@ -83,17 +83,17 @@ def test_get_diagonal_squares(board):
     ])
 
 
-def test_get_line_squares_occupied_square(board):
+def test_get_line_squares_occupied_square(board):  # noqa: F811
     board[0, 1].occupied = True
     assert board.get_line_squares(board[0, 0], set(['blue'])) == set([board[0, 1]])
 
 
-def test_get_line_squares_arm(board):
+def test_get_line_squares_arm(board):  # noqa: F811
     assert board.get_line_squares(board[0, 7], set(['black'])) == set()
     assert board.get_line_squares(board[3, 7], set(['red'])) == set()
 
 
-def test_get_diagonal_squares_multiple_colors(board):
+def test_get_diagonal_squares_multiple_colors(board):  # noqa: F811
     colors = set(['black', 'yellow'])
     assert board.get_diagonal_squares(board[0, 1], colors) == set([
         Square(31, 0, 'yellow'),
@@ -103,7 +103,7 @@ def test_get_diagonal_squares_multiple_colors(board):
     ])
 
 
-def test_get_diagonal_squares_all_colors(board):
+def test_get_diagonal_squares_all_colors(board):  # noqa: F811
     colors = set(['all'])
     assert board.get_diagonal_squares(board[0, 1], colors) == set([
         Square(31, 0, 'yellow'),
@@ -113,7 +113,7 @@ def test_get_diagonal_squares_all_colors(board):
     ])
 
 
-def test_get_diagonal_squares_on_arm(board):
+def test_get_diagonal_squares_on_arm(board):  # noqa: F811
     assert board.get_diagonal_squares(board[0, 7], set(['black'])) == set()
     assert board.get_diagonal_squares(board[3, 7], set(['red'])) == set()
     assert board.get_diagonal_squares(board[0, 3], set(['yellow'])) == set([
@@ -126,15 +126,15 @@ def test_get_diagonal_squares_on_arm(board):
     ])
 
 
-def test_square_set_from_color():
+def test_square_set_from_color():  # noqa: F811
     assert Color['BLUE'] in SquareSet([Color['BLUE']]).colors
 
 
-def test_color_set():
+def test_color_set():  # noqa: F811
     assert Color['BLUE'] in ColorSet([Color['BLUE']])
 
 
-def test_get_neighbors(board):
+def test_get_neighbors(board):  # noqa: F811
     square = board[0, 8]
     neighbors = board.get_neighbors(square)
     assert neighbors == set([
@@ -157,7 +157,7 @@ def test_get_neighbors(board):
     ])
 
 
-def test_get_neighbors_with_movements_types_line(board):
+def test_get_neighbors_with_movements_types_line(board):  # noqa: F811
     square = board[0, 8]
     neighbors = board.get_neighbors(square, movements_types={'line'})
     assert neighbors == set([
@@ -166,7 +166,7 @@ def test_get_neighbors_with_movements_types_line(board):
     ])
 
 
-def test_get_neighbors_with_movements_types_diagonal(board):
+def test_get_neighbors_with_movements_types_diagonal(board):  # noqa: F811
     square = board[0, 8]
     neighbors = board.get_neighbors(square, movements_types={'diagonal'})
     assert neighbors == set([
@@ -174,7 +174,7 @@ def test_get_neighbors_with_movements_types_diagonal(board):
     ])
 
 
-def test_get_neighbors_with_movements_types_all(board):
+def test_get_neighbors_with_movements_types_all(board):  # noqa: F811
     square = board[0, 8]
     neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
     assert neighbors == set([
@@ -184,7 +184,7 @@ def test_get_neighbors_with_movements_types_all(board):
     ])
 
 
-def test_get_neighbors_x1_circle(board):
+def test_get_neighbors_x1_circle(board):  # noqa: F811
     square = board[0, 1]
     neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
     assert neighbors == set([
@@ -199,7 +199,7 @@ def test_get_neighbors_x1_circle(board):
     ])
 
 
-def test_get_neighbors_x31_circle(board):
+def test_get_neighbors_x31_circle(board):  # noqa: F811
     square = board[31, 1]
     neighbors = board.get_neighbors(square, movements_types={'diagonal', 'line'})
     assert neighbors == set([

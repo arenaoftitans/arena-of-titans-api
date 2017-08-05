@@ -21,25 +21,23 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (
+from .. import (  # noqa: F401
     api,
     game,
 )
 from ...api.utils import (
     AotError,
-    AotErrorToDisplay,
 )
-from ...api.utils import RequestTypes
 
 
-def test_play_trump_wrong_trump(api, game):
+def test_play_trump_wrong_trump(api, game):  # noqa: F811
     with pytest.raises(AotError) as e:
         api._play_trump(game, {})
 
     assert 'wrong_trump' in str(e)
 
 
-def test_play_trump_missing_target(api, game):
+def test_play_trump_missing_target(api, game):  # noqa: F811
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
@@ -52,7 +50,7 @@ def test_play_trump_missing_target(api, game):
     assert 'missing_trump_target' in str(e)
 
 
-def test_play_trump_with_wrong_target(api, game):
+def test_play_trump_with_wrong_target(api, game):  # noqa: F811
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
@@ -66,7 +64,7 @@ def test_play_trump_with_wrong_target(api, game):
     assert 'wrong_trump_target' in str(e)
 
 
-def test_play_trump_max_number_trumps_played(api, game):
+def test_play_trump_max_number_trumps_played(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
@@ -82,7 +80,7 @@ def test_play_trump_max_number_trumps_played(api, game):
     assert 'max_number_played_trumps' in str(e)
 
 
-def test_play_trump_max_number_affecting_trumps(api, game):
+def test_play_trump_max_number_affecting_trumps(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
@@ -98,7 +96,7 @@ def test_play_trump_max_number_affecting_trumps(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_gauge_too_low(api, game):
+def test_play_trump_gauge_too_low(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player.play_trump = MagicMock(return_value=False)
@@ -114,7 +112,7 @@ def test_play_trump_gauge_too_low(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_with_target(api, game):
+def test_play_trump_with_target(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
@@ -132,7 +130,7 @@ def test_play_trump_with_target(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-def test_play_trump_without_target(api, game):
+def test_play_trump_without_target(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:

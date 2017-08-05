@@ -27,14 +27,13 @@ from ...api.utils import (
     AotErrorToDisplay,
     RequestTypes,
 )
-from ...game import Player
-from ...test import (
+from ...test import (  # noqa: F401
     api,
     game,
 )
 
 
-def test_test_success(api):
+def test_test_success(api):  # noqa: F811
     api._cache = MagicMock()
     api.sendMessage = MagicMock()
 
@@ -46,7 +45,7 @@ def test_test_success(api):
     })
 
 
-def test_test_failure(api):
+def test_test_failure(api):  # noqa: F811
     def cache_test():
         raise Exception('Error in redis')
 
@@ -63,7 +62,7 @@ def test_test_failure(api):
     })
 
 
-def test_info(api):
+def test_info(api):  # noqa: F811
     api._clients = {
         'client',
         'info_request',
@@ -81,7 +80,7 @@ def test_info(api):
     })
 
 
-def test_onMessage_unkwon_request_type(api):  # noqa: N802
+def test_onMessage_unkwon_request_type(api):  # noqa: N802,F811
     api._send_error = MagicMock()
 
     api.onMessage(b'{}', False)
@@ -89,7 +88,7 @@ def test_onMessage_unkwon_request_type(api):  # noqa: N802
     api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
 
 
-def test_onMessage_reconnect(api):  # noqa: N802
+def test_onMessage_reconnect(api):  # noqa: N802,F811
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=True)
@@ -100,7 +99,7 @@ def test_onMessage_reconnect(api):  # noqa: N802
     api._reconnect.assert_called_once_with()
 
 
-def test_onMessage_reconnect_cannot_join(api):  # noqa: N802
+def test_onMessage_reconnect_cannot_join(api):  # noqa: N802,F811
     api._reconnect = MagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = MagicMock(return_value=False)
@@ -113,7 +112,7 @@ def test_onMessage_reconnect_cannot_join(api):  # noqa: N802
     api._send_error_to_display.assert_called_once_with('cannot_join', {})
 
 
-def test_onMessage_new_game(api):  # noqa: N802
+def test_onMessage_new_game(api):  # noqa: N802,F811
     api._game_id = None
     api._create_new_game = MagicMock()
     api.sendMessage = MagicMock()
@@ -123,7 +122,7 @@ def test_onMessage_new_game(api):  # noqa: N802
     api._create_new_game.assert_called_once_with()
 
 
-def test_onMessage_creating_game(api):  # noqa: N802
+def test_onMessage_creating_game(api):  # noqa: N802,F811
     api._process_create_game_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=False)
@@ -135,7 +134,7 @@ def test_onMessage_creating_game(api):  # noqa: N802
     api._process_create_game_request.assert_called_once_with()
 
 
-def test_onMessage_process_play_request(api):  # noqa: N802
+def test_onMessage_process_play_request(api):  # noqa: N802,F811
     api._process_play_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = MagicMock(return_value=True)
@@ -146,24 +145,24 @@ def test_onMessage_process_play_request(api):  # noqa: N802
     api._process_play_request.assert_called_once_with()
 
 
-def test_new_game_no_game_id(api):
+def test_new_game_no_game_id(api):  # noqa: F811
     api._game_id = None
     assert api._creating_new_game
 
 
-def test_new_game_with_game_id(api):
+def test_new_game_with_game_id(api):  # noqa: F811
     api._game_id = 'game_id'
     assert not api._creating_new_game
 
 
-def test_new_game_request_on_old_connection(api):
+def test_new_game_request_on_old_connection(api):  # noqa: F811
     api._game_id = 'game_id'
     api._rt = 'INIT_GAME'
     api._message = {}
     assert api._creating_new_game
 
 
-def test_create_new_game(api, mock):
+def test_create_new_game(api, mock):  # noqa: F811
     api._cache = MagicMock()
     api._get_initialiazed_game_message = MagicMock()
     api._cache.affect_next_slot = MagicMock(return_value=api.INDEX_FIRST_PLAYER)
@@ -187,7 +186,7 @@ def test_create_new_game(api, mock):
     assert api.sendMessage.call_count == 1
 
 
-def test_process_create_game_request_not_allowed(api):
+def test_process_create_game_request_not_allowed(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.is_game_master = MagicMock(return_value=False)
     api._rt = RequestTypes.CREATE_GAME
@@ -198,7 +197,7 @@ def test_process_create_game_request_not_allowed(api):
     assert 'game_master_request' in str(e)
 
 
-def test_process_create_game_request_update_slot_not_game_master(api):
+def test_process_create_game_request_update_slot_not_game_master(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.is_game_master = MagicMock(return_value=False)
     api._rt = RequestTypes.SLOT_UPDATED
@@ -209,7 +208,7 @@ def test_process_create_game_request_update_slot_not_game_master(api):
     api._modify_slots.assert_called_once_with()
 
 
-def test_process_create_game_request_update_slot_game_master(api):
+def test_process_create_game_request_update_slot_game_master(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.is_game_master = MagicMock(return_value=True)
     api._rt = RequestTypes.SLOT_UPDATED
@@ -220,7 +219,7 @@ def test_process_create_game_request_update_slot_game_master(api):
     api._modify_slots.assert_called_once_with()
 
 
-def test_process_create_game_request_join_cannot_join(api):
+def test_process_create_game_request_join_cannot_join(api):  # noqa: F811
     api._rt = RequestTypes.INIT_GAME
     api._cache = MagicMock()
     api._cache.game_exists = MagicMock(return_value=False)
@@ -231,7 +230,7 @@ def test_process_create_game_request_join_cannot_join(api):
     assert 'cannot_join' in str(e)
 
 
-def test_process_create_game_request_join(api):
+def test_process_create_game_request_join(api):  # noqa: F811
     api._rt = RequestTypes.INIT_GAME
     api._cache = MagicMock()
     api._cache.game_exists = MagicMock(return_value=True)
@@ -243,7 +242,7 @@ def test_process_create_game_request_join(api):
     api._join.assert_called_once_with()
 
 
-def test_process_create_game_request_create_game(api):
+def test_process_create_game_request_create_game(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.is_game_master = MagicMock(return_value=True)
     api._rt = RequestTypes.CREATE_GAME
@@ -254,7 +253,7 @@ def test_process_create_game_request_create_game(api):
     api._create_game.assert_called_once_with()
 
 
-def test_join(api):
+def test_join(api):  # noqa: F811
     game_message = {
         'slots': [
             None,
@@ -289,7 +288,7 @@ def test_join(api):
     })
 
 
-def test_modify_slots_empty_request(api):
+def test_modify_slots_empty_request(api):  # noqa: F811
     api._message = {}
 
     with pytest.raises(AotErrorToDisplay) as e:
@@ -298,7 +297,7 @@ def test_modify_slots_empty_request(api):
     assert 'no_slot' in str(e)
 
 
-def test_modify_slots_inexistant_slot(api):
+def test_modify_slots_inexistant_slot(api):  # noqa: F811
     api._message = {
         'slot': {},
     }
@@ -311,7 +310,7 @@ def test_modify_slots_inexistant_slot(api):
     assert 'inexistant_slot' in str(e)
 
 
-def test_modify_slots(api):
+def test_modify_slots(api):  # noqa: F811
     api._send_all = MagicMock()
     api._cache = MagicMock()
     api._cache.slot_exists = MagicMock(return_value=True)
@@ -328,7 +327,7 @@ def test_modify_slots(api):
     assert api._send_all.call_count == 1
 
 
-def test_create_game_no_create_game_request(api):
+def test_create_game_no_create_game_request(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = MagicMock(return_value=2)
     api._message = {
@@ -340,7 +339,7 @@ def test_create_game_no_create_game_request(api):
     assert 'no_request' in str(e)
 
 
-def test_create_game_too_many_players(api):
+def test_create_game_too_many_players(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = MagicMock(return_value=9)
     api._message = {
@@ -353,7 +352,7 @@ def test_create_game_too_many_players(api):
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game_too_few_players(api):
+def test_create_game_too_few_players(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = MagicMock(return_value=1)
     api._message = {
@@ -366,7 +365,7 @@ def test_create_game_too_few_players(api):
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game_wrong_registration(api):
+def test_create_game_wrong_registration(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = MagicMock(return_value=2)
     api._message = {
@@ -379,7 +378,7 @@ def test_create_game_wrong_registration(api):
     assert 'registered_different_description' in str(e)
 
 
-def test_create_game(mock, api):
+def test_create_game(mock, api):  # noqa: F811
     create_game_request = [
         {
             'name': str(i),
@@ -389,7 +388,7 @@ def test_create_game(mock, api):
     ]
     create_game_request[1] = None
 
-    game = get_game(create_game_request)
+    game = get_game(create_game_request)  # noqa: 811
     mock.patch('aot.api.api.get_game', return_value=game)
     api._cache = MagicMock()
     api._send_to = MagicMock()
@@ -410,7 +409,7 @@ def test_create_game(mock, api):
     assert not game.players[2].is_connected
 
 
-def test_disconnect_pending_players(api, game):
+def test_disconnect_pending_players(api, game):  # noqa: F811
     api._clients_pending_disconnection = {
         'game_id': [0, 1],
     }
@@ -426,7 +425,7 @@ def test_disconnect_pending_players(api, game):
     assert not game.players[1].is_connected
 
 
-def test_reconnect_pending_players(api, game):
+def test_reconnect_pending_players(api, game):  # noqa: F811
     api._clients_pending_reconnection = {
         'game_id': [0, 1],
     }
@@ -442,7 +441,7 @@ def test_reconnect_pending_players(api, game):
     assert game.players[1].is_connected
 
 
-def test_notify_special_actions(api, game):
+def test_notify_special_actions(api, game):  # noqa: F811
     api.sendMessage = MagicMock()
 
     api._notify_special_action('action')
