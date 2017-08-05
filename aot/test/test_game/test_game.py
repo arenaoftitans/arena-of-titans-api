@@ -17,20 +17,20 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# fixtures, ignore the unsued import warnig
-from aot.test import (
+from unittest.mock import MagicMock
+
+from .. import (
     board,
     deck,
     game,
     player,
 )
-from aot.board import Square
-from aot.cards import SimpleCard
-from aot.game import (
+from ...board import Square
+from ...cards import SimpleCard
+from ...game import (
     Game,
     Player,
 )
-from unittest.mock import MagicMock
 
 
 def test_game_creation(player):

@@ -17,9 +17,9 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.utils import SimpleEnumMeta
-from aot.board import Square
-from aot.cards.trumps import Trump
+from ..board import Square
+from ..cards.trumps import Trump
+from ..utils import SimpleEnumMeta
 
 
 class AotError(Exception):

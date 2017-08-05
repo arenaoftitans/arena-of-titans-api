@@ -19,12 +19,14 @@
 
 import pickle
 
-from aot.config import config
-from aot import get_number_players
-from aot.api.utils import SlotState
 from copy import deepcopy
 from datetime import datetime
+
 from redis import Redis
+
+from .utils import SlotState
+from .. import get_number_players
+from ..config import config
 
 
 class ApiCache:

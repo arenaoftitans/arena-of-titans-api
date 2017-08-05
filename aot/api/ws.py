@@ -19,17 +19,20 @@
 
 import asyncio
 import json
-import daiquiri
 
 from abc import abstractmethod
-from aot.api.api_cache import ApiCache
-from aot.api.utils import (
-    to_json,
-    RequestTypes,
-)
-from aot.utils import get_time
-from autobahn.asyncio.websocket import WebSocketServerProtocol
 from contextlib import contextmanager
+
+import daiquiri
+
+from autobahn.asyncio.websocket import WebSocketServerProtocol
+
+from .api_cache import ApiCache
+from .utils import (
+    RequestTypes,
+    to_json,
+)
+from ..utils import get_time
 
 
 class AotWs(WebSocketServerProtocol):
@@ -86,7 +89,7 @@ class AotWs(WebSocketServerProtocol):
     def _play_ai_after_timeout(self, game):  # pragma: no cover
         pass
 
-    def sendMessage(self, message):  # pragma: no cover
+    def sendMessage(self, message):  # pragma: no cover  # noqa: N802
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
         self.LOGGER.debug(message)
@@ -94,16 +97,16 @@ class AotWs(WebSocketServerProtocol):
         if isinstance(message, bytes):
             super().sendMessage(message)
 
-    def onOpen(self):  # pragma: no cover
+    def onOpen(self):  # pragma: no cover  # noqa: N802
         self.id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
         self._set_up_connection_keep_alive()
         self._cache = ApiCache()
 
-    def onClose(self, wasClean, code, reason):
+    def onClose(self, was_clean, code, reason):  # noqa: F821,N802
         self.LOGGER.info(
-            f'WS n°{self.id} was closed cleanly? {wasClean} with code {code} and reason {reason}',
+            f'WS n°{self.id} was closed cleanly? {was_clean} with code {code} and reason {reason}',
         )
 
         if self._cache is not None:
@@ -115,7 +118,7 @@ class AotWs(WebSocketServerProtocol):
         if self.id in self._clients:
             del self._clients[self.id]
 
-    def onPong(self, payload):  # pragma: no cover
+    def onPong(self, payload):  # pragma: no cover  # noqa: N802
         self._set_up_connection_keep_alive()
 
     def _disconnect_player(self):

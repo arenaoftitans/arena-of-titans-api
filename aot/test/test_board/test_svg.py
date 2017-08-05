@@ -18,10 +18,11 @@
 ################################################################################
 
 import json
+
 import pytest
 
-from aot import get_board_description
-from aot.board import SvgBoardCreator
+from ... import get_board_description
+from ...board import SvgBoardCreator
 
 
 @pytest.fixture()

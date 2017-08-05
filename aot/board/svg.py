@@ -19,7 +19,7 @@
 
 from lxml import etree
 
-from aot.board import get_colors_disposition
+from .board import get_colors_disposition
 
 
 class SvgBoardCreator:

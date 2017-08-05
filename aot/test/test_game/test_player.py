@@ -17,17 +17,25 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.cards import Card
-from aot.cards.trumps import SimpleTrump
-from aot.cards.trumps import Trump
-from aot.cards.trumps import TrumpList
-from aot.game import Player
-from aot.test import board
-from aot.test import deck
-from aot.test import player
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
+
 import pytest
-from unittest.mock import MagicMock
-from unittest.mock import patch
+
+from .. import (
+    board,
+    deck,
+    player,
+)
+from ...cards import Card
+from ...cards.trumps import (
+    SimpleTrump,
+    Trump,
+    TrumpList,
+)
+from ...game import Player
 
 
 def test_view_possible_squares(player):

@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.api.api import Api
+from .api import Api
 
 
 __all__ = ['Api']

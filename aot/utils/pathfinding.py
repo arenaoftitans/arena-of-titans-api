@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.utils.heuristic import (
+from .heuristic import (
     CORRECT_X_LEFT,
     DISTANCE_BRANCH_TO_BRANCH,
     Side,

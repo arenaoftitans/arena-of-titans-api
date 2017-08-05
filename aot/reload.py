@@ -18,15 +18,16 @@
 ################################################################################
 
 import re
-import time
 import sys
+import time
 
 from subprocess import Popen
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-from aot.__main__ import cleanup
-from aot.config import config
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
+from .config import config
+from .run import cleanup
 
 
 class AotEventHandler(FileSystemEventHandler):
@@ -73,7 +74,8 @@ class AotEventHandler(FileSystemEventHandler):
 
     def start_app(self):
         self.app = Popen([
-            'python3', 'aot',
+            'python3',
+            '-m', 'aot',
             '--debug',
             '--version', 'latest',
             '--type', 'dev',
@@ -92,7 +94,7 @@ class AotEventHandler(FileSystemEventHandler):
         self._loop = loop
 
 
-def test_main():
+def run_reload():
     config.load_config('dev')
 
     aot_event_handler = AotEventHandler()
@@ -110,7 +112,3 @@ def test_main():
         aot_event_handler.stop_app()
         observer.stop()
     observer.join()
-
-
-if __name__ == '__main__':
-    test_main()

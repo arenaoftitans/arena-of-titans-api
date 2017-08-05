@@ -17,14 +17,15 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from copy import deepcopy
+
 import aot
 
-from aot.board import (
+from .. import Card
+from ...board import (
     all_colors,
     Color,
 )
-from aot.cards import Card
-from copy import deepcopy
 
 
 class Trump:

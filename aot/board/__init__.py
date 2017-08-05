@@ -17,17 +17,17 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board.board import (
+from .board import (
     Board,
     get_colors_disposition,
 )
-from aot.board.color import (
+from .color import (
     all_colors,
     Color,
     ColorSet,
 )
-from aot.board.square import Square
-from aot.board.svg import SvgBoardCreator
+from .square import Square
+from .svg import SvgBoardCreator
 
 
 __all__ = [

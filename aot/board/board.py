@@ -19,11 +19,11 @@
 
 import math
 
-from aot.board.square import (
+from .color import Color
+from .square import (
     Square,
     SquareSet,
 )
-from aot.board.color import Color
 
 
 def get_colors_disposition(arms_colors, inner_circle_colors, number_arms):

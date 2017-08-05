@@ -19,8 +19,8 @@
 
 import random
 
-from aot.board import Color
-from aot.cards import Card
+from ..board import Color
+from ..cards import Card
 
 
 class Deck:

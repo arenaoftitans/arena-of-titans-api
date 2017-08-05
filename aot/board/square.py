@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board.color import (
+from .color import (
     Color,
     ColorSet,
 )

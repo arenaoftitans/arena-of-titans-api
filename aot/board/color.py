@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.utils import SimpleEnumMeta
+from ..utils import SimpleEnumMeta
 
 
 class Color(metaclass=SimpleEnumMeta):

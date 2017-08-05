@@ -26,7 +26,7 @@ def get_time():
 
 
 class SimpleEnumMeta(type):
-    def __new__(metacls, cls, bases, classdict):
+    def __new__(metacls, cls, bases, classdict):  # noqa: N804
         object_attrs = set(dir(type(cls, (object,), {})))
         simple_enum_cls = super().__new__(metacls, cls, bases, classdict)
         simple_enum_cls._member_names_ = set(classdict.keys()) - object_attrs
@@ -41,11 +41,11 @@ class SimpleEnumMeta(type):
 
         return simple_enum_cls
 
-    def __getitem__(cls, key):
+    def __getitem__(cls, key):  # noqa: N805
         return getattr(cls, key.upper())
 
-    def __iter__(cls):
+    def __iter__(cls):  # noqa: N805
         return (name for name in cls._member_names_)
 
-    def __len__(cls):  # pragma: no cover
+    def __len__(cls):  # pragma: no cover  # noqa: N805
         return len(cls._member_names_)

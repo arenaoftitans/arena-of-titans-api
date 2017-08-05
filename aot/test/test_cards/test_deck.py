@@ -17,16 +17,16 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.cards import (
-    Card,
-    SimpleCard,
-)
-# fixtures, ignore the unsued import warnig
-from aot.test import (
+from unittest.mock import MagicMock
+
+from .. import (
     board,
     deck,
 )
-from unittest.mock import MagicMock
+from ...cards import (
+    Card,
+    SimpleCard,
+)
 
 
 NUMBER_COLORS = 4

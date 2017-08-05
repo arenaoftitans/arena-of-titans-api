@@ -17,14 +17,13 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board import (
-    Square,
+from .. import board
+from ...board import (
     Color,
+    ColorSet,
+    Square,
 )
-from aot.board import ColorSet
-from aot.board.square import SquareSet
-# board is a fixture, ignore the unsued import warnig
-from aot.test import board
+from ...board.square import SquareSet
 
 
 def test_number_squares(board):

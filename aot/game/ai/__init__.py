@@ -19,7 +19,7 @@
 
 from collections import namedtuple
 
-from aot.utils.pathfinding import a_star
+from ...utils.pathfinding import a_star
 
 
 IACardResult = namedtuple('IAResult', 'card square')

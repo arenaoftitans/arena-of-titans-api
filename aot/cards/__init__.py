@@ -19,8 +19,8 @@
 
 from collections import namedtuple
 
-from aot.cards.card import Card
-from aot.cards.deck import Deck
+from .card import Card
+from .deck import Deck
 
 
 SimpleCard = namedtuple('SimpleCard', ['name', 'color'])

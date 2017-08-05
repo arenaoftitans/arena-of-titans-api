@@ -17,8 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.board import Color
-from aot.board import ColorSet
+from ..board import Color
+from ..board import ColorSet
 
 
 class Card:

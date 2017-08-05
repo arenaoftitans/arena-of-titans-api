@@ -17,21 +17,22 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from aot import (
+from .. import (
     get_board,
-    get_game,
     get_cards_list,
+    get_game,
     get_number_players,
     get_trumps_list,
 )
-from aot.api import Api
-from aot.api.api_cache import ApiCache
-from aot.cards import Deck
-from aot.cards.trumps import Gauge
-from aot.game import Player
-from unittest.mock import MagicMock
+from ..api import Api
+from ..api.api_cache import ApiCache
+from ..cards import Deck
+from ..cards.trumps import Gauge
+from ..game import Player
 
 
 class PickleStub:

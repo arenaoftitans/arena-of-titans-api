@@ -17,10 +17,11 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import namedtuple
+
 import pytest
 
-from aot.utils.pathfinding import heuristic_cost_estimate
-from collections import namedtuple
+from ...utils.pathfinding import heuristic_cost_estimate
 
 
 MockedSquare = namedtuple('MockedSquare', 'x y')

@@ -19,7 +19,7 @@
 
 import daiquiri
 
-from aot.game.ai import (
+from .ai import (
     find_cheapest_card,
     find_move_to_play,
 )

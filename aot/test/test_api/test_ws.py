@@ -17,15 +17,16 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from aot.api.utils import RequestTypes
-from aot.test import (
+from unittest.mock import MagicMock
+
+from .. import (
     api,
     game,
 )
-from unittest.mock import MagicMock
+from ...api.utils import RequestTypes
 
 
-def test_onClose(api, game):
+def test_onClose(api, game):  # noqa: N802
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._clients[0] = None
@@ -55,7 +56,7 @@ def test_onClose(api, game):
     game.pass_turn.assert_called_once_with()
 
 
-def test_onClose_not_your_turn(api, game):
+def test_onClose_not_your_turn(api, game):  # noqa: N802
     api._cache = MagicMock()
     api._cache.get_game = MagicMock(return_value=game)
     api._clients[0] = None
@@ -88,7 +89,7 @@ def test_onClose_not_your_turn(api, game):
     assert api._clients_pending_disconnection[None] == set([0])
 
 
-def test_onClose_just_before_ai(api, game):
+def test_onClose_just_before_ai(api, game):  # noqa: N802
     def pass_turn():
         game._active_player = game.players[1]
 
@@ -124,7 +125,7 @@ def test_onClose_just_before_ai(api, game):
     game.pass_turn.assert_called_once_with()
 
 
-def test_onClose_creating_game(api, game):
+def test_onClose_creating_game(api, game):  # noqa: N802
     api._cache = MagicMock()
     slots = [
         {

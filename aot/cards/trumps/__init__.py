@@ -21,12 +21,12 @@ import copy
 
 from collections import namedtuple
 
-from aot.cards.trumps.gauge import Gauge
-from aot.cards.trumps.trumps import (
+from .gauge import Gauge
+from .trumps import (
     ModifyNumberMoves,
-    Trump,
     RemoveColor,
     Teleport,
+    Trump,
 )
 
 

@@ -19,15 +19,16 @@
 
 import pickle
 
-from aot.config import config
-from aot.api.api_cache import ApiCache
-from aot.test import (
+from copy import deepcopy
+from unittest.mock import MagicMock
+
+from .. import (
     api_cache,
     api_cache_cls,
     game,
 )
-from copy import deepcopy
-from unittest.mock import MagicMock
+from ...api.api_cache import ApiCache
+from ...config import config
 
 
 def setup_module():

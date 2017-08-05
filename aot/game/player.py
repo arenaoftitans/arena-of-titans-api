@@ -19,8 +19,8 @@
 
 import daiquiri
 
-from aot.board import Square
-from aot.utils import get_time
+from ..board import Square
+from ..utils import get_time
 
 
 class LastAction:
