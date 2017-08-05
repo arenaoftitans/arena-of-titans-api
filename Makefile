@@ -31,9 +31,7 @@ help:
 	@echo "- lint: launch flake8 in docker."
 	@echo "- venvlint: launch flake8 with command defined by VENV_FLAKE8_CMD on host."
 	@echo "- runlint: launch flake8."
-	@echo "- testall: launch all tests with corverage report (equivalent to make test && make testintegration)."
 	@echo "- test: launch unit tests with coverage report."
-	@echo "- testintegration: launch integration tests with coverage report. The API must be running on dev mode."
 	@echo "- static: generate all static files for the API like SVG boards."
 
 
@@ -115,6 +113,7 @@ runlint:
 	   --inline-quotes "'" \
 	   --multiline-quotes "'''" \
 	   --ignore none \
+	   --import-order-style	smarkets \
 	   aot
 	${FLAKE8_CMD} --max-line-length 99 \
 	    --inline-quotes "'" \
@@ -124,7 +123,7 @@ runlint:
 
 
 .PHONY: testall
-testall: test testintegration
+testall: test
 
 
 .PHONY: test
@@ -139,18 +138,9 @@ endif
 .PHONY: tdd
 tdd:
 ifdef INSIDE_DOCKER
-	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- aot/test --ignore aot/test/integration --ignore aot/test_main.py --testmon
+	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- aot/test --testmon
 else
 	${DK_EXEC_CMD} make tdd
-endif
-
-
-.PHONY: testintegration
-testintegration:
-ifdef INSIDE_DOCKER
-	"${PYTEST_CMD}" aot/test/integration/
-else
-	${DK_EXEC_CMD} make testintegration
 endif
 
 

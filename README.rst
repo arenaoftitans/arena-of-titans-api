@@ -97,8 +97,7 @@ On Windows, download the last release from `MS Open Tech <https://github.com/MSO
 #. Please copy the configuration distributed with the API (``config.dist.toml``)
    into ``config.toml`` and modify its entry to match your needs.
 #. The API needs `redis <http://redis.io/>`_ to store its information. It must
-   be installed and running for the API to work. In order to launch the
-   integration tests, you also need it to be running.
+   be installed and running for the API to work.
 #. The API is design to run behind a nginx server. A sample nginx configuration
    file is provided with the API: ``aot-api.dist.conf``.
 
@@ -112,10 +111,8 @@ Use the ``make`` command to launch task. Tasks will be launched from the host wi
 - To launch the unit tests with code coverage: ``python3 setup.py test``
 - To relaunch the unit tests on each modifications:
 
-   - On Linux: ``ptw aot --runner py.test -- aot/test --ignore aot/test/integration --ignore aot/test_main.py --testmon``
-   - On Windows: ``ptw aot --runner py.test -- aot/test --ignore aot/test/integration --ignore aot/test_main.py``
-
-- To launch the integration tests: ``py.test aot/test/integration``
+   - On Linux: ``ptw aot --runner py.test -- aot/test --testmon``
+   - On Windows: ``ptw aot --runner py.test -- aot/test``
 
 .. note::
 

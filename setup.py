@@ -34,8 +34,6 @@ class PyTest(TestCommand):
             'html',
             '--cov-config',
             '.coveragerc',
-            '--ignore',
-            'aot/test/integration/'
         ]
         self.test_suite = True
 
