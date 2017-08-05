@@ -37,7 +37,7 @@ class Config:
 
     def _set_version_in_socket_name(self, section_name, version):
         socket = self._config[section_name].get('socket', None)
-        if socket:
+        if socket:  # pragma: no cover
             socket = socket.format(version=version)
             self._config[section_name]['socket'] = socket
 

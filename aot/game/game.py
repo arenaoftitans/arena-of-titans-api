@@ -211,7 +211,7 @@ class Game:
         return self._active_player
 
     @property
-    def game_id(self):
+    def game_id(self):  # pragma: no cover
         return self._game_id
 
     @game_id.setter
