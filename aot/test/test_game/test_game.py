@@ -264,7 +264,7 @@ def test_only_one_player_connected(game):  # noqa: F811
     for player in game.players[:-1]:  # noqa
         player.is_connected = False
 
-    for i in range(Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT):
+    for _ in range(Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT):
         game.pass_turn()
     game.pass_turn()
 

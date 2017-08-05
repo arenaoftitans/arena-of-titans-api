@@ -37,8 +37,11 @@ class ColorSet(set):
 
     Convert string to the proper color on addition or update if necessary.
     '''
-    def __init__(self, colors=list()):
+    def __init__(self, colors=None):
         super()
+        if colors is None:
+            colors = []
+
         self.update(colors)
 
     def update(self, colors):

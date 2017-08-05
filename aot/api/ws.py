@@ -256,7 +256,10 @@ class AotWs(WebSocketServerProtocol):
             [self._get_action_message(action) for action in player.history]
             if player else None for player in game.players]
 
-    def _send_all(self, message, excluded_players=set()):  # pragma: no cover
+    def _send_all(self, message, excluded_players=None):  # pragma: no cover
+        if excluded_players is None:
+            excluded_players = set()
+
         for player_id in self._cache.get_players_ids():
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
@@ -269,25 +272,40 @@ class AotWs(WebSocketServerProtocol):
         if id in self._clients:
             self._clients[id].sendMessage(message)
 
-    def _format_error_to_display(self, message, format_opt={}):  # pragma: no cover
+    def _format_error_to_display(self, message, format_opt=None):  # pragma: no cover
+        if format_opt is None:
+            format_opt = {}
+
         return {'error_to_display': self._get_error(message, format_opt)}
 
     def _get_error(self, message, format_opt):  # pragma: no cover
         return self._error_messages.get(message, message).format(**format_opt)
 
-    def _send_error(self, message, format_opt={}):  # pragma: no cover
+    def _send_error(self, message, format_opt=None):  # pragma: no cover
+        if format_opt is None:
+            format_opt = {}
+
         self.sendMessage(self._format_error(message, format_opt))
 
-    def _send_error_to_display(self, message, format_opt={}):  # pragma: no cover
+    def _send_error_to_display(self, message, format_opt=None):  # pragma: no cover
+        if format_opt is None:
+            format_opt = {}
+
         self.sendMessage(self._format_error_to_display(message, format_opt))
 
     def _send_debug(self, message):  # pragma: no cover
         self._send_all({'debug': message})
 
-    def _send_all_error(self, message, format_opt={}):  # pragma: no cover
+    def _send_all_error(self, message, format_opt=None):  # pragma: no cover
+        if format_opt is None:
+            format_opt = {}
+
         self._send_all(self._format_error(message, format_opt))
 
-    def _format_error(self, message, format_opt={}):  # pragma: no cover
+    def _format_error(self, message, format_opt=None):  # pragma: no cover
+        if format_opt is None:
+            format_opt = {}
+
         return {'error': self._get_error(message, format_opt)}
 
     @property
