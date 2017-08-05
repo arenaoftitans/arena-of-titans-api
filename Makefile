@@ -73,7 +73,7 @@ doc:
 .PHONY: dev
 dev:
 ifdef INSIDE_DOCKER
-	PYTHONPATH="${PYTHONPATH}:$(pwd)" python3 aot/test_main.py
+	python3 -m aot --reload
 else
 	docker-compose up
 endif
