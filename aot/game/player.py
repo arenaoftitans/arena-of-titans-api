@@ -143,6 +143,8 @@ class Player:
     def play_card(self, card, square, check_move=True):
         if not card and check_move:
             return
+        elif not self.has_remaining_moves_to_play:
+            return
 
         possible_squares = self._get_possible_squares(card, check_move)
         dest_square = self._get_dest_square(square)
@@ -391,6 +393,10 @@ class Player:
     @property
     def hand_for_debug(self):
         return list(map(lambda card: '{} {}'.format(card.name, card.color), self.hand))
+
+    @property
+    def has_remaining_moves_to_play(self):
+        return self._number_moves_played < self._number_moves_to_play
 
     @property
     def hero(self):

@@ -56,6 +56,12 @@ def test_can_move(player):  # noqa: F811
     player.deck.view_possible_squares.assert_called_with(card, square)
 
 
+def test_has_remaining_moves_to_play(player):  # noqa: F811
+    assert player.has_remaining_moves_to_play
+    player._number_moves_played = player.MAX_NUMBER_MOVE_TO_PLAY
+    assert not player.has_remaining_moves_to_play
+
+
 def test_move(player, board):  # noqa: F811
     start_square = player.current_square
     assert start_square.occupied
@@ -180,6 +186,19 @@ def test_play_card_cannot_play(board, player):  # noqa: F811
     assert start_square.x != end_square.x and start_square.y != end_square.y
     assert 3 == end_square.x
     assert 1 == end_square.y
+
+
+def test_play_card_no_move_left(board, player):  # noqa: F811
+    player.deck.play = MagicMock()
+    player.deck.init_turn = MagicMock()
+    card = Card(board)
+    player._number_moves_played = player.MAX_NUMBER_MOVE_TO_PLAY
+
+    ret = player.play_card(card, (3, 1), check_move=False)
+
+    assert ret is None
+    assert not player.deck.play.called
+    assert not player._gauge.move.called
 
 
 def test_play_card(board, player):  # noqa: F811
