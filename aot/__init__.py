@@ -145,6 +145,7 @@ def get_trumps_list(board_name='standard'):
 
     # Return 4 trumps at random among all the possible ones
     random.shuffle(trumps)
+    return trumps[:get_number_trumps_per_player()]
 
 
 def _get_trumps(description):
@@ -177,6 +178,10 @@ def _get_trumps(description):
 
 def get_trumps_descriptions(name='standard'):
     return get_game_description(name)['trumps']
+
+
+def get_number_trumps_per_player(name='standard'):
+    return get_game_description(name)['number_trumps_per_player']
 
 
 def get_game(players_description, name='standard'):

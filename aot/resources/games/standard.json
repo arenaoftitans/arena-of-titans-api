@@ -1,5 +1,6 @@
 {
   "number_players": 8,
+  "number_trumps_per_player": 4,
   "colors": ["BLACK", "BLUE", "RED", "YELLOW"],
   "movements_cards": {
     "number_cards_per_color": 1,
