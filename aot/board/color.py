@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from ordered_set import OrderedSet
+
 from ..utils import SimpleEnumMeta
 
 
@@ -28,7 +30,7 @@ class Color(metaclass=SimpleEnumMeta):
     ALL = 'ALL'
 
 
-all_colors = set(Color)
+all_colors = OrderedSet(Color)
 all_colors.remove(Color.ALL)
 
 
