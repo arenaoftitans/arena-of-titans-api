@@ -77,17 +77,6 @@
   },
   "trumps": [
     {
-      "name": "Tower",
-      "cost": 4,
-      "description": "Prevent the player to move on some colors.",
-      "duration": 1,
-      "repeat_for_each_color": true,
-      "must_target_player": true,
-      "parameters": {
-        "type": "RemoveColor"
-      }
-    },
-    {
       "name": "Reinforcements",
       "cost": 6,
       "description": "Allow the player to play one more move.",
@@ -97,6 +86,17 @@
       "parameters": {
         "type": "ModifyNumberMoves",
         "delta_moves": 1
+      }
+    },
+    {
+      "name": "Tower",
+      "cost": 4,
+      "description": "Prevent the player to move on some colors.",
+      "duration": 1,
+      "repeat_for_each_color": true,
+      "must_target_player": true,
+      "parameters": {
+        "type": "RemoveColor"
       }
     }
   ],
