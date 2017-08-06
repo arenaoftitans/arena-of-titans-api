@@ -17,9 +17,16 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from lxml import etree
+import xml.etree.ElementTree as ET
 
 from .board import get_colors_disposition
+
+
+ET.register_namespace('', 'http://www.w3.org/2000/svg')
+ET.register_namespace('cc', 'http://creativecommons.org/ns#')
+ET.register_namespace('dc', 'http://purl.org/dc/elements/1.1/')
+ET.register_namespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
 
 
 class SvgBoardCreator:
@@ -56,12 +63,12 @@ class SvgBoardCreator:
 
     def _load_template(self):
         with open(self._TEMPLATE_LOCATION, 'r') as template_file:
-            svg = etree.parse(template_file)
-            pawn_layer = svg.xpath(
+            svg = ET.parse(template_file)
+            pawn_layer = svg.findall(
                 './/ns:g[@id="pawnLayer"]',
                 namespaces=self.NS)[0]
-            board_layer = svg.xpath(
-                '//ns:g[@id="boardLayer"]',
+            board_layer = svg.findall(
+                './/ns:g[@id="boardLayer"]',
                 namespaces=self.NS)[0]
             return svg, board_layer, pawn_layer
 
@@ -82,7 +89,7 @@ class SvgBoardCreator:
         for y, line in enumerate(self._colors_disposition):
             for x in range(len(line)):
                 path = './/*[@id="square-{}-{}"]'.format(x, y)
-                square = self._svg.xpath(path, namespaces=self.NS)[0]
+                square = self._svg.findall(path, namespaces=self.NS)[0]
                 self._set_click_attr(square, x, y)
                 color = self._colors_disposition[y][x]
                 svg_color = color.lower()
@@ -118,7 +125,7 @@ class SvgBoardCreator:
         return self._LAST_LINE_CLASS_TEMPLATE.format(index)
 
     def _setup_arrival_line(self):
-        arrival_layer = self._board_layer.xpath(
+        arrival_layer = self._board_layer.findall(
             './/ns:g[@id="arrivalLayer"]',
             namespaces=self.NS,
         )[0]
@@ -139,11 +146,9 @@ class SvgBoardCreator:
         return self._svg
 
     def __str__(self):
-        return etree.tostring(self._svg)\
+        return ET.tostring(self._svg.getroot())\
             .decode('utf-8')\
             .replace('&gt;', '>')
 
     def __repr__(self):  # pragma: no cover
-        return etree.tostring(self._svg, pretty_print=True)\
-            .decode('utf-8')\
-            .replace('&gt;', '>')
+        return str(self)

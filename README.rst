@@ -62,11 +62,6 @@ On Windows
    - Make a copy of your ``python.exe`` executable into ``python3.exe``
 
 #. Enable the venv: ``.venv\Scripts\activate``
-#. Install  `lxml <http://lxml.de>`__
-
-      #. Download the Wheel file for your platform and your version of Python `here <http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml>`__.
-      #. Install the Wheel file ``pip install \path\to\the\weeh.whl``
-
 #. Install the dependencies: ``pip install -r requires.txt``
 #. Install the tests dependencies: ``pip install -r tests_requires.txt``
 

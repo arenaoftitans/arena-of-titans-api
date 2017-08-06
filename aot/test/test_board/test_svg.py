@@ -47,14 +47,14 @@ def width():
 
 
 def test_number_square(svg_board, height, width):  # noqa: F811
-    board_layer = svg_board.svg.xpath(
+    board_layer = svg_board.svg.findall(
         './/ns:g[@id="squaresLayer"]',
         namespaces=SvgBoardCreator.NS)[0]
     assert len(board_layer) == height * width
 
 
 def test_paws(svg_board):  # noqa: F811
-    pawn_layer = svg_board.svg.xpath(
+    pawn_layer = svg_board.svg.findall(
         './/ns:g[@id="pawnLayer"]',
         namespaces=SvgBoardCreator.NS)[0]
     assert len(pawn_layer) == 8
