@@ -1,10 +1,11 @@
-FROM docker.io/python:3.6
+FROM docker.io/python:3.6-slim
 
 ADD requires.txt /tmp
 ADD tests_requires.txt /tmp
 ADD Makefile /tmp
 
 RUN apt-get -y update && \
+        apt-get -y install make && \
         apt-get -y install nano vim && \
         apt-get -y clean
 
