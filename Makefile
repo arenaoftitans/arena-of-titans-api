@@ -6,6 +6,7 @@ CONTAINER_NAME ?= aot-dev-api
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
 FLAKE8_CMD ?= flake8
 VENV_FLAKE8_CMD ?= ~/.virtualenvs/aot/bin/flake8
+PIP_CMD ?= pip
 PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
 PYTEST_WATCH_CMD ?= ptw
@@ -50,7 +51,7 @@ clean:
 .PHONY: deps
 deps:
 ifdef INSIDE_DOCKER
-	make rundeps
+	make PIP_CMD="${PIP_CMD}" rundeps
 else
 	${DK_EXEC_CMD} make deps
 endif
@@ -58,9 +59,9 @@ endif
 
 .PHONY: rundeps
 rundeps:
-	pip install -U pip
-	pip install -r requires.txt
-	pip install -r tests_requires.txt
+	${PIP_CMD} install -U pip
+	${PIP_CMD} install -r requires.txt
+	${PIP_CMD} install -r tests_requires.txt
 
 
 .PHONY: doc
