@@ -283,6 +283,7 @@ class Api(AotWs):
                     },
                 } if player else None for player in game.players],
                 'active_trumps': self._get_active_trumps_message(game),
+                'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
                 'trumps_statuses': player.trumps_statuses,
                 'gauge_value': player.gauge.value,
                 'hand': [{
@@ -447,6 +448,7 @@ class Api(AotWs):
                 'x': player.current_square.x,
                 'y': player.current_square.y,
             },
+            'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
             'trumps_statuses': player.trumps_statuses,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
@@ -491,6 +493,7 @@ class Api(AotWs):
                 'description': card.description,
             } for card in player.hand],
             'active_trumps': self._get_active_trumps_message(game),
+            'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
             'trumps_statuses': player.trumps_statuses,
             'gauge_value': player.gauge.value,
             'elapsed_time': elapsed_time,
