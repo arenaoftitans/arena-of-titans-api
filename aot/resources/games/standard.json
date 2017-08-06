@@ -98,6 +98,18 @@
       "parameters": {
         "type": "RemoveColor"
       }
+    },
+    {
+      "name": "Blizzard",
+      "cost": 6,
+      "description": "Reduce the number of cards a player can play by 1.",
+      "duration": 1,
+      "repeat_for_each_color": false,
+      "must_target_player": true,
+      "parameters": {
+        "type": "ModifyNumberMoves",
+        "delta_moves": -1
+      }
     }
   ],
   "board": {
