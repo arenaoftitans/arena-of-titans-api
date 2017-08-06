@@ -68,14 +68,16 @@ def deck(board):
 
 
 @pytest.fixture
-def player(board, deck):
+def player(mock, board, deck):
+    mock.patch('aot.random')
     player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list())
     player.is_connected = True
     return player
 
 
 @pytest.fixture
-def game():
+def game(mock):
+    mock.patch('aot.random')
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,
