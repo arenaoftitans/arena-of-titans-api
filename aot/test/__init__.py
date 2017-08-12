@@ -68,20 +68,22 @@ def deck(board):
 
 
 @pytest.fixture
-def player(board, deck):
-    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list(test=True))
+def player(mock, board, deck):
+    mock.patch('aot.random')
+    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list())
     player.is_connected = True
     return player
 
 
 @pytest.fixture
-def game():
+def game(mock):
+    mock.patch('aot.random')
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,
         'id': i,
     } for i in range(get_number_players())]
-    g = get_game(players_description, test=True)
+    g = get_game(players_description)
     for player in g.players:
         player.is_connected = True
 

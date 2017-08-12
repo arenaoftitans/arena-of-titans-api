@@ -188,7 +188,7 @@ class Game:
         self._continue_game_if_enough_players()
 
     def play_auto(self):
-        if self.active_player.on_last_line:
+        if self.active_player.on_last_line or not self.active_player.has_remaining_moves_to_play:
             self.pass_turn()
             return
 

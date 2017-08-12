@@ -379,6 +379,26 @@ def test_play_auto_on_last_line(game, mocker):  # noqa: F811
     assert not game.discard.called
 
 
+def test_play_auto_no_moves_when_starting_turn(game, mocker):  # noqa: F811
+    card = game.active_player.hand[0]
+    find_move_to_play = MagicMock(return_value=(card, None))
+    find_cheapeast_card = MagicMock()
+    game.active_player._number_moves_played = float('inf')
+    game.discard = MagicMock()
+    game.play_card = MagicMock()
+    game.pass_turn = MagicMock()
+    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
+    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+
+    game.play_auto()
+
+    game.pass_turn.assert_called_once_with()
+    assert not find_move_to_play.called
+    assert not game.play_card.called
+    assert not find_cheapeast_card.called
+    assert not game.discard.called
+
+
 def test_play_auto_no_card_found(game, mocker):  # noqa: F811
     find_move_to_play = MagicMock(return_value=(None, None))
     find_cheapeast_card = MagicMock(return_value=game.active_player.hand[0])

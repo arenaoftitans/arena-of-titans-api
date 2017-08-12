@@ -1,5 +1,6 @@
 {
   "number_players": 8,
+  "number_trumps_per_player": 4,
   "colors": ["BLACK", "BLUE", "RED", "YELLOW"],
   "movements_cards": {
     "number_cards_per_color": 1,
@@ -76,6 +77,18 @@
   },
   "trumps": [
     {
+      "name": "Reinforcements",
+      "cost": 6,
+      "description": "Allow the player to play one more move.",
+      "duration": 1,
+      "repeat_for_each_color": false,
+      "must_target_player": false,
+      "parameters": {
+        "type": "ModifyNumberMoves",
+        "delta_moves": 1
+      }
+    },
+    {
       "name": "Tower",
       "cost": 4,
       "description": "Prevent the player to move on some colors.",
@@ -87,15 +100,15 @@
       }
     },
     {
-      "name": "Reinforcements",
+      "name": "Blizzard",
       "cost": 6,
-      "description": "Allow the player to play one more move.",
+      "description": "Reduce the number of cards a player can play by 1.",
       "duration": 1,
       "repeat_for_each_color": false,
-      "must_target_player": false,
+      "must_target_player": true,
       "parameters": {
         "type": "ModifyNumberMoves",
-        "delta_moves": 1
+        "delta_moves": -1
       }
     }
   ],

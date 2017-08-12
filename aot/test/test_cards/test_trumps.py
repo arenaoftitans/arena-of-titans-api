@@ -40,6 +40,13 @@ def test_affect_modify_number_moves(player):  # noqa: F811
     player.modify_number_moves.assert_called_once_with(1)
 
 
+def test_affect_modify_number_moves_negative_delta(player):  # noqa: F811
+    player.modify_number_moves = MagicMock()
+    trump = ModifyNumberMoves(delta_moves=-1, duration=1)
+    trump.affect(player)
+    player.modify_number_moves.assert_called_once_with(-1)
+
+
 def test_remove_color(player):  # noqa: F811
     player.deck.remove_color_from_possible_colors = MagicMock()
     card = player.deck.first_card_in_hand
