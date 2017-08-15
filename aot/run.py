@@ -19,12 +19,15 @@
 
 import asyncio
 import configparser
+import json
 import logging
 import os
 import shutil
+import sys
 
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerFactory
+from daiquiri_rollbar import RollbarOutput
 
 from .api import Api
 from .config import config
@@ -61,6 +64,22 @@ def setup_logging(debug=False):
         'stderr',
         daiquiri.output.File(log_file),
     )
+
+    if config['api'].get('rollbar_enabled', False) and \
+            os.path.exists(config['api'].get('rollbar_config', None)):
+        with open(config['api']['rollbar_config'], 'r') as rollbar_file:
+            rollbar_config = json.load(rollbar_file)
+            rollbar_config = rollbar_config[config['type']]['api']
+        rollbar_output = RollbarOutput(**rollbar_config)
+        outputs = (*outputs, rollbar_output)
+    else:
+        print(
+            'Note: not loading rollbar',
+            'Enabled: {}'.format(config['api'].get('rollbar_enabled', False)),
+            'Config file: {}'.format(config['api'].get('rollbar_config', None)),
+            file=sys.stderr,
+        )
+
     daiquiri.setup(level=level, outputs=outputs)
 
 
