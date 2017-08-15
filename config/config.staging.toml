@@ -1,6 +1,8 @@
 [api]
 allow_debug = true
 log_file = 'logs/aot-api.log'
+rollbar_enabled = true
+rollbar_config = '/opt/aot-api/.rollbar.json'
 # Keep in sync with config in aot-infra
 socket = '/aot-api/external/aot-api-ws-staging-{version}.sock'
 # The group for the unix socket
