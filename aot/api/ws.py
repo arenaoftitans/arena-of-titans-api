@@ -43,6 +43,7 @@ class AotWs(WebSocketServerProtocol):
     _clients_pending_disconnection = {}
     _clients_pending_reconnection = {}
     _disconnect_timeouts = {}
+    _error_messages = {}
 
     # Instance variable
     _cache = None

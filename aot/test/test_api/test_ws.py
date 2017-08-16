@@ -347,7 +347,6 @@ async def test_send_error_without_extra_data():
     ws = AotWs()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
-    ws._error_messages = {}
 
     await ws._send_error('An error')
 
