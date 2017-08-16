@@ -27,6 +27,7 @@ from .. import (  # noqa: F401
     game,
 )
 from ...api.utils import RequestTypes
+from ...api.ws import AotWs
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -324,3 +325,30 @@ def test_append_to_clients_pending_disconnection(api):  # noqa: F811
 
     assert api._clients_pending_disconnection_for_game == set(['player_id'])
     assert api._clients_pending_reconnection_for_game == set()
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_send_error_with_extra_data(api):
+    api.LOGGER = MagicMock()
+    api.sendMessage = AsyncMagicMock()
+    api._message = {'ping': 'pong'}
+
+    await api._send_error('An error')
+
+    api.LOGGER.error.assert_called_once_with(
+        'An error',
+        extra_data={'payload': '{"ping": "pong"}'},
+    )
+    api.sendMessage.assert_called_once_with({'error': 'An error'})
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_send_error_without_extra_data():
+    ws = AotWs()
+    ws.LOGGER = MagicMock()
+    ws.sendMessage = AsyncMagicMock()
+
+    await ws._send_error('An error')
+
+    ws.LOGGER.error.assert_called_once_with('An error', extra_data={'payload': 'null'})
+    ws.sendMessage.assert_called_once_with({'error': 'An error'})

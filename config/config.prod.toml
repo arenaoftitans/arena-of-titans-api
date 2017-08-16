@@ -1,14 +1,16 @@
 [api]
 allow_debug = false
 log_file = 'logs/aot-api.log'
+rollbar_enabled = true
+rollbar_config = '/opt/aot-api/.rollbar.json'
 # Keep in sync with config in aot-infra
-socket = '/aot-api/external/aot-api-ws-prod-{version}.sock'
+socket = '/opt/aot-api/sockets/aot-api-ws-prod-{version}.sock'
 # The group for the unix socket
 socket_group = 'nginx'
 
 
 [cache]
-socket = '/aot-api/external/redis.sock'
+socket = '/opt/aot-api/sockets/redis.sock'
 
 
 [uwsgi]

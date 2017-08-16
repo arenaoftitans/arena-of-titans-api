@@ -35,6 +35,8 @@ class Config:
         self._set_version_in_socket_name('api', version)
         self._set_version_in_socket_name('cache', version)
 
+        self._config['type'] = type
+
     def _set_version_in_socket_name(self, section_name, version):
         socket = self._config[section_name].get('socket', None)
         if socket:  # pragma: no cover
