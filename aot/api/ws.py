@@ -289,11 +289,16 @@ class AotWs(WebSocketServerProtocol):
     def _get_error(self, message, format_opt):  # pragma: no cover
         return self._error_messages.get(message, message).format(**format_opt)
 
-    async def _send_error(self, message, format_opt=None):  # pragma: no cover
+    async def _send_error(self, message, format_opt=None):
         if format_opt is None:
             format_opt = {}
 
-        await self.sendMessage(self._format_error(message, format_opt))
+        message = self._format_error(message, format_opt)
+        payload = self._message if self._message else None
+        payload = json.dumps(payload)
+        self.LOGGER.error(message['error'], extra_data={'payload': payload})
+
+        await self.sendMessage(message)
 
     async def _send_error_to_display(self, message, format_opt=None):  # pragma: no cover
         if format_opt is None:
