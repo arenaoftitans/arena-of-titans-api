@@ -74,6 +74,9 @@ dev:
 ifdef INSIDE_DOCKER
 	python3 -m aot --reload
 else
+	# Empty log file
+	mkdir -p logs
+	echo > logs/aot-api.log
 	docker-compose up
 endif
 
