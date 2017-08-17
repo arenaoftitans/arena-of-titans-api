@@ -32,10 +32,13 @@ class LastAction:
             trump=None,
             player_name='',
             player_index=None,
-            target_name=''):
+            target_name='',
+            target_index=None,
+    ):
         self.description = description
         self.player_name = player_name
         self.target_name = target_name
+        self.target_index = target_index
         self.player_index = player_index
         self.special_action = special_action
         self.card = card
@@ -284,6 +287,7 @@ class Player:
                 special_action=action,
                 player_name=self.name,
                 target_name=target.name,
+                target_index=target.index,
                 player_index=self.index,
             )
 
@@ -312,7 +316,9 @@ class Player:
                     trump=trump,
                     player_name=self.name,
                     target_name=target.name,
-                    player_index=self.index)
+                    target_index=target.index,
+                    player_index=self.index,
+                )
                 return True
             else:
                 return False

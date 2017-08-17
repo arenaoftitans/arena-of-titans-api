@@ -464,6 +464,7 @@ class Api(AotWs):
                 'special_action': action.special_action,
                 'player_name': action.player_name,
                 'target_name': action.target_name,
+                'target_index': action.target_index,
                 'player_index': action.player_index,
             }
 
