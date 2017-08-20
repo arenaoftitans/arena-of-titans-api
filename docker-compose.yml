@@ -31,7 +31,7 @@ services:
       - "8181:8181"
     tty: true
     volumes:
-      - ./:/opt/aot-api
+      - ./:/opt/aot-api:Z
     working_dir: /opt/aot-api
   aot-dev-redis:
     image: docker.io/redis
