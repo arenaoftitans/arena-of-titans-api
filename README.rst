@@ -192,3 +192,11 @@ This is a full example:
    - Add a build-sprites task in gulpfile
 
    Close #24
+
+
+Docker
+======
+
+#. Build the docker image: ``docker build -f docker/aot-api/Dockerfile -t registry.gitlab.com/arenaoftitans/arena-of-titans-api:17.8.1 .``. Don't forget to change the tag. It must be like ``<two last digit from year>.<month>.<build-number>``.
+#. Login into docker: ``docker login registry.gitlab.com``.
+#. Push the image: ``docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api``
