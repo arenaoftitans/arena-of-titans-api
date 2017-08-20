@@ -86,7 +86,7 @@ check: lint testall
 
 
 .PHONY: ci
-ci: deps cicfg lint test
+ci: cicfg test
 
 
 .PHONY: cicfg
