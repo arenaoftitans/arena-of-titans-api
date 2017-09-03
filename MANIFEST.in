@@ -1,3 +1,5 @@
+include *.txt
+include *.rst
 include config/config.prod.toml
 include config/config.staging.toml
 include aot/resources/templates/boards/*.html
