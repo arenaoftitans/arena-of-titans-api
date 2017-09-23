@@ -114,6 +114,10 @@ class Trump:
     def initiator(self, initiator):  # pragma: no cover
         self._initiator = initiator
 
+    @property
+    def passive(self):  # pragma: no cover
+        return False
+
 
 class ModifyNumberMoves(Trump):
     _delta_moves = 0

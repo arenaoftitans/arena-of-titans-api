@@ -68,6 +68,7 @@ def to_json(python_object):  # pragma: no cover
     elif isinstance(python_object, Trump):
         return {
             'cost': python_object.cost,
+            'passive': python_object.passive,
             'description': python_object.description,
             'duration': python_object.duration,
             'must_target_player': python_object.must_target_player,
