@@ -22,6 +22,10 @@ import copy
 from collections import namedtuple
 
 from .gauge import Gauge
+from .powers import (
+    ModifyCardNumberMovesPower,
+    Power,
+)
 from .trumps import (
     ModifyCardNumberMoves,
     ModifyNumberMoves,
@@ -30,6 +34,10 @@ from .trumps import (
     Trump,
 )
 
+
+power_type_to_class = {
+    'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
+}
 
 trump_type_to_class = {
     'ModifyNumberMoves': ModifyNumberMoves,
@@ -71,6 +79,10 @@ class TrumpList(list):
 
 
 __all__ = [
+    # Powers
+    'ModifyCardNumberMovesPower',
+    # Power utils
+    'Power',
     # Trumps
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',
