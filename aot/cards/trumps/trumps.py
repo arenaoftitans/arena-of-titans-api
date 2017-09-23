@@ -82,6 +82,10 @@ class Trump:
     def cost(self):  # pragma: no cover
         return self._cost
 
+    @cost.setter
+    def cost(self, value):  # pragma: no cover
+        self._cost = value
+
     @property
     def description(self):  # pragma: no cover
         return self._description
