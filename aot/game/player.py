@@ -20,6 +20,7 @@
 import daiquiri
 
 from ..board import Square
+from ..cards.trumps import create_power
 from ..utils import get_time
 
 
@@ -80,7 +81,7 @@ class Player:
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
-    _power = None
+    _passive_power = None
     _rank = -1
     _special_action_start_time = 0
     _special_actions = None
@@ -121,8 +122,13 @@ class Player:
         self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
-        self._power = power
+        self._setup_power(power)
         self._rank = -1
+
+    def _setup_power(self, power):
+        if power is not None and power.args.get('passive', False):
+            self._passive_power = create_power(power)
+            self._passive_power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
         opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * \
