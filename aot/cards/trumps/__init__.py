@@ -23,6 +23,7 @@ from collections import namedtuple
 
 from .gauge import Gauge
 from .trumps import (
+    ModifyCardNumberMoves,
     ModifyNumberMoves,
     RemoveColor,
     Teleport,
@@ -66,6 +67,7 @@ class TrumpList(list):
 
 __all__ = [
     # Trumps
+    'ModifyCardNumberMoves',
     'ModifyNumberMoves',
     'RemoveColor',
     'SimpleTrump',
