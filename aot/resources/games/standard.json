@@ -112,6 +112,21 @@
       }
     }
   ],
+  "powers": {
+    "ulya": {
+      "name": "Domination",
+      "description": "Make queens move of 3 squares instead of 2.",
+      "passive": true,
+      "cost": 0,
+      "trump_cost_delta": 2,
+      "must_target_player": false,
+      "parameters": {
+        "type": "ModifyCardNumberMoves",
+        "delta_moves": 1,
+        "card_names": ["Queen"]
+      }
+    }
+  },
   "board": {
     "number_arms": 8,
     "arms_width": 4,
