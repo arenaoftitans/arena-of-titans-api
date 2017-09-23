@@ -137,8 +137,8 @@ def _get_additionnal_colors(color,
     return additional_colors
 
 
-def get_trumps_list(board_name='standard'):
-    trumps_descriptions = get_trumps_descriptions(name=board_name)
+def get_trumps_list(name='standard'):
+    trumps_descriptions = get_trumps_descriptions(name=name)
     trumps = TrumpList()
     for raw_trump_description in trumps_descriptions:
         trumps.extend(_get_trumps(raw_trump_description))
@@ -198,7 +198,7 @@ def get_game(players_description, name='standard'):
                 board,
                 deck,
                 gauge,
-                trumps=get_trumps_list(board_name=name),
+                trumps=get_trumps_list(name=name),
                 hero=player.get('hero', ''),
                 is_ai=player.get('is_ai', False))
         players.append(player)
