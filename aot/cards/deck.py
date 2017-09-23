@@ -23,6 +23,10 @@ from ..board import Color
 from ..cards import Card
 
 
+def default_card_filter(card: Card):
+    return True
+
+
 class Deck:
     CARDS_IN_HAND = 5
 
@@ -55,6 +59,13 @@ class Deck:
         drawn_card = self._stock[0]
         self._stock.remove(drawn_card)
         return drawn_card
+
+    def modify_number_moves(self, delta, card_filter=None):
+        if card_filter is None:
+            card_filter = default_card_filter
+
+        for card in filter(card_filter, self._hand):
+            card.modify_number_moves(delta)
 
     def view_possible_squares(self, card, position):
         if card is not None and not isinstance(card, Card):
