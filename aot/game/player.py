@@ -486,6 +486,10 @@ class Player:
         return self._name
 
     @property
+    def power(self):
+        return self._passive_power
+
+    @property
     def rank(self):
         return self._rank
 
