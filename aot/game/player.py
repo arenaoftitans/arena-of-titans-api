@@ -80,6 +80,7 @@ class Player:
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
+    _power = None
     _rank = -1
     _special_action_start_time = 0
     _special_actions = None
@@ -97,6 +98,7 @@ class Player:
             trumps=None,
             hero='',
             is_ai=False,
+            power=None,
     ):
         self._name = name
         self._id = id
@@ -119,6 +121,7 @@ class Player:
         self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
+        self._power = power
         self._rank = -1
 
     def _generate_aim(self, board):

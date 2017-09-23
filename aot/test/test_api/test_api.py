@@ -423,6 +423,7 @@ async def test_create_game(mock, api):
             'name': str(i),
             'index': i,
             'id': str(i),
+            'hero': 'Ulya',
         } for i in range(3)
     ]
     slots = [
