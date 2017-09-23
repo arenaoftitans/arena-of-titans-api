@@ -278,6 +278,9 @@ class Player:
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
 
+    def modify_card_number_moves(self, delta, card_filter=None):
+        self._deck.modify_number_moves(delta, card_filter=card_filter)
+
     def play_special_action(self, action, target=None, action_args=None):
         if action_args is None:
             action_args = {}
