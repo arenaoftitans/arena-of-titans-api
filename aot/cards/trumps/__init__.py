@@ -40,6 +40,11 @@ trump_type_to_class = {
 SimpleTrump = namedtuple('SimpleTrump', 'type name args')
 
 
+def create_power(power: SimpleTrump):
+    kwargs = copy.copy(power.args)
+    return power_type_to_class[power.type](**kwargs)
+
+
 class TrumpList(list):
     def __init__(self, trumps=None):
         self._additionnal_arguments = {}
