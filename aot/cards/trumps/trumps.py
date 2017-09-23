@@ -36,12 +36,14 @@ class Trump:
     _initiator = ''
 
     def __init__(
-            self,
-            duration=0,
-            cost=5,
-            description='',
-            must_target_player=False,
-            name=''):
+        self,
+        duration=0,
+        cost=5,
+        description='',
+        must_target_player=False,
+        name='',
+        **kwargs,
+    ):
         self._cost = cost
         self._description = description
         self._duration = duration
@@ -115,19 +117,23 @@ class ModifyNumberMoves(Trump):
     _delta_moves = 0
 
     def __init__(
-            self,
-            cost=5,
-            delta_moves=0,
-            description='',
-            duration=0,
-            name='',
-            must_target_player=False):
+        self,
+        cost=5,
+        delta_moves=0,
+        description='',
+        duration=0,
+        name='',
+        must_target_player=False,
+        **kwargs,
+    ):
         super().__init__(
             cost=cost,
             description=description,
             duration=duration,
             must_target_player=must_target_player,
-            name=name)
+            name=name,
+            **kwargs,
+        )
         self._delta_moves = delta_moves
 
     def affect(self, player):
@@ -139,20 +145,24 @@ class RemoveColor(Trump):
     _colors = set()
 
     def __init__(
-            self,
-            color=None,
-            colors=None,
-            cost=5,
-            description='',
-            duration=0,
-            name='',
-            must_target_player=False):
+        self,
+        color=None,
+        colors=None,
+        cost=5,
+        description='',
+        duration=0,
+        name='',
+        must_target_player=False,
+        **kwargs,
+    ):
         super().__init__(
             cost=cost,
             description=description,
             duration=duration,
             must_target_player=must_target_player,
-            name=name)
+            name=name,
+            **kwargs,
+        )
         self._set_colors(color, colors)
 
     def affect(self, player):
@@ -169,22 +179,25 @@ class Teleport(Trump):
     _colors = None
 
     def __init__(
-            self,
-            board=None,
-            distance=0,
-            color=None,
-            colors=None,
-            cost=10,
-            description='',
-            duration=0,
-            name='',
-            must_target_player=False):
+        self,
+        board=None,
+        distance=0,
+        color=None,
+        colors=None,
+        cost=10,
+        description='',
+        duration=0,
+        name='',
+        must_target_player=False,
+        **kwargs,
+    ):
         super().__init__(
             cost=cost,
             description=description,
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            **kwargs,
         )
         self._distance = distance
         if color is None and colors is None:
