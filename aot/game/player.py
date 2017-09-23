@@ -253,7 +253,12 @@ class Player:
         self._number_trumps_played = 0
         self._can_play = True
         self._last_square_previous_turn = self._current_square
+        self._enable_passive_power()
         self._enable_trumps()
+
+    def _enable_passive_power(self):
+        if self._passive_power is not None:
+            self._passive_power.affect(self)
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:

@@ -133,9 +133,13 @@ def test_init_game_player_1(board, deck):  # noqa: F811
 
 def test_init_turn(player):  # noqa: F811
     player.can_play = False
+    player._passive_power = MagicMock()
+
     player.init_turn()
+
     assert player.can_play
     assert player.current_square == player.last_square_previous_turn
+    player._passive_power.affect.assert_called_once_with(player)
 
 
 def test_complete_turn(player):  # noqa: F811
