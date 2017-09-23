@@ -94,6 +94,8 @@ class Trump:
 
     @property
     def duration(self):  # pragma: no cover
+        if self._duration == float('inf'):
+            return
         return self._duration
 
     @property

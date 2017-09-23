@@ -42,7 +42,7 @@ def test_create_passive_power():
     power = Power(passive=True)
 
     assert power.passive
-    assert power.duration == float('inf')
+    assert power.duration is None
 
 
 def test_enable():
@@ -62,6 +62,6 @@ def test_modify_number_moves(player):  # noqa: F811
     power.affect(player)
 
     assert power.passive
-    assert power.duration == float('inf')
+    assert power.duration is None
     assert power._delta_moves == 5
     player.modify_card_number_moves.assert_called_once_with(5, card_filter=None)
