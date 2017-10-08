@@ -152,3 +152,26 @@ def test_revert_to_default(deck):  # noqa: F811
     deck.revert_to_default()
     for card in deck.hand:
         card.revert_to_default.assert_called_once_with()
+
+
+def test_modify_number_moves(deck):  # noqa: F811
+    for card in deck.hand:
+        card.modify_number_moves = MagicMock()
+
+    deck.modify_number_moves(5)
+
+    for card in deck.hand:
+        card.modify_number_moves.assert_called_once_with(5)
+
+
+def test_modify_number_moves_with_filter(deck):  # noqa: F811
+    for card in deck.hand:
+        card.modify_number_moves = MagicMock()
+    deck.first_card_in_hand._name = 'Card to keep'
+    card_filter = lambda card: card.name == 'Card to keep'  # noqa: E731
+
+    deck.modify_number_moves(5, card_filter=card_filter)
+
+    for card in deck.hand[1:]:
+        assert not card.modify_number_moves.called
+    deck.first_card_in_hand.modify_number_moves.assert_called_once_with(5)

@@ -245,6 +245,7 @@ class AotWs(WebSocketServerProtocol):
                 'hero': player.hero,
             } if player else None for player in game.players],
             'trumps': player.trumps,
+            'power': player.power,
             'index': player.index,
             'last_action': last_action,
             'special_action_name': special_action,

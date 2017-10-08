@@ -443,3 +443,28 @@ def test_remove_color_from_possible_colors(board):  # noqa: F811
 
     card.revert_to_default()
     assert card.color in card.colors
+
+
+def test_revert_number_moves(board):  # noqa: F811
+    card_properties = deepcopy(CARD_DICT)
+    card = Card(board, **card_properties)
+    assert card._number_movements == 1
+    card._number_movements = 5
+
+    card.revert_to_default()
+
+    assert card._number_movements == 1
+
+
+def test_modify_number_moves(board):  # noqa: F811
+    card_properties = deepcopy(CARD_DICT)
+    card = Card(board, **card_properties)
+    assert card._number_movements == 1
+
+    card.modify_number_moves(4)
+
+    assert card._number_movements == 5
+
+    card.modify_number_moves(-2)
+
+    assert card._number_movements == 3

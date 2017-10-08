@@ -26,6 +26,7 @@ class Card:
     _color = None
     _colors = set()
     _default_colors = set()
+    _default_number_moves = 0
     _description = ''
     _name = ''
     _movements = []
@@ -68,6 +69,7 @@ class Card:
             self.movements_methods[mvt] for mvt in movements_types
         ]
         self._movements_types = movements_types
+        self._default_number_moves = number_movements
         self._number_movements = number_movements
         self._cost = cost
         if special_actions:
@@ -76,6 +78,9 @@ class Card:
                 action.args['color'] = self.color
         else:
             self._special_actions = None
+
+    def modify_number_moves(self, delta):
+        self._number_movements += delta
 
     def move(self, origin):
         number_movements_left = self._number_movements
@@ -205,6 +210,7 @@ class Card:
 
     def revert_to_default(self):
         self._colors = set(self._default_colors)
+        self._number_movements = self._default_number_moves
 
     @property
     def color(self):

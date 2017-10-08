@@ -20,6 +20,7 @@
 import daiquiri
 
 from ..board import Square
+from ..cards.trumps import create_power
 from ..utils import get_time
 
 
@@ -80,6 +81,7 @@ class Player:
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
+    _passive_power = None
     _rank = -1
     _special_action_start_time = 0
     _special_actions = None
@@ -97,6 +99,7 @@ class Player:
             trumps=None,
             hero='',
             is_ai=False,
+            power=None,
     ):
         self._name = name
         self._id = id
@@ -119,7 +122,13 @@ class Player:
         self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
+        self._setup_power(power)
         self._rank = -1
+
+    def _setup_power(self, power):
+        if power is not None and power.args.get('passive', False):
+            self._passive_power = create_power(power)
+            self._passive_power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
         opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * \
@@ -244,7 +253,12 @@ class Player:
         self._number_trumps_played = 0
         self._can_play = True
         self._last_square_previous_turn = self._current_square
+        self._enable_passive_power()
         self._enable_trumps()
+
+    def _enable_passive_power(self):
+        if self._passive_power is not None:
+            self._passive_power.affect(self)
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
@@ -274,6 +288,9 @@ class Player:
 
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
+
+    def modify_card_number_moves(self, delta, card_filter=None):
+        self._deck.modify_number_moves(delta, card_filter=card_filter)
 
     def play_special_action(self, action, target=None, action_args=None):
         if action_args is None:
@@ -467,6 +484,10 @@ class Player:
     @property
     def name(self):
         return self._name
+
+    @property
+    def power(self):
+        return self._passive_power
 
     @property
     def rank(self):

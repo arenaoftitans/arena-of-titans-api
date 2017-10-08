@@ -133,9 +133,13 @@ def test_init_game_player_1(board, deck):  # noqa: F811
 
 def test_init_turn(player):  # noqa: F811
     player.can_play = False
+    player._passive_power = MagicMock()
+
     player.init_turn()
+
     assert player.can_play
     assert player.current_square == player.last_square_previous_turn
+    player._passive_power.affect.assert_called_once_with(player)
 
 
 def test_complete_turn(player):  # noqa: F811
@@ -378,6 +382,15 @@ def test_modify_number_moves(player):  # noqa: F811
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY - 1
     player.complete_turn()
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
+
+
+def test_modify_card_number_moves(player):  # noqa: F811
+    player._deck = MagicMock()
+    card_filter = lambda x: True  # noqa: E731
+
+    player.modify_card_number_moves(5, card_filter=card_filter)
+
+    player._deck.modify_number_moves.assert_called_once_with(5, card_filter=card_filter)
 
 
 def test_get_trump(player):  # noqa: F811

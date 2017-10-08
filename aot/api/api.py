@@ -292,6 +292,7 @@ class Api(AotWs):
                     'description': card.description,
                 } for card in player.hand],
                 'trumps': player.trumps,
+                'power': player.power,
             }
             await self._send_to(message, player.id)
 

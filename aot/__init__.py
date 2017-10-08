@@ -137,8 +137,8 @@ def _get_additionnal_colors(color,
     return additional_colors
 
 
-def get_trumps_list(board_name='standard'):
-    trumps_descriptions = get_trumps_descriptions(name=board_name)
+def get_trumps_list(name='standard'):
+    trumps_descriptions = get_trumps_descriptions(name=name)
     trumps = TrumpList()
     for raw_trump_description in trumps_descriptions:
         trumps.extend(_get_trumps(raw_trump_description))
@@ -191,6 +191,9 @@ def get_game(players_description, name='standard'):
         if player:
             deck = get_deck(board)
             gauge = get_gauge(board)
+            trumps = get_trumps_list(name=name)
+            hero = player['hero']
+            power = get_power(name=name, trumps=trumps, hero=hero)
             player = Player(
                 player['name'],
                 player['id'],
@@ -198,11 +201,32 @@ def get_game(players_description, name='standard'):
                 board,
                 deck,
                 gauge,
-                trumps=get_trumps_list(board_name=name),
+                trumps=trumps,
                 hero=player.get('hero', ''),
-                is_ai=player.get('is_ai', False))
+                is_ai=player.get('is_ai', False),
+                power=power,
+            )
         players.append(player)
     return Game(board, players)
+
+
+def get_power(name='standard', trumps=None, hero=None):
+    if trumps is None:  # pragma: no cover
+        trumps = []
+
+    power_description = get_power_description(name).get(hero.lower(), None)
+    if power_description is not None:
+        power_description = copy.deepcopy(power_description)
+        power_type = power_description['parameters']['type']
+        del power_description['parameters']['type']
+        power_description.update(power_description['parameters'])
+        del power_description['parameters']
+        power_name = power_description['name']
+        return SimpleTrump(type=power_type, name=power_name, args=power_description)
+
+
+def get_power_description(name='standard'):
+    return get_game_description(name)['powers']
 
 
 def get_board(name='standard'):

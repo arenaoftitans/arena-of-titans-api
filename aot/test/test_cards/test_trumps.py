@@ -27,6 +27,7 @@ from .. import (  # noqa: F401
 )
 from ...board import Color
 from ...cards.trumps import (
+    ModifyCardNumberMoves,
     ModifyNumberMoves,
     RemoveColor,
     Teleport,
@@ -45,6 +46,31 @@ def test_affect_modify_number_moves_negative_delta(player):  # noqa: F811
     trump = ModifyNumberMoves(delta_moves=-1, duration=1)
     trump.affect(player)
     player.modify_number_moves.assert_called_once_with(-1)
+
+
+def test_affect_modify_card_number_moves(player):  # noqa: F811
+    player.modify_card_number_moves = MagicMock()
+    trump = ModifyCardNumberMoves(delta_moves=1, duration=1)
+    trump.affect(player)
+    player.modify_card_number_moves.assert_called_once_with(1, card_filter=None)
+
+
+def test_affect_modify_card_number_moves_with_card_filter(player):  # noqa: F811
+    player.modify_card_number_moves = MagicMock()
+    trump = ModifyCardNumberMoves(delta_moves=1, duration=1, card_names=['Queen'])
+    queen = MagicMock()
+    queen.name = 'Queen'
+    king = MagicMock()
+    king.name = 'King'
+
+    trump.affect(player)
+
+    assert player.modify_card_number_moves.called
+    assert player.modify_card_number_moves.call_args[0][0] == 1
+    assert callable(player.modify_card_number_moves.call_args[1]['card_filter'])
+    card_filter = player.modify_card_number_moves.call_args[1]['card_filter']
+    assert card_filter(queen)
+    assert not card_filter(king)
 
 
 def test_remove_color(player):  # noqa: F811

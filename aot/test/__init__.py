@@ -82,6 +82,7 @@ def game(mock):
         'name': 'Player {}'.format(i),
         'index': i,
         'id': i,
+        'hero': 'Ulya',
     } for i in range(get_number_players())]
     g = get_game(players_description)
     for player in g.players:
