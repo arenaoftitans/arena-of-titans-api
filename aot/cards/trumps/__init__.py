@@ -27,6 +27,7 @@ from .powers import (
     Power,
 )
 from .trumps import (
+    ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     RemoveColor,
@@ -84,6 +85,7 @@ __all__ = [
     # Power utils
     'Power',
     # Trumps
+    'ModifyCardColors',
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',
     'RemoveColor',

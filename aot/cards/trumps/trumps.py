@@ -141,6 +141,43 @@ class ModifyNumberMoves(Trump):
             player.modify_number_moves(self._delta_moves)
 
 
+class ModifyCardColors(Trump):
+    _colors = None
+    _card_names = None
+
+    def __init__(
+        self,
+        card_names=None,
+        cost=5,
+        add_colors=None,
+        description='',
+        duration=0,
+        name='',
+        must_target_player=False,
+        **kwargs,
+    ):
+        super().__init__(
+            cost=cost,
+            description=description,
+            duration=duration,
+            must_target_player=must_target_player,
+            name=name,
+            **kwargs,
+        )
+        self._set_colors(None, add_colors)
+        self._card_names = card_names
+
+    def affect(self, player):
+        if self._card_names is not None:
+            def card_filter(card: Card):
+                return card.name in self._card_names
+        else:
+            card_filter = None
+
+        if player and self._duration > 0:
+            player.modify_card_colors(self._colors, card_filter=card_filter)
+
+
 class ModifyCardNumberMoves(Trump):
     _delta_moves = 0
     _card_names = None
