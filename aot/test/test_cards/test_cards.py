@@ -24,6 +24,7 @@ import pytest
 from .. import board  # noqa: F401
 from ...board import (
     Color,
+    ColorSet,
     Square,
 )
 from ...cards import Card
@@ -454,6 +455,27 @@ def test_revert_number_moves(board):  # noqa: F811
     card.revert_to_default()
 
     assert card._number_movements == 1
+
+
+def test_modify_colors(board):  # noqa: F811
+    card_properties = deepcopy(CARD_DICT)
+    card = Card(board, **card_properties)
+    assert card._colors == ColorSet(['BLUE'])
+
+    card.modify_colors({'RED'})
+
+    assert card._colors == {'RED'}
+
+
+def test_modify_colors(board):  # noqa: F811
+    card_properties = deepcopy(CARD_DICT)
+    card = Card(board, **card_properties)
+    assert card._colors == ColorSet(['BLUE'])
+
+    card.modify_colors({'ALL'})
+
+    assert isinstance(card._colors, ColorSet)
+    assert len(card._colors) == 4
 
 
 def test_modify_number_moves(board):  # noqa: F811
