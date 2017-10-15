@@ -384,6 +384,15 @@ def test_modify_number_moves(player):  # noqa: F811
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
 
 
+def test_modify_card_colors(player):  # noqa: F811
+    player._deck = MagicMock()
+    card_filter = lambda x: True  # noqa: E731
+
+    player.modify_card_colors({'BLUE'}, card_filter=card_filter)
+
+    player._deck.modify_colors.assert_called_once_with({'BLUE'}, card_filter=card_filter)
+
+
 def test_modify_card_number_moves(player):  # noqa: F811
     player._deck = MagicMock()
     card_filter = lambda x: True  # noqa: E731

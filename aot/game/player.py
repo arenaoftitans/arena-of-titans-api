@@ -289,6 +289,9 @@ class Player:
     def modify_number_moves(self, delta):
         self._number_moves_to_play += delta
 
+    def modify_card_colors(self, colors, card_filter=None):
+        self._deck.modify_colors(colors, card_filter=card_filter)
+
     def modify_card_number_moves(self, delta, card_filter=None):
         self._deck.modify_number_moves(delta, card_filter=card_filter)
 
