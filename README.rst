@@ -31,39 +31,20 @@ Installing Python dependencies
 
 Windows users, read the section about Windows below.
 
-#. Create a venv: ``python3 -m venv .venv``
-#. Enable the virtualenv `` source .venv/bin/activate``
-#. Install these libraries so you can build the dependencies:
-
-   - libxml2-devel
-   - libxslt-devel
-
-   On debian based system, use this list:
-
-   - libxml2-dev
-   - libxslt-dev
-
-#. Install the dependencies: ``pip install -r requires.txt``
-#. Install the tests dependencies: ``pip install -r tests_requires.txt``
+#. Install `pipenv <https://github.com/kennethreitz/pipenv>`__: ``pip install --user pipenv`` (*Note:* make sure ``pip`` relies on Python 3. You may need to use ``pip3`` instead).
+#. Create the virtualenv and install all dependencies to run and develop the project: ``pipenv install --dev``
+#. Enable the virtualenv: ``pipenv shell``
 
 On Windows
 ++++++++++
 
-#. Before creating the venv you will need to open a PowerShell terminal as root and run:
+Before creating the venv you will need to open a PowerShell terminal as root and run:
 
    .. code::
 
       cd ..
       Set-ExecutionPolicy Unrestricted
 
-#. Create the venv: ``python3 -m venv .venv`` If the creation fails due to ``python3 not found``, check that:
-
-   - python3 was added to your your PATH during install.
-   - Make a copy of your ``python.exe`` executable into ``python3.exe``
-
-#. Enable the venv: ``.venv\Scripts\activate``
-#. Install the dependencies: ``pip install -r requires.txt``
-#. Install the tests dependencies: ``pip install -r tests_requires.txt``
 
 Creating the development configuration
 --------------------------------------
