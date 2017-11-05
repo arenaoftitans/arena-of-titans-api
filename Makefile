@@ -5,7 +5,6 @@ CONTAINER_NAME ?= aot-dev-api
 
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
 FLAKE8_CMD ?= flake8
-VENV_FLAKE8_CMD ?= ~/.virtualenvs/aot/bin/flake8
 PIP_CMD ?= pip
 PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
@@ -13,6 +12,9 @@ PYTEST_WATCH_CMD ?= ptw
 
 type ?= dev
 version ?= latest
+
+# venv related commands
+VENV_FLAKE8_CMD ?= 
 
 
 .PHONY: help
