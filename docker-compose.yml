@@ -21,7 +21,7 @@ version: '3'
 
 services:
   aot-dev-api:
-    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:17.8.2
+    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:17.11.1
     command: ["make", "dev"]
     depends_on:
       - aot-dev-redis
