@@ -79,6 +79,9 @@ class Card:
         else:
             self._special_actions = None
 
+    def modify_colors(self, colors):
+        self._colors = ColorSet(colors)
+
     def modify_number_moves(self, delta):
         self._number_movements += delta
 

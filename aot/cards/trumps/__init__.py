@@ -23,10 +23,12 @@ from collections import namedtuple
 
 from .gauge import Gauge
 from .powers import (
+    ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
 )
 from .trumps import (
+    ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     RemoveColor,
@@ -36,6 +38,7 @@ from .trumps import (
 
 
 power_type_to_class = {
+    'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
 }
 
@@ -80,10 +83,12 @@ class TrumpList(list):
 
 __all__ = [
     # Powers
+    'ModifyCardColorsPower',
     'ModifyCardNumberMovesPower',
     # Power utils
     'Power',
     # Trumps
+    'ModifyCardColors',
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',
     'RemoveColor',

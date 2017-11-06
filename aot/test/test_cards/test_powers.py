@@ -26,6 +26,7 @@ from .. import (  # noqa: F401
     player,
 )
 from ...cards.trumps import (
+    ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
 )
@@ -53,6 +54,18 @@ def test_enable():
     power.setup([trump])
 
     assert trump.args == {'cost': 6}
+
+
+def test_modify_card_colors(player):  # noqa: F811
+    player.modify_card_colors = MagicMock()
+    power = ModifyCardColorsPower(add_colors=['BLACK'], passive=True)
+
+    power.affect(player)
+
+    assert power.passive
+    assert power.duration is None
+    assert len(power._colors) == 1
+    player.modify_card_colors.assert_called_once_with({'BLACK'}, card_filter=None)
 
 
 def test_modify_number_moves(player):  # noqa: F811
