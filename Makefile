@@ -62,8 +62,8 @@ endif
 .PHONY: rundeps
 rundeps:
 	${PIP_CMD} install -U pip
-	${PIP_CMD} install -r requires.txt
-	${PIP_CMD} install -r tests_requires.txt
+	${PIP_CMD} install pipenv
+	pipenv install --dev --deploy --system
 
 
 .PHONY: doc
