@@ -24,8 +24,8 @@ help:
 	@echo
 	@echo "Possible targets:"
 	@echo "- clean: clean generated files and containers."
-	@echo "- ci: run linters and tests in ci system. Should be run only in bitbucket pipelines."
-	@echo "- cicfg: build config for bitbucket pipelines."
+	@echo "- ci: run linters and tests in ci system. Should be run only by the CI server."
+	@echo "- cicfg: build config for CI."
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
