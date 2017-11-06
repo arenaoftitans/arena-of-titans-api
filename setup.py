@@ -66,6 +66,6 @@ setup(
     cmdclass={'test': PyTest},
     author='jenselme',
     author_email='contact@arenaoftitans.com',
-    url='https://bitbucket.org/arenaoftitans/arena-of-titans-api',
+    url='https://gitlab.com/arenaoftitans/arena-of-titans-api',
     license='GNU AGPL',
 )
