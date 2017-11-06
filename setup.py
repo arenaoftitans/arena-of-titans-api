@@ -46,20 +46,23 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-with open('requires.txt', 'r') as requires:
-    install_requires = requires.read().split('\n')
-
-
-with open('tests_requires.txt', 'r') as requires:
-    tests_require = requires.read().split('\n')
+requires = [
+    'asyncio_extras <2.0.0,>=1.3.0',
+    'autobahn >=17.6.2',
+    'daiquiri <2.0.0,>=1.2.0',
+    'daiquiri-rollbar >=0.1.0',
+    'aredis <2.0.0,>=1.0.9',
+    'ordered-set <3.0.0,>=2.0.2',
+    'toml <1.0.0,>=0.9.2',
+    'watchdog <0.9.0,>=0.8.3',
+]
 
 
 setup(
     name='Arena of Titans - API',
     version='0.1',
     packages=find_packages(),
-    install_requires=install_requires,
-    tests_require=tests_require,
+    install_requires=requires,
     cmdclass={'test': PyTest},
     author='jenselme',
     author_email='contact@arenaoftitans.com',

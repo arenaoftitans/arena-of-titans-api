@@ -1,13 +1,13 @@
 FROM docker.io/python:3.6-slim
 
-ADD requires.txt /tmp
-ADD tests_requires.txt /tmp
-ADD Makefile /tmp
-
 RUN apt-get -y update && \
         apt-get -y install make && \
         apt-get -y install nano vim && \
         apt-get -y clean
 
+ADD Pipfile /tmp
+ADD Pipfile.lock /tmp
+ADD Makefile /tmp
+
 RUN cd /tmp && make deps
-RUN rm /tmp/requires.txt /tmp/tests_requires.txt /tmp/Makefile
+RUN rm /tmp/Pipfile* /tmp/Makefile
