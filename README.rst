@@ -178,7 +178,7 @@ This is a full example:
 Docker
 ======
 
-#. Build the docker image: ``docker build -f docker/aot-api/Dockerfile -t registry.gitlab.com/arenaoftitans/arena-of-titans-api:17.8.1 .``. Don't forget to change the tag. It must be like ``<two last digit from year>.<month>.<build-number>``.
+#. Build the docker image: ``make VERSION=15.11.1 builddocker``. Don't forget to change the tag. It must be like ``<two last digit from year>.<month>.<build-number>``.
 #. Login into docker: ``docker login registry.gitlab.com``.
 #. Push the image: ``docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api``
 #. Change the version of the image in ``docker-compose.yml``
