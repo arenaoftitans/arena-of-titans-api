@@ -23,6 +23,7 @@ help:
 	@echo "Relevant targets will be launched within docker."
 	@echo
 	@echo "Possible targets:"
+	@echo "- builddocker: build the docker image for development. You must pass the VERSION variable."
 	@echo "- clean: clean generated files and containers."
 	@echo "- ci: run linters and tests in ci system. Should be run only by the CI server."
 	@echo "- cicfg: build config for CI."
@@ -36,6 +37,20 @@ help:
 	@echo "- runlint: launch flake8."
 	@echo "- test: launch unit tests with coverage report."
 	@echo "- static: generate all static files for the API like SVG boards."
+
+
+.PHONY: builddocker
+builddocker:
+ifdef VERSION
+	docker pull docker.io/python:3.6-slim
+	docker build -f docker/aot-api/Dockerfile -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" .
+	@echo "If this image works, don't forget to:"
+	@echo "  - Change the version of the image in ``docker-compose.yml``"
+	@echo "  - Push the image to docker: ``docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}``"
+else
+	@echo "You must supply VERSION"
+	exit 1
+endif
 
 
 .PHONY: clean
