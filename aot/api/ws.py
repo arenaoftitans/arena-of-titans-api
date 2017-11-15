@@ -29,6 +29,7 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol
 
 from .api_cache import ApiCache
 from .utils import (
+    AotErrorToDisplay,
     RequestTypes,
     to_json,
 )
@@ -282,9 +283,6 @@ class AotWs(WebSocketServerProtocol):
         if id in self._clients:
             await self._clients[id].sendMessage(message)
 
-    def _get_error(self, message, format_opt):  # pragma: no cover
-        return self._error_messages.get(message, message).format(**format_opt)
-
     async def _send_error(self, message, format_opt=None):
         if format_opt is None:
             format_opt = {}
@@ -299,13 +297,21 @@ class AotWs(WebSocketServerProtocol):
     async def _send_debug(self, message):  # pragma: no cover
         await self._send_all({'debug': message})
 
+    def _format_error(self, error):
+        message_key = 'error_to_display' if isinstance(error, AotErrorToDisplay) else 'error'
+        # Some error messages to display can be formated with infos from the exception
+        # to give extra information to the user.
+        raw_message = str(error)
+        formatted_message = self._error_messages.get(raw_message, raw_message)\
+            .format(**error.infos)
 
+        formatted_error = {
+            message_key: formatted_message,
+        }
+        if error.infos:
+            formatted_error['extra_data'] = error.infos
 
-    def _format_error(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
-
-        return {'error': self._get_error(message, format_opt)}
+        return formatted_error
 
     @property
     def _clients_pending_reconnection_for_game(self):
