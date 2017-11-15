@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import bleach
+
 from ..board import Square
 from ..cards.trumps import Trump
 from ..utils import SimpleEnumMeta
@@ -64,6 +66,10 @@ class SlotState(metaclass=SimpleEnumMeta):
     RESERVED = ()
     TAKEN = ()
     AI = ()
+
+
+def sanitize(string):
+    return bleach.clean(string)
 
 
 def to_json(python_object):  # pragma: no cover

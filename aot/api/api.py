@@ -30,6 +30,7 @@ from .utils import (
     AotError,
     AotErrorToDisplay,
     RequestTypes,
+    sanitize,
 )
 from .ws import AotWs
 from .. import (
@@ -164,7 +165,7 @@ class Api(AotWs):
         return initiliazed_game
 
     async def _affect_current_slot(self):
-        player_name = self._message.get('player_name', '')
+        player_name = sanitize(self._message.get('player_name', ''))
         hero = self._message.get('hero', '')
         return await self._cache.affect_next_slot(player_name, hero)
 
