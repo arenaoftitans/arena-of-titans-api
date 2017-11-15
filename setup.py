@@ -49,6 +49,7 @@ class PyTest(TestCommand):
 requires = [
     'asyncio_extras <2.0.0,>=1.3.0',
     'autobahn >=17.6.2',
+    'bleach >=2.1.1,<3.0',
     'daiquiri <2.0.0,>=1.2.0',
     'daiquiri-rollbar >=0.1.0',
     'aredis <2.0.0,>=1.0.9',
