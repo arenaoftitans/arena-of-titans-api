@@ -311,6 +311,7 @@ class AotWs(WebSocketServerProtocol):
             .format(**error.infos)
 
         formatted_error = {
+            'is_fatal': False,
             message_key: formatted_message,
         }
         if error.infos:

@@ -94,6 +94,7 @@ async def test_onMessage_unkwon_request_type(api):
     api.sendMessage.assert_called_once_with({
         'error': 'Unknown request: .',
         'extra_data': {'rt': ''},
+        'is_fatal': False,
     })
 
 
@@ -128,6 +129,7 @@ async def test_onMessage_reconnect_cannot_join(api):
     assert api._reconnect.call_count == 0
     api.sendMessage.assert_called_once_with({
         'error_to_display': 'You cannot join this game. No slots opened.',
+        'is_fatal': False,
     })
 
 

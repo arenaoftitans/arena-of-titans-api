@@ -344,7 +344,10 @@ async def test_send_error_with_extra_data(api):
         'An error',
         extra_data={'payload': '{"ping": "pong"}'},
     )
-    api.sendMessage.assert_called_once_with({'error': 'An error'})
+    api.sendMessage.assert_called_once_with({
+        'error': 'An error',
+        'is_fatal': False,
+    })
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -356,7 +359,10 @@ async def test_send_error_without_extra_data():
     await ws._send_error(AotError('An error'))
 
     ws.LOGGER.error.assert_called_once_with('An error', extra_data={'payload': 'null'})
-    ws.sendMessage.assert_called_once_with({'error': 'An error'})
+    ws.sendMessage.assert_called_once_with({
+        'error': 'An error',
+        'is_fatal': False,
+    })
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -368,7 +374,10 @@ async def test_send_error_to_display():
     await ws._send_error(AotErrorToDisplay('An error to display'))
 
     assert not ws.LOGGER.error.called
-    ws.sendMessage.assert_called_once_with({'error_to_display': 'An error to display'})
+    ws.sendMessage.assert_called_once_with({
+        'error_to_display': 'An error to display',
+        'is_fatal': False,
+    })
 
 
 @pytest.mark.asyncio  # noqa: F811
