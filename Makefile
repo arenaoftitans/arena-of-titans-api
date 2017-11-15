@@ -23,11 +23,11 @@ help:
 	@echo "Relevant targets will be launched within docker."
 	@echo
 	@echo "Possible targets:"
-	@echo "- builddocker: build the docker image for development. You must pass the VERSION variable."
 	@echo "- clean: clean generated files and containers."
 	@echo "- ci: run linters and tests in ci system. Should be run only by the CI server."
 	@echo "- cicfg: build config for CI."
 	@echo "- deps: install or update dependencies in the docker container."
+	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
@@ -39,8 +39,8 @@ help:
 	@echo "- static: generate all static files for the API like SVG boards."
 
 
-.PHONY: builddocker
-builddocker:
+.PHONY: dockerbuild
+dockerbuild:
 ifdef VERSION
 	docker pull docker.io/python:3.6-slim
 	docker build -f docker/aot-api/Dockerfile -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" .
