@@ -43,7 +43,11 @@ help:
 dockerbuild:
 ifdef VERSION
 	docker pull docker.io/python:3.6-slim
-	docker build -f docker/aot-api/Dockerfile -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" .
+	docker build \
+	    -f docker/aot-api/Dockerfile \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest" \
+	    .
 	@echo "If this image works, don't forget to:"
 	@echo "  - Change the version of the image in ``docker-compose.yml``"
 	@echo "  - Push the image to docker: ``docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}``"
