@@ -107,10 +107,8 @@ class Api(AotWs):
                 await self._process_create_game_request()
             else:
                 await self._process_play_request()
-        except AotErrorToDisplay as e:  # pragma: no cover
-            await self._send_error_to_display(str(e), e.infos)
         except AotError as e:
-            await self._send_error(str(e), e.infos)
+            await self._send_error(e)
         except Exception as e:  # pragma: no cover
             self.LOGGER.exception('onMessage')
 

@@ -283,11 +283,8 @@ class AotWs(WebSocketServerProtocol):
         if id in self._clients:
             await self._clients[id].sendMessage(message)
 
-    async def _send_error(self, message, format_opt=None):
-        if format_opt is None:
-            format_opt = {}
-
-        message = self._format_error(message, format_opt)
+    async def _send_error(self, error):
+        message = self._format_error(error)
         payload = self._message if self._message else None
         payload = json.dumps(payload)
         self.LOGGER.error(message['error'], extra_data={'payload': payload})
