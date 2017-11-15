@@ -69,7 +69,7 @@ class SlotState(metaclass=SimpleEnumMeta):
 
 
 def sanitize(string):
-    return bleach.clean(string)
+    return bleach.clean(string, tags=[])
 
 
 def to_json(python_object):  # pragma: no cover
