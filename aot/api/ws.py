@@ -311,11 +311,7 @@ class AotWs(WebSocketServerProtocol):
     async def _send_debug(self, message):  # pragma: no cover
         await self._send_all({'debug': message})
 
-    async def _send_all_error(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
 
-        await self._send_all(self._format_error(message, format_opt))
 
     def _format_error(self, message, format_opt=None):  # pragma: no cover
         if format_opt is None:
