@@ -29,6 +29,9 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol
 
 from .api_cache import ApiCache
 from .utils import (
+    AotErrorToDisplay,
+    AotFatalError,
+    AotFatalErrorToDisplay,
     RequestTypes,
     to_json,
 )
@@ -180,6 +183,9 @@ class AotWs(WebSocketServerProtocol):
 
     @property
     async def _can_reconnect(self):
+        if self._message['player_id'] in self._clients:
+            raise AotFatalErrorToDisplay('player_already_connected')
+
         return await self._cache.is_member_game(
             self._message['game_id'],
             self._message['player_id'],
@@ -282,46 +288,37 @@ class AotWs(WebSocketServerProtocol):
         if id in self._clients:
             await self._clients[id].sendMessage(message)
 
-    def _format_error_to_display(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
-
-        return {'error_to_display': self._get_error(message, format_opt)}
-
-    def _get_error(self, message, format_opt):  # pragma: no cover
-        return self._error_messages.get(message, message).format(**format_opt)
-
-    async def _send_error(self, message, format_opt=None):
-        if format_opt is None:
-            format_opt = {}
-
-        message = self._format_error(message, format_opt)
-        payload = self._message if self._message else None
-        payload = json.dumps(payload)
-        self.LOGGER.error(message['error'], extra_data={'payload': payload})
+    async def _send_error(self, error):
+        message = self._format_error(error)
+        # Errors to display are sent to the user and are forseen in the application.
+        # No need to log them.
+        if not isinstance(error, AotErrorToDisplay):
+            payload = self._message if self._message else None
+            payload = json.dumps(payload)
+            self.LOGGER.error(message['error'], extra_data={'payload': payload})
 
         await self.sendMessage(message)
-
-    async def _send_error_to_display(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
-
-        await self.sendMessage(self._format_error_to_display(message, format_opt))
 
     async def _send_debug(self, message):  # pragma: no cover
         await self._send_all({'debug': message})
 
-    async def _send_all_error(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
+    def _format_error(self, error):
+        message_key = 'error_to_display' if isinstance(error, AotErrorToDisplay) else 'error'
+        # Some error messages to display can be formated with infos from the exception
+        # to give extra information to the user.
+        raw_message = str(error)
+        formatted_message = self._error_messages.get(raw_message, raw_message)\
+            .format(**error.infos)
 
-        await self._send_all(self._format_error(message, format_opt))
+        formatted_error = {
+            message_key: formatted_message,
+        }
+        if error.infos:
+            formatted_error['extra_data'] = error.infos
+        if isinstance(error, AotFatalError):
+            formatted_error['is_fatal'] = True
 
-    def _format_error(self, message, format_opt=None):  # pragma: no cover
-        if format_opt is None:
-            format_opt = {}
-
-        return {'error': self._get_error(message, format_opt)}
+        return formatted_error
 
     @property
     def _clients_pending_reconnection_for_game(self):

@@ -87,11 +87,14 @@ async def test_info(api):
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_onMessage_unkwon_request_type(api):
-    api._send_error = AsyncMagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api.onMessage(b'{}', False)
 
-    api._send_error.assert_called_once_with('unknown_request', {'rt': ''})
+    api.sendMessage.assert_called_once_with({
+        'error': 'Unknown request: .',
+        'extra_data': {'rt': ''},
+    })
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -114,7 +117,7 @@ async def test_onMessage_reconnect_cannot_join(api):
     api._reconnect = AsyncMagicMock()
     api._cache = MagicMock()
     api._cache.is_member_game = AsyncMagicMock(return_value=False)
-    api._send_error_to_display = AsyncMagicMock()
+    api.sendMessage = AsyncMagicMock()
 
     await api.onMessage(
         b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
@@ -123,7 +126,28 @@ async def test_onMessage_reconnect_cannot_join(api):
 
     api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
     assert api._reconnect.call_count == 0
-    api._send_error_to_display.assert_called_once_with('cannot_join', {})
+    api.sendMessage.assert_called_once_with({
+        'error_to_display': 'You cannot join this game. No slots opened.',
+    })
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_onMessage_reconnect_while_already_connected(api):
+    api._reconnect = AsyncMagicMock()
+    api._cache = MagicMock()
+    api.sendMessage = AsyncMagicMock()
+    api._clients['player_id'] = MagicMock()
+
+    await api.onMessage(
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
+        False,
+    )
+
+    assert api._reconnect.call_count == 0
+    api.sendMessage.assert_called_once_with({
+        'error_to_display': 'player_already_connected',
+        'is_fatal': True,
+    })
 
 
 @pytest.mark.asyncio  # noqa: F811

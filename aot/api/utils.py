@@ -35,6 +35,15 @@ class AotErrorToDisplay(AotError):
     pass
 
 
+class AotFatalError(AotError):
+    def __init__(self, msg, infos=None):
+        super().__init__(msg, infos)
+
+
+class AotFatalErrorToDisplay(AotFatalError, AotErrorToDisplay):
+    pass
+
+
 class RequestTypes(metaclass=SimpleEnumMeta):
     INIT_GAME = ()
     CREATE_GAME = ()

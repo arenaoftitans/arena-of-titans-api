@@ -26,7 +26,12 @@ from .. import (  # noqa: F401
     api,
     game,
 )
-from ...api.utils import RequestTypes
+from ...api.utils import (
+    AotError,
+    AotErrorToDisplay,
+    AotFatalError,
+    RequestTypes,
+)
 from ...api.ws import AotWs
 
 
@@ -333,7 +338,7 @@ async def test_send_error_with_extra_data(api):
     api.sendMessage = AsyncMagicMock()
     api._message = {'ping': 'pong'}
 
-    await api._send_error('An error')
+    await api._send_error(AotError('An error'))
 
     api.LOGGER.error.assert_called_once_with(
         'An error',
@@ -348,7 +353,31 @@ async def test_send_error_without_extra_data():
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
-    await ws._send_error('An error')
+    await ws._send_error(AotError('An error'))
 
     ws.LOGGER.error.assert_called_once_with('An error', extra_data={'payload': 'null'})
     ws.sendMessage.assert_called_once_with({'error': 'An error'})
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_send_error_to_display():
+    ws = AotWs()
+    ws.LOGGER = MagicMock()
+    ws.sendMessage = AsyncMagicMock()
+
+    await ws._send_error(AotErrorToDisplay('An error to display'))
+
+    assert not ws.LOGGER.error.called
+    ws.sendMessage.assert_called_once_with({'error_to_display': 'An error to display'})
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_send_fatal_error():
+    ws = AotWs()
+    ws.LOGGER = MagicMock()
+    ws.sendMessage = AsyncMagicMock()
+
+    await ws._send_error(AotFatalError('A fatal error'))
+
+    assert ws.LOGGER.error.called
+    ws.sendMessage.assert_called_once_with({'error': 'A fatal error', 'is_fatal': True})

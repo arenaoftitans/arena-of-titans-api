@@ -61,6 +61,7 @@ class Api(AotWs):
         'no_slot': 'No slot provided.',
         'not_your_turn': 'Not your turn.',
         'no_request': 'No request was provided',
+        'player_already_connected': 'errors.player_already_connected',
         'registered_different_description': 'Number of registered players differs with number of '
                                             'players descriptions or too many/too few players are '
                                             'registered.',
@@ -107,10 +108,8 @@ class Api(AotWs):
                 await self._process_create_game_request()
             else:
                 await self._process_play_request()
-        except AotErrorToDisplay as e:  # pragma: no cover
-            await self._send_error_to_display(str(e), e.infos)
         except AotError as e:
-            await self._send_error(str(e), e.infos)
+            await self._send_error(e)
         except Exception as e:  # pragma: no cover
             self.LOGGER.exception('onMessage')
 
