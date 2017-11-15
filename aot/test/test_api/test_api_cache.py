@@ -23,9 +23,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from .. import (  # noqa: F401
-    AsyncMagicMock,
     api_cache,
     api_cache_cls,
+    AsyncMagicMock,
     game,
 )
 from ...api.api_cache import ApiCache

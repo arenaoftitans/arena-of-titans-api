@@ -22,8 +22,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from .. import (  # noqa: F401
-    AsyncMagicMock,
     api,
+    AsyncMagicMock,
     game,
 )
 from ...api.utils import (
