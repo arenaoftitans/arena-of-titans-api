@@ -198,6 +198,8 @@ class Api(AotWs):
 
     async def _modify_slots(self):
         slot = self._message.get('slot', None)
+        if 'player_name' in slot:
+            slot['player_name'] = sanitize(slot['player_name'])
         if slot is None:
             raise AotErrorToDisplay('no_slot')
         elif await self._cache.slot_exists(slot):
