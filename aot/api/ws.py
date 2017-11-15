@@ -285,9 +285,12 @@ class AotWs(WebSocketServerProtocol):
 
     async def _send_error(self, error):
         message = self._format_error(error)
-        payload = self._message if self._message else None
-        payload = json.dumps(payload)
-        self.LOGGER.error(message['error'], extra_data={'payload': payload})
+        # Errors to display are sent to the user and are forseen in the application.
+        # No need to log them.
+        if not isinstance(error, AotErrorToDisplay):
+            payload = self._message if self._message else None
+            payload = json.dumps(payload)
+            self.LOGGER.error(message['error'], extra_data={'payload': payload})
 
         await self.sendMessage(message)
 
