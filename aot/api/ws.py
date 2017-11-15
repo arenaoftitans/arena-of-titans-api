@@ -30,6 +30,7 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol
 from .api_cache import ApiCache
 from .utils import (
     AotErrorToDisplay,
+    AotFatalError,
     RequestTypes,
     to_json,
 )
@@ -310,6 +311,8 @@ class AotWs(WebSocketServerProtocol):
         }
         if error.infos:
             formatted_error['extra_data'] = error.infos
+        if isinstance(error, AotFatalError):
+            formatted_error['is_fatal'] = True
 
         return formatted_error
 
