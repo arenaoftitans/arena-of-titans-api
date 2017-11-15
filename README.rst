@@ -182,3 +182,5 @@ Docker
 #. Login into docker: ``docker login registry.gitlab.com``.
 #. Push the image: ``docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api``
 #. Change the version of the image in ``docker-compose.yml``
+
+**Note:** If you want to install a new dependency, you must first run ``pipenv lock`` to update the ``Pipenv.lock`` file in a local virtual env or in the container.
