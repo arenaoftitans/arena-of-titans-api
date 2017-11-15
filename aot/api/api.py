@@ -61,6 +61,7 @@ class Api(AotWs):
         'no_slot': 'No slot provided.',
         'not_your_turn': 'Not your turn.',
         'no_request': 'No request was provided',
+        'player_already_connected': 'errors.player_already_connected',
         'registered_different_description': 'Number of registered players differs with number of '
                                             'players descriptions or too many/too few players are '
                                             'registered.',
