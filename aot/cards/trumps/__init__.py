@@ -18,7 +18,6 @@
 ################################################################################
 
 import copy
-
 from collections import namedtuple
 
 from .gauge import Gauge

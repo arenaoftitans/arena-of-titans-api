@@ -18,7 +18,6 @@
 ################################################################################
 
 import pickle
-
 from copy import deepcopy
 from datetime import datetime
 

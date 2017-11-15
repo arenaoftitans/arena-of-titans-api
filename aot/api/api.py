@@ -23,7 +23,6 @@ import json
 import uuid
 
 import daiquiri
-
 from asyncio_extras.contextmanager import async_contextmanager
 
 from .utils import (

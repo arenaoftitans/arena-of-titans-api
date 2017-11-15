@@ -28,8 +28,8 @@ from ...api.utils import (
     RequestTypes,
 )
 from ...test import (  # noqa: F401
-    AsyncMagicMock,
     api,
+    AsyncMagicMock,
     game,
 )
 

@@ -19,11 +19,9 @@
 
 import asyncio
 import json
-
 from abc import abstractmethod
 
 import daiquiri
-
 from asyncio_extras.contextmanager import async_contextmanager
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
