@@ -132,6 +132,25 @@ async def test_onMessage_reconnect_cannot_join(api):
 
 
 @pytest.mark.asyncio  # noqa: F811
+async def test_onMessage_reconnect_while_already_connected(api):
+    api._reconnect = AsyncMagicMock()
+    api._cache = MagicMock()
+    api.sendMessage = AsyncMagicMock()
+    api._clients['player_id'] = MagicMock()
+
+    await api.onMessage(
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
+        False,
+    )
+
+    assert api._reconnect.call_count == 0
+    api.sendMessage.assert_called_once_with({
+        'error_to_display': 'player_already_connected',
+        'is_fatal': True,
+    })
+
+
+@pytest.mark.asyncio  # noqa: F811
 async def test_onMessage_new_game(api):
     api._game_id = None
     api._create_new_game = MagicMock()

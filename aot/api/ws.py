@@ -31,6 +31,7 @@ from .api_cache import ApiCache
 from .utils import (
     AotErrorToDisplay,
     AotFatalError,
+    AotFatalErrorToDisplay,
     RequestTypes,
     to_json,
 )
@@ -182,6 +183,9 @@ class AotWs(WebSocketServerProtocol):
 
     @property
     async def _can_reconnect(self):
+        if self._message['player_id'] in self._clients:
+            raise AotFatalErrorToDisplay('player_already_connected')
+
         return await self._cache.is_member_game(
             self._message['game_id'],
             self._message['player_id'],
