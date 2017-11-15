@@ -147,7 +147,7 @@ async def test_onMessage_reconnect_while_already_connected(api):
 
     assert api._reconnect.call_count == 0
     api.sendMessage.assert_called_once_with({
-        'error_to_display': 'player_already_connected',
+        'error_to_display': 'errors.player_already_connected',
         'is_fatal': True,
     })
 
