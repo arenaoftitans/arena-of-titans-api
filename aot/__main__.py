@@ -29,7 +29,7 @@ from .run import (
 )
 
 
-def main(debug=False, type='prod', version='latest'):
+def main(debug=False, debug_aio=False, type='prod', version='latest'):
     setup_config(type=type, version=version)
     setup_logging(debug=debug)
 
@@ -38,7 +38,7 @@ def main(debug=False, type='prod', version='latest'):
     try:
         logging.info('API is starting')
         cleanup(None, None)
-        wsserver, loop = startup(debug=debug)
+        wsserver, loop = startup(debug=debug, debug_aio=debug_aio)
         logging.info('API is ready')
         loop.run_forever()
     except KeyboardInterrupt:
@@ -52,6 +52,11 @@ if __name__ == '__main__':  # pragma: no cover
     parser.add_argument(
         '--debug',
         help='Start in debug mode',
+        action='store_true',
+    )
+    parser.add_argument(
+        '--debug-aio',
+        help='Launch asyncio event loop in debug mode (very verbose)',
         action='store_true',
     )
     parser.add_argument(
@@ -78,4 +83,4 @@ if __name__ == '__main__':  # pragma: no cover
     if args.reload:
         run_reload()
     else:
-        main(debug=args.debug, version=args.version, type=args.type)
+        main(debug=args.debug, debug_aio=args.debug_aio, version=args.version, type=args.type)

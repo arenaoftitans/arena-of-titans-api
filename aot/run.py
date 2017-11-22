@@ -83,9 +83,9 @@ def setup_logging(debug=False):
     daiquiri.setup(level=level, outputs=outputs)
 
 
-def startup(debug=False):
+def startup(debug=False, debug_aio=False):
     loop = asyncio.get_event_loop()
-    loop.set_debug(debug)
+    loop.set_debug(debug_aio)
 
     socket = config['api'].get('socket', None)
     if socket:
