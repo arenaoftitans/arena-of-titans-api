@@ -82,7 +82,7 @@ class Api(AotWs):
     _pending_ai = set()
 
     async def onMessage(self, payload, is_binary):  # noqa: N802
-        self.LOGGER.debug(payload)
+        self.LOGGER.debug(f'Received from {self.id}: {payload}')
 
         try:
             self._message = json.loads(payload.decode('utf-8'))

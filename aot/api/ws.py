@@ -94,7 +94,7 @@ class AotWs(WebSocketServerProtocol):
     async def sendMessage(self, message):  # pragma: no cover  # noqa: N802
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
-        self.LOGGER.debug(message)
+        self.LOGGER.debug(f'Sending to {self.id}: {message}')
         message = message.encode('utf-8')
         if isinstance(message, bytes):
             # Must not use await here: sendMessage in the base class is not a coroutine.
