@@ -13,8 +13,11 @@ PYTEST_WATCH_CMD ?= ptw
 type ?= dev
 version ?= latest
 
+# Ci Related variables. Leave empty, set only for ci.
+CI_TESTS_TIMEOUT ?=
+
 # venv related commands
-VENV_FLAKE8_CMD ?= 
+VENV_FLAKE8_CMD ?=
 
 
 .PHONY: help
@@ -154,9 +157,9 @@ testall: test
 .PHONY: test
 test:
 ifdef INSIDE_DOCKER
-	./setup.py test
+	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} ./setup.py test
 else
-	${DK_EXEC_CMD} make test
+	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} test
 endif
 
 
