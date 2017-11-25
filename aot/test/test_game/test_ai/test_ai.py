@@ -17,8 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import re
-import socket
+import os
 
 import pytest
 
@@ -33,11 +32,14 @@ from ....utils.pathfinding import a_star
 # board is a fixture, ignore the unsued import warnig
 
 
-# If hostname match a SHA1 (ie run in docker), increase value of TIMEOUT to prevent deploy
-# errors. Leave it to 1 in all other cases to detect slowness.
-TIMEOUT = 1
-if re.match(r'[0-9a-f]{5,40}', socket.gethostname()) or socket.gethostname().startswith('runner'):
-    TIMEOUT = 2
+# Allow the tests timeout to be changed by a enviroment variable:
+# in CI runners with small hardware it may take more than 1s to complete.
+if os.getenv('AOT_IA_TESTS_TIMEOUT'):
+    # Don't use default value here since the variable can be set to an empty string.
+    # In this case, the default value won't be used.
+    TIMEOUT = int(os.getenv('AOT_IA_TESTS_TIMEOUT'))
+else:
+    TIMEOUT = 1
 
 
 @pytest.fixture

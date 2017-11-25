@@ -6,4 +6,4 @@ lint:
 
 tests:
   script:
-    - make ci
+    - make CI_TESTS_TIMEOUT=5 ci
