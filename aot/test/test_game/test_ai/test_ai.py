@@ -34,10 +34,10 @@ from ....utils.pathfinding import a_star
 
 # Allow the tests timeout to be changed by a enviroment variable:
 # in CI runners with small hardware it may take more than 1s to complete.
-if os.getenv('AOT_IA_TESTS_TIMEOUT'):
+if os.getenv('CI_TESTS_TIMEOUT'):
     # Don't use default value here since the variable can be set to an empty string.
     # In this case, the default value won't be used.
-    TIMEOUT = int(os.getenv('AOT_IA_TESTS_TIMEOUT'))
+    TIMEOUT = int(os.getenv('CI_TESTS_TIMEOUT'))
 else:
     TIMEOUT = 1
 
