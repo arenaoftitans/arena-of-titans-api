@@ -77,6 +77,29 @@
   },
   "trumps": [
     {
+      "name": "Blizzard",
+      "cost": 6,
+      "description": "Reduce the number of cards a player can play by 1.",
+      "duration": 1,
+      "repeat_for_each_color": false,
+      "must_target_player": true,
+      "parameters": {
+        "type": "ModifyNumberMoves",
+        "delta_moves": -1
+      }
+    },
+    {
+      "name": "Fortress",
+      "cost": 7,
+      "description": "Prevent the player to move on some colors.",
+      "duration": 2,
+      "repeat_for_each_color": true,
+      "must_target_player": true,
+      "parameters": {
+        "type": "RemoveColor"
+      }
+    },
+    {
       "name": "Reinforcements",
       "cost": 6,
       "description": "Allow the player to play one more move.",
@@ -97,18 +120,6 @@
       "must_target_player": true,
       "parameters": {
         "type": "RemoveColor"
-      }
-    },
-    {
-      "name": "Blizzard",
-      "cost": 6,
-      "description": "Reduce the number of cards a player can play by 1.",
-      "duration": 1,
-      "repeat_for_each_color": false,
-      "must_target_player": true,
-      "parameters": {
-        "type": "ModifyNumberMoves",
-        "delta_moves": -1
       }
     }
   ],
