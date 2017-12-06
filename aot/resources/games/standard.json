@@ -89,6 +89,17 @@
       }
     },
     {
+      "name": "Fortress",
+      "cost": 7,
+      "description": "Prevent the player to move on some colors.",
+      "duration": 2,
+      "repeat_for_each_color": true,
+      "must_target_player": true,
+      "parameters": {
+        "type": "RemoveColor"
+      }
+    },
+    {
       "name": "Reinforcements",
       "cost": 6,
       "description": "Allow the player to play one more move.",
