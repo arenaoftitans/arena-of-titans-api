@@ -576,7 +576,8 @@ class Api(AotWs):
     async def _send_player_played_special_action(self, player, target):  # pragma: no cover
         await self._send_all({
             'rt': RequestTypes.SPECIAL_ACTION_PLAY,
-            'player_index': target.index,
+            'player_index': player.index,
+            'target_index': target.index,
             'new_square': {
                 'x': target.current_square.x,
                 'y': target.current_square.y,
