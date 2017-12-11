@@ -57,12 +57,8 @@ def setup_logging(debug=False):
     else:
         level = logging.INFO
 
-    log_file = config['api']['log_file']
-    logs_dir = os.path.dirname(log_file)
-    os.makedirs(logs_dir, exist_ok=True)
     outputs = (
         'stderr',
-        daiquiri.output.File(log_file),
     )
 
     if config['api'].get('rollbar_enabled', False) and \
