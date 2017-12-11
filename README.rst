@@ -95,6 +95,14 @@ Use the ``make`` command to launch task. Tasks will be launched from the host wi
     You can override any variables in the Makefile by creating a ``Makefile.in`` and specifying the values there like that: ``FLAKE8_CMD = ~/.virtualenvs/aot/bin/flake8``
 
 
+Logging
+=======
+
+Logs are sent to ``stderr`` from the container. Look there to see them. We don't send anything to a log file to avoid mounting a volume (in production) and managing a log file. If you want to exploit the result of the log outside ``stderr`` configure docker to do so. See `this page <https://docs.docker.com/engine/admin/logging/overview/>`__ of the docker documentation to learn how to configure the proper logging driver.
+
+*Note:* on linux systems, the logs are also send to ``journald`` by default. Use something like ``journalctl -o short --no-hostname -b --all -u docker -f`` or ``journalctl -o short --no-hostname -b --all -u docker -f CONTAINER_ID=28c9e6a5b6af`` to view the logs from ``journald``. You can also use ``journalctl`` to filter and query the logs. Refer to the man page of ``journalctl`` to learn how to do that.
+
+
 Contributing
 ============
 
