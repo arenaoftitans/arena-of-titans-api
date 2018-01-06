@@ -42,6 +42,7 @@ class Trump:
         description='',
         must_target_player=False,
         name='',
+        temporary=False,
         **kwargs,
     ):
         self._cost = cost
@@ -49,6 +50,7 @@ class Trump:
         self._duration = duration
         self._must_target_player = must_target_player
         self._name = name
+        self._temporary = temporary
 
     def _set_colors(self, color, colors):
         self._colors = set()
@@ -118,6 +120,10 @@ class Trump:
     @property
     def passive(self):  # pragma: no cover
         return False
+
+    @property
+    def temporary(self):
+        return self._temporary
 
 
 class ModifyNumberMoves(Trump):
