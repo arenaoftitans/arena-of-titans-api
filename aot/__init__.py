@@ -163,7 +163,6 @@ def _get_trumps(description):
             if color == Color.ALL:
                 continue
             trump_name = color_trump_description['name']
-            trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
             color_trump_description['name'] = trump_name
             color_trump_description['color'] = color
             color_trump_description = copy.deepcopy(color_trump_description)

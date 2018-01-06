@@ -42,6 +42,7 @@ class Trump:
         description='',
         must_target_player=False,
         name='',
+        color=None,
         temporary=False,
         **kwargs,
     ):
@@ -50,6 +51,9 @@ class Trump:
         self._duration = duration
         self._must_target_player = must_target_player
         self._name = name
+        self._color = color
+        if isinstance(color, str):
+            self._color = Color[color]
         self._temporary = temporary
 
     def _set_colors(self, color, colors):
@@ -75,6 +79,10 @@ class Trump:
 
     def __repr___(self):  # pragma: no cover
         return str(self)
+
+    @property
+    def color(self):
+        return self._color
 
     @property
     def cost(self):  # pragma: no cover
@@ -136,6 +144,7 @@ class ModifyNumberMoves(Trump):
         description='',
         duration=0,
         name='',
+        color=None,
         must_target_player=False,
         **kwargs,
     ):
@@ -145,6 +154,7 @@ class ModifyNumberMoves(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             **kwargs,
         )
         self._delta_moves = delta_moves
@@ -166,6 +176,7 @@ class ModifyCardColors(Trump):
         description='',
         duration=0,
         name='',
+        color=None,
         must_target_player=False,
         **kwargs,
     ):
@@ -175,6 +186,7 @@ class ModifyCardColors(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             **kwargs,
         )
         self._set_colors(None, add_colors)
@@ -203,6 +215,7 @@ class ModifyCardNumberMoves(Trump):
         description='',
         duration=0,
         name='',
+        color=None,
         must_target_player=False,
         **kwargs,
     ):
@@ -212,6 +225,7 @@ class ModifyCardNumberMoves(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             **kwargs,
         )
         self._card_names = card_names
@@ -237,6 +251,7 @@ class ModifyTrumpDurations(Trump):
         description='',
         duration=0,
         name='',
+        color=None,
         must_target_player=False,
         temporary=False,
         **kwargs,
@@ -247,6 +262,7 @@ class ModifyTrumpDurations(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             temporary=temporary,
             **kwargs,
         )
@@ -287,6 +303,7 @@ class RemoveColor(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             **kwargs,
         )
         self._set_colors(color, colors)
@@ -323,6 +340,7 @@ class Teleport(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
+            color=color,
             **kwargs,
         )
         self._distance = distance
