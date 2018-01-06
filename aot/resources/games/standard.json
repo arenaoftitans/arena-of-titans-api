@@ -121,6 +121,20 @@
       "parameters": {
         "type": "RemoveColor"
       }
+    },
+    {
+      "name": "Ram",
+      "cost": 4,
+      "description": "Destroy towers and reduce duration for fortress",
+      "duration": 1,
+      "repeat_for_each_color": false,
+      "must_target_player": false,
+      "parameters": {
+        "type": "ModifyTrumpDurations",
+        "delta_duration": -1,
+        "temporary": true,
+        "trump_names": ["Fortress", "Tower"]
+      }
     }
   ],
   "powers": {
