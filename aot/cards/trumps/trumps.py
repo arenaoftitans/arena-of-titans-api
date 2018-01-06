@@ -92,6 +92,13 @@ class Trump:
             return
         return self._duration
 
+    @duration.setter
+    def duration(self, value):
+        if not isinstance(value, int):
+            raise ValueError('Duration must be an int')
+
+        self._duration = value
+
     @property
     def must_target_player(self):  # pragma: no cover
         return self._must_target_player
