@@ -30,6 +30,7 @@ from .trumps import (
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
+    ModifyTrumpDurations,
     RemoveColor,
     Teleport,
     Trump,
@@ -43,6 +44,7 @@ power_type_to_class = {
 
 trump_type_to_class = {
     'ModifyNumberMoves': ModifyNumberMoves,
+    'ModifyTrumpDurations': ModifyTrumpDurations,
     'RemoveColor': RemoveColor,
     'Teleport': Teleport,
 }
@@ -90,6 +92,7 @@ __all__ = [
     'ModifyCardColors',
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',
+    'ModifyTrumpDurations',
     'RemoveColor',
     'SimpleTrump',
     'Teleport',
