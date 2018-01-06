@@ -581,6 +581,7 @@ class Api(AotWs):
             'new_square': {
                 'x': target.current_square.x,
                 'y': target.current_square.y,
+                'color': target.current_square.color,
             },
             'special_action_name': player.last_action.special_action.name,
             'last_action': self._get_action_message(player.last_action),
