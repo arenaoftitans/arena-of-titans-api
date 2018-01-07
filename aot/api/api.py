@@ -609,16 +609,29 @@ class Api(AotWs):
             if target and game.active_player.play_trump(trump, target=target):
                 last_action = game.active_player.last_action
                 game.add_action(last_action)
-                await self._send_trump_played_message(game, last_action)
+                await self._send_trump_played_message(
+                    game,
+                    last_action,
+                    game.active_player,
+                    target,
+                )
             else:
                 self._send_trump_error(game.active_player, trump)
         else:
             raise AotError('wrong_trump_target')
 
-    async def _send_trump_played_message(self, game, last_action):  # pragma: no cover
+    async def _send_trump_played_message(
+        self,
+        game,
+        last_action,
+        player,
+        target,
+    ):  # pragma: no cover
         message = {
             'rt': RequestTypes.PLAY_TRUMP,
             'active_trumps': self._get_active_trumps_message(game),
+            'player_index': player.index,
+            'target_index': target.index,
             'trumps_statuses': game.active_player.trumps_statuses,
             'last_action': self._get_action_message(last_action),
         }
