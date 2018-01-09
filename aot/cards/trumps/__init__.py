@@ -49,7 +49,8 @@ trump_type_to_class = {
     'Teleport': Teleport,
 }
 
-SimpleTrump = namedtuple('SimpleTrump', 'type name args')
+SimpleTrump = namedtuple('SimpleTrump', 'type name color args')
+SimpleTrump.__new__.__defaults__ = (None, None, None, None)
 
 
 def create_power(power: SimpleTrump):
