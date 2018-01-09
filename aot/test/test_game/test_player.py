@@ -402,6 +402,69 @@ def test_modify_card_number_moves(player):  # noqa: F811
     player._deck.modify_number_moves.assert_called_once_with(5, card_filter=card_filter)
 
 
+def test_modify_trump_duration(player):  # noqa: F811
+    player._revert_to_default = MagicMock()
+    tower = MagicMock()
+    tower.name = 'Tower'
+    tower.duration = 2
+    tower.temporary = False
+    blizzard = MagicMock()
+    blizzard.name = 'Blizzard'
+    blizzard.duration = 4
+    blizzard.temporary = False
+    ram = MagicMock()
+    ram.name = 'Ram'
+    ram.duration = 0
+    ram.temporary = True
+    # Note: the trump that modifies the durations in in the affecting trumps list
+    player._affecting_trumps = [tower, blizzard, ram]
+
+    player.modify_affecting_trump_durations(-2)
+
+    assert tower.duration == 0
+    assert blizzard.duration == 2
+    assert player.affecting_trumps == [blizzard]
+    # Trumps must be disabled then re-enabled to take into account the changes.
+    assert player._revert_to_default.called
+    # The tower is not available any more
+    assert not tower.affect.called
+    assert blizzard.affect.called
+    # The ram must not be enabled again or we will enter an infinite loop that will call
+    # player.modify_affecting_trump_durations again.
+    assert not ram.affect.called
+
+
+def test_modify_trump_duration_with_filter(player):  # noqa: F811
+    player._revert_to_default = MagicMock()
+    tower = MagicMock()
+    tower.name = 'Tower'
+    tower.duration = 2
+    tower.temporary = False
+    blizzard = MagicMock()
+    blizzard.name = 'Blizzard'
+    blizzard.duration = 4
+    blizzard.temporary = False
+    ram = MagicMock()
+    ram.name = 'Ram'
+    ram.duration = 0
+    ram.temporary = True
+    # Note: the trump that modifies the durations in in the affecting trumps list
+    player._affecting_trumps = [tower, blizzard, ram]
+
+    player.modify_affecting_trump_durations(-2, trump_filter=lambda trump: trump.name == 'Tower')
+
+    assert tower.duration == 0
+    assert blizzard.duration == 4
+    assert player._affecting_trumps == [blizzard]
+    assert player._revert_to_default.called
+    # The tower is not available any more
+    assert not tower.affect.called
+    assert blizzard.affect.called
+    # The ram must not be enabled again or we will enter an infinite loop that will call
+    # player.modify_affecting_trump_durations again.
+    assert not ram.affect.called
+
+
 def test_get_trump(player):  # noqa: F811
     with pytest.raises(IndexError):
         assert player.get_trump(None)

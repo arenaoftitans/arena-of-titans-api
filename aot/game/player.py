@@ -262,7 +262,8 @@ class Player:
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
-            trump.affect(self)
+            if not trump.temporary:
+                trump.affect(self)
 
     def complete_turn(self):
         self._revert_to_default()
@@ -294,6 +295,15 @@ class Player:
 
     def modify_card_number_moves(self, delta, card_filter=None):
         self._deck.modify_number_moves(delta, card_filter=card_filter)
+
+    def modify_affecting_trump_durations(self, delta, trump_filter=None):
+        trump_filter = trump_filter or (lambda x: True)
+        for trump in filter(trump_filter, self._affecting_trumps):
+            trump.duration += delta
+
+        self._remove_consumed_trumps()
+        self._revert_to_default()
+        self._enable_trumps()
 
     def play_special_action(self, action, target=None, action_args=None):
         if action_args is None:

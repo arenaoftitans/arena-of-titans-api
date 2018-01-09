@@ -30,6 +30,7 @@ from ...cards.trumps import (
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
+    ModifyTrumpDurations,
     RemoveColor,
     Teleport,
 )
@@ -99,6 +100,31 @@ def test_affect_modify_card_number_moves_with_card_filter(player):  # noqa: F811
     card_filter = player.modify_card_number_moves.call_args[1]['card_filter']
     assert card_filter(queen)
     assert not card_filter(king)
+
+
+def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
+    player.modify_affecting_trump_durations = MagicMock()
+    trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
+    trump.affect(player)
+    player.modify_affecting_trump_durations.assert_called_once_with(-1, trump_filter=None)
+
+
+def test_affect_modify_affecting_trump_durations_with_trump_filter(player):  # noqa: F811
+    player.modify_affecting_trump_durations = MagicMock()
+    trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=['Tower'])
+    tower = MagicMock()
+    tower.name = 'Tower'
+    blizzard = MagicMock()
+    blizzard.name = 'Blizzard'
+
+    trump.affect(player)
+
+    assert player.modify_affecting_trump_durations.called
+    assert player.modify_affecting_trump_durations.call_args[0][0] == -1
+    assert callable(player.modify_affecting_trump_durations.call_args[1]['trump_filter'])
+    trump_filter = player.modify_affecting_trump_durations.call_args[1]['trump_filter']
+    assert trump_filter(tower)
+    assert not trump_filter(blizzard)
 
 
 def test_remove_color(player):  # noqa: F811
