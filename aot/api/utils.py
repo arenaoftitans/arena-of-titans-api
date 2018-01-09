@@ -88,6 +88,7 @@ def to_json(python_object):  # pragma: no cover
             'duration': python_object.duration,
             'must_target_player': python_object.must_target_player,
             'name': python_object.name,
+            'color': python_object.color,
             'initiator': python_object.initiator,
         }
     elif isinstance(python_object, set):

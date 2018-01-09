@@ -333,8 +333,8 @@ class Player:
         else:
             return False
 
-    def get_trump(self, trump_name):
-        return self._available_trumps[trump_name]
+    def get_trump(self, trump_name, trump_color=None):
+        return self._available_trumps[trump_name, trump_color]
 
     def play_trump(self, trump, target=None):
         if self.can_play_trump(trump) and target is not None:
@@ -541,6 +541,7 @@ class Player:
         return [
             {
                 'name': trump.args['name'],
+                'color': trump.args['color'],
                 'description': trump.args['description'],
                 'duration': trump.args['duration'],
                 'cost': trump.args['cost'],

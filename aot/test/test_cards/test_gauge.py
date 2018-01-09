@@ -44,7 +44,7 @@ def test_can_play(gauge):  # noqa: F811
 
 
 def test_can_play_simple_trump(gauge):  # noqa: F811
-    trump = SimpleTrump('type', 'name', {'cost': 5})
+    trump = SimpleTrump(type='type', name='name', args={'cost': 5})
 
     assert not gauge.can_play_trump(trump)
 

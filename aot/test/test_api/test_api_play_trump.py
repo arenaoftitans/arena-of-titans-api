@@ -48,6 +48,7 @@ async def test_play_trump_missing_target(api, game):
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
             'name': trump['name'],
+            'color': trump['color'],
         })
 
     assert 'missing_trump_target' in str(e)
@@ -62,6 +63,7 @@ async def test_play_trump_with_wrong_target(api, game):
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
             'name': trump['name'],
+            'color': trump['color'],
             'target_index': 10,
         })
 
@@ -79,6 +81,7 @@ async def test_play_trump_max_number_trumps_played(api, game):
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
             'name': trump['name'],
+            'color': trump['color'],
             'target_index': 0,
         })
 
@@ -95,6 +98,7 @@ async def test_play_trump_max_number_affecting_trumps(api, game):
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
             'name': trump['name'],
+            'color': trump['color'],
             'target_index': 0,
         })
 
@@ -112,6 +116,7 @@ async def test_play_trump_gauge_too_low(api, game):
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
             'name': trump['name'],
+            'color': trump['color'],
             'target_index': 0,
         })
 
@@ -130,6 +135,7 @@ async def test_play_trump_with_target(api, game):
 
     await api._play_trump(game, {
         'name': trump['name'],
+        'color': trump['color'],
         'target_index': 0,
     })
 
@@ -149,6 +155,7 @@ async def test_play_trump_without_target(api, game):
 
     await api._play_trump(game, {
         'name': trump['name'],
+        'color': trump['color'],
     })
 
     assert api._send_trump_played_message.called

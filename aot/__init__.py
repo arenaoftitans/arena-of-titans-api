@@ -163,15 +163,24 @@ def _get_trumps(description):
             if color == Color.ALL:
                 continue
             trump_name = color_trump_description['name']
-            trump_name = '{name} {color}'.format(name=trump_name, color=color.title())
             color_trump_description['name'] = trump_name
             color_trump_description['color'] = color
             color_trump_description = copy.deepcopy(color_trump_description)
-            trumps.append(
-                SimpleTrump(type=trump_type, name=trump_name, args=color_trump_description))
+            trumps.append(SimpleTrump(
+                type=trump_type,
+                name=trump_name,
+                color=color,
+                args=color_trump_description,
+            ))
     else:
         trump_name = trump_description['name']
-        trumps.append(SimpleTrump(type=trump_type, name=trump_name, args=trump_description))
+        trump_description['color'] = None
+        trumps.append(SimpleTrump(
+            type=trump_type,
+            name=trump_name,
+            color=None,
+            args=trump_description,
+        ))
 
     return trumps
 

@@ -19,6 +19,7 @@
 
 import copy
 from collections import namedtuple
+from operator import xor
 
 from .gauge import Gauge
 from .powers import (
@@ -49,7 +50,8 @@ trump_type_to_class = {
     'Teleport': Teleport,
 }
 
-SimpleTrump = namedtuple('SimpleTrump', 'type name args')
+SimpleTrump = namedtuple('SimpleTrump', 'type name color args')
+SimpleTrump.__new__.__defaults__ = (None, None, None, None)
 
 
 def create_power(power: SimpleTrump):
@@ -69,9 +71,12 @@ class TrumpList(list):
         self._additionnal_arguments = kwargs
 
     def __getitem__(self, key):
-        if key is None or isinstance(key, str):
+        if key is None:
+            raise IndexError
+        elif isinstance(key, (tuple, list)):
+            name, color = key
             for trump in self:
-                if key is not None and trump.name.lower() == key.lower():
+                if self._has_proper_name(trump, name) and self._has_proper_color(trump, color):
                     kwargs = copy.copy(trump.args)
                     kwargs.update(self._additionnal_arguments)
                     return trump_type_to_class[trump.type](**kwargs)
@@ -80,6 +85,18 @@ class TrumpList(list):
             return super().__getitem__(key)
         elif isinstance(key, slice):
             return TrumpList(trumps=super().__getitem__(key))
+
+    def _has_proper_name(self, trump, name):
+        if name is None:
+            return False
+        return trump.name.lower() == name.lower()
+
+    def _has_proper_color(self, trump, color):
+        if xor(trump.color is None, color is None):
+            return False
+
+        return ((color is None and trump.color is None) or
+                trump.color.lower() == color.lower())
 
 
 __all__ = [
