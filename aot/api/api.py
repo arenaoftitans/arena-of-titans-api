@@ -528,7 +528,8 @@ class Api(AotWs):
         await self.sendMessage(message)
 
     def _get_action(self, game, play_request):
-        action_name = play_request.get('special_action_name', '')
+        action_name = play_request.get('special_action_name', None)
+        action_color = play_request.get('special_action_color', None)
         target_index = play_request.get('target_index', None)
         allow_no_target = play_request.get('cancel', False)
 
@@ -538,7 +539,7 @@ class Api(AotWs):
             raise AotError('missing_action_target')
 
         try:
-            return game.active_player.special_actions[action_name], target_index
+            return game.active_player.special_actions[action_name, action_color], target_index
         except IndexError:
             raise AotError('wrong_action')
         except TypeError as e:
@@ -589,7 +590,11 @@ class Api(AotWs):
 
     async def _play_trump(self, game, play_request):
         try:
-            trump = self._get_trump(game, play_request.get('name', ''))
+            trump = self._get_trump(
+                game,
+                play_request.get('name', None),
+                play_request.get('color', None),
+            )
         except IndexError:
             raise AotError('wrong_trump')
 
@@ -656,8 +661,8 @@ class Api(AotWs):
     async def _play_trump_without_target(self, game, trump):
         await self._play_trump_with_target(game, trump, game.active_player.index)
 
-    def _get_trump(self, game, play_request):
-        return game.active_player.get_trump(play_request.title())
+    def _get_trump(self, game, trump_name, trump_color):
+        return game.active_player.get_trump(trump_name, trump_color)
 
     @property
     async def _can_join(self):
