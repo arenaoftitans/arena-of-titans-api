@@ -541,6 +541,7 @@ class Player:
         return [
             {
                 'name': trump.args['name'],
+                'color': trump.args['color'],
                 'description': trump.args['description'],
                 'duration': trump.args['duration'],
                 'cost': trump.args['cost'],
