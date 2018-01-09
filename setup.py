@@ -35,6 +35,8 @@ class PyTest(TestCommand):
             'aot',
             '--cov-report',
             'html',
+            '--cov-report',
+            'term:skip-covered',
         ]
         self.test_suite = True
 
