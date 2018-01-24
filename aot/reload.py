@@ -18,8 +18,8 @@
 ################################################################################
 
 import re
+import signal
 import sys
-import time
 from subprocess import Popen
 
 from watchdog.events import FileSystemEventHandler
@@ -101,10 +101,12 @@ def run_reload():
     observer = Observer()
     observer.schedule(aot_event_handler, 'aot', recursive=True)
     observer.start()
+    # Make dependent thread shutdown on SIGTERM.
+    # This is required for the container to stop with the 0 status code.
+    signal.signal(signal.SIGTERM, lambda *args: observer.stop())
 
     try:
-        while True:
-            time.sleep(120)
+        observer.join()
     except KeyboardInterrupt:
         pass
     finally:
