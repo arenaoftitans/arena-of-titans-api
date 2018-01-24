@@ -18,6 +18,7 @@
 ################################################################################
 
 import re
+import signal
 import sys
 from subprocess import Popen
 
@@ -100,6 +101,9 @@ def run_reload():
     observer = Observer()
     observer.schedule(aot_event_handler, 'aot', recursive=True)
     observer.start()
+    # Make dependent thread shutdown on SIGTERM.
+    # This is required for the container to stop with the 0 status code.
+    signal.signal(signal.SIGTERM, lambda *args: observer.stop())
 
     try:
         while True:
