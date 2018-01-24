@@ -22,7 +22,7 @@ version: '3'
 services:
   aot-dev-api:
     image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:17.11.4
-    command: ["make", "dev"]
+    command: ["python3", "-m", "aot", "--reload"]
     depends_on:
       - aot-dev-redis
     ports:

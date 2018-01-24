@@ -108,7 +108,8 @@ doc:
 .PHONY: dev
 dev:
 ifdef INSIDE_DOCKER
-	python3 -m aot --reload
+	@echo "Cannot be launched within docker, see command in docker compose to see what to do."
+	exit 1
 else
 	docker-compose up
 endif
