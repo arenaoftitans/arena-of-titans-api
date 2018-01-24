@@ -19,7 +19,6 @@
 
 import re
 import sys
-import time
 from subprocess import Popen
 
 from watchdog.events import FileSystemEventHandler
