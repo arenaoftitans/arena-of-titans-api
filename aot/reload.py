@@ -106,8 +106,7 @@ def run_reload():
     signal.signal(signal.SIGTERM, lambda *args: observer.stop())
 
     try:
-        while True:
-            time.sleep(120)
+        observer.join()
     except KeyboardInterrupt:
         pass
     finally:
