@@ -39,6 +39,10 @@ except ImportError:
     on_uwsgi = False
 
 
+# Amount of time to wait for pending futures before forcing them to shutdown.
+CLEANUP_TIMEOUT = 5
+
+
 def setup_config(type='prod', version='latest'):
     # We cannot pass arguments to the uwsgi entry point.
     # So we store the values in the configuration.
@@ -125,6 +129,12 @@ def cleanup(wsserver, loop):
     if wsserver is not None:
         wsserver.close()
     if loop is not None:
+        # Leave tasks a chance to complete.
+        pending = asyncio.Task.all_tasks()
+        if len(pending) > 0:
+            loop.run_until_complete(asyncio.wait(pending, timeout=CLEANUP_TIMEOUT))
+        # Quit all.
+        loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
 
     socket = config['api'].get('socket', None)
