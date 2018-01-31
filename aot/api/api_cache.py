@@ -210,7 +210,7 @@ class ApiCache:
     async def number_taken_slots(self):
         return len(await self._get_taken_slots())
 
-    async def _get_taken_slots(self,):
+    async def _get_taken_slots(self):
         slots = await self.get_slots()
         return [slot for slot in slots
                 if slot['state'] in (SlotState.TAKEN, SlotState.AI)]
