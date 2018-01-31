@@ -23,10 +23,6 @@ from ..board import Color
 from ..cards import Card
 
 
-def default_card_filter(card: Card):
-    return True
-
-
 class Deck:
     CARDS_IN_HAND = 5
 
@@ -61,16 +57,10 @@ class Deck:
         return drawn_card
 
     def modify_colors(self, colors, card_filter=None):
-        if card_filter is None:
-            card_filter = default_card_filter
-
         for card in filter(card_filter, self._hand):
             card.modify_colors(colors)
 
     def modify_number_moves(self, delta, card_filter=None):
-        if card_filter is None:
-            card_filter = default_card_filter
-
         for card in filter(card_filter, self._hand):
             card.modify_number_moves(delta)
 

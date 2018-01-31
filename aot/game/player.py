@@ -297,7 +297,6 @@ class Player:
         self._deck.modify_number_moves(delta, card_filter=card_filter)
 
     def modify_affecting_trump_durations(self, delta, trump_filter=None):
-        trump_filter = trump_filter or (lambda x: True)
         for trump in filter(trump_filter, self._affecting_trumps):
             trump.duration += delta
 
