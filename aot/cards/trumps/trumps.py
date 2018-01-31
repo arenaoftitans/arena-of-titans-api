@@ -193,11 +193,10 @@ class ModifyCardColors(Trump):
         self._card_names = card_names
 
     def affect(self, player):
+        card_filter = None
         if self._card_names is not None:
             def card_filter(card: Card):
                 return card.name in self._card_names
-        else:
-            card_filter = None
 
         if player and self._duration > 0:
             player.modify_card_colors(self._colors, card_filter=card_filter)
@@ -232,11 +231,10 @@ class ModifyCardNumberMoves(Trump):
         self._delta_moves = delta_moves
 
     def affect(self, player):
+        card_filter = None
         if self._card_names is not None:
             def card_filter(card: Card):
                 return card.name in self._card_names
-        else:
-            card_filter = None
 
         if player and self._duration > 0:
             player.modify_card_number_moves(self._delta_moves, card_filter=card_filter)
@@ -270,11 +268,10 @@ class ModifyTrumpDurations(Trump):
         self._trump_names = trump_names
 
     def affect(self, player):
+        trump_filter = None
         if self._trump_names is not None:
             def trump_filter(trump: Trump):
                 return trump.name in self._trump_names
-        else:
-            trump_filter = None
 
         if player and self._duration > 0:
             player.modify_affecting_trump_durations(
