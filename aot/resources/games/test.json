@@ -35,6 +35,56 @@
                 ]
             },
             {
+                "name": "King",
+                "number_of_movements": 3,
+                "movements_type": [
+                    "line"
+                ],
+                "description": "Move three squares in line.",
+                "cost": 400
+            },
+            {
+                "name": "Queen",
+                "number_of_movements": 2,
+                "movements_type": [
+                    "line",
+                    "diagonal"
+                ],
+                "description": "Move two squares in line or diagonal.",
+                "cost": 300
+            },
+            {
+                "name": "Knight",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "knight"
+                ],
+                "description": "Move one square in L.",
+                "cost": 200
+            },
+            {
+                "name": "Wizard",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "line",
+                    "diagonal"
+                ],
+                "additional_movements_colors": [
+                    "ALL"
+                ],
+                "description": "Move one squares in line or diagonal. Can move on a square of any color.",
+                "cost": 200
+            },
+            {
+                "name": "Warrior",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "line"
+                ],
+                "description": "Move one square in line",
+                "cost": 100
+            },
+            {
                 "name": "Bishop",
                 "number_of_movements": 2,
                 "movements_type": [
@@ -56,100 +106,10 @@
                 },
                 "description": "Move two squares in diagonal. Can move on two different colors.",
                 "cost": 200
-            },
-            {
-                "name": "King",
-                "number_of_movements": 3,
-                "movements_type": [
-                    "line"
-                ],
-                "description": "Move three squares in line.",
-                "cost": 400
-            },
-            {
-                "name": "Knight",
-                "number_of_movements": 1,
-                "movements_type": [
-                    "knight"
-                ],
-                "description": "Move one square in L.",
-                "cost": 200
-            },
-            {
-                "name": "Queen",
-                "number_of_movements": 2,
-                "movements_type": [
-                    "line",
-                    "diagonal"
-                ],
-                "description": "Move two squares in line or diagonal.",
-                "cost": 300
-            },
-            {
-                "name": "Warrior",
-                "number_of_movements": 1,
-                "movements_type": [
-                    "line"
-                ],
-                "description": "Move one square in line",
-                "cost": 100
-            },
-            {
-                "name": "Wizard",
-                "number_of_movements": 1,
-                "movements_type": [
-                    "line",
-                    "diagonal"
-                ],
-                "additional_movements_colors": [
-                    "ALL"
-                ],
-                "description": "Move one squares in line or diagonal. Can move on a square of any color.",
-                "cost": 200
             }
         ]
     },
     "trumps": [
-        {
-            "name": "Blizzard",
-            "cost": 6,
-            "description": "Reduce the number of cards a player can play by 1.",
-            "duration": 1,
-            "repeat_for_each_color": false,
-            "must_target_player": true,
-            "parameters": {
-                "type": "ModifyNumberMoves",
-                "delta_moves": -1
-            }
-        },
-        {
-            "name": "Fortress",
-            "cost": 7,
-            "description": "Prevent the player to move on some colors.",
-            "duration": 2,
-            "repeat_for_each_color": true,
-            "must_target_player": true,
-            "parameters": {
-                "type": "RemoveColor"
-            }
-        },
-        {
-            "name": "Ram",
-            "cost": 4,
-            "description": "Destroy towers and reduce duration for fortress",
-            "duration": 1,
-            "repeat_for_each_color": false,
-            "must_target_player": false,
-            "parameters": {
-                "type": "ModifyTrumpDurations",
-                "delta_duration": -1,
-                "temporary": true,
-                "trump_names": [
-                    "Fortress",
-                    "Tower"
-                ]
-            }
-        },
         {
             "name": "Reinforcements",
             "cost": 6,
@@ -190,21 +150,6 @@
                 "remove_colors": [],
                 "card_names": [
                     "Knight"
-                ]
-            }
-        },
-        "ulya": {
-            "name": "Domination",
-            "description": "Make queens move of 3 squares instead of 2.",
-            "passive": true,
-            "cost": 0,
-            "trump_cost_delta": 2,
-            "must_target_player": false,
-            "parameters": {
-                "type": "ModifyCardNumberMoves",
-                "delta_moves": 1,
-                "card_names": [
-                    "Queen"
                 ]
             }
         }

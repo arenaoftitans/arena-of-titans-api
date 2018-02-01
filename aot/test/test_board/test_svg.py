@@ -33,7 +33,7 @@ def svg_board():
 
 @pytest.fixture()
 def height():
-    with open('aot/resources/games/standard.json') as games:
+    with open('aot/resources/games/test.json') as games:
         game_description = json.load(games)['board']
         return len(game_description['inner_circle_colors']) + \
             len(game_description['arms_colors'])
@@ -41,7 +41,7 @@ def height():
 
 @pytest.fixture()
 def width():
-    with open('aot/resources/games/standard.json') as games:
+    with open('aot/resources/games/test.json') as games:
         game_description = json.load(games)['board']
         return game_description['number_arms'] * game_description['arms_width']
 

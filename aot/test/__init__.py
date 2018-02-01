@@ -58,19 +58,19 @@ def aredis():
 
 @pytest.fixture
 def board():
-    return get_board()
+    return get_board(name='test')
 
 
 @pytest.fixture
 def deck(board):
-    cards = get_cards_list(board)
+    cards = get_cards_list(board, name='test')
     return Deck(cards)
 
 
 @pytest.fixture
 def player(mock, board, deck):
     mock.patch('aot.random')
-    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list())
+    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list(name='test'))
     player.is_connected = True
     return player
 
@@ -83,8 +83,8 @@ def game(mock):
         'index': i,
         'id': i,
         'hero': 'Ulya',
-    } for i in range(get_number_players())]
-    g = get_game(players_description)
+    } for i in range(get_number_players(name='test'))]
+    g = get_game(players_description, name='test')
     for player in g.players:
         player.is_connected = True
 
