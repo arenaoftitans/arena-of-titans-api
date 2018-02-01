@@ -35,6 +35,15 @@ from ...api.utils import (
 from ...api.ws import AotWs
 
 
+class AotWsImpl(AotWs):
+    '''This exists for the sole purpose of instanciating the abstract class AotWS
+    for testing purposes.'''
+    pass
+
+
+AotWsImpl.__abstractmethods__ = frozenset()
+
+
 @pytest.mark.asyncio  # noqa: F811
 async def test_onClose(api, game):
     api._cache = MagicMock()
@@ -352,7 +361,7 @@ async def test_send_error_with_extra_data(api):
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_send_error_without_extra_data():
-    ws = AotWs()
+    ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
@@ -367,7 +376,7 @@ async def test_send_error_without_extra_data():
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_send_error_to_display():
-    ws = AotWs()
+    ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
@@ -382,7 +391,7 @@ async def test_send_error_to_display():
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_send_fatal_error():
-    ws = AotWs()
+    ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 

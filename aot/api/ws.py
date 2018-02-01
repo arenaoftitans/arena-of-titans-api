@@ -19,7 +19,10 @@
 
 import asyncio
 import json
-from abc import abstractmethod
+from abc import (
+    ABCMeta,
+    abstractmethod,
+)
 
 import daiquiri
 from asyncio_extras.contextmanager import async_contextmanager
@@ -36,7 +39,7 @@ from .utils import (
 from ..utils import get_time
 
 
-class AotWs(WebSocketServerProtocol):
+class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     # Class variables.
     DISCONNECTED_TIMEOUT_WAIT = 10
     LOGGER = daiquiri.getLogger(__name__)
