@@ -104,26 +104,26 @@ class Game:
 
     def _has_enough_players_to_continue(self):
         remaining_ai = set()
-        remaining_humain_players = set()
+        remaining_human_players = set()
         for player in self._players:
             if player is not None and player.still_in_game:
                 if player.is_ai:
                     remaining_ai.add(player)
                 else:
-                    remaining_humain_players.add(player)
+                    remaining_human_players.add(player)
             elif player is not None and not player.is_ai:
                 self.LOGGER.debug(
                     f'Game n°{self.game_id}: player n°{player.id} ({player.name}) has '
                     f'been disconnected too long. Remove from remaining players',
                 )
-        remaining_players = remaining_ai.union(remaining_humain_players)
+        remaining_players = remaining_ai.union(remaining_human_players)
 
-        if len(remaining_humain_players) == 1 and len(remaining_ai) == 0:
-            last_player = remaining_humain_players.pop()
+        if len(remaining_human_players) == 1 and len(remaining_ai) == 0:
+            last_player = remaining_human_players.pop()
             if last_player.is_connected:
                 self._add_to_winners(last_player)
 
-        return len(remaining_players) > 1 and len(remaining_humain_players) >= 1
+        return len(remaining_players) > 1 and len(remaining_human_players) >= 1
 
     def _find_next_player(self):
         if self._active_player.can_play:
