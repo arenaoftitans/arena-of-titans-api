@@ -451,7 +451,7 @@ def test_modify_trump_duration_with_filter(player):  # noqa: F811
     # Note: the trump that modifies the durations in in the affecting trumps list
     player._affecting_trumps = [tower, blizzard, ram]
 
-    player.modify_affecting_trump_durations(-2, trump_filter=lambda trump: trump.name == 'Tower')
+    player.modify_affecting_trump_durations(-2, filter_=lambda trump: trump.name == 'Tower')
 
     assert tower.duration == 0
     assert blizzard.duration == 4

@@ -106,10 +106,10 @@ def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
     player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
     trump.affect(player)
-    player.modify_affecting_trump_durations.assert_called_once_with(-1, trump_filter=None)
+    player.modify_affecting_trump_durations.assert_called_once_with(-1, filter_=None)
 
 
-def test_affect_modify_affecting_trump_durations_with_trump_filter(player):  # noqa: F811
+def test_affect_modify_affecting_trump_durations_with_filter_(player):  # noqa: F811
     player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=['Tower'])
     tower = MagicMock()
@@ -121,10 +121,10 @@ def test_affect_modify_affecting_trump_durations_with_trump_filter(player):  # n
 
     assert player.modify_affecting_trump_durations.called
     assert player.modify_affecting_trump_durations.call_args[0][0] == -1
-    assert callable(player.modify_affecting_trump_durations.call_args[1]['trump_filter'])
-    trump_filter = player.modify_affecting_trump_durations.call_args[1]['trump_filter']
-    assert trump_filter(tower)
-    assert not trump_filter(blizzard)
+    assert callable(player.modify_affecting_trump_durations.call_args[1]['filter_'])
+    filter_ = player.modify_affecting_trump_durations.call_args[1]['filter_']
+    assert filter_(tower)
+    assert not filter_(blizzard)
 
 
 def test_remove_color(player):  # noqa: F811

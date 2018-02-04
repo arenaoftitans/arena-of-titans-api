@@ -268,15 +268,15 @@ class ModifyTrumpDurations(Trump):
         self._trump_names = trump_names
 
     def affect(self, player):
-        trump_filter = None
+        filter_ = None
         if self._trump_names is not None:
-            def trump_filter(trump: Trump):
+            def filter_(trump: Trump):
                 return trump.name in self._trump_names
 
         if player and self._duration > 0:
             player.modify_affecting_trump_durations(
                 self._delta_duration,
-                trump_filter=trump_filter,
+                filter_=filter_,
             )
 
 
