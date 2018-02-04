@@ -386,20 +386,20 @@ def test_modify_number_moves(player):  # noqa: F811
 
 def test_modify_card_colors(player):  # noqa: F811
     player._deck = MagicMock()
-    card_filter = lambda x: True  # noqa: E731
+    filter_ = lambda x: True  # noqa: E731
 
-    player.modify_card_colors({'BLUE'}, card_filter=card_filter)
+    player.modify_card_colors({'BLUE'}, filter_=filter_)
 
-    player._deck.modify_colors.assert_called_once_with({'BLUE'}, card_filter=card_filter)
+    player._deck.modify_colors.assert_called_once_with({'BLUE'}, filter_=filter_)
 
 
 def test_modify_card_number_moves(player):  # noqa: F811
     player._deck = MagicMock()
-    card_filter = lambda x: True  # noqa: E731
+    filter_ = lambda x: True  # noqa: E731
 
-    player.modify_card_number_moves(5, card_filter=card_filter)
+    player.modify_card_number_moves(5, filter_=filter_)
 
-    player._deck.modify_number_moves.assert_called_once_with(5, card_filter=card_filter)
+    player._deck.modify_number_moves.assert_called_once_with(5, filter_=filter_)
 
 
 def test_modify_trump_duration(player):  # noqa: F811

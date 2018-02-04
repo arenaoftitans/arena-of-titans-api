@@ -65,7 +65,7 @@ def test_modify_card_colors(player):  # noqa: F811
     assert power.passive
     assert power.duration is None
     assert len(power._colors) == 1
-    player.modify_card_colors.assert_called_once_with({'BLACK'}, card_filter=None)
+    player.modify_card_colors.assert_called_once_with({'BLACK'}, filter_=None)
 
 
 def test_modify_number_moves(player):  # noqa: F811
@@ -77,4 +77,4 @@ def test_modify_number_moves(player):  # noqa: F811
     assert power.passive
     assert power.duration is None
     assert power._delta_moves == 5
-    player.modify_card_number_moves.assert_called_once_with(5, card_filter=None)
+    player.modify_card_number_moves.assert_called_once_with(5, filter_=None)

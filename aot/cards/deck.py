@@ -56,12 +56,12 @@ class Deck:
         self._stock.remove(drawn_card)
         return drawn_card
 
-    def modify_colors(self, colors, card_filter=None):
-        for card in filter(card_filter, self._hand):
+    def modify_colors(self, colors, filter_=None):
+        for card in filter(filter_, self._hand):
             card.modify_colors(colors)
 
-    def modify_number_moves(self, delta, card_filter=None):
-        for card in filter(card_filter, self._hand):
+    def modify_number_moves(self, delta, filter_=None):
+        for card in filter(filter_, self._hand):
             card.modify_number_moves(delta)
 
     def view_possible_squares(self, card, position):

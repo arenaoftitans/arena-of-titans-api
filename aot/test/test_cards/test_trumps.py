@@ -56,10 +56,10 @@ def test_affect_modify_card_colors(player):  # noqa: F811
 
     trump.affect(player)
 
-    player.modify_card_colors.assert_called_once_with({'BLACK'}, card_filter=None)
+    player.modify_card_colors.assert_called_once_with({'BLACK'}, filter_=None)
 
 
-def test_affect_modify_card_colors_with_card_filter(player):  # noqa: F811
+def test_affect_modify_card_colors_with_filter_(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
     trump = ModifyCardColors(add_colors=['BLACK'], card_names=['Queen'], duration=1)
     queen = MagicMock()
@@ -71,20 +71,20 @@ def test_affect_modify_card_colors_with_card_filter(player):  # noqa: F811
 
     assert player.modify_card_colors.called
     assert player.modify_card_colors.call_args[0][0] == {'BLACK'}
-    assert callable(player.modify_card_colors.call_args[1]['card_filter'])
-    card_filter = player.modify_card_colors.call_args[1]['card_filter']
-    assert card_filter(queen)
-    assert not card_filter(king)
+    assert callable(player.modify_card_colors.call_args[1]['filter_'])
+    filter_ = player.modify_card_colors.call_args[1]['filter_']
+    assert filter_(queen)
+    assert not filter_(king)
 
 
 def test_affect_modify_card_number_moves(player):  # noqa: F811
     player.modify_card_number_moves = MagicMock()
     trump = ModifyCardNumberMoves(delta_moves=1, duration=1)
     trump.affect(player)
-    player.modify_card_number_moves.assert_called_once_with(1, card_filter=None)
+    player.modify_card_number_moves.assert_called_once_with(1, filter_=None)
 
 
-def test_affect_modify_card_number_moves_with_card_filter(player):  # noqa: F811
+def test_affect_modify_card_number_moves_with_filter_(player):  # noqa: F811
     player.modify_card_number_moves = MagicMock()
     trump = ModifyCardNumberMoves(delta_moves=1, duration=1, card_names=['Queen'])
     queen = MagicMock()
@@ -96,10 +96,10 @@ def test_affect_modify_card_number_moves_with_card_filter(player):  # noqa: F811
 
     assert player.modify_card_number_moves.called
     assert player.modify_card_number_moves.call_args[0][0] == 1
-    assert callable(player.modify_card_number_moves.call_args[1]['card_filter'])
-    card_filter = player.modify_card_number_moves.call_args[1]['card_filter']
-    assert card_filter(queen)
-    assert not card_filter(king)
+    assert callable(player.modify_card_number_moves.call_args[1]['filter_'])
+    filter_ = player.modify_card_number_moves.call_args[1]['filter_']
+    assert filter_(queen)
+    assert not filter_(king)
 
 
 def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
