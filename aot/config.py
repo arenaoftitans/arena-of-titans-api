@@ -35,6 +35,7 @@ class Config:
         self._set_version_in_socket_name('cache', version)
 
         self._config['type'] = type
+        self._config['version'] = version
 
     def _set_version_in_socket_name(self, section_name, version):
         socket = self._config[section_name].get('socket', None)

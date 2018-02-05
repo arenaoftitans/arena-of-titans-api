@@ -159,6 +159,7 @@ class Api(AotWs):
             'is_game_master': await self._cache.is_game_master(),
             'index': index,
             'slots': await self._cache.get_slots(include_player_id=False),
+            'api_version': config['version'],
         }
 
         return initiliazed_game
