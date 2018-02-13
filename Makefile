@@ -157,6 +157,8 @@ test:
 ifdef INSIDE_DOCKER
 	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} ./setup.py test
 else
+	# Clean old pyc files for pytest to prevent errors if tests where run outside the container.
+	find aot/test -name \*.pyc -exec rm {} \;
 	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} test
 endif
 
