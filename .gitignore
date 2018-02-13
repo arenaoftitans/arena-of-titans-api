@@ -1,7 +1,7 @@
 /config/config.testing.toml
 /doc/_build
-/htmlcovapi
-/htmlcov
+/.htmlcovapi
+/.htmlcov
 /scripts/deploy-conf.sh
 /static
 /aot-api.conf

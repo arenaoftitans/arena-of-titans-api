@@ -29,15 +29,7 @@ from setuptools.command.test import test as TestCommand  # noqa: N812
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = [
-            'aot/test',
-            '--cov',
-            'aot',
-            '--cov-report',
-            'html',
-            '--cov-report',
-            'term:skip-covered',
-        ]
+        self.test_args = []
         self.test_suite = True
 
     def run_tests(self):
