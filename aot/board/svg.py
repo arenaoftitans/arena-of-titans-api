@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # noqa: B405 (xml from stdlib can be a security risk)
 
 from .board import get_colors_disposition
 
@@ -63,7 +63,7 @@ class SvgBoardCreator:
 
     def _load_template(self):
         with open(self._TEMPLATE_LOCATION, 'r') as template_file:
-            svg = ET.parse(template_file)
+            svg = ET.parse(template_file)  # noqa: B314 (ET usage)
             pawn_layer = svg.findall(
                 './/ns:g[@id="pawnLayer"]',
                 namespaces=self.NS)[0]
