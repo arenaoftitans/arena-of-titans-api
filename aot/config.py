@@ -5,7 +5,7 @@ import toml
 
 
 class Config:
-    CONF_FILE_TEMPLATE = 'config/config.{type}.toml'
+    CONF_FILE_TEMPLATE = 'config/config.{env}.toml'
 
     def __init__(self):
         self._config = None
@@ -14,16 +14,16 @@ class Config:
         if self._config is None:
             raise RuntimeError(
                 'Configuration is not loaded. '
-                'Call load_config(type) before trying to use the configuration',
+                'Call load_config(env) before trying to use the configuration',
             )
         else:
             return self._config[key]
 
-    def load_config(self, type, version='latest'):
-        config_path = self.CONF_FILE_TEMPLATE.format(type=type)
+    def load_config(self, env, version='latest'):
+        config_path = self.CONF_FILE_TEMPLATE.format(env=env)
 
-        if type == 'dev' and not exists(config_path):
-            docker_config_file = self.CONF_FILE_TEMPLATE.format(type='docker')
+        if env == 'dev' and not exists(config_path):
+            docker_config_file = self.CONF_FILE_TEMPLATE.format(env='docker')
             # We must not use logging here. We need to load the configuration to configure it.
             print(  # noqa: T001
                 f'Note: {config_path} not found, using {docker_config_file}',
@@ -37,7 +37,7 @@ class Config:
         self._set_version_in_socket_name('api', version)
         self._set_version_in_socket_name('cache', version)
 
-        self._config['type'] = type
+        self._config['env'] = env
         self._config['version'] = version
 
     def _set_version_in_socket_name(self, section_name, version):

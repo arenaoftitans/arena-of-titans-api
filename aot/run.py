@@ -43,16 +43,16 @@ except ImportError:
 CLEANUP_TIMEOUT = 5
 
 
-def setup_config(type='prod', version='latest'):
+def setup_config(env='prod', version='latest'):
     # We cannot pass arguments to the uwsgi entry point.
     # So we store the values in the configuration.
     if on_uwsgi:
         uwsgi_config = configparser.ConfigParser()
         uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
-        type = uwsgi_config['aot']['type']
+        env = uwsgi_config['aot']['type']
         version = uwsgi_config['aot']['version']
 
-    config.load_config(type, version)
+    config.load_config(env, version)
 
 
 def setup_logging(debug=False):
@@ -69,7 +69,7 @@ def setup_logging(debug=False):
             os.path.exists(config['api'].get('rollbar_config', None)):
         with open(config['api']['rollbar_config'], 'r') as rollbar_file:
             rollbar_config = json.load(rollbar_file)
-            rollbar_config = rollbar_config[config['type']]['api']
+            rollbar_config = rollbar_config[config['env']]['api']
         rollbar_output = RollbarOutput(**rollbar_config)
         outputs = (*outputs, rollbar_output)
     else:

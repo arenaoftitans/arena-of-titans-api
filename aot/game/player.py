@@ -91,7 +91,7 @@ class Player:
     def __init__(
             self,
             name,
-            id,
+            id_,
             index,
             board,
             deck,
@@ -102,7 +102,7 @@ class Player:
             power=None,
     ):
         self._name = name
-        self._id = id
+        self._id = id_
         self._index = index
         self._hero = hero
         self._is_ai = is_ai

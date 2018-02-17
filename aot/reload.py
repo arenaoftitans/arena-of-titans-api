@@ -78,7 +78,7 @@ class AotEventHandler(FileSystemEventHandler):
             '-m', 'aot',
             '--debug',
             '--version', 'latest',
-            '--type', 'dev',
+            '--env', 'dev',
         ])
 
     def stop_app(self):
