@@ -73,7 +73,7 @@ def setup_logging(debug=False):
         rollbar_output = RollbarOutput(**rollbar_config)
         outputs = (*outputs, rollbar_output)
     else:
-        print(
+        print(  # noqa: T001
             'Note: not loading rollbar',
             'Enabled: {}'.format(config['api'].get('rollbar_enabled', False)),
             'Config file: {}'.format(config['api'].get('rollbar_config', None)),

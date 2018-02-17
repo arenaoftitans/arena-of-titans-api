@@ -25,7 +25,10 @@ class Config:
         if type == 'dev' and not exists(config_path):
             docker_config_file = self.CONF_FILE_TEMPLATE.format(type='docker')
             # We must not use logging here. We need to load the configuration to configure it.
-            print(f'Note: {config_path} not found, using {docker_config_file}', file=sys.stderr)
+            print(  # noqa: T001
+                f'Note: {config_path} not found, using {docker_config_file}',
+                file=sys.stderr,
+            )
             config_path = docker_config_file
 
         with open(config_path, 'r') as config_file:
