@@ -91,7 +91,7 @@ class Player:
     def __init__(
             self,
             name,
-            id,
+            id_,
             index,
             board,
             deck,
@@ -102,7 +102,7 @@ class Player:
             power=None,
     ):
         self._name = name
-        self._id = id
+        self._id = id_
         self._index = index
         self._hero = hero
         self._is_ai = is_ai
@@ -112,7 +112,7 @@ class Player:
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
         self._aim = self._generate_aim(board)
-        self._ai_direction_aim = set([next(iter(self._aim))])
+        self._ai_direction_aim = {next(iter(self._aim))}
         self._current_square = board[
             self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
             self.BOARD_ARM_LENGTH_AND_MAX_Y]
@@ -141,7 +141,7 @@ class Player:
         self._aim_max_x = max(aim_x)
         self._aim_min_x = min(aim_x)
 
-        return set([board[x, self.BOARD_ARM_LENGTH_AND_MAX_Y] for x in aim_x])
+        return {board[x, self.BOARD_ARM_LENGTH_AND_MAX_Y] for x in aim_x}
 
     def view_possible_squares(self, card):
         return self._deck.view_possible_squares(card, self._current_square)

@@ -75,8 +75,8 @@ class Square:
 
 
 class SquareSet(set):
-    '''Set that can only contains square of a given set of colors
-    '''
+    '''Set that can only contains square of a given set of colors.'''
+
     _colors = ColorSet()
 
     def __init__(self, colors):

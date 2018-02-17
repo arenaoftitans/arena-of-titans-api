@@ -44,7 +44,7 @@ else:
 
 @pytest.fixture
 def goal_squares(board):
-    return set([board[19, 8]])
+    return {board[19, 8]}
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -177,7 +177,7 @@ def test_find_move_distance_null_with_cheaper_card(board, goal_squares):  # noqa
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_full_set_of_goal(board):  # noqa: F811
-    goal_squares = set([board[19, 8], board[18, 8], board[17, 8], board[16, 8]])
+    goal_squares = {board[19, 8], board[18, 8], board[17, 8], board[16, 8]}
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]

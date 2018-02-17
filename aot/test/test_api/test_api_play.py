@@ -216,7 +216,6 @@ async def test_play_game(api, game):
 
     for request in requests_to_test:
         method_name = requests_to_method.get(request, '_' + request.lower())
-        print(method_name)
         mm = getattr(api, method_name)
         mm.assert_called_once_with(game, request)
 

@@ -20,7 +20,7 @@
 import re
 import signal
 import sys
-from subprocess import Popen
+from subprocess import Popen  # noqa: B404 (Popen can be a security risk)
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -30,9 +30,10 @@ from .run import cleanup
 
 
 class AotEventHandler(FileSystemEventHandler):
-    '''Inspired by RegexMatchingEventHandler
+    '''Inspired by RegexMatchingEventHandler.
 
-    https://github.com/gorakhargosh/watchdog/blob/d7ceb7ddd48037f6d04ab37297a63116655926d9/src/watchdog/events.py#L457.'''  # noqa
+    https://github.com/gorakhargosh/watchdog/blob/d7ceb7ddd48037f6d04ab37297a63116655926d9/src/watchdog/events.py#L457.
+    '''
 
     IGNORE_REGEXES = [re.compile(r'.*test.*'), re.compile(r'.*__pycache__.*')]
     EVENT_TYPE_MOVED = 'moved'
@@ -66,18 +67,18 @@ class AotEventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         super().on_any_event(event)
-        print('Reload: start', file=sys.stderr)
+        print('Reload: start', file=sys.stderr)  # noqa: T001
         self.stop_app()
         self.start_app()
-        print('Reload: done', file=sys.stderr)
+        print('Reload: done', file=sys.stderr)  # noqa: T001
 
     def start_app(self):
-        self.app = Popen([
+        self.app = Popen([  # noqa: B603,B607 (Popen usage)
             'python3',
             '-m', 'aot',
             '--debug',
             '--version', 'latest',
-            '--type', 'dev',
+            '--env', 'dev',
         ])
 
     def stop_app(self):

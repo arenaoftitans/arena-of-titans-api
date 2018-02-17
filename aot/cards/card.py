@@ -143,10 +143,10 @@ class Card:
 
     def __knight_get_vertical_squares_vertical_first(self, origin):
         probable_squares = set()
-        temporary_vertical_squares = set([
+        temporary_vertical_squares = {
             self._board[origin.x, origin.y + 2],
             self._board[origin.x, origin.y - 2],
-        ])
+        }
 
         for square in temporary_vertical_squares:
             # Squares in temporary_vertical_squares are added by board[] so they
@@ -164,10 +164,10 @@ class Card:
 
     def __knight_get_vertical_squares_horizontal_first(self, origin):
         probable_squares = set()
-        temporary_horizontal_squares = set([
+        temporary_horizontal_squares = {
             self._board[origin.x + 1, origin.y, 'right'],
             self._board[origin.x - 1, origin.y, 'left'],
-        ])
+        }
 
         for square in temporary_horizontal_squares:
             if square:

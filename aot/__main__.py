@@ -29,8 +29,8 @@ from .run import (
 )
 
 
-def main(debug=False, debug_aio=False, type='prod', version='latest'):
-    setup_config(type=type, version=version)
+def main(debug=False, debug_aio=False, env='prod', version='latest'):
+    setup_config(env=env, version=version)
     setup_logging(debug=debug)
 
     wsserver, loop = None, None
@@ -66,9 +66,9 @@ if __name__ == '__main__':  # pragma: no cover
         default='latest',
     )
     parser.add_argument(
-        '--type',
-        help='The type of deployment',
-        dest='type',
+        '--env',
+        help='The env of deployment',
+        dest='env',
         default='dev',
         choices=['prod', 'dev', 'testing', 'staging'],
     )
@@ -83,4 +83,4 @@ if __name__ == '__main__':  # pragma: no cover
     if args.reload:
         run_reload()
     else:
-        main(debug=args.debug, debug_aio=args.debug_aio, version=args.version, type=args.type)
+        main(debug=args.debug, debug_aio=args.debug_aio, version=args.version, env=args.env)

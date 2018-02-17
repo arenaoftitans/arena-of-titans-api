@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pickle
+import pickle  # noqa: B403 (bandit: pickle security issues)
 from copy import deepcopy
 from datetime import datetime
 
@@ -117,7 +117,7 @@ class ApiCache:
         if game_id is None:
             game_id = self._game_id
         raw_slots = await self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)
-        slots = [pickle.loads(slot) for slot in raw_slots]
+        slots = [pickle.loads(slot) for slot in raw_slots]  # noqa: B301 (pickle usage)
         if not include_player_id:
             slots = self._remove_player_id(slots)
         return slots
@@ -168,7 +168,10 @@ class ApiCache:
 
     async def _add_slot(self, slot):
         slot = deepcopy(slot)
-        await self._cache.rpush(self.SLOTS_KEY_TEMPLATE.format(self._game_id), pickle.dumps(slot))
+        await self._cache.rpush(  # noqa: B301 (pickle usage)
+            self.SLOTS_KEY_TEMPLATE.format(self._game_id),
+            pickle.dumps(slot),
+        )
 
     async def _max_number_slots_reached(self):
         return len(await self.get_slots()) == get_number_players()
@@ -185,7 +188,7 @@ class ApiCache:
             self.GAME_KEY,
         )
         if game_data:
-            return pickle.loads(game_data)
+            return pickle.loads(game_data)  # noqa: B301 (pickle usage)
 
     async def save_session(self, player_index):
         await self._cache.zadd(
@@ -249,7 +252,7 @@ class ApiCache:
         await self._cache.lset(
             self.SLOTS_KEY_TEMPLATE.format(self._game_id),
             slot['index'],
-            pickle.dumps(slot))
+            pickle.dumps(slot))  # noqa: B301 (pickle usage)
 
     async def slot_exists(self, slot):
         return await self._get_raw_slot(slot['index'], self._game_id) is not None
@@ -263,11 +266,11 @@ class ApiCache:
     @classmethod
     async def get_slot_from_game_id(cls, index, game_id):
         data = await cls._get_raw_slot(cls, index, game_id)
-        return pickle.loads(data)
+        return pickle.loads(data)  # noqa: B301 (pickle usage)
 
     async def get_slot(self, index):
         data = await self._get_raw_slot(index, self._game_id)
-        return pickle.loads(data)
+        return pickle.loads(data)  # noqa: B301 (pickle usage)
 
     async def has_game_started(self):
         game_started = await self._cache.hget(
@@ -284,7 +287,7 @@ class ApiCache:
         )
 
     async def save_game(self, game):
-        await self._cache.hset(
+        await self._cache.hset(  # noqa: B301 (pickle usage)
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.GAME_KEY,
             pickle.dumps(game),
