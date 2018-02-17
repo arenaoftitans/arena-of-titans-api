@@ -105,7 +105,7 @@ def test_init_game_player_0(player, board):  # noqa: F811
     assert -1 == player.rank
 
     # Check the aim
-    expected_aim = set([board[16, 8], board[17, 8], board[18, 8], board[19, 8]])
+    expected_aim = {board[16, 8], board[17, 8], board[18, 8], board[19, 8]}
     assert expected_aim == player.aim
 
 
@@ -127,7 +127,7 @@ def test_init_game_player_1(board, deck):  # noqa: F811
     assert -1 == player.rank
 
     # Check the aim
-    expected_aim = set([board[20, 8], board[21, 8], board[22, 8], board[23, 8]])
+    expected_aim = {board[20, 8], board[21, 8], board[22, 8], board[23, 8]}
     assert expected_aim == player.aim
 
 

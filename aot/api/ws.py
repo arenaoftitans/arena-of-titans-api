@@ -283,7 +283,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         await asyncio.gather(*messages)
 
     async def _send_all_others(self, message):  # pragma: no cover
-        await self._send_all(message, excluded_players=set([self.id]))
+        await self._send_all(message, excluded_players={self.id})
 
     async def _send_to(self, message, id):  # pragma: no cover
         if id in self._clients:
