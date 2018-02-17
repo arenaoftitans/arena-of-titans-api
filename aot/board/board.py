@@ -111,7 +111,7 @@ class Board:
         return neighbors
 
     def _correct_x(self, x):
-        '''Correct the absissa, ie make it positive and congrent to _x_max
+        '''Correct the absissa, ie make it positive and congrent to _x_max.
 
         **PARAMETERS**
 
@@ -160,13 +160,13 @@ class Board:
         return len(self._board) * len(self._board[0])
 
     def __getitem__(self, coords):
-        '''Return the square at the given coordonates
+        '''Return the square at the given coordinates.
 
-        **PARAMTERS**
+        **PARAMETERS**
 
-        * *coords* - tuple of coordonates. Use a third optional element to
+        * *coords* - tuple of coordinates. Use a third optional element to
           indicate horizontal direction (among 'left', 'right'). Use a forth optional element to
-          indicate if you are currenctly on the circle.
+          indicate if you are currently on the circle.
         '''
         x, y, x_direction, on_circle = self._correct_x(coords)
 

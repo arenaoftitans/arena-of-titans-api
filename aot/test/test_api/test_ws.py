@@ -36,8 +36,8 @@ from ...api.ws import AotWs
 
 
 class AotWsImpl(AotWs):
-    '''This exists for the sole purpose of instanciating the abstract class AotWS
-    for testing purposes.'''
+    '''It exists to instance the abstract class AotWS for testing purposes.'''
+
     pass
 
 

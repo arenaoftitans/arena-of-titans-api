@@ -35,10 +35,11 @@ all_colors.remove(Color.ALL)
 
 
 class ColorSet(set):
-    '''Set that contains values of the Color Enum.Color
+    '''Set that contains values of the Color Enum.Color.
 
     Convert string to the proper color on addition or update if necessary.
     '''
+
     def __init__(self, colors=None):
         super()
         if colors is None:

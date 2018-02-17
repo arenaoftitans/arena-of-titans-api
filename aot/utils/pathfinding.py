@@ -25,11 +25,10 @@ from .heuristic import (
 
 
 def a_star(start, goal, board, movements_types=None):
-    '''A* algorithom to find shortest path from start to goal
+    '''A* algorithom to find shortest path from start to goal.
 
     Take and adapted from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
     '''
-
     # The set of nodes already evaluated
     closed_set = set()
     # The set of currently discovered nodes still to be evaluated.
