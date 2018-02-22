@@ -23,7 +23,7 @@ from .. import get_cards_list
 from ..config import config
 
 
-def test_bishop():
+def test_get_cards_list():
     cards = get_cards_list(None)
     for card in cards:
         if card.name == 'Bishop':
