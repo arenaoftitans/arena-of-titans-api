@@ -18,7 +18,6 @@
 ################################################################################
 
 import asyncio
-import json
 import logging
 import os
 import shutil
@@ -46,20 +45,18 @@ def setup_logging(debug=False):
         'stderr',
     )
 
-    if config['api'].get('rollbar_enabled', False) and \
-            os.path.exists(config['api'].get('rollbar_config', None)):
-        with open(config['api']['rollbar_config'], 'r') as rollbar_file:
-            rollbar_config = json.load(rollbar_file)
-            rollbar_config = rollbar_config[config['env']]['api']
-        rollbar_output = RollbarOutput(**rollbar_config)
-        outputs = (*outputs, rollbar_output)
-    else:
+    if config['rollbar']['access_token'] is None:
         print(  # noqa: T001
-            'Note: not loading rollbar',
-            'Enabled: {}'.format(config['api'].get('rollbar_enabled', False)),
-            'Config file: {}'.format(config['api'].get('rollbar_config', None)),
+            'Note: not loading rollbar, no access_token found.',
             file=sys.stderr,
         )
+    else:
+        rollbar_output = RollbarOutput(
+            access_token=config['rollbar']['access_token'],
+            environment=config['env'],
+            level=config['rollbar']['level'],
+        )
+        outputs = (*outputs, rollbar_output)
 
     daiquiri.setup(level=level, outputs=outputs)
 
