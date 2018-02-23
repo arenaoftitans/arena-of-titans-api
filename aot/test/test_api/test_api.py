@@ -86,7 +86,7 @@ async def test_info(api):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_onMessage_unkwon_request_type(api):
+async def test_onMessage_unknown_request_type(api):
     api.sendMessage = AsyncMagicMock()
 
     await api.onMessage(b'{}', False)
@@ -210,7 +210,7 @@ async def test_create_new_game(api, mock):
     api._cache = MagicMock()
     api._cache.create_new_game = AsyncMagicMock()
     api._cache.save_session = AsyncMagicMock()
-    api._get_initialiazed_game_message = AsyncMagicMock()
+    api._get_initialized_game_message = AsyncMagicMock()
     api._cache.affect_next_slot = AsyncMagicMock(return_value=api.INDEX_FIRST_PLAYER)
     api._message = {
         'player_name': 'Game Master',
@@ -228,7 +228,7 @@ async def test_create_new_game(api, mock):
         api._message['hero'],
     )
     api._cache.save_session.assert_called_once_with(api.INDEX_FIRST_PLAYER)
-    api._get_initialiazed_game_message.assert_called_once_with(api.INDEX_FIRST_PLAYER)
+    api._get_initialized_game_message.assert_called_once_with(api.INDEX_FIRST_PLAYER)
     assert api.sendMessage.call_count == 1
 
 
@@ -317,7 +317,7 @@ async def test_join(api):
             },
         ],
     }
-    api._get_initialiazed_game_message = AsyncMagicMock(return_value=game_message)
+    api._get_initialized_game_message = AsyncMagicMock(return_value=game_message)
     api.sendMessage = AsyncMagicMock()
     api._send_all_others = AsyncMagicMock()
     api._cache = MagicMock()
@@ -336,7 +336,7 @@ async def test_join(api):
     assert api._cache.create_new_game.call_count == 0
     api._cache.affect_next_slot.assert_called_once_with('Player 2', 'daemon')
     api._cache.save_session.assert_called_once_with(1)
-    api._get_initialiazed_game_message.assert_called_once_with(1)
+    api._get_initialized_game_message.assert_called_once_with(1)
     api.sendMessage.assert_called_once_with(game_message)
     api._send_all_others.assert_called_once_with({
         'rt': RequestTypes.SLOT_UPDATED,
@@ -355,7 +355,7 @@ async def test_modify_slots_empty_request(api):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_modify_slots_inexistant_slot(api):
+async def test_modify_slots_non_existent_slot(api):
     api._message = {
         'slot': {},
     }
@@ -365,7 +365,7 @@ async def test_modify_slots_inexistant_slot(api):
     with pytest.raises(AotError) as e:
         await api._modify_slots()
 
-    assert 'inexistant_slot' in str(e)
+    assert 'non-existent_slot' in str(e)
 
 
 @pytest.mark.asyncio  # noqa: F811

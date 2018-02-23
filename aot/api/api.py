@@ -51,7 +51,7 @@ class Api(AotWs):
         'cannot_join': 'You cannot join this game. No slots opened.',
         'game_master_request': 'Only the game master can use {rt} request.',
         'gauge_too_low': 'trumps.gauge_too_low',
-        'inexistant_slot': 'Trying to update non existant slot.',
+        'non-existent_slot': 'Trying to update non existent slot.',
         'max_number_trumps': 'trumps.max_number_trumps',
         'max_number_played_trumps': 'trumps.max_number_played_trumps',
         'missing_action_name': 'You must specify the name of the action you want to do',
@@ -140,7 +140,7 @@ class Api(AotWs):
             .replace(b'=', b'')\
             .decode('ascii')
         await self._initialize_cache(new_game=True)
-        response = await self._get_initialiazed_game_message(self.INDEX_FIRST_PLAYER)
+        response = await self._get_initialized_game_message(self.INDEX_FIRST_PLAYER)
         await self.sendMessage(response)
 
     async def _initialize_cache(self, new_game=False):
@@ -151,8 +151,8 @@ class Api(AotWs):
         await self._cache.save_session(index)
         return index
 
-    async def _get_initialiazed_game_message(self, index):  # pragma: no cover
-        initiliazed_game = {
+    async def _get_initialized_game_message(self, index):  # pragma: no cover
+        initialized_game = {
             'rt': RequestTypes.GAME_INITIALIZED,
             'game_id': self._game_id,
             'player_id': self.id,
@@ -162,7 +162,7 @@ class Api(AotWs):
             'api_version': config['version'],
         }
 
-        return initiliazed_game
+        return initialized_game
 
     async def _affect_current_slot(self):
         player_name = sanitize(self._message.get('player_name', ''))
@@ -186,7 +186,7 @@ class Api(AotWs):
 
     async def _join(self):
         index = await self._initialize_cache()
-        response = await self._get_initialiazed_game_message(index)
+        response = await self._get_initialized_game_message(index)
         await self.sendMessage(response)
         await self._send_updated_slot_new_player(response['slots'][index])
 
@@ -217,7 +217,7 @@ class Api(AotWs):
             }
             await self._send_all(response)
         else:
-            raise AotError('inexistant_slot')
+            raise AotError('non-existent_slot')
 
     async def _create_game(self):
         number_players = await self._cache.number_taken_slots()
