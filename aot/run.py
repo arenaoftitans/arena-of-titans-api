@@ -19,8 +19,6 @@
 
 import asyncio
 import logging
-import os
-import shutil
 import sys
 
 import daiquiri
@@ -65,33 +63,10 @@ def startup(debug=False, debug_aio=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug_aio)
 
-    socket = config['api'].get('socket', None)
-    if socket:
-        server = _create_unix_server(loop, socket)
-    else:
-        server = _create_tcp_server(loop)
-
+    server = _create_tcp_server(loop)
     wsserver = loop.run_until_complete(server)
-    if socket:
-        _correct_permissions_unix_server(socket)
 
     return wsserver, loop
-
-
-def _create_unix_server(loop, socket):
-    factory = WebSocketServerFactory(None)
-    factory.protocol = Api
-    server = loop.create_unix_server(factory, socket)
-
-    return server
-
-
-def _correct_permissions_unix_server(socket):
-    os.chmod(socket, 0o660)
-    try:
-        shutil.chown(socket, group=config['api']['socket_group'])
-    except (PermissionError, LookupError) as e:
-        logging.exception(e)
 
 
 def _create_tcp_server(loop):
@@ -114,10 +89,3 @@ def cleanup(wsserver, loop):
         # Quit all.
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
-
-    socket = config['api'].get('socket', None)
-    if socket:
-        try:
-            os.remove(socket)
-        except FileNotFoundError:
-            pass
