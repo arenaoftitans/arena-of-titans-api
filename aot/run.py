@@ -18,7 +18,6 @@
 ################################################################################
 
 import asyncio
-import configparser
 import json
 import logging
 import os
@@ -32,27 +31,9 @@ from daiquiri_rollbar import RollbarOutput
 from .api import Api
 from .config import config
 
-try:
-    import uwsgi  # noqa
-    on_uwsgi = True
-except ImportError:
-    on_uwsgi = False
-
 
 # Amount of time to wait for pending futures before forcing them to shutdown.
 CLEANUP_TIMEOUT = 5
-
-
-def setup_config(env='prod', version='latest'):
-    # We cannot pass arguments to the uwsgi entry point.
-    # So we store the values in the configuration.
-    if on_uwsgi:
-        uwsgi_config = configparser.ConfigParser()
-        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
-        env = uwsgi_config['aot']['type']
-        version = uwsgi_config['aot']['version']
-
-    config.load_config(env, version)
 
 
 def setup_logging(debug=False):
