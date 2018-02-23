@@ -21,16 +21,16 @@ version: '3'
 
 services:
   aot-dev-api:
-    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:18.02.1
+    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:18.02.2
     command: ["python3", "-m", "aot", "--reload"]
     depends_on:
-      - aot-dev-redis
+      - aot-redis
     ports:
       - "8181:8181"
     tty: true
     volumes:
       - ./:/opt/aot-api:Z
     working_dir: /opt/aot-api
-  aot-dev-redis:
+  aot-redis:
     image: docker.io/redis
     tty: true

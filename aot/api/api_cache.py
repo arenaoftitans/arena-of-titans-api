@@ -41,7 +41,7 @@ class ApiCache:
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
-    GAME_EXPIRE = 2 * 24 * 60 * 60
+    TTL = config['cache']['ttl']
     _cache = None
 
     # Instance variables
@@ -51,17 +51,10 @@ class ApiCache:
     @classmethod
     def _get_redis_instance(cls, new=False):
         if new:
-            socket = config['cache'].get('socket', None)
-            if socket:
-                kwargs = {
-                    'unix_socket_path': socket,
-                }
-            else:
-                kwargs = {
-                    'host': config['cache']['host'],
-                    'port': config['cache']['port'],
-                }
-            return Redis(**kwargs)
+            return Redis(
+                host=config['cache']['host'],
+                port=config['cache']['port'],
+            )
         else:  # pragma: no cover
             if cls._cache is None:
                 cls._cache = cls._get_redis_instance(new=True)
@@ -147,8 +140,8 @@ class ApiCache:
             'test',
             test)
         await self._init_slots()
-        await self._cache.expire(self.SLOTS_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
-        await self._cache.expire(self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
+        await self._cache.expire(self.SLOTS_KEY_TEMPLATE.format(self._game_id), self.TTL)
+        await self._cache.expire(self.GAME_KEY_TEMPLATE.format(self._game_id), self.TTL)
 
     async def _init_slots(self):
         slot = {
@@ -196,7 +189,7 @@ class ApiCache:
             player_index,
             self._player_id,
         )
-        await self._cache.expire(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self.GAME_EXPIRE)
+        await self._cache.expire(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self.TTL)
 
     async def get_player_index(self):
         slot = [slot for slot in await self.get_slots()

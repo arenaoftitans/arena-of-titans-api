@@ -1,50 +1,73 @@
+################################################################################
+# Copyright (C) 2015-2018 by Arena of Titans Contributors.
+#
+# This file is part of Arena of Titans.
+#
+# Arena of Titans is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Arena of Titans is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
 import sys
-from os.path import exists
+from os import environ
+from types import MappingProxyType
 
-import toml
-
-
-class Config:
-    CONF_FILE_TEMPLATE = 'config/config.{env}.toml'
-
-    def __init__(self):
-        self._config = None
-
-    def __getitem__(self, key):
-        if self._config is None:
-            raise RuntimeError(
-                'Configuration is not loaded. '
-                'Call load_config(env) before trying to use the configuration',
-            )
-        else:
-            return self._config[key]
-
-    def load_config(self, env, version='latest'):
-        config_path = self.CONF_FILE_TEMPLATE.format(env=env)
-
-        if env == 'dev' and not exists(config_path):
-            docker_config_file = self.CONF_FILE_TEMPLATE.format(env='docker')
-            # We must not use logging here. We need to load the configuration to configure it.
-            print(  # noqa: T001
-                f'Note: {config_path} not found, using {docker_config_file}',
-                file=sys.stderr,
-            )
-            config_path = docker_config_file
-
-        with open(config_path, 'r') as config_file:
-            self._config = toml.load(config_file)
-
-        self._set_version_in_socket_name('api', version)
-        self._set_version_in_socket_name('cache', version)
-
-        self._config['env'] = env
-        self._config['version'] = version
-
-    def _set_version_in_socket_name(self, section_name, version):
-        socket = self._config[section_name].get('socket', None)
-        if socket:  # pragma: no cover
-            socket = socket.format(version=version)
-            self._config[section_name]['socket'] = socket
+from dotenv import (
+    find_dotenv,
+    load_dotenv,
+)
 
 
-config = Config()
+load_dotenv(find_dotenv())
+
+
+_ENV_VARS = {
+    'API_ALLOW_DEBUG',
+    'API_HOST',
+    'API_WS_PORT',
+    'CACHE_HOST',
+    'CACHE_PORT',
+    'CACHE_TTL',
+    'ENV',
+    'ROLLBAR_ACCESS_TOKEN',
+    'ROLLBAR_LEVEL',
+    'VERSION',
+}
+
+
+print(  # noqa: T001
+    'Using overridden values for',
+    _ENV_VARS.intersection(environ.keys()),
+    file=sys.stderr,
+)
+
+
+config = MappingProxyType({
+    'api': {
+        'allow_debug': environ.get('API_ALLOW_DEBUG', False),
+        'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104 (Binding to all interfaces)
+        'ws_port': environ.get('API_WS_PORT', 8181),
+    },
+    'cache': {
+        'host': environ.get('CACHE_HOST', 'aot-redis'),
+        'port': environ.get('CACHE_PORT', 6379),
+        'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
+    },
+    # Amount of time to wait for pending futures before forcing them to shutdown.
+    'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
+    'env': environ.get('ENV', 'development'),
+    'rollbar': {
+        'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
+        'level': environ.get('ROLLBAR_LEVEL', 30),
+    },
+    'version': environ.get('VERSION', 'latest'),
+})

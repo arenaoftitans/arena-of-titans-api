@@ -25,7 +25,6 @@ from subprocess import Popen  # noqa: B404 (Popen can be a security risk)
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from .config import config
 from .run import cleanup
 
 
@@ -95,8 +94,6 @@ class AotEventHandler(FileSystemEventHandler):
 
 
 def run_reload():
-    config.load_config('dev')
-
     aot_event_handler = AotEventHandler()
     aot_event_handler.start_app()
     observer = Observer()

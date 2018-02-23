@@ -18,11 +18,7 @@
 ################################################################################
 
 import asyncio
-import configparser
-import json
 import logging
-import os
-import shutil
 import sys
 
 import daiquiri
@@ -31,28 +27,6 @@ from daiquiri_rollbar import RollbarOutput
 
 from .api import Api
 from .config import config
-
-try:
-    import uwsgi  # noqa
-    on_uwsgi = True
-except ImportError:
-    on_uwsgi = False
-
-
-# Amount of time to wait for pending futures before forcing them to shutdown.
-CLEANUP_TIMEOUT = 5
-
-
-def setup_config(env='prod', version='latest'):
-    # We cannot pass arguments to the uwsgi entry point.
-    # So we store the values in the configuration.
-    if on_uwsgi:
-        uwsgi_config = configparser.ConfigParser()
-        uwsgi_config.read('/etc/uwsgi.d/aot-api.ini')
-        env = uwsgi_config['aot']['type']
-        version = uwsgi_config['aot']['version']
-
-    config.load_config(env, version)
 
 
 def setup_logging(debug=False):
@@ -65,20 +39,18 @@ def setup_logging(debug=False):
         'stderr',
     )
 
-    if config['api'].get('rollbar_enabled', False) and \
-            os.path.exists(config['api'].get('rollbar_config', None)):
-        with open(config['api']['rollbar_config'], 'r') as rollbar_file:
-            rollbar_config = json.load(rollbar_file)
-            rollbar_config = rollbar_config[config['env']]['api']
-        rollbar_output = RollbarOutput(**rollbar_config)
-        outputs = (*outputs, rollbar_output)
-    else:
+    if config['rollbar']['access_token'] is None:
         print(  # noqa: T001
-            'Note: not loading rollbar',
-            'Enabled: {}'.format(config['api'].get('rollbar_enabled', False)),
-            'Config file: {}'.format(config['api'].get('rollbar_config', None)),
+            'Note: not loading rollbar, no access_token found.',
             file=sys.stderr,
         )
+    else:
+        rollbar_output = RollbarOutput(
+            access_token=config['rollbar']['access_token'],
+            environment=config['env'],
+            level=config['rollbar']['level'],
+        )
+        outputs = (*outputs, rollbar_output)
 
     daiquiri.setup(level=level, outputs=outputs)
 
@@ -87,33 +59,10 @@ def startup(debug=False, debug_aio=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug_aio)
 
-    socket = config['api'].get('socket', None)
-    if socket:
-        server = _create_unix_server(loop, socket)
-    else:
-        server = _create_tcp_server(loop)
-
+    server = _create_tcp_server(loop)
     wsserver = loop.run_until_complete(server)
-    if socket:
-        _correct_permissions_unix_server(socket)
 
     return wsserver, loop
-
-
-def _create_unix_server(loop, socket):
-    factory = WebSocketServerFactory(None)
-    factory.protocol = Api
-    server = loop.create_unix_server(factory, socket)
-
-    return server
-
-
-def _correct_permissions_unix_server(socket):
-    os.chmod(socket, 0o660)
-    try:
-        shutil.chown(socket, group=config['api']['socket_group'])
-    except (PermissionError, LookupError) as e:
-        logging.exception(e)
 
 
 def _create_tcp_server(loop):
@@ -132,14 +81,7 @@ def cleanup(wsserver, loop):
         # Leave tasks a chance to complete.
         pending = asyncio.Task.all_tasks()
         if len(pending) > 0:
-            loop.run_until_complete(asyncio.wait(pending, timeout=CLEANUP_TIMEOUT))
+            loop.run_until_complete(asyncio.wait(pending, timeout=config['cleanup_timeout']))
         # Quit all.
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
-
-    socket = config['api'].get('socket', None)
-    if socket:
-        try:
-            os.remove(socket)
-        except FileNotFoundError:
-            pass
