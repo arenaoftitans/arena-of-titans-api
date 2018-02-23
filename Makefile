@@ -120,13 +120,7 @@ check: lint testall
 
 
 .PHONY: ci
-ci: cicfg test
-
-
-.PHONY: cicfg
-cicfg:
-	# Use sample config file as dev config file for redis related unit tests to pass.
-	cp config/config.staging.toml config/config.dev.toml
+ci: test
 
 
 .PHONY: lint
