@@ -251,7 +251,7 @@ class Api(AotWs):
         game = get_game(players_description)
         game.game_id = self._game_id
         game.is_debug = self._message.get('debug', False) and \
-            config['api'].get('allow_debug', False)
+            config['api']['allow_debug']
         for player in game.players:
             if player is not None and player.id in self._clients:
                 player.is_connected = True
