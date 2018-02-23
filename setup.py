@@ -48,6 +48,7 @@ requires = [
     'daiquiri-rollbar >=0.1.0',
     'aredis <2.0.0,>=1.0.9',
     'ordered-set <3.0.0,>=2.0.2',
+    'python-dotenv <1.0.0,>=0.7.1',
     'watchdog <0.9.0,>=0.8.3',
 ]
 
