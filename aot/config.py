@@ -54,6 +54,8 @@ config = MappingProxyType({
         'port': environ.get('CACHE_PORT', 6379),
         'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
     },
+    # Amount of time to wait for pending futures before forcing them to shutdown.
+    'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
     'env': environ.get('ENV', 'development'),
     'rollbar': {
         'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),

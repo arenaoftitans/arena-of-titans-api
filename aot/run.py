@@ -29,10 +29,6 @@ from .api import Api
 from .config import config
 
 
-# Amount of time to wait for pending futures before forcing them to shutdown.
-CLEANUP_TIMEOUT = 5
-
-
 def setup_logging(debug=False):
     if debug:
         level = logging.DEBUG
@@ -85,7 +81,7 @@ def cleanup(wsserver, loop):
         # Leave tasks a chance to complete.
         pending = asyncio.Task.all_tasks()
         if len(pending) > 0:
-            loop.run_until_complete(asyncio.wait(pending, timeout=CLEANUP_TIMEOUT))
+            loop.run_until_complete(asyncio.wait(pending, timeout=config['cleanup_timeout']))
         # Quit all.
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
