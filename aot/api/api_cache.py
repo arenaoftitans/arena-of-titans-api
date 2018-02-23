@@ -41,7 +41,7 @@ class ApiCache:
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
-    TTL = 2 * 24 * 60 * 60
+    TTL = config['cache']['ttl']
     _cache = None
 
     # Instance variables
