@@ -17,10 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pytest
-
 from .. import get_cards_list
-from ..config import config
 
 
 def test_get_cards_list():
@@ -35,9 +32,3 @@ def test_get_cards_list():
             assert action.type == 'Teleport'
             assert action.args['must_target_player']
             assert action.args['distance'] == 1
-
-
-def test_access_unitialized_config():
-    with pytest.raises(RuntimeError) as e:
-        config['test']
-    assert 'Configuration is not loaded.' in str(e)

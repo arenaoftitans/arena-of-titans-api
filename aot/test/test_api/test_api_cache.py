@@ -29,28 +29,6 @@ from .. import (  # noqa: F401
     game,
 )
 from ...api.api_cache import ApiCache
-from ...config import config
-
-
-def setup_module():
-    config.load_config('dev')
-
-
-def test_connect_unix_socket(mock):  # noqa: F811
-    cfg = {
-        'cache': {
-            'socket': '/var/run/redis/aot-api-staging-latest.sock',
-            'host': '127.0.0.1',
-            'server_port': '6379',
-        },
-    }
-    redis = MagicMock()
-    mock.patch('aot.api.api_cache.config', new=cfg)
-    mock.patch('aot.api.api_cache.Redis', new=redis)
-
-    ApiCache._get_redis_instance(new=True)
-
-    redis.assert_called_once_with(unix_socket_path=cfg['cache']['socket'])
 
 
 def test_connect_tcp_socket(mock):  # noqa: F811

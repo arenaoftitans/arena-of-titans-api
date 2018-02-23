@@ -23,14 +23,12 @@ import logging
 from .reload import run_reload
 from .run import (
     cleanup,
-    setup_config,
     setup_logging,
     startup,
 )
 
 
 def main(debug=False, debug_aio=False, env='prod', version='latest'):
-    setup_config(env=env, version=version)
     setup_logging(debug=debug)
 
     wsserver, loop = None, None
