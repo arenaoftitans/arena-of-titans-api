@@ -49,20 +49,13 @@ Before creating the venv you will need to open a PowerShell terminal as root and
 Creating the development configuration
 --------------------------------------
 
-Copy ``config/config.staging.toml`` into ``config/config.dev.toml``. Then adapt the values. There are two cases for this:
+The configuration is managed in ``aot/config.py``. It contains defaults made for development purposes. You can override any configuration value in a ``.env`` file located at the root of the project or by using environment values. A ``.env`` file can look like:
 
-- You want the API to be directly accessible with TCP (**this is the only supported case on Windows**): comment the lines ``api.socket`` (or put an empty value). If you already use the port 9000 for another application, change ``api.ws_port`` to something free on your system.
-- You want the API to be behind nginx like in production/staging:
+.. code::
 
-  - Correct ``api.server_name`` to match the host you will use.
-  - Correct the path of the socket to something like ``api.socket = '/home/jenselme/projects/aot-api/aot-api-ws-dev-{version}.sock'``
+    VERSION=a_test
 
-In both cases, you should comment ``cache.socket`` or put an empty value in it to connect with TCP to redis.
-
-You should now be ready to launch the unit tests.
-
-#. If you are launching the tests for the first time, launch ``python3 setup.py develop``
-#. Launch the tests: ``python3 setup.py test``
+To find the name of the variable to use, look into ``aot/config.py`` and use the first argument to ``environ.get``. So for ``environ.get('VERSION', 'latest')``, you must use ``VERSION``. The second argument represents the default value.
 
 Setup redis
 -----------

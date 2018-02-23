@@ -21,6 +21,14 @@ import sys
 from os import environ
 from types import MappingProxyType
 
+from dotenv import (
+    find_dotenv,
+    load_dotenv,
+)
+
+
+load_dotenv(find_dotenv())
+
 
 _ENV_VARS = {
     'API_ALLOW_DEBUG',
