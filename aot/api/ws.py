@@ -28,7 +28,7 @@ import daiquiri
 from asyncio_extras.contextmanager import async_contextmanager
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
-from .api_cache import ApiCache
+from .cache import Cache
 from .utils import (
     AotErrorToDisplay,
     AotFatalError,
@@ -108,7 +108,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
         self._set_up_connection_keep_alive()
-        self._cache = ApiCache()
+        self._cache = Cache()
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
         self.LOGGER.info(

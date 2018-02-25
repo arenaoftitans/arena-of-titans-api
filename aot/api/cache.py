@@ -28,7 +28,7 @@ from .. import get_number_players
 from ..config import config
 
 
-class ApiCache:
+class Cache:
     GAME_KEY_TEMPLATE = 'game:{}'
     PLAYERS_KEY_TEMPLATE = 'players:{}'
     SLOTS_KEY_TEMPLATE = 'slots:{}'
