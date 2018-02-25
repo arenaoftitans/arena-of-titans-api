@@ -41,7 +41,7 @@ class Cache:
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
-    TTL = config['cache']['ttl']
+    TTL = 2 * 24 * 60 * 60
     _cache = None
 
     # Instance variables
@@ -62,6 +62,7 @@ class Cache:
 
     def __init__(self):
         self._cache = self._get_redis_instance(new=True)
+        self.TTL = config['cache']['ttl']
 
     async def test(self):
         await self._cache.set(self.TEST_KEY, str(datetime.now()))
