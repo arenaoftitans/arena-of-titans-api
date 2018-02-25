@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pickle  # noqa: B403 (bandit: pickle security issues)
 from copy import deepcopy
 from unittest.mock import MagicMock
 
@@ -29,7 +30,12 @@ from .. import (  # noqa: F401
     game,
 )
 from ...api.cache import Cache
+from ...api.security import decode
 from ...config import config
+
+
+def dumps_list(cache, a_list):
+    return [cache.dumps(elt) for elt in a_list]
 
 
 def setup_module():
@@ -50,6 +56,29 @@ def test_connect_tcp_socket(mock):  # noqa: F811
     Cache._get_redis_instance(new=True)
 
     redis.assert_called_once_with(host=cfg['cache']['host'], port=cfg['cache']['port'])
+
+
+def test_dumps(cache):
+    data = {
+        'an_object': 'To pickle',
+    }
+
+    dump = cache.dumps(data)
+    pickle_data = decode(dump)
+
+    assert isinstance(dump, bytes)
+    assert pickle_data == pickle.dumps(data)  # noqa: B301 (pickle usage)
+
+
+def test_loads(cache):
+    data = {
+        'an_object': 'To pickle',
+    }
+    dump = cache.dumps(data)
+
+    decoded_data = cache.loads(dump)
+
+    assert decoded_data == data
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -115,7 +144,12 @@ async def test_game_exists(cache, game):
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_has_opened_slots(mock, cache):
-    cache._cache.lrange = AsyncMagicMock(return_value=[{'state': 'OPEN'}, {'state': 'CLOSED'}])
+    cache._cache.lrange = AsyncMagicMock(
+        return_value=dumps_list(cache, [
+            {'state': 'OPEN'},
+            {'state': 'CLOSED'},
+        ]),
+    )
 
     assert await cache.has_opened_slots('game_id')
     cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
@@ -133,7 +167,7 @@ async def test_get_slots_with_game_id(mock, cache):
             'player_id': 'id1',
         },
     ]
-    cache._cache.lrange = AsyncMagicMock(return_value=deepcopy(slots))
+    cache._cache.lrange = AsyncMagicMock(return_value=dumps_list(cache, slots))
 
     results = await cache.get_slots('game_id')
 
@@ -153,7 +187,7 @@ async def test_get_slots_without_game_id(mock, cache):
             'player_id': 'id1',
         },
     ]
-    cache._cache.lrange = AsyncMagicMock(return_value=deepcopy(slots))
+    cache._cache.lrange = AsyncMagicMock(return_value=dumps_list(cache, slots))
 
     results = await cache.get_slots()
 
@@ -173,7 +207,7 @@ async def test_get_slots_exclude_player_ids(cache):
             'player_id': 'id1',
         },
     ]
-    cache._cache.lrange = AsyncMagicMock(return_value=deepcopy(slots))
+    cache._cache.lrange = AsyncMagicMock(return_value=dumps_list(cache, slots))
     for slot in slots:
         del slot['player_id']
 
@@ -195,7 +229,8 @@ async def test_is_member_game(cache):
 async def test_create_new_game(cache):
     slots = []
 
-    def add_slot_cache_side_effect(key, slot):
+    def add_slot_cache_side_effect(key, dumped_slot):
+        slot = cache.loads(dumped_slot)
         assert key == 'slots:game_id'
         assert slot['index'] == len(slots)
         if len(slots) == 0:
@@ -231,7 +266,9 @@ async def test_is_test(cache):
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_get_game(cache, game):
-    cache._cache.hget = AsyncMagicMock(return_value=game)
+    game.game_id = 'game-id'
+
+    cache._cache.hget = AsyncMagicMock(return_value=cache.dumps(game))
     assert await cache.get_game() == game
     cache._cache.hget.assert_called_once_with('game:game_id', 'game')
 
@@ -462,7 +499,11 @@ async def test_save_slot(cache):
 
     await cache._save_slot(slot)
 
-    cache._cache.lset.assert_called_once_with('slots:game_id', 0, slot)
+    cache._cache.lset.assert_called_once_with(
+        'slots:game_id',
+        0,
+        cache.dumps(slot),
+    )
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -486,7 +527,7 @@ async def test_get_slot_from_game_id(cache_cls):
     slot = {
         'index': 0,
     }
-    cache.lindex = AsyncMagicMock(return_value=slot)
+    cache.lindex = AsyncMagicMock(return_value=cache_cls.dumps(slot))
     cache_cls._get_redis_instance = MagicMock(return_value=cache)
 
     assert await cache_cls.get_slot_from_game_id(0, 'game_id') == slot
@@ -498,7 +539,7 @@ async def test_get_slot(cache):
     slot = {
         'index': 0,
     }
-    cache.lindex = AsyncMagicMock(return_value=slot)
+    cache.lindex = AsyncMagicMock(return_value=cache.dumps(slot))
     cache._get_redis_instance = MagicMock(return_value=cache)
 
     assert await cache.get_slot(0) == slot
@@ -530,4 +571,4 @@ async def test_save_game(cache, game):
 
     await cache.save_game(game)
 
-    cache._cache.hset.assert_called_once_with('game:game_id', 'game', game)
+    cache._cache.hset.assert_called_once_with('game:game_id', 'game', cache.dumps(game))

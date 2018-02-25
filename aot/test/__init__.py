@@ -35,16 +35,6 @@ from ..cards.trumps import Gauge
 from ..game import Player
 
 
-class PickleStub:
-    @classmethod
-    def loads(cls, arg):
-        return arg
-
-    @classmethod
-    def dumps(cls, arg):
-        return arg
-
-
 class AsyncMagicMock(MagicMock):
     async def __call__(self, *args, **kwargs):
         return super().__call__(*args, **kwargs)
@@ -110,7 +100,6 @@ def api():
 @pytest.fixture
 def cache(mock):
     mock.patch('aot.api.cache.Redis', site_effect=aredis())
-    mock.patch('aot.api.cache.pickle', PickleStub)
     cache = Cache()
     cache.init('game_id', 'player_id')
     cache._cache = MagicMock()
@@ -120,6 +109,5 @@ def cache(mock):
 @pytest.fixture
 def cache_cls(mock):
     mock.patch('aot.api.cache.Redis', site_effect=MagicMock())
-    mock.patch('aot.api.cache.pickle', PickleStub)
 
     return Cache
