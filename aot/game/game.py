@@ -206,6 +206,15 @@ class Game:
             cheapest_card = find_cheapest_card(self.active_player.hand)
             self.discard(cheapest_card)
 
+    def __eq__(self, other):
+        if not isinstance(other, Game):
+            return False
+        # If game_id is not set, we can't know whether the instance are equal.
+        elif other.game_id is None or self.game_id is None:
+            return False
+
+        return self is other or self.game_id == other.game_id
+
     @property
     def active_player(self):
         return self._active_player

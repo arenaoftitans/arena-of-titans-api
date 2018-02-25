@@ -33,6 +33,22 @@ from ...game import (
 )
 
 
+def test_eq(board, player):  # noqa: F811
+    game1 = Game(board, [player])
+    game2 = Game(board, [player])
+    other_obj = {}
+
+    assert not game1 == other_obj
+    assert game1 != game2
+
+    game1.game_id = 'game-id'
+    game2.game_id = 'game-id'
+    assert game1 == game2
+
+    game2.game_id = 'other-game-id'
+    assert game1 != game2
+
+
 def test_game_creation(player):  # noqa: F811
     player.init_turn = MagicMock()
     Game(None, [player])
