@@ -36,6 +36,7 @@ _ENV_VARS = {
     'API_WS_PORT',
     'CACHE_HOST',
     'CACHE_PORT',
+    'CACHE_SIGN_KEY',
     'CACHE_TTL',
     'ENV',
     'ROLLBAR_ACCESS_TOKEN',
@@ -60,6 +61,7 @@ config = MappingProxyType({
     'cache': {
         'host': environ.get('CACHE_HOST', 'aot-redis'),
         'port': environ.get('CACHE_PORT', 6379),
+        'sign_key': environ.get('CACHE_SIGN_KEY'),
         'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
     },
     # Amount of time to wait for pending futures before forcing them to shutdown.
