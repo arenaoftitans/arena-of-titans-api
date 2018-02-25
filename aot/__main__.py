@@ -20,6 +20,7 @@
 import argparse
 import logging
 
+from .config import config
 from .reload import run_reload
 from .run import (
     cleanup,
@@ -29,6 +30,7 @@ from .run import (
 
 
 def main(debug=False, debug_aio=False, env='prod', version='latest'):
+    config.setup_config()
     setup_logging(debug=debug)
 
     wsserver, loop = None, None

@@ -29,20 +29,10 @@ from .. import (
     get_trumps_list,
 )
 from ..api import Api
-from ..api.api_cache import ApiCache
+from ..api.cache import Cache
 from ..cards import Deck
 from ..cards.trumps import Gauge
 from ..game import Player
-
-
-class PickleStub:
-    @classmethod
-    def loads(cls, arg):
-        return arg
-
-    @classmethod
-    def dumps(cls, arg):
-        return arg
 
 
 class AsyncMagicMock(MagicMock):
@@ -108,18 +98,16 @@ def api():
 
 
 @pytest.fixture
-def api_cache(mock):
-    mock.patch('aot.api.api_cache.Redis', site_effect=aredis())
-    mock.patch('aot.api.api_cache.pickle', PickleStub)
-    cache = ApiCache()
+def cache(mock):
+    mock.patch('aot.api.cache.Redis', site_effect=aredis())
+    cache = Cache()
     cache.init('game_id', 'player_id')
     cache._cache = MagicMock()
     return cache
 
 
 @pytest.fixture
-def api_cache_cls(mock):
-    mock.patch('aot.api.api_cache.Redis', site_effect=MagicMock())
-    mock.patch('aot.api.api_cache.pickle', PickleStub)
+def cache_cls(mock):
+    mock.patch('aot.api.cache.Redis', site_effect=MagicMock())
 
-    return ApiCache
+    return Cache

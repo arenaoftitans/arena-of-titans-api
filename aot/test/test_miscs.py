@@ -17,7 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytest
+
 from .. import get_cards_list
+from ..__main__ import main
 
 
 def test_get_cards_list():
@@ -32,3 +35,11 @@ def test_get_cards_list():
             assert action.type == 'Teleport'
             assert action.args['must_target_player']
             assert action.args['distance'] == 1
+
+
+def test_no_startup_not_dev_no_cache_sign_key(monkeypatch):
+    # Use a fake ENV, since it must raise for anything that is not development.
+    monkeypatch.setenv('ENV', 'mock')
+
+    with pytest.raises(EnvironmentError):
+        main()

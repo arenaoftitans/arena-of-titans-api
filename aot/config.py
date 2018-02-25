@@ -36,6 +36,7 @@ _ENV_VARS = {
     'API_WS_PORT',
     'CACHE_HOST',
     'CACHE_PORT',
+    'CACHE_SIGN_KEY',
     'CACHE_TTL',
     'ENV',
     'ROLLBAR_ACCESS_TOKEN',
@@ -51,23 +52,47 @@ print(  # noqa: T001
 )
 
 
-config = MappingProxyType({
-    'api': {
-        'allow_debug': environ.get('API_ALLOW_DEBUG', False),
-        'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104 (Binding to all interfaces)
-        'ws_port': environ.get('API_WS_PORT', 8181),
-    },
-    'cache': {
-        'host': environ.get('CACHE_HOST', 'aot-redis'),
-        'port': environ.get('CACHE_PORT', 6379),
-        'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
-    },
-    # Amount of time to wait for pending futures before forcing them to shutdown.
-    'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
-    'env': environ.get('ENV', 'development'),
-    'rollbar': {
-        'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
-        'level': environ.get('ROLLBAR_LEVEL', 30),
-    },
-    'version': environ.get('VERSION', 'latest'),
-})
+class Config:
+    def __init__(self):
+        self._config = None
+
+    def __getitem__(self, value):
+        if self._config is None:
+            raise RuntimeError('Config is not loaded, cannot access it')
+
+        return self._config[value]
+
+    def setup_config(self):
+        # API must not start in prod like nev if we don't have a sign key for cache.
+        # This is for security reasons.
+        env = environ.get('ENV', 'development')
+        cache_sign_key = environ.get('CACHE_SIGN_KEY', '')
+        if env != 'development' and not cache_sign_key:
+            raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
+
+        self._config = MappingProxyType({
+            'api': {
+                'allow_debug': environ.get('API_ALLOW_DEBUG', False),
+                # Binding to all interfaces, bandit don't allow this (#104)
+                'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104
+                'ws_port': environ.get('API_WS_PORT', 8181),
+            },
+            'cache': {
+                'host': environ.get('CACHE_HOST', 'aot-redis'),
+                'port': environ.get('CACHE_PORT', 6379),
+                # Sign key must be of type bytes, not str.
+                'sign_key': cache_sign_key.encode('utf-8'),
+                'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
+            },
+            # Amount of time to wait for pending futures before forcing them to shutdown.
+            'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
+            'env': env,
+            'rollbar': {
+                'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
+                'level': environ.get('ROLLBAR_LEVEL', 30),
+            },
+            'version': environ.get('VERSION', 'latest'),
+        })
+
+
+config = Config()

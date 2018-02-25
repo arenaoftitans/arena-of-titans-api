@@ -23,12 +23,16 @@ from datetime import datetime
 
 from aredis import StrictRedis as Redis
 
+from .security import (
+    decode,
+    encode,
+)
 from .utils import SlotState
 from .. import get_number_players
 from ..config import config
 
 
-class ApiCache:
+class Cache:
     GAME_KEY_TEMPLATE = 'game:{}'
     PLAYERS_KEY_TEMPLATE = 'players:{}'
     SLOTS_KEY_TEMPLATE = 'slots:{}'
@@ -41,7 +45,7 @@ class ApiCache:
     GAME_STARTED = b'true'
     GAME_NOT_STARTED = b'false'
     #: Time in seconds after which the game is deleted (48h).
-    TTL = config['cache']['ttl']
+    TTL = 2 * 24 * 60 * 60
     _cache = None
 
     # Instance variables
@@ -60,8 +64,19 @@ class ApiCache:
                 cls._cache = cls._get_redis_instance(new=True)
             return cls._cache
 
+    @classmethod
+    def loads(cls, data):
+        pickle_data = decode(data)
+        return pickle.loads(pickle_data)  # noqa: B301 (pickle usage)
+
+    @classmethod
+    def dumps(cls, data):
+        pickle_data = pickle.dumps(data)  # noqa: B301 (pickle usage)
+        return encode(pickle_data)
+
     def __init__(self):
         self._cache = self._get_redis_instance(new=True)
+        self.TTL = config['cache']['ttl']
 
     async def test(self):
         await self._cache.set(self.TEST_KEY, str(datetime.now()))
@@ -110,7 +125,7 @@ class ApiCache:
         if game_id is None:
             game_id = self._game_id
         raw_slots = await self._cache.lrange(self.SLOTS_KEY_TEMPLATE.format(game_id), 0, -1)
-        slots = [pickle.loads(slot) for slot in raw_slots]  # noqa: B301 (pickle usage)
+        slots = [self.loads(slot) for slot in raw_slots]
         if not include_player_id:
             slots = self._remove_player_id(slots)
         return slots
@@ -161,9 +176,9 @@ class ApiCache:
 
     async def _add_slot(self, slot):
         slot = deepcopy(slot)
-        await self._cache.rpush(  # noqa: B301 (pickle usage)
+        await self._cache.rpush(
             self.SLOTS_KEY_TEMPLATE.format(self._game_id),
-            pickle.dumps(slot),
+            self.dumps(slot),
         )
 
     async def _max_number_slots_reached(self):
@@ -181,7 +196,7 @@ class ApiCache:
             self.GAME_KEY,
         )
         if game_data:
-            return pickle.loads(game_data)  # noqa: B301 (pickle usage)
+            return self.loads(game_data)
 
     async def save_session(self, player_index):
         await self._cache.zadd(
@@ -245,7 +260,7 @@ class ApiCache:
         await self._cache.lset(
             self.SLOTS_KEY_TEMPLATE.format(self._game_id),
             slot['index'],
-            pickle.dumps(slot))  # noqa: B301 (pickle usage)
+            self.dumps(slot))
 
     async def slot_exists(self, slot):
         return await self._get_raw_slot(slot['index'], self._game_id) is not None
@@ -259,11 +274,11 @@ class ApiCache:
     @classmethod
     async def get_slot_from_game_id(cls, index, game_id):
         data = await cls._get_raw_slot(cls, index, game_id)
-        return pickle.loads(data)  # noqa: B301 (pickle usage)
+        return cls.loads(data)
 
     async def get_slot(self, index):
         data = await self._get_raw_slot(index, self._game_id)
-        return pickle.loads(data)  # noqa: B301 (pickle usage)
+        return self.loads(data)
 
     async def has_game_started(self):
         game_started = await self._cache.hget(
@@ -280,8 +295,8 @@ class ApiCache:
         )
 
     async def save_game(self, game):
-        await self._cache.hset(  # noqa: B301 (pickle usage)
+        await self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.GAME_KEY,
-            pickle.dumps(game),
+            self.dumps(game),
         )
