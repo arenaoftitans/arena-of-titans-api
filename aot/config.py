@@ -52,24 +52,39 @@ print(  # noqa: T001
 )
 
 
-config = MappingProxyType({
-    'api': {
-        'allow_debug': environ.get('API_ALLOW_DEBUG', False),
-        'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104 (Binding to all interfaces)
-        'ws_port': environ.get('API_WS_PORT', 8181),
-    },
-    'cache': {
-        'host': environ.get('CACHE_HOST', 'aot-redis'),
-        'port': environ.get('CACHE_PORT', 6379),
-        'sign_key': environ.get('CACHE_SIGN_KEY'),
-        'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
-    },
-    # Amount of time to wait for pending futures before forcing them to shutdown.
-    'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
-    'env': environ.get('ENV', 'development'),
-    'rollbar': {
-        'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
-        'level': environ.get('ROLLBAR_LEVEL', 30),
-    },
-    'version': environ.get('VERSION', 'latest'),
-})
+class Config:
+    def __init__(self):
+        self._config = None
+
+    def __getitem__(self, value):
+        if self._config is None:
+            raise RuntimeError('Config is not loaded, cannot access it')
+
+        return self._config[value]
+
+    def setup_config(self):
+        self._config = MappingProxyType({
+            'api': {
+                'allow_debug': environ.get('API_ALLOW_DEBUG', False),
+                # Binding to all interfaces, bandit don't allow this (#104)
+                'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104
+                'ws_port': environ.get('API_WS_PORT', 8181),
+            },
+            'cache': {
+                'host': environ.get('CACHE_HOST', 'aot-redis'),
+                'port': environ.get('CACHE_PORT', 6379),
+                'sign_key': environ.get('CACHE_SIGN_KEY'),
+                'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
+            },
+            # Amount of time to wait for pending futures before forcing them to shutdown.
+            'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
+            'env': environ.get('ENV', 'development'),
+            'rollbar': {
+                'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
+                'level': environ.get('ROLLBAR_LEVEL', 30),
+            },
+            'version': environ.get('VERSION', 'latest'),
+        })
+
+
+config = Config()

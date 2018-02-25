@@ -29,6 +29,11 @@ from .. import (  # noqa: F401
     game,
 )
 from ...api.cache import Cache
+from ...config import config
+
+
+def setup_module():
+    config.setup_config()
 
 
 def test_connect_tcp_socket(mock):  # noqa: F811
