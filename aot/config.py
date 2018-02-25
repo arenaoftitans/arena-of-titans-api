@@ -66,7 +66,7 @@ class Config:
         # API must not start in prod like nev if we don't have a sign key for cache.
         # This is for security reasons.
         env = environ.get('ENV', 'development')
-        cache_sign_key = environ.get('CACHE_SIGN_KEY')
+        cache_sign_key = environ.get('CACHE_SIGN_KEY', '')
         if env != 'development' and not cache_sign_key:
             raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
 
@@ -80,7 +80,8 @@ class Config:
             'cache': {
                 'host': environ.get('CACHE_HOST', 'aot-redis'),
                 'port': environ.get('CACHE_PORT', 6379),
-                'sign_key': cache_sign_key,
+                # Sign key must be of type bytes, not str.
+                'sign_key': cache_sign_key.encode('utf-8'),
                 'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
             },
             # Amount of time to wait for pending futures before forcing them to shutdown.
