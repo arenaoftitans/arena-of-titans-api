@@ -63,6 +63,13 @@ class Config:
         return self._config[value]
 
     def setup_config(self):
+        # API must not start in prod like nev if we don't have a sign key for cache.
+        # This is for security reasons.
+        env = environ.get('ENV', 'development')
+        cache_sign_key = environ.get('CACHE_SIGN_KEY')
+        if env != 'development' and not cache_sign_key:
+            raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
+
         self._config = MappingProxyType({
             'api': {
                 'allow_debug': environ.get('API_ALLOW_DEBUG', False),
@@ -73,12 +80,12 @@ class Config:
             'cache': {
                 'host': environ.get('CACHE_HOST', 'aot-redis'),
                 'port': environ.get('CACHE_PORT', 6379),
-                'sign_key': environ.get('CACHE_SIGN_KEY'),
+                'sign_key': cache_sign_key,
                 'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
             },
             # Amount of time to wait for pending futures before forcing them to shutdown.
             'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
-            'env': environ.get('ENV', 'development'),
+            'env': env,
             'rollbar': {
                 'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
                 'level': environ.get('ROLLBAR_LEVEL', 30),
