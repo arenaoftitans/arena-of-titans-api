@@ -1,9 +1,14 @@
 image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest
 
+stages:
+  - checks
+
 lint:
+  stage: checks
   script:
     - make lint
 
 tests:
+  stage: checks
   script:
     - make CI_TESTS_TIMEOUT=5 ci
