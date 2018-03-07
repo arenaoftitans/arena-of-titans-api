@@ -54,8 +54,8 @@ ifdef VERSION
 	# Update dev image.
 	docker build \
 	    -f docker/aot-api/Dockerfile \
-	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
-	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest" \
+	    -t "registry.gitlab.com/arenaoftitans/dev/arena-of-titans-api:${VERSION}" \
+	    -t "registry.gitlab.com/arenaoftitans/dev/arena-of-titans-api:latest" \
 	    .
 	@echo "If this image works, don't forget to:"
 	@echo "  - Change the version of the image in ``docker-compose.yml``"
@@ -73,8 +73,8 @@ ifdef VERSION
 	docker push "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:${VERSION}"
 	docker push "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:latest"
 	# Push dev image.
-	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
-	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest"
+	docker push "registry.gitlab.com/arenaoftitans/dev/arena-of-titans-api:${VERSION}"
+	docker push "registry.gitlab.com/arenaoftitans/dev/arena-of-titans-api:latest"
 else
 	@echo "You must supply VERSION"
 	exit 1
