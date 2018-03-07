@@ -5,7 +5,6 @@ CONTAINER_NAME ?= aot-dev-api
 
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
 FLAKE8_CMD ?= flake8
-PIP_CMD ?= pip
 PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
 PYTEST_WATCH_CMD ?= ptw
@@ -46,6 +45,13 @@ help:
 dockerbuild:
 ifdef VERSION
 	docker pull docker.io/python:3.6-slim
+	# Update base.
+	docker build \
+		-f docker/aot-api-base/Dockerfile \
+		-t "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:${VERSION}" \
+	    -t "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:latest" \
+	    .
+	# Update dev image.
 	docker build \
 	    -f docker/aot-api/Dockerfile \
 	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
@@ -63,6 +69,10 @@ endif
 .PHONY: dockerpush
 dockerpush:
 ifdef VERSION
+	# Push base image.
+	docker push "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:${VERSION}"
+	docker push "registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:latest"
+	# Push dev image.
 	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
 	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest"
 else
@@ -81,15 +91,6 @@ clean:
 	rm -rf .eggs
 	rm -rf .tmontmp
 	rm -rf .testmondata
-
-
-.PHONY: deps
-deps:
-ifdef INSIDE_DOCKER
-	make PIP_CMD="${PIP_CMD}" rundeps
-else
-	${DK_EXEC_CMD} make deps
-endif
 
 
 .PHONY: rundeps
