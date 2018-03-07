@@ -53,7 +53,7 @@ ifdef VERSION
 	    .
 	# Update dev image.
 	docker build \
-	    -f docker/aot-api/Dockerfile \
+	    -f docker/aot-api-dev/Dockerfile \
 	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:${VERSION}" \
 	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest" \
 	    .
