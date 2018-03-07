@@ -72,24 +72,24 @@ class Config:
 
         self._config = MappingProxyType({
             'api': {
-                'allow_debug': environ.get('API_ALLOW_DEBUG', False),
+                'allow_debug': bool(environ.get('API_ALLOW_DEBUG', False)),
                 # Binding to all interfaces, bandit don't allow this (#104)
                 'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104
-                'ws_port': environ.get('API_WS_PORT', 8181),
+                'ws_port': int(environ.get('API_WS_PORT', 8181)),
             },
             'cache': {
                 'host': environ.get('CACHE_HOST', 'aot-redis'),
-                'port': environ.get('CACHE_PORT', 6379),
+                'port': int(environ.get('CACHE_PORT', 6379)),
                 # Sign key must be of type bytes, not str.
                 'sign_key': cache_sign_key.encode('utf-8'),
-                'ttl': environ.get('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
+                'ttl': int(environ.get('CACHE_TTL', 2 * 24 * 60 * 60)),  # 2 days
             },
             # Amount of time to wait for pending futures before forcing them to shutdown.
-            'cleanup_timeout': environ.get('CLEANUP_TIMEOUT', 5),
+            'cleanup_timeout': int(environ.get('CLEANUP_TIMEOUT', 5)),
             'env': env,
             'rollbar': {
                 'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
-                'level': environ.get('ROLLBAR_LEVEL', 30),
+                'level': int(environ.get('ROLLBAR_LEVEL', 30)),
             },
             'version': environ.get('VERSION', 'latest'),
         })
