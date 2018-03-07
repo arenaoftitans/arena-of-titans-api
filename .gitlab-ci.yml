@@ -1,4 +1,4 @@
-image: registry.gitlab.com/arenaoftitans/dev/arena-of-titans-api:latest
+image: registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest
 
 stages:
   - checks

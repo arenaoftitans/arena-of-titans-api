@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/arenaoftitans/base/arena-of-titans-api:latest
+FROM registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:latest
 
 RUN apt-get -y update && \
         apt-get -y install make && \
