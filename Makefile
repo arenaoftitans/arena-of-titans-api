@@ -28,7 +28,6 @@ help:
 	@echo "Possible targets:"
 	@echo "- clean: clean generated files and containers."
 	@echo "- ci: run linters and tests in ci system. Should be run only by the CI server."
-	@echo "- cicfg: build config for CI."
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
