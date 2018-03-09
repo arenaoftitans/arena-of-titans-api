@@ -9,9 +9,6 @@ PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
 PYTEST_WATCH_CMD ?= ptw
 
-type ?= dev
-version ?= latest
-
 # Ci Related variables. Leave empty, set only for ci.
 CI_TESTS_TIMEOUT ?=
 
