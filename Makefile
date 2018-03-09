@@ -30,6 +30,7 @@ help:
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
+	@echo "- dockerimage: build a production like image with the API installed in it."
 	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
@@ -81,12 +82,40 @@ else
 endif
 
 
+.PHONY: dockerimage
+dockerimage:
+ifdef VERSION
+	docker build \
+	    -f docker/aot-api/Dockerfile \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
+	    .
+	# Testing image
+	docker run \
+		-d \
+		--rm \
+		--name aot-api-test \
+		"registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
+	sleep 10
+	@if [ "$$(docker inspect aot-api-test -f '{{ .State.Status }}')" = 'running' ]; then \
+		echo '***** Working *****'; \
+	else \
+		echo '***** Failed! *****'; \
+		exit 1; \
+	fi
+	docker stop aot-api-test
+else
+	@echo "You must supply VERSION"
+	exit 1
+endif
+
+
 .PHONY: clean
 clean:
 	docker-compose down
+	rm -rf dist
 	rm -rf static
-	rm -rf htmlcov
-	rm -rf htmlcovapi
+	rm -rf .htmlcov
+	rm -rf .htmlcovapi
 	rm -rf Arena_of_Titans_API.egg-info
 	rm -rf .eggs
 	rm -rf .tmontmp
