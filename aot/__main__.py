@@ -29,7 +29,7 @@ from .run import (
 )
 
 
-def main(debug=False, debug_aio=False, env='prod', version='latest'):
+def main(debug=False, debug_aio=False):
     config.setup_config()
     setup_logging(debug=debug)
 
@@ -60,19 +60,6 @@ if __name__ == '__main__':  # pragma: no cover
         action='store_true',
     )
     parser.add_argument(
-        '--version',
-        help='Version of the API being deployed',
-        dest='version',
-        default='latest',
-    )
-    parser.add_argument(
-        '--env',
-        help='The env of deployment',
-        dest='env',
-        default='dev',
-        choices=['prod', 'dev', 'testing', 'staging'],
-    )
-    parser.add_argument(
         '--reload',
         help='Start the API in development mode and reload it on each modification',
         dest='reload',
@@ -83,4 +70,4 @@ if __name__ == '__main__':  # pragma: no cover
     if args.reload:
         run_reload()
     else:
-        main(debug=args.debug, debug_aio=args.debug_aio, version=args.version, env=args.env)
+        main(debug=args.debug, debug_aio=args.debug_aio)
