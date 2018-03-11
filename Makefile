@@ -5,13 +5,9 @@ CONTAINER_NAME ?= aot-dev-api
 
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
 FLAKE8_CMD ?= flake8
-PIP_CMD ?= pip
 PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
 PYTEST_WATCH_CMD ?= ptw
-
-type ?= dev
-version ?= latest
 
 # Ci Related variables. Leave empty, set only for ci.
 CI_TESTS_TIMEOUT ?=
@@ -31,6 +27,8 @@ help:
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
+	@echo "- dist: build distrutable python archive to easily install the API from an archive."
+	@echo "- dockerimage: build a production like image with the API installed in it."
 	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
@@ -46,10 +44,17 @@ help:
 dockerbuild:
 ifdef VERSION
 	docker pull docker.io/python:3.6-slim
+	# Update base.
 	docker build \
-	    -f docker/aot-api/Dockerfile \
-	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
-	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest" \
+		-f docker/aot-api-base/Dockerfile \
+		-t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:${VERSION}" \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:latest" \
+	    .
+	# Update dev image.
+	docker build \
+	    -f docker/aot-api-dev/Dockerfile \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:${VERSION}" \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest" \
 	    .
 	@echo "If this image works, don't forget to:"
 	@echo "  - Change the version of the image in ``docker-compose.yml``"
@@ -63,8 +68,45 @@ endif
 .PHONY: dockerpush
 dockerpush:
 ifdef VERSION
-	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
-	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest"
+	# Push base image.
+	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:${VERSION}"
+	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:latest"
+	# Push dev image.
+	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:${VERSION}"
+	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest"
+else
+	@echo "You must supply VERSION"
+	exit 1
+endif
+
+
+.PHONY: dist
+dist:
+	rm -rf dist
+	./setup.py sdist
+
+
+.PHONY: dockerimage
+dockerimage:
+ifdef VERSION
+	docker build \
+	    -f docker/aot-api/Dockerfile \
+	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
+	    .
+	# Testing image
+	docker run \
+		-d \
+		--rm \
+		--name aot-api-test \
+		"registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
+	sleep 10
+	@if [ "$$(docker inspect aot-api-test -f '{{ .State.Status }}')" = 'running' ]; then \
+		echo '***** Working *****'; \
+	else \
+		echo '***** Failed! *****'; \
+		exit 1; \
+	fi
+	docker stop aot-api-test
 else
 	@echo "You must supply VERSION"
 	exit 1
@@ -74,22 +116,14 @@ endif
 .PHONY: clean
 clean:
 	docker-compose down
+	rm -rf dist
 	rm -rf static
-	rm -rf htmlcov
-	rm -rf htmlcovapi
+	rm -rf .htmlcov
+	rm -rf .htmlcovapi
 	rm -rf Arena_of_Titans_API.egg-info
 	rm -rf .eggs
 	rm -rf .tmontmp
 	rm -rf .testmondata
-
-
-.PHONY: deps
-deps:
-ifdef INSIDE_DOCKER
-	make PIP_CMD="${PIP_CMD}" rundeps
-else
-	${DK_EXEC_CMD} make deps
-endif
 
 
 .PHONY: rundeps

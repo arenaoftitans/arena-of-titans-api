@@ -1,20 +1,12 @@
-FROM docker.io/python:3.6-slim
+FROM registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:latest
 
-RUN apt-get -y update && \
-        apt-get -y install make && \
-        apt-get -y install nano vim && \
-        apt-get -y install wget && \
-        apt-get -y clean
+# Install aot
+COPY dist/*.tar.gz /tmp/aot-api.tar.gz
+RUN pip install /tmp/aot-api.tar.gz && \
+    rm -rf /tmp/aot-api.tar.gz /root/.cache
 
-RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64
-RUN chmod +x /usr/local/bin/dumb-init
-RUN apt-get -y autoremove wget
+# Create user with which to run the API.
+RUN useradd --system aot
+USER aot
 
-ADD Pipfile /tmp
-ADD Pipfile.lock /tmp
-ADD Makefile /tmp
-
-RUN cd /tmp && make deps
-RUN rm /tmp/Pipfile* /tmp/Makefile
-
-ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
+CMD [ "/usr/local/bin/aot-api" ]

@@ -59,6 +59,11 @@ setup(
     packages=find_packages(),
     install_requires=requires,
     cmdclass={'test': PyTest},
+    entry_points={
+        'console_scripts': [
+            'aot-api = aot.__main__:main',
+        ],
+    },
     author='jenselme',
     author_email='contact@arenaoftitans.com',
     url='https://gitlab.com/arenaoftitans/arena-of-titans-api',

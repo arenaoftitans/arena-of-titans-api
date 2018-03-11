@@ -1,9 +1,42 @@
-image: registry.gitlab.com/arenaoftitans/arena-of-titans-api:latest
+image: registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest
+
+stages:
+  - checks
+  - build artifacts
+  - build docker image
 
 lint:
+  stage: checks
   script:
     - make lint
 
 tests:
+  stage: checks
   script:
     - make CI_TESTS_TIMEOUT=5 ci
+
+build artifacts:
+  stage: build artifacts
+  artifacts:
+    paths:
+      - dist
+    expire_in: 1 week
+  script:
+    - make dist
+  except:
+    - tags
+
+build docker image:
+  stage: build docker image
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    VERSION: $CI_COMMIT_REF_SLUG
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - apk update
+    - apk add make
+    - make VERSION=$VERSION dockerimage
+    - docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api:$VERSION
+  when: manual
