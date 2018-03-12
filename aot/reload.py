@@ -76,8 +76,6 @@ class AotEventHandler(FileSystemEventHandler):
             'python3',
             '-m', 'aot',
             '--debug',
-            '--version', 'latest',
-            '--env', 'dev',
         ])
 
     def stop_app(self):
