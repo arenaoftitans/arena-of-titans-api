@@ -37,6 +37,7 @@ _ENV_VARS = {
     'CACHE_HOST',
     'CACHE_PORT',
     'CACHE_SIGN_KEY',
+    'CACHE_TIMEOUT',
     'CACHE_TTL',
     'ENV',
     'ROLLBAR_ACCESS_TOKEN',
@@ -82,6 +83,7 @@ class Config:
                 'port': int(environ.get('CACHE_PORT', 6379)),
                 # Sign key must be of type bytes, not str.
                 'sign_key': cache_sign_key.encode('utf-8'),
+                'timeout': int(environ.get('CACHE_TIMEOUT', 5)),
                 'ttl': int(environ.get('CACHE_TTL', 2 * 24 * 60 * 60)),  # 2 days
             },
             # Amount of time to wait for pending futures before forcing them to shutdown.

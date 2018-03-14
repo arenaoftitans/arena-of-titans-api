@@ -47,6 +47,7 @@ def test_connect_tcp_socket(mock):  # noqa: F811
         'cache': {
             'host': '127.0.0.1',
             'port': '6379',
+            'timeout': 5,
         },
     }
     redis = MagicMock()
@@ -55,7 +56,12 @@ def test_connect_tcp_socket(mock):  # noqa: F811
 
     Cache._get_redis_instance(new=True)
 
-    redis.assert_called_once_with(host=cfg['cache']['host'], port=cfg['cache']['port'])
+    redis.assert_called_once_with(
+        host=cfg['cache']['host'],
+        port=cfg['cache']['port'],
+        connect_timeout=cfg['cache']['timeout'],
+        stream_timeout=cfg['cache']['timeout'],
+    )
 
 
 def test_dumps(cache):

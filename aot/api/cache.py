@@ -58,6 +58,8 @@ class Cache:
             return Redis(
                 host=config['cache']['host'],
                 port=config['cache']['port'],
+                connect_timeout=config['cache']['timeout'],
+                stream_timeout=config['cache']['timeout'],
             )
         else:  # pragma: no cover
             if cls._cache is None:
