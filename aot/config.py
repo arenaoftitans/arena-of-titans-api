@@ -40,6 +40,7 @@ _ENV_VARS = {
     'CACHE_TIMEOUT',
     'CACHE_TTL',
     'ENV',
+    'LOG_LEVEL',
     'ROLLBAR_ACCESS_TOKEN',
     'ROLLBAR_LEVEL',
     'VERSION',
@@ -89,6 +90,9 @@ class Config:
             # Amount of time to wait for pending futures before forcing them to shutdown.
             'cleanup_timeout': int(environ.get('CLEANUP_TIMEOUT', 5)),
             'env': env,
+            'log': {
+                'level': environ.get('LOG_LEVEL', None),
+            },
             'rollbar': {
                 'access_token': environ.get('ROLLBAR_ACCESS_TOKEN', None),
                 'level': int(environ.get('ROLLBAR_LEVEL', 30)),

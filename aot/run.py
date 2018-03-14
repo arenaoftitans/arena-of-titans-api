@@ -32,6 +32,8 @@ from .config import config
 def setup_logging(debug=False):
     if debug:
         level = logging.DEBUG
+    elif config['log']['level']:
+        level = getattr(logging, config['log']['level'], logging.DEBUG)
     else:
         level = logging.INFO
 
