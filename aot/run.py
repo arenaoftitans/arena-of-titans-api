@@ -55,6 +55,8 @@ def setup_logging(debug=False):
         outputs = (*outputs, rollbar_output)
 
     daiquiri.setup(level=level, outputs=outputs)
+    level_name = logging.getLevelName(level)
+    logging.info(f'Logging configured with level: {level_name} and ouputs: {outputs}')
 
 
 def startup(debug=False, debug_aio=False):
