@@ -126,6 +126,7 @@ class Api(AotWs):
         try:
             await self._cache.test()
         except Exception as e:
+            self.LOGGER.exception(e)
             await self.sendMessage({
                 'success': False,
                 'errors': str(e),
