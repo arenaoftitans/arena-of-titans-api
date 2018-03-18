@@ -191,7 +191,7 @@ async def test_reconnect_creating_game(api, game):
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
     api._cache.get_player_index = AsyncMagicMock(return_value=0)
     api._reconnect_to_game = MagicMock()
-    api._get_initialiazed_game_message = AsyncMagicMock(return_value={'message': 'smth'})
+    api._get_initialized_game_message = AsyncMagicMock(return_value={'message': 'smth'})
     api._game_id = 'game-id'
     api._message = {
         'player_id': 'player_id',
@@ -203,7 +203,7 @@ async def test_reconnect_creating_game(api, game):
     await api._reconnect()
 
     timer.cancel.assert_called_once_with()
-    api._get_initialiazed_game_message.assert_called_once_with(0)
+    api._get_initialized_game_message.assert_called_once_with(0)
     api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
     assert api.id == 'player_id'
     assert api._game_id == 'game_id'
@@ -217,7 +217,7 @@ async def test_reconnect_creating_game_slot_freed(api, game):
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
     api._cache.get_player_index = AsyncMagicMock(side_effect=IndexError)
     api._reconnect_to_game = MagicMock()
-    api._get_initialiazed_game_message = AsyncMagicMock(return_value={'message': 'smth'})
+    api._get_initialized_game_message = AsyncMagicMock(return_value={'message': 'smth'})
     api._game_id = 'game-id'
     api._message = {
         'player_id': 'player_id',
@@ -229,7 +229,7 @@ async def test_reconnect_creating_game_slot_freed(api, game):
     await api._reconnect()
 
     timer.cancel.assert_called_once_with()
-    api._get_initialiazed_game_message.assert_called_once_with(-1)
+    api._get_initialized_game_message.assert_called_once_with(-1)
     assert api._game_id is None
     assert api.sendMessage.call_count == 1
 

@@ -214,7 +214,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
                 self._game_id = None
                 index = -1
             finally:
-                message = await self._get_initialiazed_game_message(index)
+                message = await self._get_initialized_game_message(index)
         else:
             async with self._load_game() as game:
                 self._must_save_game = False
