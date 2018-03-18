@@ -57,6 +57,7 @@ setup(
     name='Arena of Titans - API',
     version='0.1',
     packages=find_packages(),
+    include_package_data=True,
     install_requires=requires,
     cmdclass={'test': PyTest},
     entry_points={

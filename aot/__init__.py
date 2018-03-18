@@ -19,6 +19,7 @@
 
 import copy
 import json
+import pkgutil
 import random
 
 from .board import (
@@ -41,8 +42,8 @@ from .game import (
 
 
 def get_game_description(name='standard'):
-    with open('aot/resources/games/{}.json'.format(name)) as games:
-        return json.load(games)
+    data = pkgutil.get_data('aot', f'resources/games/{name}.json')
+    return json.loads(data)
 
 
 def get_board_description(name='standard'):
