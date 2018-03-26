@@ -34,6 +34,7 @@ build docker image:
   variables:
     VERSION: $CI_COMMIT_REF_SLUG
   script:
+    - if [[ "${VERSION}" == master ]]; then VERSION="${VERSION}-$(date +%y-%m-%d-%H-%M)"; fi
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - apk update
     - apk add make
