@@ -25,6 +25,8 @@ services:
     command: ["python3", "-m", "aot", "--reload"]
     depends_on:
       - aot-redis
+    environment:
+      ENV: development
     ports:
       - "8181:8181"
     tty: true

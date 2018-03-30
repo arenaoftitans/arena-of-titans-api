@@ -67,7 +67,7 @@ class Config:
     def setup_config(self):
         # API must not start in prod like nev if we don't have a sign key for cache.
         # This is for security reasons.
-        env = environ.get('ENV', 'development')
+        env = environ.get('ENV', 'production')
         cache_sign_key = environ.get('CACHE_SIGN_KEY', '')
         if env != 'development' and not cache_sign_key:
             raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
