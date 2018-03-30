@@ -98,6 +98,7 @@ ifdef VERSION
 		-d \
 		--rm \
 		--name aot-api-test \
+		-e ENV=development \
 		"registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
 	sleep 10
 	@if [ "$$(docker inspect aot-api-test -f '{{ .State.Status }}')" = 'running' ]; then \
