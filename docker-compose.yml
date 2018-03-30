@@ -31,6 +31,14 @@ services:
     volumes:
       - ./:/opt/aot-api:Z
     working_dir: /opt/aot-api
+  aot-gateway:
+    image: registry.gitlab.com/arenaoftitans/game-gateway:v1.0.0
+    depends_on:
+      - aot-dev-api
+    environment:
+      API_HOST: aot-dev-api
+    ports:
+      - "8180:8180"
   aot-redis:
     image: docker.io/redis
     tty: true
