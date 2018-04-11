@@ -27,7 +27,6 @@ help:
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
-	@echo "- dist: build distrutable python archive to easily install the API from an archive."
 	@echo "- dockerimage: build a production like image with the API installed in it."
 	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
@@ -78,12 +77,6 @@ else
 	@echo "You must supply VERSION"
 	exit 1
 endif
-
-
-.PHONY: dist
-dist:
-	rm -rf dist
-	./setup.py sdist
 
 
 .PHONY: dockerimage

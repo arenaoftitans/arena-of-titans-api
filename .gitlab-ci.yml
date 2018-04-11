@@ -15,18 +15,7 @@ tests:
   script:
     - make CI_TESTS_TIMEOUT=5 ci
 
-build artifacts:
-  stage: build artifacts
-  artifacts:
-    paths:
-      - dist
-    expire_in: 1 week
-  script:
-    - make dist
-  except:
-    - tags
-
-build docker image:
+build:
   stage: build docker image
   image: docker:latest
   services:
@@ -38,6 +27,9 @@ build docker image:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - apk update
     - apk add make
+    # Dockerignore is there to build base and dev images.
+    # If we keep it, we won't pass the code to the docker daemon.
+    - rm -rf .dockerignore
     - make VERSION=$VERSION dockerimage
     - docker push registry.gitlab.com/arenaoftitans/arena-of-titans-api:$VERSION
   when: manual
