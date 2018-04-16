@@ -76,7 +76,7 @@ class Config:
             'api': {
                 'allow_debug': bool(environ.get('API_ALLOW_DEBUG', False)),
                 # Binding to all interfaces, bandit don't allow this (#104)
-                'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: B104
+                'host': environ.get('API_HOST', '0.0.0.0'),  # noqa: S104
                 'ws_port': int(environ.get('API_WS_PORT', 8181)),
             },
             'cache': {

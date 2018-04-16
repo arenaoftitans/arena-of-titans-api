@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pickle  # noqa: B403 (bandit: pickle security issues)
+import pickle  # noqa: S403 (bandit: pickle security issues)
 from copy import deepcopy
 from datetime import datetime
 
@@ -69,11 +69,11 @@ class Cache:
     @classmethod
     def loads(cls, data):
         pickle_data = decode(data)
-        return pickle.loads(pickle_data)  # noqa: B301 (pickle usage)
+        return pickle.loads(pickle_data)  # noqa: S301 (pickle usage)
 
     @classmethod
     def dumps(cls, data):
-        pickle_data = pickle.dumps(data)  # noqa: B301 (pickle usage)
+        pickle_data = pickle.dumps(data)  # noqa: S301 (pickle usage)
         return encode(pickle_data)
 
     def __init__(self):

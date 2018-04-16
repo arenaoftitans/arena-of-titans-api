@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import pickle  # noqa: B403 (bandit: pickle security issues)
+import pickle  # noqa: S403 (bandit: pickle security issues)
 from copy import deepcopy
 from unittest.mock import MagicMock
 
@@ -73,7 +73,7 @@ def test_dumps(cache):
     pickle_data = decode(dump)
 
     assert isinstance(dump, bytes)
-    assert pickle_data == pickle.dumps(data)  # noqa: B301 (pickle usage)
+    assert pickle_data == pickle.dumps(data)  # noqa: S301 (pickle usage)
 
 
 def test_loads(cache):

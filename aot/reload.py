@@ -20,7 +20,7 @@
 import re
 import signal
 import sys
-from subprocess import Popen  # noqa: B404 (Popen can be a security risk)
+from subprocess import Popen  # noqa: S404 (Popen can be a security risk)
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -72,7 +72,7 @@ class AotEventHandler(FileSystemEventHandler):
         print('Reload: done', file=sys.stderr)  # noqa: T001
 
     def start_app(self):
-        self.app = Popen([  # noqa: B603,B607 (Popen usage)
+        self.app = Popen([  # noqa: S603,S607 (Popen usage)
             'python3',
             '-m', 'aot',
             '--debug',
