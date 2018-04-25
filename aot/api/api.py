@@ -309,6 +309,17 @@ class Api(AotWs):
                 await self._play_ai(game)
             else:
                 self._must_save_game = False
+                # We have a not_your_turn error that is displayed sometimes
+                # without an action for the player. We add logs to understand why.
+                try:
+                    player = game.get_player_by_id(self.id)
+                    self.LOGGER.warning(f'Player ({self.id}): {player.name}', extra_data={
+                        'playload': self._message,
+                    })
+                # This may happen if self.id is not a valid id.
+                # Since this is mostly for testing, we don't do anything about it.
+                except KeyError:
+                    pass
                 raise AotErrorToDisplay('not_your_turn')
 
     def _play_ai_after_timeout(self, game):
