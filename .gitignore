@@ -10,3 +10,4 @@
 /.testmondata
 /redis.conf
 /Makefile.in
+.coverage.*
