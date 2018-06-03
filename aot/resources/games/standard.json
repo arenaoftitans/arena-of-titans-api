@@ -152,7 +152,7 @@
         },
         {
             "name": "Reinforcements",
-            "cost": 6,
+            "cost": 8,
             "description": "Allow the player to play one more move.",
             "duration": 1,
             "repeat_for_each_color": false,
