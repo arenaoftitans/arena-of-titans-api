@@ -96,7 +96,7 @@ class Api(AotWs):
             elif self._rt == 'info':
                 await self._info()
             elif self._rt not in RequestTypes:
-                raise AotError('unknown_request', {'rt': self._rt})
+                raise AotError('unknown_request', {'rt': self._rt, 'where': 'on_message'})
             elif self._is_reconnecting:
                 if await self._can_reconnect:
                     await self._reconnect()
@@ -183,7 +183,13 @@ class Api(AotWs):
         elif self._rt == RequestTypes.CREATE_GAME:
             await self._create_game()
         else:  # pragma: no cover
-            raise AotError('unknown_request', {'rt': self._rt})
+            raise AotError(
+                'unknown_request',
+                {
+                    'rt': self._rt,
+                    'where': 'process_create_game_request',
+                },
+            )
 
     async def _join(self):
         index = await self._initialize_cache()
@@ -403,7 +409,7 @@ class Api(AotWs):
         elif self._rt == RequestTypes.PLAY_TRUMP:
             await self._play_trump(game, play_request)
         else:
-            raise AotError('unknown_request', {'rt': self._rt})
+            raise AotError('unknown_request', {'rt': self._rt, 'where': 'play_game'})
 
     async def _view_possible_squares(self, game, play_request):
         card = self._get_card(game, play_request)
