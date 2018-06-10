@@ -183,7 +183,7 @@ class Api(AotWs):
         elif self._rt == RequestTypes.CREATE_GAME:
             await self._create_game()
         else:  # pragma: no cover
-            raise AotError('unknown_error')
+            raise AotError('unknown_request', {'rt': self._rt})
 
     async def _join(self):
         index = await self._initialize_cache()
