@@ -93,7 +93,10 @@ async def test_onMessage_unknown_request_type(api):
 
     api.sendMessage.assert_called_once_with({
         'error': 'Unknown request: .',
-        'extra_data': {'rt': ''},
+        'extra_data': {
+            'rt': '',
+            'where': 'on_message',
+        },
         'is_fatal': False,
     })
 
