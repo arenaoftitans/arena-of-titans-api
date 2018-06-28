@@ -41,15 +41,15 @@ class PyTest(TestCommand):
 
 
 requires = [
-    'asyncio_extras <2.0.0,>=1.3.0',
-    'autobahn >=17.6.2',
-    'bleach >=2.1.1,<3.0',
-    'daiquiri <2.0.0,>=1.2.0',
+    'asyncio_extras ==1.3.2',
+    'autobahn ==18.6.1',
+    'bleach ==2.1.3',
+    'daiquiri ==1.3.0',
     'daiquiri-rollbar >=0.1.0',
-    'aredis <2.0.0,>=1.0.9',
-    'ordered-set <3.0.0,>=2.0.2',
-    'python-dotenv <1.0.0,>=0.7.1',
-    'watchdog <0.9.0,>=0.8.3',
+    'aredis ==1.1.2',
+    'ordered-set ==3.0.0',
+    'python-dotenv ==0.8.2',
+    'watchdog ==0.8.3',
 ]
 
 
