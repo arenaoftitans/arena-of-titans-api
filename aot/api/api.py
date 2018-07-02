@@ -319,8 +319,9 @@ class Api(AotWs):
                 # without an action for the player. We add logs to understand why.
                 try:
                     player = game.get_player_by_id(self.id)
-                    self.LOGGER.warning(f'Player ({self.id}): {player.name}', extra_data={
-                        'playload': self._message,
+                    self.LOGGER.warning('not_your_turn', extra_data={
+                        'player': f'Player ({self.id}): {player.name}',
+                        'playload': json.dumps(self._message),
                     })
                 # This may happen if self.id is not a valid id.
                 # Since this is mostly for testing, we don't do anything about it.
