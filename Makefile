@@ -28,7 +28,6 @@ help:
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
 	@echo "- dockerimage: build a production like image with the API installed in it."
-	@echo "- rundeps: install or update dependencies."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
 	@echo "- check: launch lint and testall."
@@ -120,11 +119,15 @@ clean:
 	rm -rf .testmondata
 
 
-.PHONY: rundeps
-rundeps:
-	${PIP_CMD} install -U pip
-	${PIP_CMD} install pipenv
+.PHONY: deps
+deps:
+ifdef INSIDE_DOCKER
+	pip install -U pip
+	pip install pipenv
 	pipenv install --dev --deploy --system
+else
+	${DK_EXEC_CMD} make deps
+endif
 
 
 .PHONY: doc
