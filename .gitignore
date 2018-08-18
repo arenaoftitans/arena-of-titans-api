@@ -11,3 +11,5 @@
 /redis.conf
 /Makefile.in
 .coverage.*
+/.env
+/.tmontmp
