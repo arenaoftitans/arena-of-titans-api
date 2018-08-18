@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import copy
 import random
 
 from ..board import Color
@@ -63,6 +64,11 @@ class Deck:
     def modify_number_moves(self, delta, filter_=None):
         for card in filter(filter_, self._hand):
             card.modify_number_moves(delta)
+
+    def set_special_actions_to_card(self, card_name, actions):
+        for card in filter(lambda x: x.name == card_name, self._hand):
+            actions_copy = copy.deepcopy(actions)
+            card.set_special_actions(actions_copy)
 
     def view_possible_squares(self, card, position):
         if card is not None and not isinstance(card, Card):

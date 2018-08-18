@@ -18,6 +18,7 @@
 ################################################################################
 
 from .trumps import (
+    AddSpecialActionsToCard,
     CannotBeAffectedByTrumps,
     ModifyCardColors,
     ModifyCardNumberMoves,
@@ -77,4 +78,8 @@ class ModifyCardNumberMovesPower(ModifyCardNumberMoves, Power):
 
 
 class PreventTrumpActionPower(PreventTrumpAction, Power):
+    pass
+
+
+class AddSpecialActionsToCardPower(AddSpecialActionsToCard, Power):
     pass

@@ -290,6 +290,50 @@ class ModifyCardNumberMoves(Trump):
             player.modify_card_number_moves(self._delta_moves, filter_=filter_)
 
 
+class AddSpecialActionsToCard(Trump):
+    _card_names = None
+    _special_actions = None
+
+    def __init__(
+        self,
+        card_names=None,
+        special_actions=None,
+        cost=5,
+        description='',
+        duration=0,
+        name='',
+        color=None,
+        must_target_player=False,
+        **kwargs,
+    ):
+        super().__init__(
+            cost=cost,
+            description=description,
+            duration=duration,
+            must_target_player=must_target_player,
+            name=name,
+            color=color,
+            **kwargs,
+        )
+        from aot.cards.trumps import TrumpList, SimpleTrump
+        self._card_names = card_names
+        self._special_actions = TrumpList()
+        for action in special_actions:
+            type_ = action['parameters']['type']
+            del action['parameters']['type']
+            action.update(action['parameters'])
+            del action['parameters']
+            self._special_actions.append(SimpleTrump(
+                type=type_,
+                name=action['name'],
+                color=None,
+                args=action,
+            ))
+
+    def affect(self, player):
+        player.set_special_actions_to_cards_in_deck(self._card_names, self._special_actions)
+
+
 class ModifyTrumpDurations(Trump):
     def __init__(
         self,

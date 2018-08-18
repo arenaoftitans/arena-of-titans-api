@@ -23,6 +23,7 @@ from operator import xor
 
 from .gauge import Gauge
 from .powers import (
+    AddSpecialActionsToCardPower,
     CannotBeAffectedByTrumpsPower,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
@@ -43,6 +44,7 @@ from .trumps import (
 
 
 power_type_to_class = {
+    'AddSpecialActionsToCard': AddSpecialActionsToCardPower,
     'CannotBeAffectedByTrumps': CannotBeAffectedByTrumpsPower,
     'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
