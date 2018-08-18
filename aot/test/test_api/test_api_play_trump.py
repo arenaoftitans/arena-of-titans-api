@@ -67,16 +67,15 @@ async def test_play_trump_with_wrong_target(api, game):
             'target_index': 10,
         })
 
-    assert 'wrong_trump_target' in str(e)
+    assert 'The target of this trump does not exist' in str(e)
 
 
 @pytest.mark.asyncio  # noqa: F811
 async def test_play_trump_max_number_trumps_played(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
-    game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._number_trumps_played = game.active_player.MAX_NUMBER_TRUMPS_PLAYED
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
-    game.active_player._can_play = False
 
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {
@@ -92,7 +91,7 @@ async def test_play_trump_max_number_trumps_played(api, game):
 async def test_play_trump_max_number_affecting_trumps(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
-    game.active_player.play_trump = MagicMock(return_value=False)
+    game.active_player._affecting_trumps = range(game.active_player.MAX_NUMBER_AFFECTING_TRUMPS)
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
 
     with pytest.raises(AotError) as e:
@@ -110,7 +109,6 @@ async def test_play_trump_max_number_affecting_trumps(api, game):
 async def test_play_trump_gauge_too_low(api, game):
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
-    game.active_player.play_trump = MagicMock(return_value=False)
     game.active_player._gauge.can_play_trump = MagicMock(return_value=False)
 
     with pytest.raises(AotError) as e:

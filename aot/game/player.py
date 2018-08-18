@@ -21,6 +21,12 @@ import daiquiri
 
 from ..board import Square
 from ..cards.trumps import create_power
+from ..cards.trumps.exceptions import (
+    GaugeTooLowToPlayTrump,
+    MaxNumberAffectingTrumps,
+    MaxNumberTrumpPlayed,
+)
+from ..game.exceptions import NotYourTurn
 from ..utils import get_time
 
 
@@ -324,35 +330,38 @@ class Player:
         self._special_actions_names.remove(action.name.lower())
 
     def _affect_by(self, trump):
-        if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
-            self._affecting_trumps.append(trump)
-            if self._can_play:
-                trump.affect(self)
-            return True
-        else:
-            return False
+        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+            raise MaxNumberAffectingTrumps
+
+        self._affecting_trumps.append(trump)
+        if self._can_play:
+            trump.affect(self)
 
     def get_trump(self, trump_name, trump_color=None):
         return self._available_trumps[trump_name, trump_color]
 
-    def play_trump(self, trump, target=None):
-        if self.can_play_trump(trump) and target is not None:
-            if target._affect_by(trump):
-                self._number_trumps_played += 1
-                self._gauge.play_trump(trump)
-                self.last_action = LastAction(
-                    description='played_trump',
-                    trump=trump,
-                    player_name=self.name,
-                    target_name=target.name,
-                    target_index=target.index,
-                    player_index=self.index,
-                )
-                return True
-            else:
-                return False
-        else:
-            return False
+    def play_trump(self, trump, *, target):
+        self._check_play_trump(trump, target=target)
+
+        target._affect_by(trump)
+        self._number_trumps_played += 1
+        self._gauge.play_trump(trump)
+        self.last_action = LastAction(
+            description='played_trump',
+            trump=trump,
+            player_name=self.name,
+            target_name=target.name,
+            target_index=target.index,
+            player_index=self.index,
+        )
+
+    def _check_play_trump(self, trump, *, target):
+        if not self.can_play:
+            raise NotYourTurn
+        if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
+            raise MaxNumberTrumpPlayed
+        if not self._gauge.can_play_trump(trump):
+            raise GaugeTooLowToPlayTrump
 
     def can_play_trump(self, trump):
         return self.can_play and \

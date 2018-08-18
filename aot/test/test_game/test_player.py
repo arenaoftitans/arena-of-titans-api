@@ -34,6 +34,11 @@ from ...cards.trumps import (
     Trump,
     TrumpList,
 )
+from ...cards.trumps.exceptions import (
+    GaugeTooLowToPlayTrump,
+    MaxNumberAffectingTrumps,
+    MaxNumberTrumpPlayed,
+)
 from ...game import Player
 
 
@@ -500,16 +505,17 @@ def test_play_trump(player):  # noqa: F811
     trump = player.get_trump('Reinforcements')
     trump.affect = MagicMock()
 
-    assert player.play_trump(trump, target=player)
+    player.play_trump(trump, target=player)
     trump.affect.assert_called_once_with(player)
     player._gauge.can_play_trump.assert_called_once_with(trump)
     player._gauge.play_trump.assert_called_once_with(trump)
-    assert not player.play_trump(trump, target=player)
+    with pytest.raises(MaxNumberTrumpPlayed):
+        player.play_trump(trump, target=player)
     assert trump.affect.call_count == 1
 
     player.complete_turn()
     player.init_turn()
-    assert player.play_trump(trump, target=player)
+    player.play_trump(trump, target=player)
     assert trump.affect.call_count == 2
     assert player._gauge.can_play_trump.call_count == 2
     player._gauge.play_trump.call_count == 2
@@ -520,13 +526,15 @@ def test_number_affecting_trumps(player):  # noqa: F811
     # Check that the number of played trumps is only increased if the targeted
     # player can be affected.
     trump = player.get_trump('Reinforcements')
-    assert player._affect_by(trump)
-    assert player._affect_by(trump)
-    assert player._affect_by(trump)
-    assert player._affect_by(trump)
-    assert not player._affect_by(trump)
+    player._affect_by(trump)
+    player._affect_by(trump)
+    player._affect_by(trump)
+    player._affect_by(trump)
+    with pytest.raises(MaxNumberAffectingTrumps):
+        player._affect_by(trump)
     player.init_turn()
-    assert not player.play_trump(trump, target=player)
+    with pytest.raises(MaxNumberAffectingTrumps):
+        player.play_trump(trump, target=player)
     assert not player._gauge.play_trump.called
     assert player._number_trumps_played == 0
 
@@ -536,7 +544,8 @@ def test_number_gauge_empty(player):  # noqa: F811
     player._gauge.can_play_trump = MagicMock(return_value=False)
     player.init_turn()
 
-    assert not player.play_trump(trump, target=player)
+    with pytest.raises(GaugeTooLowToPlayTrump):
+        player.play_trump(trump, target=player)
     assert not player._gauge.play_trump.called
     assert player._number_trumps_played == 0
 

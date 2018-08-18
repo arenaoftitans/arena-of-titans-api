@@ -19,6 +19,8 @@
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from .. import (  # noqa: F401
     board,
     deck,
@@ -34,6 +36,7 @@ from ...cards.trumps import (
     RemoveColor,
     Teleport,
 )
+from ...cards.trumps.exceptions import MaxNumberAffectingTrumps
 
 
 def test_affect_modify_number_moves(player):  # noqa: F811
@@ -207,9 +210,10 @@ def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):
 
     for i in range(player1.MAX_NUMBER_AFFECTING_TRUMPS):
         trump = RemoveColor(colors=[Color['BLACK']], duration=1)
-        assert player1._affect_by(trump)
+        player1._affect_by(trump)
         assert len(player1.affecting_trumps) == i + 1
 
     trump = RemoveColor(colors=[Color['BLACK']], duration=1)
-    assert not player1._affect_by(trump)
+    with pytest.raises(MaxNumberAffectingTrumps):
+        player1._affect_by(trump)
     assert len(player1.affecting_trumps) == player1.MAX_NUMBER_AFFECTING_TRUMPS
