@@ -25,6 +25,7 @@ from ..cards.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
     MaxNumberAffectingTrumps,
     MaxNumberTrumpPlayed,
+    TrumpHasNoEffect,
 )
 from ..game.exceptions import NotYourTurn
 from ..utils import get_time
@@ -333,6 +334,9 @@ class Player:
         if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
             raise MaxNumberAffectingTrumps
 
+        if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
+            raise TrumpHasNoEffect
+
         self._affecting_trumps.append(trump)
         if self._can_play:
             trump.affect(self)
@@ -343,7 +347,23 @@ class Player:
     def play_trump(self, trump, *, target):
         self._check_play_trump(trump, target=target)
 
-        target._affect_by(trump)
+        try:
+            target._affect_by(trump)
+        except TrumpHasNoEffect:
+            self._end_play_trump(trump, target=target)
+            raise
+        else:
+            self._end_play_trump(trump, target=target)
+
+    def _check_play_trump(self, trump, *, target):
+        if not self.can_play:
+            raise NotYourTurn
+        if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
+            raise MaxNumberTrumpPlayed
+        if not self._gauge.can_play_trump(trump):
+            raise GaugeTooLowToPlayTrump
+
+    def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
         self._gauge.play_trump(trump)
         self.last_action = LastAction(
@@ -354,14 +374,6 @@ class Player:
             target_index=target.index,
             player_index=self.index,
         )
-
-    def _check_play_trump(self, trump, *, target):
-        if not self.can_play:
-            raise NotYourTurn
-        if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
-            raise MaxNumberTrumpPlayed
-        if not self._gauge.can_play_trump(trump):
-            raise GaugeTooLowToPlayTrump
 
     def can_play_trump(self, trump):
         return self.can_play and \

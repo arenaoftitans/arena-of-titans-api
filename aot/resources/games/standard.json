@@ -193,6 +193,21 @@
                 ]
             }
         },
+        "razbrak": {
+            "name": "Force of nature",
+            "description": "Towers and fortresses have no effect.",
+            "passive": true,
+            "cost": 0,
+            "trump_delta_cost": 2,
+            "must_target_player": false,
+            "parameters": {
+                "type": "CannotBeAffectedByTrumps",
+                "trump_names": [
+                    "Fortress",
+                    "Tower"
+                ]
+            }
+        },
         "ulya": {
             "name": "Domination",
             "description": "Make queens move of 3 squares instead of 2.",

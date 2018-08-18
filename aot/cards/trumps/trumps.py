@@ -70,6 +70,9 @@ class Trump:
         else:  # pragma: no cover
             self._colors.add(color)
 
+    def allow_trump_to_affect(self, trump):
+        return True
+
     def consume(self):
         self._duration -= 1
 
@@ -200,6 +203,27 @@ class ModifyCardColors(Trump):
 
         if player and self._duration > 0:
             player.modify_card_colors(self._colors, filter_=filter_)
+
+
+class CannotBeAffectedByTrumps(Trump):
+    _trump_names = []
+
+    def __init__(
+        self,
+        *,
+        trump_names,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self._trump_names = trump_names
+
+    def affect(self, player):
+        pass
+
+    def allow_trump_to_affect(self, trump):
+        if trump.name in self._trump_names:
+            return False
+        return True
 
 
 class ModifyCardNumberMoves(Trump):

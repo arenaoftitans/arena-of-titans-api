@@ -19,3 +19,7 @@ class MaxNumberTrumpPlayed(TrumpError):
 
 class NonExistantTrumpTarget(TrumpError):
     pass
+
+
+class TrumpHasNoEffect(TrumpError):
+    pass

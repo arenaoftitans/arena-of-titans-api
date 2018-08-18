@@ -18,6 +18,7 @@
 ################################################################################
 
 from .trumps import (
+    CannotBeAffectedByTrumps,
     ModifyCardColors,
     ModifyCardNumberMoves,
     Trump,
@@ -57,6 +58,10 @@ class Power(Trump):
     @property
     def passive(self):
         return self._passive
+
+
+class CannotBeAffectedByTrumpsPower(CannotBeAffectedByTrumps, Power):
+    pass
 
 
 class ModifyCardColorsPower(ModifyCardColors, Power):

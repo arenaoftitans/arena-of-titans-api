@@ -58,6 +58,7 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     VIEW_POSSIBLE_SQUARES = ()
     PLAY_TRUMP = ()
     PLAYER_PLAYED = ()
+    TRUMP_HAS_NO_EFFECT = ()
 
 
 class SlotState(metaclass=SimpleEnumMeta):

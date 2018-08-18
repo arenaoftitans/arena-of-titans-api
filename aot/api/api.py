@@ -41,6 +41,7 @@ from ..cards.trumps.exceptions import (
     MaxNumberAffectingTrumps,
     MaxNumberTrumpPlayed,
     NonExistantTrumpTarget,
+    TrumpHasNoEffect,
 )
 from ..config import config
 from ..game import Player
@@ -655,6 +656,13 @@ class Api(AotWs):
                 'max_number_trumps',
                 {'num': Player.MAX_NUMBER_AFFECTING_TRUMPS},
             )
+        except TrumpHasNoEffect:
+            game.add_action(game.active_player.last_action)
+            await self._send_trump_played_message(
+                game,
+                target_index,
+                rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
+            )
         else:
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
@@ -666,9 +674,10 @@ class Api(AotWs):
         self,
         game,
         target_index,
+        rt=RequestTypes.PLAY_TRUMP,
     ):  # pragma: no cover
         message = {
-            'rt': RequestTypes.PLAY_TRUMP,
+            'rt': rt,
             'active_trumps': self._get_active_trumps_message(game),
             'player_index': game.active_player.index,
             'target_index': target_index,

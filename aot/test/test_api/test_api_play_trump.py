@@ -29,6 +29,7 @@ from .. import (  # noqa: F401
 from ...api.utils import (
     AotError,
 )
+from ...cards.trumps import CannotBeAffectedByTrumpsPower
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -148,7 +149,8 @@ async def test_play_trump_without_target(api, game):
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:
             break
-    api._send_trump_played_message = AsyncMagicMock()
+    api._send_all_others = AsyncMagicMock()
+    api.sendMessage = AsyncMagicMock()
     game.add_action = MagicMock()
 
     await api._play_trump(game, {
@@ -156,6 +158,38 @@ async def test_play_trump_without_target(api, game):
         'color': trump['color'],
     })
 
-    assert api._send_trump_played_message.called
+    assert api._send_all_others.called
+    call_args = api._send_all_others.call_args[0]
+    assert call_args[0]['rt'] == 'PLAY_TRUMP'
+    assert api.sendMessage.called
+    call_args = api.sendMessage.call_args[0]
+    assert call_args[0]['rt'] == 'PLAY_TRUMP'
+    assert game.add_action.call_count == 1
+    assert game.active_player._gauge.can_play_trump.called
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, game):
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
+    for trump in game.active_player.trumps:
+        if trump['must_target_player']:
+            break
+    api._send_all_others = AsyncMagicMock()
+    api.sendMessage = AsyncMagicMock()
+    game.add_action = MagicMock()
+    game.active_player._passive_power = CannotBeAffectedByTrumpsPower(trump_names=['Tower'])
+
+    await api._play_trump(game, {
+        'name': trump['name'],
+        'color': trump['color'],
+        'target_index': 0,
+    })
+
+    assert api._send_all_others.called
+    call_args = api._send_all_others.call_args[0]
+    assert call_args[0]['rt'] == 'TRUMP_HAS_NO_EFFECT'
+    assert api.sendMessage.called
+    call_args = api.sendMessage.call_args[0]
+    assert call_args[0]['rt'] == 'TRUMP_HAS_NO_EFFECT'
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called
