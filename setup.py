@@ -40,17 +40,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-requires = [
-    'asyncio_extras ==1.3.2',
-    'autobahn ==18.6.1',
-    'bleach ==2.1.3',
-    'daiquiri ==1.3.0',
-    'daiquiri-rollbar >=0.1.0',
-    'aredis ==1.1.2',
-    'ordered-set ==3.0.0',
-    'python-dotenv ==0.8.2',
-    'watchdog ==0.8.3',
-]
+requires = []
 
 
 setup(
