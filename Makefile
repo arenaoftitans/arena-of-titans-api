@@ -82,6 +82,7 @@ endif
 dockerimage:
 ifdef VERSION
 	docker build \
+		--pull \
 	    -f docker/aot-api/Dockerfile \
 	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
 	    .
