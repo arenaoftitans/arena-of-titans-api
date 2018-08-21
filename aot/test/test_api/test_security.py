@@ -48,10 +48,10 @@ def signed_data():
 
 def test_sign(signed_data):
     data = b'some-data'
-    signed_data = encode(data)
+    encoded_data = encode(data)
 
-    assert b':' in signed_data
-    assert signed_data == signed_data
+    assert b':' in encoded_data
+    assert signed_data == encoded_data
 
 
 def test_decode(signed_data):
