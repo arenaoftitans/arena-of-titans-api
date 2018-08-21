@@ -185,3 +185,15 @@ Docker
 #. Change the version of the image in ``docker-compose.yml``
 
 **Note:** If you want to install a new dependency, you must first run ``pipenv lock`` to update the ``Pipenv.lock`` file in a local virtual env or in the container.
+
+
+Debugger
+========
+
+We rely on `pudb <https://pypi.org/project/pudb/>`__ to get a nice, full featured debugger. To add breakpoints, add ``breakpoint()`` at the relevant places in your code. You must then attach to the container of the API with something like (the actual name may differ on your configuration): ``docker attach aotapi_aot-dev-api_1`` to see the debugger window and interact with it.
+
+Notes:
+
+- To close the debugger window, you must hit ``^C-C`` which will also stop the container.
+- We can also use remote debugging as described `here <https://github.com/isaacbernat/docker-pudb>`__. To do so, use ``from pudb.remote import set_trace; set_trace(term_size=(160, 40), host='0.0.0.0', port=6900)`` to create the breakpoint and ``telnet 127.0.0.1 6900`` to attach to the debugger. It is not recommended because you need to know in advance the size of the terminal to use, which is cumbersome.
+- VSCode debugging is also not very practical. See https://code.visualstudio.com/docs/python/debugging#_remote-debugging

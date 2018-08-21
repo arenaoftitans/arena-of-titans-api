@@ -21,9 +21,9 @@ import asyncio
 import base64
 import json
 import uuid
+from contextlib import asynccontextmanager
 
 import daiquiri
-from asyncio_extras.contextmanager import async_contextmanager
 
 from .utils import (
     AotError,
@@ -354,17 +354,21 @@ class Api(AotWs):
             if game.active_player.is_ai:
                 self._play_ai_after_timeout(game)
 
-    @async_contextmanager
+    @asynccontextmanager
     async def _load_game(self):
         self._must_save_game = True
         game = await self._get_game()
         self._disconnect_pending_players(game)
         self._reconnect_pending_players(game)
 
-        yield game
-
-        if self._must_save_game:
-            await self._save_game(game)
+        try:
+            yield game
+        except Exception as e:
+            self.LOGGER.exception('Uncaught error while playing, will not save the loaded game')
+            raise
+        else:
+            if self._must_save_game:
+                await self._save_game(game)
 
     def _disconnect_pending_players(self, game):
         self._change_players_connection_status(

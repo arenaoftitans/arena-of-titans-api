@@ -23,9 +23,9 @@ from abc import (
     ABCMeta,
     abstractmethod,
 )
+from contextlib import asynccontextmanager
 
 import daiquiri
-from asyncio_extras.contextmanager import async_contextmanager
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
 from .cache import Cache
@@ -82,7 +82,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    @async_contextmanager
+    @asynccontextmanager
     async def _load_game(self):  # pragma: no cover
         pass
 

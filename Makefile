@@ -41,9 +41,9 @@ help:
 .PHONY: dockerbuild
 dockerbuild:
 ifdef VERSION
-	docker pull docker.io/python:3.6-slim
 	# Update base.
 	docker build \
+		--pull \
 		-f docker/aot-api-base/Dockerfile \
 		-t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:${VERSION}" \
 	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api/base/aot-api:latest" \
@@ -179,7 +179,7 @@ testall: test
 .PHONY: test
 test:
 ifdef INSIDE_DOCKER
-	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} ./setup.py test
+	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} pytest
 else
 	# Clean old pyc files for pytest to prevent errors if tests where run outside the container.
 	find aot/test -name \*.pyc -exec rm {} \;
