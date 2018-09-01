@@ -429,7 +429,7 @@ def test_modify_trump_duration(player):  # noqa: F811
 
     assert tower.duration == 0
     assert blizzard.duration == 2
-    assert player.affecting_trumps == [blizzard]
+    assert player.affecting_trumps == (blizzard,)
     # Trumps must be disabled then re-enabled to take into account the changes.
     assert player._revert_to_default.called
     # The tower is not available any more

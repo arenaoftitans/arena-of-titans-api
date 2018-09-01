@@ -26,6 +26,7 @@ from .. import (  # noqa: F401
     deck,
     game,
     player,
+    player2,
 )
 from ...board import Color
 from ...cards.trumps import (
@@ -33,8 +34,11 @@ from ...cards.trumps import (
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     ModifyTrumpDurations,
+    PreventTrumpAction,
     RemoveColor,
+    SimpleTrump,
     Teleport,
+    TrumpList,
 )
 from ...cards.trumps.exceptions import MaxNumberAffectingTrumps, TrumpHasNoEffect
 
@@ -114,21 +118,101 @@ def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
 
 
 def test_affect_modify_affecting_trump_durations_with_filter_(player):  # noqa: F811
-    player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=['Tower'])
     tower = MagicMock()
     tower.name = 'Tower'
+    tower.duration = 1
     blizzard = MagicMock()
     blizzard.name = 'Blizzard'
+    blizzard.duration = 1
+    player._affecting_trumps = [tower, blizzard]
 
     trump.affect(player)
 
-    assert player.modify_affecting_trump_durations.called
-    assert player.modify_affecting_trump_durations.call_args[0][0] == -1
-    assert callable(player.modify_affecting_trump_durations.call_args[1]['filter_'])
-    filter_ = player.modify_affecting_trump_durations.call_args[1]['filter_']
-    assert filter_(tower)
-    assert not filter_(blizzard)
+    assert tower.duration == 0
+    assert blizzard.duration == 1
+    assert player._affecting_trumps == [blizzard]
+
+
+def test_prevent_trump_action_enable_on_relevant_trump(player, player2):  # noqa: F811
+    '''Test that we can prevent the action of a trump.
+
+    GIVEN: a prevent action trump enabled on 'Tower' trumps to prevent the 'Ram' trump.
+    GIVEN: a Tower trump that affects a player
+    GIVEN: a Ram trump
+    WHEN: the Ram trump is played against the player to cancel the Tower
+    THEN: it has no effect.
+    '''
+    # Setup up player.
+    prevent_action_trump = PreventTrumpAction(
+        name='Impassable Trump',
+        prevent_for_trumps=['Ram'],
+        enable_for_trumps=['Tower'],
+    )
+    trump_to_improve = SimpleTrump(
+        type='RemoveColor',
+        name='Tower',
+        args={'duration': 1, 'name': 'Tower'},
+    )
+    player._available_trumps = TrumpList([trump_to_improve])
+    prevent_action_trump.affect(player)
+    tower = player._available_trumps['Tower', None]
+    player._can_play = True
+    player.play_trump(tower, target=player2)
+    # Setup trump to play but will have no effect.
+    ram = ModifyTrumpDurations(
+        name='Ram',
+        trump_names=['Tower', 'Fortress'],
+        duration=1,
+    )
+
+    with pytest.raises(TrumpHasNoEffect):
+        ram.affect(player)
+
+    assert tower.duration == 1
+    assert player2.affecting_trumps == (tower,)
+
+
+def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  # noqa: F811
+    '''Test that we only prevent the action of proper trumps.
+
+    GIVEN: a prevent action trump enabled on 'Tower' trumps to prevent the 'Ram' trump for player.
+    GIVEN: a Fortress trump that affects player 2
+    GIVEN: a Ram trump for player 2
+    WHEN: player 2 plays the Ram trump to cancel the Fortress
+    THEN: it works.
+    '''
+    # Setup player.
+    prevent_action_trump = PreventTrumpAction(
+        name='Impassable Trump',
+        prevent_for_trumps=['Ram'],
+        enable_for_trumps=['Tower'],
+    )
+    trump_not_to_improve = SimpleTrump(
+        type='RemoveColor',
+        name='Fortress',
+        args={'duration': 2, 'name': 'Fortress'},
+    )
+    player._available_trumps = TrumpList([trump_not_to_improve])
+    prevent_action_trump.affect(player)
+    fortress = player._available_trumps['Fortress', None]
+    player._can_play = True
+    player.play_trump(fortress, target=player2)
+    # Setup trump to play.
+    ram = ModifyTrumpDurations(
+        name='Ram',
+        trump_names=['Tower', 'Fortress'],
+        duration=1,
+        delta_duration=-1,
+    )
+
+    ram.affect(player2)
+    assert fortress.duration == 1
+    assert player2.affecting_trumps == (fortress,)
+
+    ram.affect(player2)
+    assert fortress.duration == 0
+    assert player2.affecting_trumps == ()
 
 
 def test_remove_color(player):  # noqa: F811

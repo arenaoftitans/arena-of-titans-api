@@ -396,7 +396,7 @@ class Player:
 
     @property
     def affecting_trumps(self):
-        return self._affecting_trumps
+        return tuple(self._affecting_trumps)
 
     @property
     def ai_aim(self):

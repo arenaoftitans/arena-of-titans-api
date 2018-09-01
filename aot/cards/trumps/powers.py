@@ -21,6 +21,7 @@ from .trumps import (
     CannotBeAffectedByTrumps,
     ModifyCardColors,
     ModifyCardNumberMoves,
+    PreventTrumpAction,
     Trump,
 )
 
@@ -69,4 +70,8 @@ class ModifyCardColorsPower(ModifyCardColors, Power):
 
 
 class ModifyCardNumberMovesPower(ModifyCardNumberMoves, Power):
+    pass
+
+
+class PreventTrumpActionPower(PreventTrumpAction, Power):
     pass

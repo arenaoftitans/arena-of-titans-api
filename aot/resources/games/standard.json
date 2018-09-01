@@ -175,6 +175,25 @@
         }
     ],
     "powers": {
+        "djor": {
+            "name": "Impassable",
+            "description": "Your tower and fortress cannot be destroyed.",
+            "passive": true,
+            "cost": 0,
+            "trump_cost_delta": 2,
+            "must_target_player": false,
+            "parameters": {
+                "type": "PreventTrumpAction",
+                "prevent_for_trumps": [
+                    "Force of nature",
+                    "Ram"
+                ],
+                "enable_for_trumps": [
+                    "Fortress",
+                    "Tower"
+                ]
+            }
+        },
         "garez": {
             "name": "Inveterate Ride",
             "description": "Your knights can move on any colors",
