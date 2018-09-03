@@ -332,6 +332,8 @@ class Player:
             raise trumps.exceptions.TrumpHasNoEffect
 
         self._affecting_trumps.append(trump)
+        # The trump has just been played. We only trigger the effect if this is the target's turn.
+        # If not, it will be applied once the turn begins.
         if self._can_play:
             trump.affect(self)
 
