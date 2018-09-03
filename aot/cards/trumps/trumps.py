@@ -17,6 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 
 import aot
@@ -28,7 +29,7 @@ from ...board import (
 )
 
 
-class Trump:
+class Trump(metaclass=ABCMeta):
     _name = ''
     _duration = 0
     _description = ''
@@ -69,6 +70,10 @@ class Trump:
             self._colors.add(Color[color])
         else:  # pragma: no cover
             self._colors.add(color)
+
+    @abstractmethod
+    def affect(self, player):
+        pass
 
     def allow_trump_to_affect(self, trump):
         return True

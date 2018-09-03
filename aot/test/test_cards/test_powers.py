@@ -32,15 +32,26 @@ from ...cards.trumps import (
 )
 
 
+class VoidPower(Power):
+    '''Sample power to be used in tests.
+
+    It exists to tests common behavior to all power. We cannot instansiate Power directly
+    because it is abstract.
+    '''
+
+    def affect(self, player):  # noqa: F811
+        raise NotImplementedError
+
+
 def test_create_normal_power():
-    power = Power(passive=False)
+    power = VoidPower(passive=False)
 
     assert not power.passive
     assert power.duration == 0
 
 
 def test_create_passive_power():
-    power = Power(passive=True)
+    power = VoidPower(passive=True)
 
     assert power.passive
     assert power.duration is None
@@ -49,7 +60,7 @@ def test_create_passive_power():
 def test_enable():
     trump = MagicMock()
     trump.args = {'cost': 1}
-    power = Power(trump_cost_delta=5)
+    power = VoidPower(trump_cost_delta=5)
 
     power.setup([trump])
 
