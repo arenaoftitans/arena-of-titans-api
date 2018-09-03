@@ -331,11 +331,14 @@ class Player:
         if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
             raise trumps.exceptions.TrumpHasNoEffect
 
-        self._affecting_trumps.append(trump)
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
         if self._can_play:
             trump.affect(self)
+
+        # trump.affect may raise a TrumpHasNoEffect.
+        # Only add the trump to the list if it had an effect.
+        self._affecting_trumps.append(trump)
 
     def get_trump(self, trump_name, trump_color=None):
         return self._available_trumps[trump_name, trump_color]
@@ -405,6 +408,11 @@ class Player:
     @property
     def aim(self):
         return self._aim
+
+    @property
+    def available_trumps(self) -> tuple:
+        # List of available trumps cannot be modified outside this class.
+        return tuple(self._available_trumps)
 
     @property
     def can_play(self):

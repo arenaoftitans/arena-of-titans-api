@@ -36,7 +36,7 @@ from ...cards.trumps import (
     RemoveColor,
     Teleport,
 )
-from ...cards.trumps.exceptions import MaxNumberAffectingTrumps
+from ...cards.trumps.exceptions import MaxNumberAffectingTrumps, TrumpHasNoEffect
 
 
 def test_affect_modify_number_moves(player):  # noqa: F811
@@ -108,8 +108,9 @@ def test_affect_modify_card_number_moves_with_filter_(player):  # noqa: F811
 def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
     player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
-    trump.affect(player)
-    player.modify_affecting_trump_durations.assert_called_once_with(-1, filter_=None)
+    with pytest.raises(TrumpHasNoEffect):
+        trump.affect(player)
+    assert not player.modify_affecting_trump_durations.called
 
 
 def test_affect_modify_affecting_trump_durations_with_filter_(player):  # noqa: F811

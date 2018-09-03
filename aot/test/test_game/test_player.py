@@ -38,6 +38,7 @@ from ...cards.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
     MaxNumberAffectingTrumps,
     MaxNumberTrumpPlayed,
+    TrumpHasNoEffect,
 )
 from ...game import Player
 
@@ -530,13 +531,31 @@ def test_number_affecting_trumps(player):  # noqa: F811
     player._affect_by(trump)
     player._affect_by(trump)
     player._affect_by(trump)
+
     with pytest.raises(MaxNumberAffectingTrumps):
         player._affect_by(trump)
+    assert len(player.affecting_trumps) == 4
+
     player.init_turn()
     with pytest.raises(MaxNumberAffectingTrumps):
         player.play_trump(trump, target=player)
+    assert len(player.affecting_trumps) == 4
     assert not player._gauge.play_trump.called
     assert player._number_trumps_played == 0
+
+
+def test_trump_affect_raises(player, mock):  # noqa: F811
+    trump = player.get_trump('Reinforcements')
+    player._can_play = True
+
+    def affect(player):
+        raise TrumpHasNoEffect
+    trump.affect = affect
+
+    with pytest.raises(TrumpHasNoEffect):
+        player.play_trump(trump, target=player)
+
+    assert len(player.affecting_trumps) == 0
 
 
 def test_number_gauge_empty(player):  # noqa: F811
