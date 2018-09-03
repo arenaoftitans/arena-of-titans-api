@@ -23,7 +23,7 @@ from .ai import (
     find_cheapest_card,
     find_move_to_play,
 )
-from ..cards.trumps.exceptions import NonExistantTrumpTarget
+from ..cards.trumps import exceptions as trumps_exceptions
 
 
 class Game:
@@ -80,7 +80,7 @@ class Game:
         try:
             target = self.players[target_index]
         except IndexError:
-            raise NonExistantTrumpTarget
+            raise trumps_exceptions.NonExistantTrumpTarget
         else:
             self.active_player.play_trump(trump, target=target)
 

@@ -20,13 +20,7 @@
 import daiquiri
 
 from ..board import Square
-from ..cards.trumps import create_power
-from ..cards.trumps.exceptions import (
-    GaugeTooLowToPlayTrump,
-    MaxNumberAffectingTrumps,
-    MaxNumberTrumpPlayed,
-    TrumpHasNoEffect,
-)
+from ..cards import trumps
 from ..game.exceptions import NotYourTurn
 from ..utils import get_time
 
@@ -134,7 +128,7 @@ class Player:
 
     def _setup_power(self, power):
         if power is not None and power.args.get('passive', False):
-            self._passive_power = create_power(power)
+            self._passive_power = trumps.create_power(power)
             self._passive_power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
@@ -332,10 +326,10 @@ class Player:
 
     def _affect_by(self, trump):
         if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
-            raise MaxNumberAffectingTrumps
+            raise trumps.exceptions.MaxNumberAffectingTrumps
 
         if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
-            raise TrumpHasNoEffect
+            raise trumps.exceptions.TrumpHasNoEffect
 
         self._affecting_trumps.append(trump)
         if self._can_play:
@@ -349,7 +343,7 @@ class Player:
 
         try:
             target._affect_by(trump)
-        except TrumpHasNoEffect:
+        except trumps.exceptions.TrumpHasNoEffect:
             self._end_play_trump(trump, target=target)
             raise
         else:
@@ -359,9 +353,9 @@ class Player:
         if not self.can_play:
             raise NotYourTurn
         if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
-            raise MaxNumberTrumpPlayed
+            raise trumps.exceptions.MaxNumberTrumpPlayed
         if not self._gauge.can_play_trump(trump):
-            raise GaugeTooLowToPlayTrump
+            raise trumps.exceptions.GaugeTooLowToPlayTrump
 
     def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
