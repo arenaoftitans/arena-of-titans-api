@@ -120,7 +120,8 @@
             "parameters": {
                 "type": "ModifyNumberMoves",
                 "delta_moves": -1
-            }
+            },
+            "weight": 3
         },
         {
             "name": "Fortress",
@@ -131,7 +132,8 @@
             "must_target_player": true,
             "parameters": {
                 "type": "RemoveColor"
-            }
+            },
+            "weight": 1
         },
         {
             "name": "Ram",
@@ -148,7 +150,8 @@
                     "Fortress",
                     "Tower"
                 ]
-            }
+            },
+            "weight": 5
         },
         {
             "name": "Reinforcements",
@@ -160,7 +163,8 @@
             "parameters": {
                 "type": "ModifyNumberMoves",
                 "delta_moves": 1
-            }
+            },
+            "weight": 3
         },
         {
             "name": "Tower",
@@ -171,7 +175,8 @@
             "must_target_player": true,
             "parameters": {
                 "type": "RemoveColor"
-            }
+            },
+            "weight": 1
         }
     ],
     "powers": {
