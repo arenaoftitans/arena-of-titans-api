@@ -155,3 +155,44 @@ def test_prevent_trump_action(player, player2, mock):  # noqa: F811
     mock.patch('aot.cards.trumps.trumps.random.choice', return_value=True)
     # Must not raise.
     player.play_trump(trump_to_play, target=player2)
+
+
+def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
+    '''Test that we can use an active power (or trump) to prevent any trump action.
+
+    GIVEN: a first player with "Night mist" which prevents any trump to affect it.
+    GIVEN: a second player with a trump.
+    WHEN: the second player tries to play a trump against the first player.
+    THEN: the trump has no effect.
+    '''
+    # Setup player 1.
+    night_mist = CannotBeAffectedByTrumps(
+        name='Night Mist',
+        must_target_player=False,
+        passive=False,
+        trump_names=None,
+    )
+    player._can_play = True
+    player.play_trump(night_mist, target=player)
+    # We will play many trumps here and we don't care.
+    player.MAX_NUMBER_TRUMPS_PLAYED = float('inf')
+
+    # Setup player 2.
+    a_trump = SimpleTrump(
+        type='RemoveColor',
+        name='Tower',
+        args={
+            'cost': 1,
+            'must_target_player': True,
+            'name': 'Tower',
+        },
+    )
+    player2._available_trumps = TrumpList([a_trump])
+    trump_to_play = player2._available_trumps['Tower', None]
+    player2._can_play = True
+
+    with pytest.raises(TrumpHasNoEffect):
+        player2.play_trump(trump_to_play, target=player)
+
+    # Player 1 can still play trumps on itself.
+    player.play_trump(night_mist, target=player)

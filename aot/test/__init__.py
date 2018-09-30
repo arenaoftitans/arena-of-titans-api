@@ -65,7 +65,15 @@ def deck(board):
 @pytest.fixture
 def player(mock, board, deck):
     mock.patch('aot.random.choices', mocked_choices)
-    player = Player(None, None, 0, board, deck, MagicMock(), trumps=get_trumps_list(name='test'))
+    player = Player(
+        'Player',
+        None,
+        0,
+        board,
+        deck,
+        MagicMock(),
+        trumps=get_trumps_list(name='test'),
+    )
     player.is_connected = True
     return player
 
@@ -73,7 +81,15 @@ def player(mock, board, deck):
 @pytest.fixture
 def player2(mock, board, deck):
     mock.patch('aot.random.choices', mocked_choices)
-    player = Player(None, None, 1, board, deck, MagicMock(), trumps=get_trumps_list(name='test'))
+    player = Player(
+        'Player 2',
+        None,
+        1,
+        board,
+        deck,
+        MagicMock(),
+        trumps=get_trumps_list(name='test'),
+    )
     player.is_connected = True
     return player
 

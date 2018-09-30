@@ -37,7 +37,7 @@ class Trump(metaclass=ABCMeta):
     _duration = 0
     _description = ''
     _must_target_player = False
-    _initiator = ''
+    _initiator = None
     #: List of trumps names that cannot modify this trump.
     #: This is also used to force a trump to act against a CannotBeAffectedByTrumps.
     _prevent_trumps_to_modify: Tuple[str] = ()
@@ -233,6 +233,10 @@ class CannotBeAffectedByTrumps(Trump):
         pass
 
     def allow_trump_to_affect(self, trump: Trump):
+        # If trump_names is not defined, we consider that not trump can affect the player.
+        if not self._trump_names:
+            return False
+
         # ``trump.name in self._trump_names`` says the trump has no effect.
         # but ``self.name in trump._prevent_trumps_to_modify`` says
         # the trump has an effect nonetheless.

@@ -329,11 +329,7 @@ class Player:
         self._special_actions_names.remove(action.name.lower())
 
     def _affect_by(self, trump):
-        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
-            raise trumps.exceptions.MaxNumberAffectingTrumps
-
-        if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
-            raise trumps.exceptions.TrumpHasNoEffect
+        self._check_can_be_affected_by_trump(trump)
 
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
@@ -356,6 +352,21 @@ class Player:
             and trump_name == self._power.name
             and trump_color == self._power.color
         )
+
+    def _check_can_be_affected_by_trump(self, trump):
+        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+            raise trumps.exceptions.MaxNumberAffectingTrumps
+
+        if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
+            raise trumps.exceptions.TrumpHasNoEffect
+
+        # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
+        for affecting_trump in self._affecting_trumps:
+            if (
+                not affecting_trump.allow_trump_to_affect(trump)
+                and trump.must_target_player
+            ):
+                raise trumps.exceptions.TrumpHasNoEffect
 
     def play_trump(self, trump, *, target):
         self._check_play_trump(trump, target=target)
