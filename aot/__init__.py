@@ -19,6 +19,7 @@
 
 import copy
 import json
+import logging
 import pkgutil
 import random
 
@@ -141,10 +142,26 @@ def _get_additionnal_colors(color,
 def get_trumps_list(name='standard'):
     trumps_descriptions = get_trumps_descriptions(name=name)
     trumps = TrumpList()
+    weights = []
     for raw_trump_description in trumps_descriptions:
-        trumps.extend(_get_trumps(raw_trump_description))
+        weight = raw_trump_description['weight']
+        del raw_trump_description['weight']
+        generated_trumps = _get_trumps(raw_trump_description)
+        trumps.extend(generated_trumps)
+        weights.extend([weight] * len(generated_trumps))
 
     # Return 4 trumps at random among all the possible ones
+    return _get_random_trump_list(trumps, weights)
+
+
+def _get_random_trump_list(trumps, weights):
+    for _ in range(10):
+        trumps_list = random.choices(trumps, weights=weights, k=get_number_trumps_per_player())
+        if not any(trumps_list.count(x) > 1 for x in trumps_list):
+            return trumps_list
+
+    logging.debug('Failed to find a stable random.choices, reverting to shuffle.')
+
     random.shuffle(trumps)
     return trumps[:get_number_trumps_per_player()]
 

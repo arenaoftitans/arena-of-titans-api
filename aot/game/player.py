@@ -20,7 +20,8 @@
 import daiquiri
 
 from ..board import Square
-from ..cards.trumps import create_power
+from ..cards import trumps
+from ..game.exceptions import NotYourTurn
 from ..utils import get_time
 
 
@@ -127,7 +128,7 @@ class Player:
 
     def _setup_power(self, power):
         if power is not None and power.args.get('passive', False):
-            self._passive_power = create_power(power)
+            self._passive_power = trumps.create_power(power)
             self._passive_power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
@@ -324,35 +325,54 @@ class Player:
         self._special_actions_names.remove(action.name.lower())
 
     def _affect_by(self, trump):
-        if len(self._affecting_trumps) < self.MAX_NUMBER_AFFECTING_TRUMPS:
-            self._affecting_trumps.append(trump)
-            if self._can_play:
-                trump.affect(self)
-            return True
-        else:
-            return False
+        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+            raise trumps.exceptions.MaxNumberAffectingTrumps
+
+        if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
+            raise trumps.exceptions.TrumpHasNoEffect
+
+        # The trump has just been played. We only trigger the effect if this is the target's turn.
+        # If not, it will be applied once the turn begins.
+        if self._can_play:
+            trump.affect(self)
+
+        # trump.affect may raise a TrumpHasNoEffect.
+        # Only add the trump to the list if it had an effect.
+        self._affecting_trumps.append(trump)
 
     def get_trump(self, trump_name, trump_color=None):
         return self._available_trumps[trump_name, trump_color]
 
-    def play_trump(self, trump, target=None):
-        if self.can_play_trump(trump) and target is not None:
-            if target._affect_by(trump):
-                self._number_trumps_played += 1
-                self._gauge.play_trump(trump)
-                self.last_action = LastAction(
-                    description='played_trump',
-                    trump=trump,
-                    player_name=self.name,
-                    target_name=target.name,
-                    target_index=target.index,
-                    player_index=self.index,
-                )
-                return True
-            else:
-                return False
+    def play_trump(self, trump, *, target):
+        self._check_play_trump(trump, target=target)
+
+        try:
+            target._affect_by(trump)
+        except trumps.exceptions.TrumpHasNoEffect:
+            self._end_play_trump(trump, target=target)
+            raise
         else:
-            return False
+            self._end_play_trump(trump, target=target)
+
+    def _check_play_trump(self, trump, *, target):
+        if not self.can_play:
+            raise NotYourTurn
+        if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
+            raise trumps.exceptions.MaxNumberTrumpPlayed
+        if not self._gauge.can_play_trump(trump):
+            raise trumps.exceptions.GaugeTooLowToPlayTrump
+
+    def _end_play_trump(self, trump, *, target):
+        self._number_trumps_played += 1
+        self._gauge.play_trump(trump)
+        self.last_action = LastAction(
+            description='played_trump',
+            trump=trump,
+            player_name=self.name,
+            target_name=target.name,
+            target_index=target.index,
+            player_index=self.index,
+        )
 
     def can_play_trump(self, trump):
         return self.can_play and \
@@ -376,7 +396,7 @@ class Player:
 
     @property
     def affecting_trumps(self):
-        return self._affecting_trumps
+        return tuple(self._affecting_trumps)
 
     @property
     def ai_aim(self):
@@ -388,6 +408,11 @@ class Player:
     @property
     def aim(self):
         return self._aim
+
+    @property
+    def available_trumps(self) -> tuple:
+        # List of available trumps cannot be modified outside this class.
+        return tuple(self._available_trumps)
 
     @property
     def can_play(self):

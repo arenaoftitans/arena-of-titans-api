@@ -23,6 +23,7 @@ from .ai import (
     find_cheapest_card,
     find_move_to_play,
 )
+from ..cards.trumps import exceptions as trumps_exceptions
 
 
 class Game:
@@ -74,6 +75,14 @@ class Game:
             self._continue_game_if_enough_players()
 
         return has_special_actions
+
+    def play_trump(self, trump, *, target_index):
+        try:
+            target = self.players[target_index]
+        except IndexError:
+            raise trumps_exceptions.NonExistantTrumpTarget
+        else:
+            self.active_player.play_trump(trump, target=target)
 
     def play_special_action(self, action, target=None, action_args=None):
         self.active_player.play_special_action(action, target=target, action_args=action_args)

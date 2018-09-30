@@ -23,15 +23,18 @@ from operator import xor
 
 from .gauge import Gauge
 from .powers import (
+    CannotBeAffectedByTrumpsPower,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
+    PreventTrumpActionPower,
 )
 from .trumps import (
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     ModifyTrumpDurations,
+    PreventTrumpAction,
     RemoveColor,
     Teleport,
     Trump,
@@ -39,13 +42,16 @@ from .trumps import (
 
 
 power_type_to_class = {
+    'CannotBeAffectedByTrumps': CannotBeAffectedByTrumpsPower,
     'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
+    'PreventTrumpAction': PreventTrumpActionPower,
 }
 
 trump_type_to_class = {
     'ModifyNumberMoves': ModifyNumberMoves,
     'ModifyTrumpDurations': ModifyTrumpDurations,
+    'PreventTrumpAction': PreventTrumpAction,
     'RemoveColor': RemoveColor,
     'Teleport': Teleport,
 }

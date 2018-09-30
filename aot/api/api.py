@@ -36,6 +36,13 @@ from .. import (
     get_game,
     get_number_players,
 )
+from ..cards.trumps.exceptions import (
+    GaugeTooLowToPlayTrump,
+    MaxNumberAffectingTrumps,
+    MaxNumberTrumpPlayed,
+    NonExistantTrumpTarget,
+    TrumpHasNoEffect,
+)
 from ..config import config
 from ..game import Player
 from ..utils import get_time
@@ -622,65 +629,64 @@ class Api(AotWs):
         except IndexError:
             raise AotError('wrong_trump')
 
-        targeted_player_index = play_request.get('target_index', None)
-        if trump.must_target_player and targeted_player_index is None:
+        target_index = play_request.get('target_index', None)
+        if trump.must_target_player and target_index is None:
             raise AotError('missing_trump_target')
 
         if trump.must_target_player:
             trump.initiator = game.active_player.name
-            await self._play_trump_with_target(game, trump, targeted_player_index)
+            await self._play_trump_with_target(game, trump, target_index)
         else:
             await self._play_trump_without_target(game, trump)
 
-    async def _play_trump_with_target(self, game, trump, targeted_player_index):
-        if targeted_player_index < len(game.players):
-            target = game.players[targeted_player_index]
-            if target and game.active_player.play_trump(trump, target=target):
-                last_action = game.active_player.last_action
-                game.add_action(last_action)
-                await self._send_trump_played_message(
-                    game,
-                    last_action,
-                    game.active_player,
-                    target,
-                )
-            else:
-                self._send_trump_error(game.active_player, trump)
-        else:
-            raise AotError('wrong_trump_target')
-
-    async def _send_trump_played_message(
-        self,
-        game,
-        last_action,
-        player,
-        target,
-    ):  # pragma: no cover
-        message = {
-            'rt': RequestTypes.PLAY_TRUMP,
-            'active_trumps': self._get_active_trumps_message(game),
-            'player_index': player.index,
-            'target_index': target.index,
-            'trumps_statuses': game.active_player.trumps_statuses,
-            'last_action': self._get_action_message(last_action),
-        }
-        await self._send_all_others(message)
-        message['gauge_value'] = game.active_player.gauge.value
-        await self.sendMessage(message)
-
-    def _send_trump_error(self, active_player, trump):
-        if not active_player.gauge.can_play_trump(trump):
-            raise AotErrorToDisplay('gauge_too_low')
-        elif not active_player.can_play_trump(trump):
-            raise AotErrorToDisplay(
+    async def _play_trump_with_target(self, game, trump, target_index):
+        try:
+            game.play_trump(trump, target_index=target_index)
+        except NonExistantTrumpTarget:
+            raise AotError('The target of this trump does not exist')
+        except GaugeTooLowToPlayTrump:
+            raise AotError('gauge_too_low')
+        except MaxNumberTrumpPlayed:
+            raise AotError(
                 'max_number_played_trumps',
-                {'num': Player.MAX_NUMBER_TRUMPS_PLAYED},
+                infos={'num': Player.MAX_NUMBER_TRUMPS_PLAYED},
             )
-        else:
+        except MaxNumberAffectingTrumps:
             raise AotErrorToDisplay(
                 'max_number_trumps',
                 {'num': Player.MAX_NUMBER_AFFECTING_TRUMPS},
             )
+        except TrumpHasNoEffect:
+            game.add_action(game.active_player.last_action)
+            await self._send_trump_played_message(
+                game,
+                target_index,
+                rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
+            )
+        else:
+            game.add_action(game.active_player.last_action)
+            await self._send_trump_played_message(
+                game,
+                target_index,
+            )
+
+    async def _send_trump_played_message(
+        self,
+        game,
+        target_index,
+        rt=RequestTypes.PLAY_TRUMP,
+    ):  # pragma: no cover
+        message = {
+            'rt': rt,
+            'active_trumps': self._get_active_trumps_message(game),
+            'player_index': game.active_player.index,
+            'target_index': target_index,
+            'trumps_statuses': game.active_player.trumps_statuses,
+            'last_action': self._get_action_message(game.active_player.last_action),
+        }
+        await self._send_all_others(message)
+        message['gauge_value'] = game.active_player.gauge.value
+        await self.sendMessage(message)
 
     async def _play_trump_without_target(self, game, trump):
         await self._play_trump_with_target(game, trump, game.active_player.index)

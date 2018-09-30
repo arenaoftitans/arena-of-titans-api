@@ -17,10 +17,14 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import random
+from abc import ABCMeta, abstractmethod
 from copy import deepcopy
+from typing import List, Tuple
 
 import aot
 
+from .exceptions import TrumpHasNoEffect
 from .. import Card
 from ...board import (
     all_colors,
@@ -28,12 +32,15 @@ from ...board import (
 )
 
 
-class Trump:
+class Trump(metaclass=ABCMeta):
     _name = ''
     _duration = 0
     _description = ''
     _must_target_player = False
     _initiator = ''
+    #: List of trumps names that cannot modify this trump.
+    #: This is also used to force a trump to act against a CannotBeAffectedByTrumps.
+    _prevent_trumps_to_modify: Tuple[str] = ()
 
     def __init__(
         self,
@@ -44,6 +51,7 @@ class Trump:
         name='',
         color=None,
         temporary=False,
+        prevent_trumps_to_modify=None,
         **kwargs,
     ):
         self._cost = cost
@@ -55,6 +63,9 @@ class Trump:
         if isinstance(color, str):
             self._color = Color[color]
         self._temporary = temporary
+        self._prevent_trumps_to_modify = (
+            prevent_trumps_to_modify if prevent_trumps_to_modify else ()
+        )
 
     def _set_colors(self, color, colors):
         self._colors = set()
@@ -69,6 +80,13 @@ class Trump:
             self._colors.add(Color[color])
         else:  # pragma: no cover
             self._colors.add(color)
+
+    @abstractmethod
+    def affect(self, player):
+        pass
+
+    def allow_trump_to_affect(self, trump):
+        return True
 
     def consume(self):
         self._duration -= 1
@@ -202,6 +220,38 @@ class ModifyCardColors(Trump):
             player.modify_card_colors(self._colors, filter_=filter_)
 
 
+class CannotBeAffectedByTrumps(Trump):
+    _trump_names = []
+
+    def __init__(
+        self,
+        *,
+        trump_names,
+        **kwargs,
+    ):
+        '''Prevent the given trumps to have an effect.'''
+        super().__init__(**kwargs)
+        self._trump_names = trump_names
+
+    def affect(self, player):
+        pass
+
+    def allow_trump_to_affect(self, trump: Trump):
+        # ``trump.name in self._trump_names`` says the trump has no effect.
+        # but ``self.name in trump._prevent_trumps_to_modify`` says
+        # the trump has an effect nonetheless.
+        # So we randomly pick an outcome.
+        if (
+            trump.name in self._trump_names
+            and self.name in trump._prevent_trumps_to_modify
+        ):
+            return random.choice((False, True))  # noqa: S311 (random generator)
+
+        if trump.name in self._trump_names:
+            return False
+        return True
+
+
 class ModifyCardNumberMoves(Trump):
     _delta_moves = 0
     _card_names = None
@@ -268,16 +318,59 @@ class ModifyTrumpDurations(Trump):
         self._trump_names = trump_names
 
     def affect(self, player):
-        filter_ = None
-        if self._trump_names is not None:
-            def filter_(trump: Trump):
-                return trump.name in self._trump_names
+        if self._trump_names is None:
+            def filter_(trump: 'Trump'):
+                return False
+        else:
+            def filter_(trump: 'Trump'):
+                return (
+                    trump is not self
+                    and trump.name in self._trump_names
+                    and self.name not in trump._prevent_trumps_to_modify
+                )
 
         if player and self._duration > 0:
+            # Currently we can only apply this to affecting trumps.
+            affected_trumps = [trump for trump in player.affecting_trumps if filter_(trump)]
+            if len(affected_trumps) == 0:
+                raise TrumpHasNoEffect
+
             player.modify_affecting_trump_durations(
                 self._delta_duration,
                 filter_=filter_,
             )
+
+
+class PreventTrumpAction(Trump):
+    _prevent_for_trumps: Tuple[str] = ()
+    _enable_for_trumps: Tuple[str] = ()
+
+    def __init__(
+        self,
+        *,
+        prevent_for_trumps: List[str],
+        enable_for_trumps: List[str],
+        **kwargs,
+    ):
+        '''Prevent the normal behavior of a trump.
+
+        For instance with the power *Impassable*, the towers and fortresses played are immune
+        to the *Ram* trump. This trump is meant to make this possible.
+
+        Args:
+            prevent_for_trumps:  List of trump names that cannot be applied to
+                ``enable_for_trumps``
+            enable_for_trumps: List of trump names to modify. Only the trumps with these names
+                will be modified and cannot be affected by ``prevent_trumps``.
+        '''
+        super().__init__(**kwargs)
+        self._prevent_for_trumps = tuple(prevent_for_trumps)
+        self._enable_for_trumps = tuple(enable_for_trumps)
+
+    def affect(self, player):
+        for trump in player.available_trumps:
+            if trump.name in self._enable_for_trumps:
+                trump.args['prevent_trumps_to_modify'] = self._prevent_for_trumps
 
 
 class RemoveColor(Trump):
