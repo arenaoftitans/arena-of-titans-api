@@ -52,6 +52,9 @@ class Power(Trump):
             self._duration = float('inf')
 
     def setup(self, trumps):
+        if not self.passive:
+            return
+
         # We expect a list of SimpleTrump
         for trump in trumps:
             trump.args['cost'] += self._trump_cost_delta

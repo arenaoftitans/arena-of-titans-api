@@ -301,6 +301,7 @@ class Api(AotWs):
                 'active_trumps': self._get_active_trumps_message(game),
                 'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
                 'trumps_statuses': player.trumps_statuses,
+                'can_power_be_played': player.can_power_be_played,
                 'gauge_value': player.gauge.value,
                 'hand': [{
                     'name': card.name,
@@ -483,6 +484,7 @@ class Api(AotWs):
             },
             'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
             'trumps_statuses': player.trumps_statuses,
+            'can_power_be_played': player.can_power_be_played,
             'last_action': self._get_action_message(player.last_action),
             'game_over': game.is_over,
             'winners': game.winners,
@@ -529,6 +531,7 @@ class Api(AotWs):
             'active_trumps': self._get_active_trumps_message(game),
             'has_remaining_moves_to_play': player.has_remaining_moves_to_play,
             'trumps_statuses': player.trumps_statuses,
+            'can_power_be_played': player.can_power_be_played,
             'gauge_value': player.gauge.value,
             'elapsed_time': elapsed_time,
             'nb_turns': game.nb_turns,
@@ -682,6 +685,7 @@ class Api(AotWs):
             'player_index': game.active_player.index,
             'target_index': target_index,
             'trumps_statuses': game.active_player.trumps_statuses,
+            'can_power_be_played': game.active_player.can_power_be_played,
             'last_action': self._get_action_message(game.active_player.last_action),
         }
         await self._send_all_others(message)

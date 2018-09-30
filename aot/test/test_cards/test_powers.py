@@ -29,6 +29,7 @@ from .. import (  # noqa: F401
     player2,
 )
 from ...cards.trumps import (
+    CannotBeAffectedByTrumps,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
@@ -66,7 +67,7 @@ def test_create_passive_power():
 def test_enable():
     trump = MagicMock()
     trump.args = {'cost': 1}
-    power = VoidPower(trump_cost_delta=5)
+    power = VoidPower(trump_cost_delta=5, passive=True)
 
     power.setup([trump])
 
