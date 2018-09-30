@@ -180,6 +180,19 @@
         }
     ],
     "powers": {
+        "arline": {
+            "name": "Night mist",
+            "description": "Disappear from the board and cannot be targeted by other players.",
+            "passive": false,
+            "cost": 10,
+            "duration": 2,
+            "repeat_for_each_color": false,
+            "must_target_player": false,
+            "parameters": {
+                "type": "CannotBeAffectedByTrumps",
+                "trump_names": null
+            }
+        },
         "djor": {
             "name": "Impassable",
             "description": "Your tower and fortress cannot be destroyed.",
@@ -229,7 +242,7 @@
                 "trump_names": [
                     "Fortress",
                     "Tower"
-                ]
+                 ]
             }
         },
         "ulya": {
