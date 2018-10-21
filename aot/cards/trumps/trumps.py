@@ -144,10 +144,6 @@ class Trump(metaclass=ABCMeta):
         self._initiator = initiator
 
     @property
-    def passive(self):  # pragma: no cover
-        return False
-
-    @property
     def temporary(self):
         return self._temporary
 
