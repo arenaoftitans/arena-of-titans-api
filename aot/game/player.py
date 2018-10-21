@@ -313,6 +313,8 @@ class Player:
         if action_args is None:
             action_args = {}
 
+        target._check_for_cannot_be_affected_by_trumps(action)
+
         if target is not None:
             action.affect(target, **action_args)
             self._special_actions_names.remove(action.name.lower())
@@ -360,6 +362,9 @@ class Player:
         if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
             raise trumps.exceptions.TrumpHasNoEffect
 
+        self._check_for_cannot_be_affected_by_trumps(trump)
+
+    def _check_for_cannot_be_affected_by_trumps(self, trump):
         # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
         for affecting_trump in self._affecting_trumps:
             if (

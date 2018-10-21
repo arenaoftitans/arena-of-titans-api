@@ -34,6 +34,7 @@ from ...cards.trumps import (
     ModifyCardNumberMovesPower,
     Power,
     SimpleTrump,
+    Teleport,
     TrumpList,
 )
 from ...cards.trumps.exceptions import TrumpHasNoEffect
@@ -196,3 +197,31 @@ def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
 
     # Player 1 can still play trumps on itself.
     player.play_trump(night_mist, target=player)
+
+
+def test_cannot_be_selected_active_power_with_special_action(player, player2):  # noqa: F811
+    '''Test that we can use an active power (or trump) to prevent any special action.
+
+    GIVEN: a first player with "Night mist" which prevents any trump to affect it.
+    GIVEN: a second player with a special action.
+    WHEN: the second player tries to play the special action against the first player.
+    THEN: the special action has no effect.
+    '''
+    # Setup player 1.
+    night_mist = CannotBeAffectedByTrumps(
+        name='Night Mist',
+        must_target_player=False,
+        passive=False,
+        trump_names=None,
+    )
+    player._can_play = True
+    player.play_trump(night_mist, target=player)
+
+    # Setup player 2.
+    action = Teleport(
+        name='Teleport',
+        must_target_player=True,
+    )
+
+    with pytest.raises(TrumpHasNoEffect):
+        player2.play_special_action(action, target=player)
