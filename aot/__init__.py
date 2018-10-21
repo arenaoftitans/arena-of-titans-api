@@ -141,7 +141,7 @@ def _get_additionnal_colors(color,
 
 def get_trumps_list(name='standard'):
     trumps_descriptions = get_trumps_descriptions(name=name)
-    trumps = TrumpList()
+    trumps = []
     weights = []
     for raw_trump_description in trumps_descriptions:
         weight = raw_trump_description['weight']
@@ -151,7 +151,8 @@ def get_trumps_list(name='standard'):
         weights.extend([weight] * len(generated_trumps))
 
     # Return 4 trumps at random among all the possible ones
-    return _get_random_trump_list(trumps, weights)
+    randomized_trumps = _get_random_trump_list(trumps, weights)
+    return TrumpList(randomized_trumps)
 
 
 def _get_random_trump_list(trumps, weights):
