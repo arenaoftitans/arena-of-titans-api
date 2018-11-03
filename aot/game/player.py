@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from copy import deepcopy
+
 import daiquiri
 
 from ..board import Square
@@ -82,7 +84,7 @@ class Player:
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
-    _passive_power = None
+    _power = None
     _rank = -1
     _special_action_start_time = 0
     _special_actions = None
@@ -127,9 +129,11 @@ class Player:
         self._rank = -1
 
     def _setup_power(self, power):
-        if power is not None and power.args.get('passive', False):
-            self._passive_power = trumps.create_power(power)
-            self._passive_power.setup(self._available_trumps)
+        if power is None:
+            return
+
+        self._power = trumps.create_power(power)
+        self._power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
         opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * \
@@ -258,8 +262,8 @@ class Player:
         self._enable_trumps()
 
     def _enable_passive_power(self):
-        if self._passive_power is not None:
-            self._passive_power.affect(self)
+        if self._power and self._power.passive:
+            self._power.affect(self)
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
@@ -309,6 +313,8 @@ class Player:
         if action_args is None:
             action_args = {}
 
+        target._check_for_cannot_be_affected_by_trumps(action)
+
         if target is not None:
             action.affect(target, **action_args)
             self._special_actions_names.remove(action.name.lower())
@@ -325,11 +331,7 @@ class Player:
         self._special_actions_names.remove(action.name.lower())
 
     def _affect_by(self, trump):
-        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
-            raise trumps.exceptions.MaxNumberAffectingTrumps
-
-        if self._passive_power and not self._passive_power.allow_trump_to_affect(trump):
-            raise trumps.exceptions.TrumpHasNoEffect
+        self._check_can_be_affected_by_trump(trump)
 
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
@@ -341,7 +343,35 @@ class Player:
         self._affecting_trumps.append(trump)
 
     def get_trump(self, trump_name, trump_color=None):
+        if self._played_power_as_trump(trump_name, trump_color):
+            return deepcopy(self._power)
         return self._available_trumps[trump_name, trump_color]
+
+    def _played_power_as_trump(self, trump_name, trump_color):
+        return (
+            self._power
+            and not self._power.passive
+            and trump_name == self._power.name
+            and trump_color == self._power.color
+        )
+
+    def _check_can_be_affected_by_trump(self, trump):
+        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+            raise trumps.exceptions.MaxNumberAffectingTrumps
+
+        if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
+            raise trumps.exceptions.TrumpHasNoEffect
+
+        self._check_for_cannot_be_affected_by_trumps(trump)
+
+    def _check_for_cannot_be_affected_by_trumps(self, trump):
+        # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
+        for affecting_trump in self._affecting_trumps:
+            if (
+                not affecting_trump.allow_trump_to_affect(trump)
+                and trump.must_target_player
+            ):
+                raise trumps.exceptions.TrumpHasNoEffect
 
     def play_trump(self, trump, *, target):
         self._check_play_trump(trump, target=target)
@@ -421,6 +451,10 @@ class Player:
     @can_play.setter
     def can_play(self, value):
         self._can_play = bool(value)
+
+    @property
+    def can_power_be_played(self):
+        return self.can_play_trump(self._power) if self._power else False
 
     @property
     def current_square(self):
@@ -524,7 +558,7 @@ class Player:
 
     @property
     def power(self):
-        return self._passive_power
+        return self._power
 
     @property
     def rank(self):
@@ -565,7 +599,7 @@ class Player:
         return [
             {
                 'name': trump.args['name'],
-                'color': trump.args['color'],
+                'color': trump.args.get('color'),
                 'description': trump.args['description'],
                 'duration': trump.args['duration'],
                 'cost': trump.args['cost'],

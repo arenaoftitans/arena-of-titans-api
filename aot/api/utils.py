@@ -20,7 +20,7 @@
 import bleach
 
 from ..board import Square
-from ..cards.trumps import Trump
+from ..cards.trumps import Power, Trump
 from ..utils import SimpleEnumMeta
 
 
@@ -82,9 +82,8 @@ def to_json(python_object):  # pragma: no cover
             'y': python_object.y,
         }
     elif isinstance(python_object, Trump):
-        return {
+        data = {
             'cost': python_object.cost,
-            'passive': python_object.passive,
             'description': python_object.description,
             'duration': python_object.duration,
             'must_target_player': python_object.must_target_player,
@@ -92,6 +91,9 @@ def to_json(python_object):  # pragma: no cover
             'color': python_object.color,
             'initiator': python_object.initiator,
         }
+        if isinstance(python_object, Power):
+            data['passive'] = python_object.passive
+        return data
     elif isinstance(python_object, set):
         return [to_json(element) for element in python_object]
     # Normally, this is unreachable

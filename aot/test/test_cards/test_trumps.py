@@ -30,6 +30,7 @@ from .. import (  # noqa: F401
 )
 from ...board import Color
 from ...cards.trumps import (
+    CannotBeAffectedByTrumps,
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
@@ -302,3 +303,11 @@ def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):
     with pytest.raises(MaxNumberAffectingTrumps):
         player1._affect_by(trump)
     assert len(player1.affecting_trumps) == player1.MAX_NUMBER_AFFECTING_TRUMPS
+
+
+def test_cannot_be_affected_by_trump_empty_list_names(player, player2):  # noqa: F811
+    trump = CannotBeAffectedByTrumps(trump_names=[])
+    assert not trump.allow_trump_to_affect(None)
+
+    trump = CannotBeAffectedByTrumps(trump_names=None)
+    assert not trump.allow_trump_to_affect(None)

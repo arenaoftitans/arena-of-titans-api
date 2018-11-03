@@ -177,7 +177,7 @@ async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, gam
     api._send_all_others = AsyncMagicMock()
     api.sendMessage = AsyncMagicMock()
     game.add_action = MagicMock()
-    game.active_player._passive_power = CannotBeAffectedByTrumpsPower(trump_names=['Tower'])
+    game.active_player._power = CannotBeAffectedByTrumpsPower(trump_names=['Tower'], passive=True)
 
     await api._play_trump(game, {
         'name': trump['name'],

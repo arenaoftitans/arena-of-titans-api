@@ -30,6 +30,7 @@ from .powers import (
     PreventTrumpActionPower,
 )
 from .trumps import (
+    CannotBeAffectedByTrumps,
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
@@ -49,6 +50,7 @@ power_type_to_class = {
 }
 
 trump_type_to_class = {
+    'CannotBeAffectedByTrumps': CannotBeAffectedByTrumps,
     'ModifyNumberMoves': ModifyNumberMoves,
     'ModifyTrumpDurations': ModifyTrumpDurations,
     'PreventTrumpAction': PreventTrumpAction,
@@ -112,6 +114,7 @@ __all__ = [
     # Power utils
     'Power',
     # Trumps
+    'CannotBeAffectedByTrumps',
     'ModifyCardColors',
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',
