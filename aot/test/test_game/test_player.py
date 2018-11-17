@@ -545,7 +545,7 @@ def test_number_affecting_trumps(player):  # noqa: F811
     assert player._number_trumps_played == 0
 
 
-def test_trump_affect_raises(player, mock):  # noqa: F811
+def test_trump_affect_raises(player, mocker):  # noqa: F811
     trump = player.get_trump('Reinforcements')
     player._can_play = True
 

@@ -63,8 +63,8 @@ def deck(board):
 
 
 @pytest.fixture
-def player(mock, board, deck):
-    mock.patch('aot.random.choices', mocked_choices)
+def player(mocker, board, deck):
+    mocker.patch('aot.random.choices', mocked_choices)
     player = Player(
         'Player',
         None,
@@ -79,8 +79,8 @@ def player(mock, board, deck):
 
 
 @pytest.fixture
-def player2(mock, board, deck):
-    mock.patch('aot.random.choices', mocked_choices)
+def player2(mocker, board, deck):
+    mocker.patch('aot.random.choices', mocked_choices)
     player = Player(
         'Player 2',
         None,
@@ -95,8 +95,8 @@ def player2(mock, board, deck):
 
 
 @pytest.fixture
-def game(mock):
-    mock.patch('aot.random.choices', mocked_choices)
+def game(mocker):
+    mocker.patch('aot.random.choices', mocked_choices)
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,
@@ -127,8 +127,8 @@ def api():
 
 
 @pytest.fixture
-def cache(mock):
-    mock.patch('aot.api.cache.Redis', site_effect=aredis())
+def cache(mocker):
+    mocker.patch('aot.api.cache.Redis', site_effect=aredis())
     cache = Cache()
     cache.init('game_id', 'player_id')
     cache._cache = MagicMock()
@@ -136,7 +136,7 @@ def cache(mock):
 
 
 @pytest.fixture
-def cache_cls(mock):
-    mock.patch('aot.api.cache.Redis', site_effect=MagicMock())
+def cache_cls(mocker):
+    mocker.patch('aot.api.cache.Redis', site_effect=MagicMock())
 
     return Cache

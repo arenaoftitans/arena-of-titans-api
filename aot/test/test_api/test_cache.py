@@ -42,7 +42,7 @@ def setup_module():
     config.setup_config()
 
 
-def test_connect_tcp_socket(mock):  # noqa: F811
+def test_connect_tcp_socket(mocker):  # noqa: F811
     cfg = {
         'cache': {
             'host': '127.0.0.1',
@@ -51,8 +51,8 @@ def test_connect_tcp_socket(mock):  # noqa: F811
         },
     }
     redis = MagicMock()
-    mock.patch('aot.api.cache.config', new=cfg)
-    mock.patch('aot.api.cache.Redis', new=redis)
+    mocker.patch('aot.api.cache.config', new=cfg)
+    mocker.patch('aot.api.cache.Redis', new=redis)
 
     Cache._get_redis_instance(new=True)
 
@@ -88,11 +88,11 @@ def test_loads(cache):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_test(cache, mock):
+async def test_test(cache, mocker):
     now = MagicMock(return_value='the_date')
     datetime = MagicMock()
     datetime.now = now
-    mock.patch('aot.api.cache.datetime', new=datetime)
+    mocker.patch('aot.api.cache.datetime', new=datetime)
     cache._cache.set = AsyncMagicMock()
 
     await cache.test()
@@ -101,7 +101,7 @@ async def test_test(cache, mock):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_info(cache, mock):
+async def test_info(cache, mocker):
     cache._cache.keys = AsyncMagicMock(return_value=[b'game:game_id', b'toto'])
     cache.get_players_ids = AsyncMagicMock(return_value=['id1', 'id2'])
     cache._cache.hget = AsyncMagicMock(return_value=b'True')
@@ -149,7 +149,7 @@ async def test_game_exists(cache, game):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_has_opened_slots(mock, cache):
+async def test_has_opened_slots(mocker, cache):
     cache._cache.lrange = AsyncMagicMock(
         return_value=dumps_list(cache, [
             {'state': 'OPEN'},
@@ -162,7 +162,7 @@ async def test_has_opened_slots(mock, cache):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_get_slots_with_game_id(mock, cache):
+async def test_get_slots_with_game_id(mocker, cache):
     slots = [
         {
             'state': 'OPEN',
@@ -182,7 +182,7 @@ async def test_get_slots_with_game_id(mock, cache):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_get_slots_without_game_id(mock, cache):
+async def test_get_slots_without_game_id(mocker, cache):
     slots = [
         {
             'state': 'OPEN',

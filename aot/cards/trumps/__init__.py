@@ -103,8 +103,10 @@ class TrumpList(list):
         if xor(trump.color is None, color is None):
             return False
 
-        return ((color is None and trump.color is None) or
-                trump.color.lower() == color.lower())
+        return (
+            (color is None and trump.color is None)
+            or trump.color.lower() == color.lower()
+        )
 
 
 __all__ = [

@@ -235,7 +235,7 @@ class Game:
     @game_id.setter
     def game_id(self, value):
         if self._game_id is not None:  # pragma: no cover
-            self.LOGGER.warn(
+            self.LOGGER.warning(
                 f'Changing game id for game {self._game_id} to {value}',
             )
         self._game_id = value

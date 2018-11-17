@@ -37,8 +37,8 @@ def mocked_config(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def mock_config(mock, mocked_config):
-    mock.patch('aot.api.security.config', mocked_config)
+def mock_config(mocker, mocked_config):
+    mocker.patch('aot.api.security.config', mocked_config)
 
 
 @pytest.fixture

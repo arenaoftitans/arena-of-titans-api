@@ -99,7 +99,7 @@ def test_modify_number_moves(player):  # noqa: F811
     player.modify_card_number_moves.assert_called_once_with(5, filter_=None)
 
 
-def test_prevent_trump_action(player, player2, mock):  # noqa: F811
+def test_prevent_trump_action(player, player2, mocker):  # noqa: F811
     '''Test how PreventTrumpAction and CannotBeAffectedByTrumps works together.
 
     GIVEN: a first player with Impassible power which prevents towers to be destroyed.
@@ -149,11 +149,11 @@ def test_prevent_trump_action(player, player2, mock):  # noqa: F811
 
     # In this case, whether the trump has an effect or not is random.
     # We mock the choice function to make it stable.
-    mock.patch('aot.cards.trumps.trumps.random.choice', return_value=False)
+    mocker.patch('aot.cards.trumps.trumps.random.choice', return_value=False)
     with pytest.raises(TrumpHasNoEffect):
         player.play_trump(trump_to_play, target=player2)
 
-    mock.patch('aot.cards.trumps.trumps.random.choice', return_value=True)
+    mocker.patch('aot.cards.trumps.trumps.random.choice', return_value=True)
     # Must not raise.
     player.play_trump(trump_to_play, target=player2)
 

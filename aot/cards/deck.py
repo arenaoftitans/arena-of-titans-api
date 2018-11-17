@@ -100,9 +100,10 @@ class Deck:
         if isinstance(card_color, str):
             card_color = Color[card_color] if card_color in Color else None
 
-        matching_cards = [card for card in self._hand
-                          if card.name == card_name and
-                          card.color == card_color]
+        matching_cards = [
+            card for card in self._hand
+            if card.name == card_name and card.color == card_color
+        ]
 
         if len(matching_cards) >= 1:
             return matching_cards[0]

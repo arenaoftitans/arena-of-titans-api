@@ -52,9 +52,9 @@ def test_can_play_simple_trump(gauge):  # noqa: F811
     assert gauge.can_play_trump(trump)
 
 
-def test_move_all_movements_types(gauge, mock):  # noqa: F811
+def test_move_all_movements_types(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
@@ -98,9 +98,9 @@ def test_move_from_x1_to_x31_circle(board):  # noqa: F811
     assert gauge.value == 3
 
 
-def test_move_empty(gauge, mock):  # noqa: F811
+def test_move_empty(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[])
-    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
@@ -114,9 +114,9 @@ def test_move_empty(gauge, mock):  # noqa: F811
     assert gauge.value == 10
 
 
-def test_move_max(gauge, mock):  # noqa: F811
+def test_move_max(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = gauge.MAX_VALUE
     from_ = MagicMock()
     to = MagicMock()
@@ -130,9 +130,9 @@ def test_move_max(gauge, mock):  # noqa: F811
     assert gauge.value == gauge.MAX_VALUE
 
 
-def test_move_knight(gauge, mock):  # noqa: F811
+def test_move_knight(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mock.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()

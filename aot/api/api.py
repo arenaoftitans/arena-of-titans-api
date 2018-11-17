@@ -117,7 +117,7 @@ class Api(AotWs):
                 await self._process_play_request()
         except AotError as e:
             await self._send_error(e)
-        except Exception as e:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.LOGGER.exception('onMessage')
 
     async def _info(self):
@@ -371,7 +371,7 @@ class Api(AotWs):
 
         try:
             yield game
-        except Exception as e:
+        except Exception:
             self.LOGGER.exception('Uncaught error while playing, will not save the loaded game')
             raise
         else:

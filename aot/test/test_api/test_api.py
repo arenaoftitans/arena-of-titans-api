@@ -209,7 +209,7 @@ def test_new_game_request_on_old_connection(api):  # noqa: F811
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_create_new_game(api, mock):
+async def test_create_new_game(api, mocker):
     api._cache = MagicMock()
     api._cache.create_new_game = AsyncMagicMock()
     api._cache.save_session = AsyncMagicMock()
@@ -446,7 +446,7 @@ async def test_create_game_wrong_registration(api):
 
 
 @pytest.mark.asyncio  # noqa: F811
-async def test_create_game(mock, api):
+async def test_create_game(mocker, api):
     create_game_request = [
         {
             'name': str(i),
@@ -463,7 +463,7 @@ async def test_create_game(mock, api):
     create_game_request[1] = None
 
     game = get_game(create_game_request)  # noqa: 811
-    mock.patch('aot.api.api.get_game', return_value=game)
+    mocker.patch('aot.api.api.get_game', return_value=game)
     api._cache = MagicMock()
     api._send_to = AsyncMagicMock()
     api._send_game_created_message = AsyncMagicMock()
