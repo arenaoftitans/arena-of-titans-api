@@ -25,6 +25,7 @@ from .gauge import Gauge
 from .powers import (
     AddSpecialActionsToCardPower,
     CannotBeAffectedByTrumpsPower,
+    ChangeSquarePower,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
@@ -47,6 +48,7 @@ from .trumps import (
 power_type_to_class = {
     'AddSpecialActionsToCard': AddSpecialActionsToCardPower,
     'CannotBeAffectedByTrumps': CannotBeAffectedByTrumpsPower,
+    'ChangeSquare': ChangeSquarePower,
     'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
     'PreventTrumpAction': PreventTrumpActionPower,

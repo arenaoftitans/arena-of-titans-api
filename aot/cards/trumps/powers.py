@@ -20,6 +20,7 @@
 from .trumps import (
     AddSpecialActionsToCard,
     CannotBeAffectedByTrumps,
+    ChangeSquare,
     ModifyCardColors,
     ModifyCardNumberMoves,
     PreventTrumpAction,
@@ -66,6 +67,10 @@ class Power(Trump):
 
 
 class CannotBeAffectedByTrumpsPower(CannotBeAffectedByTrumps, Power):
+    pass
+
+
+class ChangeSquarePower(ChangeSquare, Power):
     pass
 
 
