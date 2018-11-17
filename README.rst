@@ -96,6 +96,16 @@ Logs are sent to ``stderr`` from the container. Look there to see them. We don't
 *Note:* on linux systems, the logs are also send to ``journald`` by default. Use something like ``journalctl -o short --no-hostname -b --all -u docker -f`` or ``journalctl -o short --no-hostname -b --all -u docker -f CONTAINER_ID=28c9e6a5b6af`` to view the logs from ``journald``. You can also use ``journalctl`` to filter and query the logs. Refer to the man page of ``journalctl`` to learn how to do that.
 
 
+How to
+======
+
+Add a trump or a power
+----------------------
+
+#. Add the trump and power class if they don't already exist.
+#. Add its definition to the resource file.
+
+
 Contributing
 ============
 
