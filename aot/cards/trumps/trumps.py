@@ -24,6 +24,7 @@ from typing import List, Tuple
 
 import aot
 
+from .constants import TargetTypes
 from .exceptions import TrumpHasNoEffect
 from .. import Card
 from ...board import (
@@ -33,6 +34,8 @@ from ...board import (
 
 
 class Trump(metaclass=ABCMeta):
+    target_type = TargetTypes.player
+
     _name = ''
     _duration = 0
     _description = ''
@@ -250,6 +253,24 @@ class CannotBeAffectedByTrumps(Trump):
         if trump.name in self._trump_names:
             return False
         return True
+
+
+class ChangeSquare(Trump):
+    target_type = TargetTypes.board
+
+    def __init__(
+        self,
+        **kwargs,
+    ):
+        '''Change a square.
+
+        We currently only support changing the color.
+        '''
+        super().__init__(**kwargs)
+
+    def affect(self, *, x, y, board, color):
+        square = board[x, y]
+        square.color = color
 
 
 class ModifyCardNumberMoves(Trump):

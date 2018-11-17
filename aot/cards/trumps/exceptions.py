@@ -21,5 +21,9 @@ class NonExistantTrumpTarget(TrumpError):
     pass
 
 
+class InvalidTargetType(TrumpError):
+    pass
+
+
 class TrumpHasNoEffect(TrumpError):
     pass
