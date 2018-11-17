@@ -29,7 +29,8 @@ from .. import (  # noqa: F401
 from ...api.utils import (
     AotError,
 )
-from ...cards.trumps import CannotBeAffectedByTrumpsPower
+from ...board import Color
+from ...cards.trumps import CannotBeAffectedByTrumpsPower, SimpleTrump
 
 
 @pytest.mark.asyncio  # noqa: F811
@@ -193,3 +194,42 @@ async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, gam
     assert call_args[0]['rt'] == 'TRUMP_HAS_NO_EFFECT'
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called
+
+
+@pytest.mark.asyncio  # noqa: F811
+async def test_play_trump_with_board_target_type(api, game):
+    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
+    trump = SimpleTrump(
+        type='ChangeSquare',
+        name='Terraforming',
+        args={
+            'cost': 1,
+            'name': 'Terraforming',
+        },
+    )
+    game.active_player._available_trumps[0] = trump
+    api._send_all_others = AsyncMagicMock()
+    api.sendMessage = AsyncMagicMock()
+    game.add_action = MagicMock()
+
+    assert game._board[0, 0].color == Color.YELLOW
+
+    await api._play_trump(game, {
+        'name': 'Terraforming',
+        'color': None,
+        'square': {
+            'x': 0,
+            'y': 0,
+            'color': 'red',
+        },
+    })
+
+    assert api._send_all_others.called
+    call_args = api._send_all_others.call_args[0]
+    assert call_args[0]['rt'] == 'PLAY_TRUMP'
+    assert api.sendMessage.called
+    call_args = api.sendMessage.call_args[0]
+    assert call_args[0]['rt'] == 'PLAY_TRUMP'
+    assert game.add_action.call_count == 1
+    assert game.active_player._gauge.can_play_trump.called
+    assert game._board[0, 0].color == Color.RED

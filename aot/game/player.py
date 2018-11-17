@@ -377,23 +377,31 @@ class Player:
                 raise trumps.exceptions.TrumpHasNoEffect
 
     def play_trump(self, trump, *, target):
-        self._check_play_trump(trump, target=target)
+        self._check_play_trump(trump)
 
         try:
-            target._affect_by(trump)
+            self._play_trump(trump, target)
         except trumps.exceptions.TrumpHasNoEffect:
             self._end_play_trump(trump, target=target)
             raise
         else:
             self._end_play_trump(trump, target=target)
 
-    def _check_play_trump(self, trump, *, target):
+    def _check_play_trump(self, trump):
         if not self.can_play:
             raise NotYourTurn
         if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
             raise trumps.exceptions.MaxNumberTrumpPlayed
         if not self._gauge.can_play_trump(trump):
             raise trumps.exceptions.GaugeTooLowToPlayTrump
+
+    def _play_trump(self, trump, target):
+        if trump.target_type == trumps.constants.TargetTypes.board:
+            trump.affect(board=self._board, **target)
+        elif trump.target_type == trumps.constants.TargetTypes.player:
+            target._affect_by(trump)
+        else:
+            raise trumps.exceptions.InvalidTargetType
 
     def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
@@ -402,8 +410,8 @@ class Player:
             description='played_trump',
             trump=trump,
             player_name=self.name,
-            target_name=target.name,
-            target_index=target.index,
+            target_name=getattr(target, 'name', None),
+            target_index=getattr(target, 'index', None),
             player_index=self.index,
         )
 

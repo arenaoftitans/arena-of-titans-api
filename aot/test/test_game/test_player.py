@@ -28,8 +28,10 @@ from .. import (  # noqa: F401
     deck,
     player,
 )
+from ...board import Color
 from ...cards import Card
 from ...cards.trumps import (
+    ChangeSquare,
     SimpleTrump,
     Trump,
     TrumpList,
@@ -522,6 +524,23 @@ def test_play_trump(player):  # noqa: F811
     assert player._gauge.can_play_trump.call_count == 2
     player._gauge.play_trump.call_count == 2
     trump.affect.assert_called_with(player)
+
+
+def test_play_trump_target_type_board(player):  # noqa: F811
+    player.init_turn()
+    trump = ChangeSquare()
+    target = {
+        'x': 0,
+        'y': 0,
+        'color': 'blue',
+    }
+
+    assert player._board[0, 0].color == Color.YELLOW
+
+    player.play_trump(trump, target=target)
+    assert player._board[0, 0].color == Color.BLUE
+    player._gauge.can_play_trump.assert_called_once_with(trump)
+    player._gauge.play_trump.assert_called_once_with(trump)
 
 
 def test_number_affecting_trumps(player):  # noqa: F811
