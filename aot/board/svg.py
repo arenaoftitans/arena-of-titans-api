@@ -42,7 +42,7 @@ class SvgBoardCreator:
         'mouseover': 'showPlayerName({index}, $event)',
         'mouseout': 'hidePlayerName()',
     }
-    _PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
+    _PLAY_ATTR_TEMPLATE = "handleSquareClicked('{}', '{}', '{}')"
     _SQUARE_CLASS_TEMPLATE = "square {} ${{possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"  # noqa
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
