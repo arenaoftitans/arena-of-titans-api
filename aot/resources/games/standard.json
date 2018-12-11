@@ -259,6 +259,32 @@
                     "Queen"
                 ]
             }
+        },
+        "luni" : {
+            "name": "Secret blade",
+            "description":  "transforme vos cartes « Fou » en cartes « Assassin »",
+            "passive": false,
+            "cost": 10,
+            "trump_cost_delta": 0,
+            "must_target_player": false,
+            "parameters": {
+                "type": "AddSpecialActionsToCard",
+                "card_names": "Warrior",
+                "special_actions": [
+                    {
+                        "name": "Assassination",
+                        "cost": 0,
+                        "description": "Allow you to move back another player.",
+                        "duration": 0,
+                        "repeat_for_each_color": false,
+                        "must_target_player": true,
+                        "parameters": {
+                            "type": "Teleport",
+                            "distance": 1
+                        }
+                    }
+                ]
+            }
         }
     },
     "board": {

@@ -181,7 +181,7 @@ class Player:
         else:
             self.last_action = LastAction(description='problem')
 
-        if card is not None and card.special_actions is not None:
+        if card is not None and len(card.special_actions) > 0:
             self.special_actions = card.special_actions
             self._special_action_start_time = get_time()
             return True
@@ -300,6 +300,9 @@ class Player:
 
     def modify_card_number_moves(self, delta, filter_=None):
         self._deck.modify_number_moves(delta, filter_=filter_)
+
+    def set_special_actions_to_cards_in_deck(self, card_name, actions):
+        self._deck.set_special_actions_to_card(card_name, actions)
 
     def modify_affecting_trump_durations(self, delta, filter_=None):
         for trump in filter(filter_, self._affecting_trumps):

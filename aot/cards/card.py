@@ -72,18 +72,23 @@ class Card:
         self._default_number_moves = number_movements
         self._number_movements = number_movements
         self._cost = cost
-        if special_actions:
+        if special_actions is not None:
             self._special_actions = special_actions
             for action in self._special_actions:
-                action.args['color'] = self.color
+                action.args['color'] = self._color
         else:
-            self._special_actions = None
+            self._special_actions = []
 
     def modify_colors(self, colors):
         self._colors = ColorSet(colors)
 
     def modify_number_moves(self, delta):
         self._number_movements += delta
+
+    def set_special_actions(self, actions):
+        self._special_actions = actions
+        for action in self._special_actions:
+            action.args['color'] = self._color
 
     def move(self, origin):
         number_movements_left = self._number_movements
