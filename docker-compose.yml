@@ -42,8 +42,18 @@ services:
       - aot-dev-api
     environment:
       API_HOST: aot-dev-api
+      PORT: 8182
     ports:
-      - "8180:8180"
+      - "8182:8182"
+  nginx-proxy:
+    image: docker.io/nginx
+    tty: true
+    depends_on:
+        - aot-gateway
+    ports:
+        - "8180:80"
+    volumes:
+        - ./docker/cfg/nginx.conf:/etc/nginx/nginx.conf:ro,Z
   aot-redis:
     image: docker.io/redis
     tty: true
