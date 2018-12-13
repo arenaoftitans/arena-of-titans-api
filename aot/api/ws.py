@@ -41,7 +41,7 @@ from ..utils import get_time
 
 class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     # Class variables.
-    DISCONNECTED_TIMEOUT_WAIT = 10
+    DISCONNECTED_TIMEOUT_WAIT = 10  # In seconds.
     LOGGER = daiquiri.getLogger(__name__)
     _clients = {}
     _clients_pending_disconnection = {}
@@ -107,7 +107,6 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         self.id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
-        self._set_up_connection_keep_alive()
         self._cache = Cache()
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
@@ -123,9 +122,6 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
 
         if self.id in self._clients:
             del self._clients[self.id]
-
-    async def onPong(self, payload):  # pragma: no cover  # noqa: N802
-        self._set_up_connection_keep_alive()
 
     async def _disconnect_player(self):
         if await self._creating_game:
@@ -172,9 +168,6 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     def _append_to_clients_pending_disconnection(self):
         self._clients_pending_disconnection_for_game.add(self.id)
         self._clients_pending_reconnection_for_game.discard(self.id)
-
-    def _set_up_connection_keep_alive(self):  # pragma: no cover
-        self._loop.call_later(5, self.sendPing)
 
     @property
     def _is_reconnecting(self):
