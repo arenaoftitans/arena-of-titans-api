@@ -36,14 +36,15 @@
          viewBox="0 0 2075 2075"
          preserveAspectRatio="xMidYMid meet">
         <g id="boardBackground">
-            <image width="100%" height="100%" transform="translate(-650 -653) scale(1.65)" xlink:href.bind="imageSource.forBackground('board')"/>
-            <image width="100%" height="100%" xlink:href.bind="imageSource.forBackground('board-outline')"/>
+            <image width="100%" height="100%" transform="translate(-650 -653) scale(1.65)" xlink:href.bind="assetSource.forBackground('board')"/>
+            <image width="100%" height="100%" xlink:href.bind="assetSource.forBackground('board-outline')"/>
         </g>
 
         <g
             id="boardLayer"
             transform="translate(48.592838,51.550212)">
             <g
+                ref="squaresLayer"
                 id="squaresLayer">
                 <path
                     d="m 916.8214,1252.3048 c -10.1153,-2.6361 -30.6079,-9.3261 -33.5129,-10.9407 -0.8185,-0.4549 3.9944,-13.388 15.4703,-41.5715 9.1622,-22.5012 17.0136,-41.2731 17.4476,-41.7154 0.434,-0.4422 3.0183,0.066 5.7428,1.1288 2.7246,1.0632 10.0838,3.2142 16.354,4.7801 6.6386,1.6579 11.2345,3.296 11.0034,3.922 -0.2183,0.5911 -3.9667,20.5076 -8.3298,44.2589 l -7.933,43.184 -2.5653,-0.075 c -1.411,-0.041 -7.5657,-1.3783 -13.6771,-2.9709 z"

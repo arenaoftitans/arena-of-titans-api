@@ -27,6 +27,7 @@ class Square:
     _x = 0
     _y = 0
     _color = None
+    _original_color = None
     _occupied = False
 
     def __init__(self, x, y, color):
@@ -34,9 +35,9 @@ class Square:
         self._y = y
         # To ease testing
         if isinstance(color, str):  # pragma: no cover
-            self._color = Color[color]
-        else:  # pragma: no cover
-            self._color = color
+            color = Color[color]
+        self._color = color
+        self._original_color = self._color
 
     @property
     def x(self):
@@ -58,20 +59,27 @@ class Square:
     def color(self):
         return self._color
 
+    @color.setter
+    def color(self, color):
+        if isinstance(color, str):
+            color = Color[color]
+        self._color = color
+
     def __eq__(self, other):  # pragma: no cover
         return type(other) == Square and \
             other._x == self._x and \
             other._y == self._y and \
-            other._color == self._color
+            other._original_color == self._original_color
 
     def __str__(self):  # pragma: no cover
-        return 'Square({}, {}, {})'.format(self._x, self._y, self._color)
+        return f'Square(x={self.x}, y={self.y}, color={self.color}, '\
+               f'original_color={self._original_color})'
 
     def __repr__(self):  # pragma: no cover
         return str(self)
 
     def __hash__(self):
-        return self._x * 10 + self._y * 100 + hash(self._color)
+        return self._x * 10 + self._y * 100 + hash(self._original_color)
 
 
 class SquareSet(set):

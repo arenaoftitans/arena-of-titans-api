@@ -42,8 +42,8 @@ class SvgBoardCreator:
         'mouseover': 'showPlayerName({index}, $event)',
         'mouseout': 'hidePlayerName()',
     }
-    _PLAY_ATTR_TEMPLATE = "moveTo('{}', '{}', '{}')"
-    _SQUARE_CLASS_TEMPLATE = "square {} ${{possibleSquares.indexOf('{}') > -1 ? 'highlighted-square' : ''}}"  # noqa
+    _PLAY_ATTR_TEMPLATE = "handleSquareClicked('{}', '{}', '{}')"
+    _SQUARE_CLASS_TEMPLATE = "square ${{squaresToColors.hasOwnProperty('{id}') ? squaresToColors['{id}'] : '{default_color}'}} ${{possibleSquares.indexOf('{id}') > -1 ? 'highlighted' : ''}}"  # noqa
     _TRANSFORM = 'transform'
     _TEMPLATE_LOCATION = 'aot/resources/templates/boards/standard.html'
 
@@ -93,9 +93,11 @@ class SvgBoardCreator:
                 self._set_click_attr(square, x, y)
                 color = self._colors_disposition[y][x]
                 svg_color = color.lower()
-                primary_class = svg_color + '-square'
                 square_id = self._get_id(x, y)
-                class_ = self._SQUARE_CLASS_TEMPLATE.format(primary_class, square_id)
+                class_ = self._SQUARE_CLASS_TEMPLATE.format(
+                    default_color=svg_color,
+                    id=square_id,
+                )
                 if self._is_on_last_line(y):
                     class_ += ' ' + self._last_line_class(x)
                 square.set('class', class_)

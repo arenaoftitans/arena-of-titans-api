@@ -36,11 +36,11 @@ from .. import (
     get_game,
     get_number_players,
 )
+from ..cards.trumps.constants import TargetTypes as TrumpsTargetTypes
 from ..cards.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
     MaxNumberAffectingTrumps,
     MaxNumberTrumpPlayed,
-    NonExistantTrumpTarget,
     TrumpHasNoEffect,
 )
 from ..config import config
@@ -632,21 +632,47 @@ class Api(AotWs):
         except IndexError:
             raise AotError('wrong_trump')
 
+        if trump.must_target_player:
+            trump.initiator = game.active_player.name
+
+        target, target_index = self._get_trump_target(game, trump, play_request)
+
+        await self._play_trump_with_target(game, trump, target, target_index)
+
+    def _get_trump_target(self, game, trump, play_request):
         target_index = play_request.get('target_index', None)
         if trump.must_target_player and target_index is None:
             raise AotError('missing_trump_target')
+        elif not trump.must_target_player:
+            target_index = game.active_player.index
 
-        if trump.must_target_player:
-            trump.initiator = game.active_player.name
-            await self._play_trump_with_target(game, trump, target_index)
+        if trump.target_type == TrumpsTargetTypes.board:
+            target = {
+                'x': play_request['square']['x'],
+                'y': play_request['square']['y'],
+                'color': play_request['square']['color'],
+            }
+        elif trump.target_type == TrumpsTargetTypes.player:
+            try:
+                target = game.players[target_index]
+            except IndexError:
+                raise AotError('The target of this trump does not exist')
         else:
-            await self._play_trump_without_target(game, trump)
+            raise AotError('invalid_trump')
 
-    async def _play_trump_with_target(self, game, trump, target_index):
+        return target, target_index
+
+    async def _play_trump_with_target(self, game, trump, target, target_index):
+        '''Play a trump on its target.
+
+        Target represent what the trump will target (ie a player or a square)
+        whereas the target_index represents the index of the player that was the target
+        of the trump (the active player if the target is a square).
+
+        TODO: improve this.
+        '''
         try:
-            game.play_trump(trump, target_index=target_index)
-        except NonExistantTrumpTarget:
-            raise AotError('The target of this trump does not exist')
+            game.play_trump(trump, target)
         except GaugeTooLowToPlayTrump:
             raise AotError('gauge_too_low')
         except MaxNumberTrumpPlayed:
@@ -667,10 +693,12 @@ class Api(AotWs):
                 rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
             )
         else:
+            square = target if trump.target_type == TrumpsTargetTypes.board else None
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
                 game,
                 target_index,
+                square=square,
             )
 
     async def _send_trump_played_message(
@@ -678,6 +706,7 @@ class Api(AotWs):
         game,
         target_index,
         rt=RequestTypes.PLAY_TRUMP,
+        square=None,
     ):  # pragma: no cover
         message = {
             'rt': rt,
@@ -687,13 +716,11 @@ class Api(AotWs):
             'trumps_statuses': game.active_player.trumps_statuses,
             'can_power_be_played': game.active_player.can_power_be_played,
             'last_action': self._get_action_message(game.active_player.last_action),
+            'square': square,
         }
         await self._send_all_others(message)
         message['gauge_value'] = game.active_player.gauge.value
         await self.sendMessage(message)
-
-    async def _play_trump_without_target(self, game, trump):
-        await self._play_trump_with_target(game, trump, game.active_player.index)
 
     def _get_trump(self, game, trump_name, trump_color):
         return game.active_player.get_trump(trump_name, trump_color)

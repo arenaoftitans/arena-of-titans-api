@@ -25,6 +25,7 @@ from .gauge import Gauge
 from .powers import (
     AddSpecialActionsToCardPower,
     CannotBeAffectedByTrumpsPower,
+    ChangeSquarePower,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
@@ -32,6 +33,7 @@ from .powers import (
 )
 from .trumps import (
     CannotBeAffectedByTrumps,
+    ChangeSquare,
     ModifyCardColors,
     ModifyCardNumberMoves,
     ModifyNumberMoves,
@@ -46,6 +48,7 @@ from .trumps import (
 power_type_to_class = {
     'AddSpecialActionsToCard': AddSpecialActionsToCardPower,
     'CannotBeAffectedByTrumps': CannotBeAffectedByTrumpsPower,
+    'ChangeSquare': ChangeSquarePower,
     'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
     'PreventTrumpAction': PreventTrumpActionPower,
@@ -53,6 +56,7 @@ power_type_to_class = {
 
 trump_type_to_class = {
     'CannotBeAffectedByTrumps': CannotBeAffectedByTrumps,
+    'ChangeSquare': ChangeSquare,
     'ModifyNumberMoves': ModifyNumberMoves,
     'ModifyTrumpDurations': ModifyTrumpDurations,
     'PreventTrumpAction': PreventTrumpAction,
@@ -119,6 +123,7 @@ __all__ = [
     'Power',
     # Trumps
     'CannotBeAffectedByTrumps',
+    'ChangeSquare',
     'ModifyCardColors',
     'ModifyCardNumberMoves',
     'ModifyNumberMoves',

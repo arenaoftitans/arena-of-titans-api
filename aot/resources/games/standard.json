@@ -230,6 +230,16 @@
                 ]
             }
         },
+        "mirindrel": {
+            "name": "Terraforming",
+            "description": "Change the color of a square",
+            "passive": false,
+            "cost": 8,
+            "must_target_player": false,
+            "parameters": {
+                "type": "ChangeSquare"
+            }
+        },
         "razbrak": {
             "name": "Force of nature",
             "description": "Towers and fortresses have no effect.",
