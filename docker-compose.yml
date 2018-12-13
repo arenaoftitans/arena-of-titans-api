@@ -37,12 +37,13 @@ services:
       - ./:/opt/aot-api:Z
     working_dir: /opt/aot-api
   aot-gateway:
-    image: registry.gitlab.com/arenaoftitans/game-gateway:v1.0.0
+    image: registry.gitlab.com/arenaoftitans/game-gateway:1.1.0
     depends_on:
       - aot-dev-api
     environment:
       API_HOST: aot-dev-api
       PORT: 8182
+      REDIS: aot-redis:6379
     ports:
       - "8182:8182"
   nginx-proxy:
