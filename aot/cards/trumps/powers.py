@@ -19,6 +19,7 @@
 
 from copy import deepcopy
 
+from .constants import TargetTypes
 from .trumps import (
     AddSpecialActionsToCard,
     CannotBeAffectedByTrumps,
@@ -52,7 +53,7 @@ class Power(Trump):
         )
         self._passive = passive
         self._trump_cost_delta = trump_cost_delta
-        if self.passive:
+        if self._passive:
             self._duration = float('inf')
 
     def setup(self, trumps):
@@ -93,3 +94,92 @@ class PreventTrumpActionPower(PreventTrumpAction, Power):
 
 class AddSpecialActionsToCardPower(AddSpecialActionsToCard, Power):
     pass
+
+
+class StealPowerPower(Power):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._stolen_power = None
+
+    def affect(self, player, power=None):
+        if self._stolen_power:
+            self._stolen_power.affect(player)
+        else:
+            self._stolen_power = power
+
+    def clone(self):
+        # When this power it played, we need to mutate it to take into account the stealth of the
+        # power. Thus we don't want to clone it.
+        return self
+
+    @property
+    def color(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.color
+        return super().color
+
+    @property
+    def cost(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.cost
+        return super().cost
+
+    @cost.setter
+    def cost(self, value):
+        if self._stolen_power is not None:
+            self._stolen_power.cost = value
+        super(self.__class__, self.__class__).cost.fset(self, value)
+
+    @property
+    def description(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.description
+        return super().description
+
+    @property
+    def duration(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.duration
+        return super().duration
+
+    @duration.setter
+    def duration(self, value):
+        if self._stolen_power is not None:
+            self._stolen_power.duration = value
+        super(self.__class__, self.__class__).duration.fset(self, value)
+
+    @property
+    def must_target_player(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.must_target_player
+        return super().must_target_player
+
+    @property
+    def name(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.name
+        return super().name
+
+    @property
+    def initiator(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.initiator
+        return super().initiator
+
+    @initiator.setter
+    def initiator(self, initiator):
+        if self._stolen_power is not None:
+            self._stolen_power.initiator = initiator
+        super(self.__class__, self.__class__).initiator.fset(self, initiator)
+
+    @property
+    def passive(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.passive
+        return super().passive
+
+    @property
+    def target_type(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.target_type
+        return TargetTypes.trump
