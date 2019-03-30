@@ -180,7 +180,7 @@ testall: test
 .PHONY: test
 test:
 ifdef INSIDE_DOCKER
-	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} pytest
+	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} pytest --cov aot --cov-report html --cov-report term:skip-covered
 else
 	# Clean old pyc files for pytest to prevent errors if tests where run outside the container.
 	find aot/test -name \*.pyc -exec rm {} \;
