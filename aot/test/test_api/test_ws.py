@@ -44,8 +44,8 @@ class AotWsImpl(AotWs):
 AotWsImpl.__abstractmethods__ = frozenset()
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_onClose(api, game):
+@pytest.mark.asyncio
+async def test_onClose(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
@@ -75,8 +75,8 @@ async def test_onClose(api, game):
     game.pass_turn.assert_called_once_with()
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_onClose_not_your_turn(api, game):
+@pytest.mark.asyncio
+async def test_onClose_not_your_turn(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
@@ -109,8 +109,8 @@ async def test_onClose_not_your_turn(api, game):
     assert api._clients_pending_disconnection[None] == {0}
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_onClose_just_before_ai(api, game):
+@pytest.mark.asyncio
+async def test_onClose_just_before_ai(api, game):  # noqa: F811
     def pass_turn():
         game._active_player = game.players[1]
 
@@ -146,8 +146,8 @@ async def test_onClose_just_before_ai(api, game):
     game.pass_turn.assert_called_once_with()
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_onClose_creating_game(api, game):
+@pytest.mark.asyncio
+async def test_onClose_creating_game(api, game):  # noqa: F811
     api._cache = MagicMock()
     slots = [
         {
@@ -184,8 +184,8 @@ async def test_onClose_creating_game(api, game):
     api._modify_slots.assert_called_once_with()
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_reconnect_creating_game(api, game):
+@pytest.mark.asyncio
+async def test_reconnect_creating_game(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
@@ -210,8 +210,8 @@ async def test_reconnect_creating_game(api, game):
     assert api.sendMessage.call_count == 1
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_reconnect_creating_game_slot_freed(api, game):
+@pytest.mark.asyncio
+async def test_reconnect_creating_game_slot_freed(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
@@ -234,8 +234,8 @@ async def test_reconnect_creating_game_slot_freed(api, game):
     assert api.sendMessage.call_count == 1
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_reconnect_reconnect_to_game(api, game):
+@pytest.mark.asyncio
+async def test_reconnect_reconnect_to_game(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
@@ -263,8 +263,8 @@ async def test_reconnect_reconnect_to_game(api, game):
     assert api._clients_pending_reconnection_for_game == {'player_id'}
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):
+@pytest.mark.asyncio
+async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):  # noqa: F811
     timer = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
@@ -341,8 +341,8 @@ def test_append_to_clients_pending_disconnection(api):  # noqa: F811
     assert api._clients_pending_reconnection_for_game == set()
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_send_error_with_extra_data(api):
+@pytest.mark.asyncio
+async def test_send_error_with_extra_data(api):  # noqa: F811
     api.LOGGER = MagicMock()
     api.sendMessage = AsyncMagicMock()
     api._message = {'ping': 'pong'}
@@ -359,8 +359,8 @@ async def test_send_error_with_extra_data(api):
     })
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_send_error_without_extra_data():
+@pytest.mark.asyncio
+async def test_send_error_without_extra_data():  # noqa: F811
     ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
@@ -374,8 +374,8 @@ async def test_send_error_without_extra_data():
     })
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_send_error_to_display():
+@pytest.mark.asyncio
+async def test_send_error_to_display():  # noqa: F811
     ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
@@ -389,8 +389,8 @@ async def test_send_error_to_display():
     })
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_send_fatal_error():
+@pytest.mark.asyncio
+async def test_send_fatal_error():  # noqa: F811
     ws = AotWsImpl()
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()

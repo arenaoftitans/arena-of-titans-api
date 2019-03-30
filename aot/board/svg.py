@@ -17,7 +17,9 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import xml.etree.ElementTree as ET  # noqa: S405 (xml from stdlib can be a security risk)
+# S405 (xml from stdlib can be a security risk)
+# N814 camelcase 'xml.etree.ElementTree' imported as constant 'ET'
+import xml.etree.ElementTree as ET  # noqa
 
 from .board import get_colors_disposition
 

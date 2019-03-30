@@ -87,8 +87,8 @@ def test_loads(cache):
     assert decoded_data == data
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_test(cache, mocker):
+@pytest.mark.asyncio
+async def test_test(cache, mocker):  # noqa: F811
     now = MagicMock(return_value='the_date')
     datetime = MagicMock()
     datetime.now = now
@@ -100,8 +100,8 @@ async def test_test(cache, mocker):
     cache._cache.set.assert_called_once_with('test', 'the_date')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_info(cache, mocker):
+@pytest.mark.asyncio
+async def test_info(cache, mocker):  # noqa: F811
     cache._cache.keys = AsyncMagicMock(return_value=[b'game:game_id', b'toto'])
     cache.get_players_ids = AsyncMagicMock(return_value=['id1', 'id2'])
     cache._cache.hget = AsyncMagicMock(return_value=b'True')
@@ -116,8 +116,8 @@ async def test_info(cache, mocker):
     }
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_players_ids(cache):
+@pytest.mark.asyncio
+async def test_get_players_ids(cache):  # noqa: F811
     cache._cache.zrange = AsyncMagicMock(return_value=[b'id0', b'id1'])
     cache._game_id = None
 
@@ -127,8 +127,8 @@ async def test_get_players_ids(cache):
     cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_players_ids_without_game_id(cache):
+@pytest.mark.asyncio
+async def test_get_players_ids_without_game_id(cache):  # noqa: F811
     cache._cache.zrange = AsyncMagicMock(return_value=[b'id0', b'id1'])
 
     results = await cache.get_players_ids()
@@ -137,8 +137,8 @@ async def test_get_players_ids_without_game_id(cache):
     cache._cache.zrange.assert_called_once_with('players:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_game_exists(cache, game):
+@pytest.mark.asyncio
+async def test_game_exists(cache, game):  # noqa: F811
     cache._cache.hget = AsyncMagicMock(return_value=None)
     assert not await cache.game_exists('game_id')
     cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
@@ -148,8 +148,8 @@ async def test_game_exists(cache, game):
     cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_has_opened_slots(mocker, cache):
+@pytest.mark.asyncio
+async def test_has_opened_slots(mocker, cache):  # noqa: F811
     cache._cache.lrange = AsyncMagicMock(
         return_value=dumps_list(cache, [
             {'state': 'OPEN'},
@@ -161,8 +161,8 @@ async def test_has_opened_slots(mocker, cache):
     cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_slots_with_game_id(mocker, cache):
+@pytest.mark.asyncio
+async def test_get_slots_with_game_id(mocker, cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -181,8 +181,8 @@ async def test_get_slots_with_game_id(mocker, cache):
     cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_slots_without_game_id(mocker, cache):
+@pytest.mark.asyncio
+async def test_get_slots_without_game_id(mocker, cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -201,8 +201,8 @@ async def test_get_slots_without_game_id(mocker, cache):
     cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_slots_exclude_player_ids(cache):
+@pytest.mark.asyncio
+async def test_get_slots_exclude_player_ids(cache):  # noqa: F811
     slots = [
         {
             'state': 'OPEN',
@@ -223,16 +223,16 @@ async def test_get_slots_exclude_player_ids(cache):
     cache._cache.lrange.assert_called_once_with('slots:game_id', 0, -1)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_is_member_game(cache):
+@pytest.mark.asyncio
+async def test_is_member_game(cache):  # noqa: F811
     cache._cache.zrange = AsyncMagicMock(return_value=[b'id0', b'id1'])
 
     assert await cache.is_member_game('game_id', 'id0')
     assert not await cache.is_member_game('game_id', 'id100')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_create_new_game(cache):
+@pytest.mark.asyncio
+async def test_create_new_game(cache):  # noqa: F811
     slots = []
 
     def add_slot_cache_side_effect(key, dumped_slot):
@@ -259,8 +259,8 @@ async def test_create_new_game(cache):
     assert cache.get_slots.call_count == 8
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_is_test(cache):
+@pytest.mark.asyncio
+async def test_is_test(cache):  # noqa: F811
     cache._cache.hget = AsyncMagicMock(return_value=b'True')
     assert await cache.is_test()
     cache._cache.hget.assert_called_once_with('game:game_id', 'test')
@@ -270,8 +270,8 @@ async def test_is_test(cache):
     cache._cache.hget.assert_called_once_with('game:game_id', 'test')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_game(cache, game):
+@pytest.mark.asyncio
+async def test_get_game(cache, game):  # noqa: F811
     game.game_id = 'game-id'
 
     cache._cache.hget = AsyncMagicMock(return_value=cache.dumps(game))
@@ -283,8 +283,8 @@ async def test_get_game(cache, game):
     cache._cache.hget.assert_called_once_with('game:game_id', 'game')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_save_session(cache):
+@pytest.mark.asyncio
+async def test_save_session(cache):  # noqa: F811
     cache._cache.zadd = AsyncMagicMock()
     cache._cache.expire = AsyncMagicMock()
 
@@ -294,8 +294,8 @@ async def test_save_session(cache):
     cache._cache.expire.call_count == 1
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_player_index(cache):
+@pytest.mark.asyncio
+async def test_get_player_index(cache):  # noqa: F811
     slots = [
         {
             'player_id': 'player_id',
@@ -307,8 +307,8 @@ async def test_get_player_index(cache):
     assert await cache.get_player_index() == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_is_game_master(cache):
+@pytest.mark.asyncio
+async def test_is_game_master(cache):  # noqa: F811
     cache._cache.hget = AsyncMagicMock(return_value=b'player_id')
     assert await cache.is_game_master()
     cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
@@ -322,15 +322,15 @@ async def test_is_game_master(cache):
     cache._cache.hget.assert_called_once_with('game:game_id', 'game_master')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_number_taken_slots(cache):
+@pytest.mark.asyncio
+async def test_number_taken_slots(cache):  # noqa: F811
     slots = [{'state': 'TAKEN'}, {'state': 'OPEN'}, {'state': 'AI'}]
     cache.get_slots = AsyncMagicMock(return_value=deepcopy(slots))
     assert await cache.number_taken_slots() == 2
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_affect_next_slot(cache):
+@pytest.mark.asyncio
+async def test_affect_next_slot(cache):  # noqa: F811
     slots = [{'state': 'TAKEN'}, {'state': 'OPEN', 'index': 1}, {'state': 'AI'}]
     cache.get_slots = AsyncMagicMock(return_value=deepcopy(slots))
     cache.update_slot = AsyncMagicMock()
@@ -344,8 +344,8 @@ async def test_affect_next_slot(cache):
     cache.update_slot.assert_called_once_with(slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_free(cache):
+@pytest.mark.asyncio
+async def test_update_slot_free(cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'player_id': 'player_id',
@@ -366,8 +366,8 @@ async def test_update_slot_free(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_close(cache):
+@pytest.mark.asyncio
+async def test_update_slot_close(cache):  # noqa: F811
     cache_slot = {
         'state': 'AI',
         'player_name': 'AI 2',
@@ -389,8 +389,8 @@ async def test_update_slot_close(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_open(cache):
+@pytest.mark.asyncio
+async def test_update_slot_open(cache):  # noqa: F811
     cache_slot = {
         'state': 'AI',
         'player_name': 'AI 2',
@@ -412,8 +412,8 @@ async def test_update_slot_open(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_update_not_game_master(cache):
+@pytest.mark.asyncio
+async def test_update_slot_update_not_game_master(cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'player_id': 'player_id',
@@ -434,8 +434,8 @@ async def test_update_slot_update_not_game_master(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_update_game_master(cache):
+@pytest.mark.asyncio
+async def test_update_slot_update_game_master(cache):  # noqa: F811
     cache_slot = {
         'state': 'OPEN',
         'index': 0,
@@ -454,8 +454,8 @@ async def test_update_slot_update_game_master(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_update_game_master_taken(cache):
+@pytest.mark.asyncio
+async def test_update_slot_update_game_master_taken(cache):  # noqa: F811
     cache_slot = {
         'state': 'TAKEN',
         'index': 0,
@@ -474,8 +474,8 @@ async def test_update_slot_update_game_master_taken(cache):
     assert cache._save_slot.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_update_slot_take(cache):
+@pytest.mark.asyncio
+async def test_update_slot_take(cache):  # noqa: F811
     cache_slot = {
         'state': 'OPEN',
         'index': 0,
@@ -495,8 +495,8 @@ async def test_update_slot_take(cache):
     cache._save_slot.assert_called_once_with(cache_slot)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_save_slot(cache):
+@pytest.mark.asyncio
+async def test_save_slot(cache):  # noqa: F811
     slot = {
         'state': 'TAKEN',
         'index': 0,
@@ -512,8 +512,8 @@ async def test_save_slot(cache):
     )
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_slot_exists(cache):
+@pytest.mark.asyncio
+async def test_slot_exists(cache):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -528,8 +528,8 @@ async def test_slot_exists(cache):
     cache.lindex.assert_called_once_with('slots:game_id', 0)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_slot_from_game_id(cache_cls):
+@pytest.mark.asyncio
+async def test_get_slot_from_game_id(cache_cls):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -540,8 +540,8 @@ async def test_get_slot_from_game_id(cache_cls):
     cache.lindex.assert_called_once_with('slots:game_id', 0)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_get_slot(cache):
+@pytest.mark.asyncio
+async def test_get_slot(cache):  # noqa: F811
     slot = {
         'index': 0,
     }
@@ -551,8 +551,8 @@ async def test_get_slot(cache):
     assert await cache.get_slot(0) == slot
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_has_game_started(cache):
+@pytest.mark.asyncio
+async def test_has_game_started(cache):  # noqa: F811
     cache._cache.hget = AsyncMagicMock(return_value=b'true')
     assert await cache.has_game_started()
     cache._cache.hget.assert_called_once_with('game:game_id', 'started')
@@ -562,8 +562,8 @@ async def test_has_game_started(cache):
     cache._cache.hget.assert_called_once_with('game:game_id', 'started')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_game_has_started(cache):
+@pytest.mark.asyncio
+async def test_game_has_started(cache):  # noqa: F811
     cache._cache.hset = AsyncMagicMock()
 
     await cache.game_has_started()
@@ -571,8 +571,8 @@ async def test_game_has_started(cache):
     cache._cache.hset.assert_called_once_with('game:game_id', 'started', b'true')
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_save_game(cache, game):
+@pytest.mark.asyncio
+async def test_save_game(cache, game):  # noqa: F811
     cache._cache.hset = AsyncMagicMock()
 
     await cache.save_game(game)

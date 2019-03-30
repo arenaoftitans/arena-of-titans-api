@@ -36,8 +36,8 @@ from ...cards.trumps import (
 )
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_process_play_request_not_your_turn(api, game):
+@pytest.mark.asyncio
+async def test_process_play_request_not_your_turn(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._save_game = AsyncMagicMock()
@@ -50,8 +50,8 @@ async def test_process_play_request_not_your_turn(api, game):
     assert api._save_game.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_process_play_request_your_turn(api, game):
+@pytest.mark.asyncio
+async def test_process_play_request_your_turn(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._save_game = AsyncMagicMock()
@@ -64,8 +64,8 @@ async def test_process_play_request_your_turn(api, game):
     api._save_game.assert_called_once_with(game)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_process_play_request_ai_after_player(api, game):
+@pytest.mark.asyncio
+async def test_process_play_request_ai_after_player(api, game):  # noqa: F811
     game.active_player._is_ai = True
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
@@ -84,8 +84,8 @@ async def test_process_play_request_ai_after_player(api, game):
     assert callable(api._loop.call_later.call_args[0][1])
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_process_play_request_ai_after_ai(api, game):
+@pytest.mark.asyncio
+async def test_process_play_request_ai_after_ai(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._cache.get_game = AsyncMagicMock(return_value=game)
     api._cache.save_game = AsyncMagicMock()
@@ -100,8 +100,8 @@ async def test_process_play_request_ai_after_ai(api, game):
     api._play_ai.assert_called_once_with(game)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_ai(api, game):
+@pytest.mark.asyncio
+async def test_play_ai(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._send_play_message = AsyncMagicMock()
     api._send_debug = MagicMock()
@@ -143,8 +143,8 @@ def test_play_ai_after_timeout_game_over(api, game):  # noqa: F811
     assert api._loop.call_later.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_ai_mode_debug(api, game):
+@pytest.mark.asyncio
+async def test_play_ai_mode_debug(api, game):  # noqa: F811
     api._cache = MagicMock()
     api._send_play_message = AsyncMagicMock()
     api._send_debug = AsyncMagicMock()
@@ -166,8 +166,8 @@ async def test_play_ai_mode_debug(api, game):
     assert len(args_last_call['hand']) == 5
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_game_no_request(api, game):
+@pytest.mark.asyncio
+async def test_play_game_no_request(api, game):  # noqa: F811
     api._message = {}
 
     with pytest.raises(AotError) as e:
@@ -176,8 +176,8 @@ async def test_play_game_no_request(api, game):
     assert 'no_request' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_game_unknown_request(api, game):
+@pytest.mark.asyncio
+async def test_play_game_unknown_request(api, game):  # noqa: F811
     api._message = {
         'play_request': {},
         'rt': 'TOTO',
@@ -189,8 +189,8 @@ async def test_play_game_unknown_request(api, game):
     assert 'unknown_request' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_game(api, game):
+@pytest.mark.asyncio
+async def test_play_game(api, game):  # noqa: F811
     requests_to_test = [
         'VIEW_POSSIBLE_SQUARES',
         'PLAY',
@@ -220,16 +220,16 @@ async def test_play_game(api, game):
         mm.assert_called_once_with(game, request)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_view_possible_squares_wrong_card(api, game):
+@pytest.mark.asyncio
+async def test_view_possible_squares_wrong_card(api, game):  # noqa: F811
     with pytest.raises(AotErrorToDisplay) as e:
         await api._view_possible_squares(game, {})
 
     assert 'wrong_card' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_view_possible_squares(api, game):
+@pytest.mark.asyncio
+async def test_view_possible_squares(api, game):  # noqa: F811
     api.sendMessage = AsyncMagicMock()
     card = game.active_player.hand[0]
 
@@ -241,8 +241,8 @@ async def test_view_possible_squares(api, game):
     assert api.sendMessage.call_count == 1
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_pass(api, game):
+@pytest.mark.asyncio
+async def test_play_pass(api, game):  # noqa: F811
     game.pass_turn = MagicMock()
     api._send_play_message = AsyncMagicMock()
 
@@ -252,8 +252,8 @@ async def test_play_pass(api, game):
     api._send_play_message.assert_called_once_with(game, game.active_player)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_discard_wrong_card(api, game):
+@pytest.mark.asyncio
+async def test_play_discard_wrong_card(api, game):  # noqa: F811
     game.discard = MagicMock()
 
     with pytest.raises(AotErrorToDisplay) as e:
@@ -263,8 +263,8 @@ async def test_play_discard_wrong_card(api, game):
     assert game.discard.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_discard(api, game):
+@pytest.mark.asyncio
+async def test_play_discard(api, game):  # noqa: F811
     game.discard = MagicMock()
     api._send_play_message = AsyncMagicMock()
     card = game.active_player.hand[0]
@@ -279,8 +279,8 @@ async def test_play_discard(api, game):
     api._send_play_message.assert_called_once_with(game, game.active_player)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_wrong_card(api, game):
+@pytest.mark.asyncio
+async def test_play_wrong_card(api, game):  # noqa: F811
     game.play_card = MagicMock()
     api._send_play_message = AsyncMagicMock()
 
@@ -291,8 +291,8 @@ async def test_play_wrong_card(api, game):
     assert game.play_card.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_wrong_square(api, game):
+@pytest.mark.asyncio
+async def test_play_wrong_square(api, game):  # noqa: F811
     game.play_card = MagicMock()
     api._send_play_message = AsyncMagicMock()
     card = game.active_player.hand[0]
@@ -307,8 +307,8 @@ async def test_play_wrong_square(api, game):
     assert game.play_card.call_count == 0
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_card(api, game):
+@pytest.mark.asyncio
+async def test_play_card(api, game):  # noqa: F811
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
     game.play_card = MagicMock(return_value=False)
@@ -329,8 +329,8 @@ async def test_play_card(api, game):
     assert not api._notify_special_actions.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_card_with_special_actions(api, game):
+@pytest.mark.asyncio
+async def test_play_card_with_special_actions(api, game):  # noqa: F811
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
     special_actions = TrumpList()
