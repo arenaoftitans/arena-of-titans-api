@@ -17,6 +17,8 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from copy import deepcopy
+
 from .trumps import (
     AddSpecialActionsToCard,
     CannotBeAffectedByTrumps,
@@ -60,6 +62,9 @@ class Power(Trump):
         # We expect a list of SimpleTrump
         for trump in trumps:
             trump.args['cost'] += self._trump_cost_delta
+
+    def clone(self):
+        return deepcopy(self)
 
     @property
     def passive(self):

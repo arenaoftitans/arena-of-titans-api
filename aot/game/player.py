@@ -17,8 +17,6 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from copy import deepcopy
-
 import daiquiri
 
 from ..board import Square
@@ -347,7 +345,7 @@ class Player:
 
     def get_trump(self, trump_name, trump_color=None):
         if self._played_power_as_trump(trump_name, trump_color):
-            return deepcopy(self._power)
+            return self._power.clone()
         return self._available_trumps[trump_name, trump_color]
 
     def _played_power_as_trump(self, trump_name, trump_color):
