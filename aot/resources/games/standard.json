@@ -295,6 +295,18 @@
                     }
                 ]
             }
+        },
+        "kharliass": {
+            "name": "Metamorphosis",
+            "description": "Stole the power of one of your opponent",
+            "passive": false,
+            "cost": 10,
+            "trump_cost_delta": 0,
+            "must_target_player": true,
+            "parameters": {
+                "type": "StealPower",
+                "number_turn_theft_active": 1
+            }
         }
     },
     "board": {
