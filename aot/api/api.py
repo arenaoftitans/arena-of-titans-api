@@ -672,6 +672,7 @@ class Api(AotWs):
         TODO: improve this.
         '''
         try:
+            square = target if trump.target_type == TrumpsTargetTypes.board else None
             game.play_trump(trump, target)
         except GaugeTooLowToPlayTrump:
             raise AotError('gauge_too_low')
@@ -693,7 +694,6 @@ class Api(AotWs):
                 rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
             )
         else:
-            square = target if trump.target_type == TrumpsTargetTypes.board else None
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
                 game,
