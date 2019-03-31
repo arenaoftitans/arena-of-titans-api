@@ -652,7 +652,7 @@ class Api(AotWs):
                 'y': play_request['square']['y'],
                 'color': play_request['square']['color'],
             }
-        elif trump.target_type == TrumpsTargetTypes.player:
+        elif trump.target_type in (TrumpsTargetTypes.player, TrumpsTargetTypes.trump):
             try:
                 target = game.players[target_index]
             except IndexError:

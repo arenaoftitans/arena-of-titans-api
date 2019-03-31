@@ -398,6 +398,8 @@ class Player:
             trump.affect(board=self._board, **target)
         elif trump.target_type == trumps.constants.TargetTypes.player:
             target._affect_by(trump)
+        elif trump.target_type == trumps.constants.TargetTypes.trump:
+            trump.affect(player=self, power=target.power.clone())
         else:
             raise trumps.exceptions.InvalidTargetType
 
