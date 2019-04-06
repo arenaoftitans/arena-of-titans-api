@@ -113,42 +113,47 @@ class StealPowerPower(Power):
 
     def affect(self, *, power=None, **kwargs):
         if self._stolen_power:
-            if self._stolen_power.passive and self._theft_duration_left <= 0:
-                self.teardown()
-                return
-
-            self._theft_duration_left -= 1
-            stolen_power_infos = self._stolen_power.affect(**kwargs)
-            infos = TrumpPlayedInfos(
-                name=stolen_power_infos.name,
-                description=stolen_power_infos.description,
-                cost=self.cost,
-                duration=self.duration,
-                must_target_player=stolen_power_infos.must_target_player,
-                color=stolen_power_infos.color,
-                initiator=stolen_power_infos.initiator,
-            )
-            if not self._stolen_power.passive and self._theft_duration_left <= 0:
-                self.teardown()
-            return infos
+            return self._affect_from_stolen_power(**kwargs)
         else:
-            infos = TrumpPlayedInfos(
-                name=self.name,
-                description=self.description,
-                cost=self.cost,
-                duration=self.duration,
-                must_target_player=self.must_target_player,
-                color=self.color,
-                initiator=self.initiator,
-            )
-            self._stolen_power = power
-            player = kwargs['player']
-            self._trumps_associated_with_passive_stolen_power = player.rw_available_trumps
-            self._stolen_power.setup(self._trumps_associated_with_passive_stolen_power)
-            self._theft_duration_left = self.STEALTH_DURATION
-            if self._stolen_power.passive:
-                self.affect(player=player)
-            return infos
+            return self._steal_power(power, kwargs['player'])
+
+    def _affect_from_stolen_power(self, **kwargs):
+        if self._stolen_power.passive and self._theft_duration_left <= 0:
+            self.teardown()
+            return
+
+        self._theft_duration_left -= 1
+        stolen_power_infos = self._stolen_power.affect(**kwargs)
+        infos = TrumpPlayedInfos(
+            name=stolen_power_infos.name,
+            description=stolen_power_infos.description,
+            cost=self.cost,
+            duration=self.duration,
+            must_target_player=stolen_power_infos.must_target_player,
+            color=stolen_power_infos.color,
+            initiator=stolen_power_infos.initiator,
+        )
+        if not self._stolen_power.passive and self._theft_duration_left <= 0:
+            self.teardown()
+        return infos
+
+    def _steal_power(self, power, player):
+        infos = TrumpPlayedInfos(
+            name=self.name,
+            description=self.description,
+            cost=self.cost,
+            duration=self.duration,
+            must_target_player=self.must_target_player,
+            color=self.color,
+            initiator=self.initiator,
+        )
+        self._stolen_power = power
+        self._trumps_associated_with_passive_stolen_power = player.rw_available_trumps
+        self._stolen_power.setup(self._trumps_associated_with_passive_stolen_power)
+        self._theft_duration_left = self.STEALTH_DURATION
+        if self._stolen_power.passive:
+            self.affect(player=player)
+        return infos
 
     def teardown(self):
         if self._stolen_power is None:
