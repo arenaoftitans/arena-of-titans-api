@@ -118,6 +118,11 @@ class StealPowerPower(Power):
             return self._steal_power(power, kwargs['player'])
 
     def _affect_from_stolen_power(self, **kwargs):
+        # Passive powers must be disabled at the beginning of the next turn of the player
+        # before the stolen power is activated.
+        # This is meant for the power (and the handicaps) to be correctly active during the turn
+        # the player stolen the power.
+        # We exit early in this case because we don't want to enable the stolen power at all.
         if self._stolen_power.passive and self._theft_duration_left <= 0:
             self.teardown()
             return
