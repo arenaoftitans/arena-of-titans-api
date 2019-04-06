@@ -23,6 +23,7 @@ help:
 	@echo
 	@echo "Possible targets:"
 	@echo "- clean: clean generated files and containers."
+	@echo "- clean-pyc-tests: remove pyc files associated to tests to run pytest from Pipenv or the container easily."
 	@echo "- ci: run linters and tests in ci system. Should be run only by the CI server."
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
@@ -118,6 +119,11 @@ clean:
 	rm -rf .eggs
 	rm -rf .tmontmp
 	rm -rf .testmondata
+
+
+.PHONY: clean-pyc-tests
+clean-pyc-tests:
+	find aot/test -name \*.pyc -exec rm {} \;
 
 
 .PHONY: deps
