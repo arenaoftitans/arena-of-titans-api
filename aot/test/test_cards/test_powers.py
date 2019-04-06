@@ -357,3 +357,56 @@ def test_steal_power_properties_setters_with_stolen_power(player):  # noqa: F811
     assert stolen_power.cost == 100
     assert stolen_power.duration == 200
     assert stolen_power.initiator is player
+
+
+def test_return_proper_trump_played_infos_on_steal():
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = VoidPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=True,
+    )
+
+    infos = power.affect(power=stolen_power)
+
+    assert infos.name == 'Steal power'
+    assert infos.description == 'Steal power desc'
+    assert infos.cost == 1
+
+
+def test_return_proper_trump_played_infos_after_steal(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = ModifyCardColorsPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=True,
+    )
+
+    power.affect(power=stolen_power)
+    infos = power.affect(player=player)
+
+    assert infos.name == stolen_power.name
+    assert infos.description == stolen_power.description
+    assert infos.cost == power.STOLEN_POWER_COST

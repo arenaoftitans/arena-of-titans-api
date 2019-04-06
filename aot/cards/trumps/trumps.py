@@ -26,6 +26,7 @@ import aot
 
 from .constants import TargetTypes
 from .exceptions import TrumpHasNoEffect
+from .utils import return_trump_infos
 from .. import Card
 from ...board import (
     all_colors,
@@ -176,6 +177,7 @@ class ModifyNumberMoves(Trump):
         )
         self._delta_moves = delta_moves
 
+    @return_trump_infos
     def affect(self, *, player):
         if player and self._duration > 0:
             player.modify_number_moves(self._delta_moves)
@@ -209,6 +211,7 @@ class ModifyCardColors(Trump):
         self._set_colors(None, add_colors)
         self._card_names = card_names
 
+    @return_trump_infos
     def affect(self, *, player):
         filter_ = None
         if self._card_names is not None:
@@ -232,6 +235,7 @@ class CannotBeAffectedByTrumps(Trump):
         super().__init__(**kwargs)
         self._trump_names = trump_names
 
+    @return_trump_infos
     def affect(self, *, player):
         pass
 
@@ -268,6 +272,7 @@ class ChangeSquare(Trump):
         '''
         super().__init__(**kwargs)
 
+    @return_trump_infos
     def affect(self, *, x, y, board, color):
         square = board[x, y]
         square.color = color
@@ -301,6 +306,7 @@ class ModifyCardNumberMoves(Trump):
         self._card_names = card_names
         self._delta_moves = delta_moves
 
+    @return_trump_infos
     def affect(self, *, player):
         filter_ = None
         if self._card_names is not None:
@@ -351,6 +357,7 @@ class AddSpecialActionsToCard(Trump):
                 args=action,
             ))
 
+    @return_trump_infos
     def affect(self, *, player):
         player.set_special_actions_to_cards_in_deck(self._card_names, self._special_actions)
 
@@ -382,6 +389,7 @@ class ModifyTrumpDurations(Trump):
         self._delta_duration = delta_duration
         self._trump_names = trump_names
 
+    @return_trump_infos
     def affect(self, *, player):
         if self._trump_names is None:
             def filter_(trump: 'Trump'):
@@ -432,6 +440,7 @@ class PreventTrumpAction(Trump):
         self._prevent_for_trumps = tuple(prevent_for_trumps)
         self._enable_for_trumps = tuple(enable_for_trumps)
 
+    @return_trump_infos
     def affect(self, *, player):
         for trump in player.available_trumps:
             if trump.name in self._enable_for_trumps:
@@ -463,6 +472,7 @@ class RemoveColor(Trump):
         )
         self._set_colors(color, colors)
 
+    @return_trump_infos
     def affect(self, *, player):
         for color in self._colors:
             player.deck.remove_color_from_possible_colors(color)
@@ -516,6 +526,7 @@ class Teleport(Trump):
             number_movements=distance,
         )
 
+    @return_trump_infos
     def affect(self, *, player, square):
         origin_square = player.current_square
         if player and square in self._card.move(origin_square):

@@ -44,6 +44,7 @@ from .trumps import (
     Teleport,
     Trump,
 )
+from .utils import TrumpPlayedInfos
 
 
 power_type_to_class = {
@@ -137,4 +138,5 @@ __all__ = [
     'Gauge',
     'Trump',
     'TrumpList',
+    'TrumpPlayedInfos',
 ]

@@ -336,12 +336,16 @@ class Player:
 
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
+        trump_played_infos = None
         if self._can_play:
-            trump.affect(player=self)
+            trump_played_infos = trump.affect(player=self)
 
         # trump.affect may raise a TrumpHasNoEffect.
         # Only add the trump to the list if it had an effect.
         self._affecting_trumps.append(trump)
+
+        # We must return the trump of the success infos to update the rest of the game.
+        return trump_played_infos or trump
 
     def get_trump(self, trump_name, trump_color=None):
         if self._played_power_as_trump(trump_name, trump_color):
@@ -378,12 +382,12 @@ class Player:
         self._check_play_trump(trump)
 
         try:
-            self._play_trump(trump, target)
+            trump_played_infos = self._play_trump(trump, target)
         except trumps.exceptions.TrumpHasNoEffect:
             self._end_play_trump(trump, target=target)
             raise
         else:
-            self._end_play_trump(trump, target=target)
+            self._end_play_trump(trump_played_infos, target=target)
 
     def _check_play_trump(self, trump):
         if not self.can_play:
@@ -395,11 +399,11 @@ class Player:
 
     def _play_trump(self, trump, target):
         if trump.target_type == trumps.constants.TargetTypes.board:
-            trump.affect(board=self._board, **target)
+            return trump.affect(board=self._board, **target)
         elif trump.target_type == trumps.constants.TargetTypes.player:
-            target._affect_by(trump)
+            return target._affect_by(trump)
         elif trump.target_type == trumps.constants.TargetTypes.trump:
-            trump.affect(player=self, power=target.power.clone())
+            return trump.affect(player=self, power=target.power.clone())
         else:
             raise trumps.exceptions.InvalidTargetType
 
@@ -414,6 +418,7 @@ class Player:
             target_index=getattr(target, 'index', None),
             player_index=self.index,
         )
+        return trump
 
     def can_play_trump(self, trump):
         return self.can_play and \

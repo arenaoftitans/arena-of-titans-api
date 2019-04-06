@@ -20,7 +20,7 @@
 import bleach
 
 from ..board import Square
-from ..cards.trumps import Power, Trump
+from ..cards.trumps import Power, Trump, TrumpPlayedInfos
 from ..utils import SimpleEnumMeta
 
 
@@ -81,7 +81,7 @@ def to_json(python_object):  # pragma: no cover
             'x': python_object.x,
             'y': python_object.y,
         }
-    elif isinstance(python_object, Trump):
+    elif isinstance(python_object, (Trump, TrumpPlayedInfos)):
         data = {
             'cost': python_object.cost,
             'description': python_object.description,

@@ -512,7 +512,7 @@ def test_play_trump(player):  # noqa: F811
     player.play_trump(trump, target=player)
     trump.affect.assert_called_once_with(player=player)
     player._gauge.can_play_trump.assert_called_once_with(trump)
-    player._gauge.play_trump.assert_called_once_with(trump)
+    player._gauge.play_trump.assert_called_once()
     with pytest.raises(MaxNumberTrumpPlayed):
         player.play_trump(trump, target=player)
     assert trump.affect.call_count == 1
@@ -540,7 +540,7 @@ def test_play_trump_target_type_board(player):  # noqa: F811
     player.play_trump(trump, target=target)
     assert player._board[0, 0].color == Color.BLUE
     player._gauge.can_play_trump.assert_called_once_with(trump)
-    player._gauge.play_trump.assert_called_once_with(trump)
+    player._gauge.play_trump.assert_called_once()
 
 
 def test_number_affecting_trumps(player):  # noqa: F811

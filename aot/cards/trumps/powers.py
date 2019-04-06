@@ -29,6 +29,7 @@ from .trumps import (
     PreventTrumpAction,
     Trump,
 )
+from .utils import TrumpPlayedInfos
 
 
 class Power(Trump):
@@ -105,9 +106,28 @@ class StealPowerPower(Power):
 
     def affect(self, *, power=None, **kwargs):
         if self._stolen_power:
-            self._stolen_power.affect(**kwargs)
+            infos = self._stolen_power.affect(**kwargs)
+            return TrumpPlayedInfos(
+                name=infos.name,
+                description=infos.description,
+                cost=self.cost,
+                duration=self.duration,
+                must_target_player=infos.must_target_player,
+                color=infos.color,
+                initiator=infos.initiator,
+            )
         else:
+            infos = TrumpPlayedInfos(
+                name=self.name,
+                description=self.description,
+                cost=self.cost,
+                duration=self.duration,
+                must_target_player=self.must_target_player,
+                color=self.color,
+                initiator=self.initiator,
+            )
             self._stolen_power = power
+            return infos
 
     def clone(self):
         # When this power it played, we need to mutate it to take into account the stealth of the
