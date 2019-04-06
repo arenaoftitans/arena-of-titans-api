@@ -461,6 +461,14 @@ class Player:
         return tuple(self._available_trumps)
 
     @property
+    def rw_available_trumps(self):
+        '''Return a RW access to available trumps of this player.
+
+        Use this sparingly, outside StealPowerPower we shouldn't have a use case for this.
+        '''
+        return self._available_trumps
+
+    @property
     def can_play(self):
         return self._can_play
 

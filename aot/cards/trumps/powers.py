@@ -72,6 +72,10 @@ class Power(Trump):
     def passive(self):
         return self._passive
 
+    @property
+    def trump_cost_delta(self):
+        return self._trump_cost_delta
+
 
 class CannotBeAffectedByTrumpsPower(CannotBeAffectedByTrumps, Power):
     pass
@@ -99,23 +103,34 @@ class AddSpecialActionsToCardPower(AddSpecialActionsToCard, Power):
 
 class StealPowerPower(Power):
     STOLEN_POWER_COST = 0
+    STEALTH_DURATION = 1
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._stolen_power = None
+        self._trumps_associated_with_passive_stolen_power = []
+        self._theft_duration_left = self.STEALTH_DURATION
 
     def affect(self, *, power=None, **kwargs):
         if self._stolen_power:
-            infos = self._stolen_power.affect(**kwargs)
-            return TrumpPlayedInfos(
-                name=infos.name,
-                description=infos.description,
+            if self._stolen_power.passive and self._theft_duration_left <= 0:
+                self.teardown()
+                return
+
+            self._theft_duration_left -= 1
+            stolen_power_infos = self._stolen_power.affect(**kwargs)
+            infos = TrumpPlayedInfos(
+                name=stolen_power_infos.name,
+                description=stolen_power_infos.description,
                 cost=self.cost,
                 duration=self.duration,
-                must_target_player=infos.must_target_player,
-                color=infos.color,
-                initiator=infos.initiator,
+                must_target_player=stolen_power_infos.must_target_player,
+                color=stolen_power_infos.color,
+                initiator=stolen_power_infos.initiator,
             )
+            if not self._stolen_power.passive and self._theft_duration_left <= 0:
+                self.teardown()
+            return infos
         else:
             infos = TrumpPlayedInfos(
                 name=self.name,
@@ -127,7 +142,24 @@ class StealPowerPower(Power):
                 initiator=self.initiator,
             )
             self._stolen_power = power
+            player = kwargs['player']
+            self._trumps_associated_with_passive_stolen_power = player.rw_available_trumps
+            self._stolen_power.setup(self._trumps_associated_with_passive_stolen_power)
+            self._theft_duration_left = self.STEALTH_DURATION
+            if self._stolen_power.passive:
+                self.affect(player=player)
             return infos
+
+    def teardown(self):
+        if self._stolen_power is None:
+            return
+
+        # We expect a list of SimpleTrump
+        for trump in self._trumps_associated_with_passive_stolen_power:
+            trump.args['cost'] -= self.trump_cost_delta
+
+        self._stolen_power = None
+        self._trumps_associated_with_passive_stolen_power = []
 
     def clone(self):
         # When this power it played, we need to mutate it to take into account the stealth of the
@@ -205,3 +237,9 @@ class StealPowerPower(Power):
         if self._stolen_power is not None:
             return self._stolen_power.target_type
         return TargetTypes.trump
+
+    @property
+    def trump_cost_delta(self):
+        if self._stolen_power is not None:
+            return self._stolen_power.trump_cost_delta
+        return super().trump_cost_delta
