@@ -148,7 +148,7 @@ def test_init_turn(player):  # noqa: F811
 
     assert player.can_play
     assert player.current_square == player.last_square_previous_turn
-    player._power.affect.assert_called_once_with(player)
+    player._power.affect.assert_called_once_with(player=player)
 
 
 def test_complete_turn(player):  # noqa: F811
@@ -279,7 +279,7 @@ def test_play_special_action(player):  # noqa: F811
 
     player.play_special_action(action, target=target, action_args=kwargs)
 
-    action.affect.assert_called_once_with(target, ** kwargs)
+    action.affect.assert_called_once_with(player=target, ** kwargs)
     assert not player.has_special_actions
 
 
@@ -291,7 +291,7 @@ def test_play_special_action_no_args(player):  # noqa: F811
 
     player.play_special_action(action, target=target)
 
-    action.affect.assert_called_once_with(target)
+    action.affect.assert_called_once_with(player=target)
     assert not player.has_special_actions
 
 
@@ -501,7 +501,7 @@ def test_affecting_trumps(player):  # noqa: F811
 
     assert len(player.affecting_trumps) == 1
     assert player.affecting_trumps[0] is trump
-    trump.affect.assert_called_once_with(player)
+    trump.affect.assert_called_once_with(player=player)
 
 
 def test_play_trump(player):  # noqa: F811
@@ -510,7 +510,7 @@ def test_play_trump(player):  # noqa: F811
     trump.affect = MagicMock()
 
     player.play_trump(trump, target=player)
-    trump.affect.assert_called_once_with(player)
+    trump.affect.assert_called_once_with(player=player)
     player._gauge.can_play_trump.assert_called_once_with(trump)
     player._gauge.play_trump.assert_called_once_with(trump)
     with pytest.raises(MaxNumberTrumpPlayed):
@@ -523,7 +523,7 @@ def test_play_trump(player):  # noqa: F811
     assert trump.affect.call_count == 2
     assert player._gauge.can_play_trump.call_count == 2
     player._gauge.play_trump.call_count == 2
-    trump.affect.assert_called_with(player)
+    trump.affect.assert_called_with(player=player)
 
 
 def test_play_trump_target_type_board(player):  # noqa: F811

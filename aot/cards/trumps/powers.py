@@ -101,9 +101,9 @@ class StealPowerPower(Power):
         super().__init__(*args, **kwargs)
         self._stolen_power = None
 
-    def affect(self, player, power=None):
+    def affect(self, *, power=None, **kwargs):
         if self._stolen_power:
-            self._stolen_power.affect(player)
+            self._stolen_power.affect(**kwargs)
         else:
             self._stolen_power = power
 

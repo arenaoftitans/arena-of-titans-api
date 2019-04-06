@@ -82,7 +82,7 @@ def test_modify_card_colors(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
     power = ModifyCardColorsPower(add_colors=['BLACK'], passive=True)
 
-    power.affect(player)
+    power.affect(player=player)
 
     assert power.passive
     assert power.duration is None
@@ -94,7 +94,7 @@ def test_modify_number_moves(player):  # noqa: F811
     player.modify_card_number_moves = MagicMock()
     power = ModifyCardNumberMovesPower(delta_moves=5, passive=True)
 
-    power.affect(player)
+    power.affect(player=player)
 
     assert power.passive
     assert power.duration is None
@@ -234,7 +234,7 @@ def test_steal_power_target_type_reflect_target_type_stolen_power(player):  # no
     power = StealPowerPower(passive=True)
     stolen_power = VoidPower(passive=False, trump_names=())
 
-    power.affect(player, stolen_power)
+    power.affect(power=stolen_power)
 
     assert power.target_type != TargetTypes.trump
     assert power.target_type == stolen_power.target_type
@@ -245,10 +245,10 @@ def test_steal_power_affect_forwards_to_stolen_power(player):  # noqa: F811
     stolen_power = create_autospec(VoidPower)
 
     # Set the power stolen power to stolen_power
-    power.affect(player, stolen_power)
+    power.affect(power=stolen_power)
     assert stolen_power.affect.call_count == 0
 
-    power.affect(player)
+    power.affect(player=player)
     stolen_power.affect.assert_called_with(player)
 
 
@@ -313,7 +313,7 @@ def test_steal_power_properties_with_stolen_power(player):  # noqa: F811
         passive=True,
     )
 
-    power.affect(player, stolen_power)
+    power.affect(power=stolen_power)
 
     assert power.color == Color.YELLOW
     assert power.cost == 10
@@ -345,7 +345,7 @@ def test_steal_power_properties_setters_with_stolen_power(player):  # noqa: F811
         passive=True,
     )
 
-    power.affect(player, stolen_power)
+    power.affect(power=stolen_power)
 
     power.cost = 100
     power.duration = 200

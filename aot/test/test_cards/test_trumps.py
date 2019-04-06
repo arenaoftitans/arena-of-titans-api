@@ -47,14 +47,14 @@ from ...cards.trumps.exceptions import MaxNumberAffectingTrumps, TrumpHasNoEffec
 def test_affect_modify_number_moves(player):  # noqa: F811
     player.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=1, duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     player.modify_number_moves.assert_called_once_with(1)
 
 
 def test_affect_modify_number_moves_negative_delta(player):  # noqa: F811
     player.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=-1, duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     player.modify_number_moves.assert_called_once_with(-1)
 
 
@@ -62,7 +62,7 @@ def test_affect_modify_card_colors(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
     trump = ModifyCardColors(add_colors=['BLACK'], duration=1)
 
-    trump.affect(player)
+    trump.affect(player=player)
 
     player.modify_card_colors.assert_called_once_with({'BLACK'}, filter_=None)
 
@@ -75,7 +75,7 @@ def test_affect_modify_card_colors_with_filter_(player):  # noqa: F811
     king = MagicMock()
     king.name = 'King'
 
-    trump.affect(player)
+    trump.affect(player=player)
 
     assert player.modify_card_colors.called
     assert player.modify_card_colors.call_args[0][0] == {'BLACK'}
@@ -88,7 +88,7 @@ def test_affect_modify_card_colors_with_filter_(player):  # noqa: F811
 def test_affect_modify_card_number_moves(player):  # noqa: F811
     player.modify_card_number_moves = MagicMock()
     trump = ModifyCardNumberMoves(delta_moves=1, duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     player.modify_card_number_moves.assert_called_once_with(1, filter_=None)
 
 
@@ -100,7 +100,7 @@ def test_affect_modify_card_number_moves_with_filter_(player):  # noqa: F811
     king = MagicMock()
     king.name = 'King'
 
-    trump.affect(player)
+    trump.affect(player=player)
 
     assert player.modify_card_number_moves.called
     assert player.modify_card_number_moves.call_args[0][0] == 1
@@ -114,7 +114,7 @@ def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
     player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
     with pytest.raises(TrumpHasNoEffect):
-        trump.affect(player)
+        trump.affect(player=player)
     assert not player.modify_affecting_trump_durations.called
 
 
@@ -128,7 +128,7 @@ def test_affect_modify_affecting_trump_durations_with_filter_(player):  # noqa: 
     blizzard.duration = 1
     player._affecting_trumps = [tower, blizzard]
 
-    trump.affect(player)
+    trump.affect(player=player)
 
     assert tower.duration == 0
     assert blizzard.duration == 1
@@ -156,7 +156,7 @@ def test_prevent_trump_action_enable_on_relevant_trump(player, player2):  # noqa
         args={'duration': 1, 'name': 'Tower'},
     )
     player._available_trumps = TrumpList([trump_to_improve])
-    prevent_action_trump.affect(player)
+    prevent_action_trump.affect(player=player)
     tower = player._available_trumps['Tower', None]
     player._can_play = True
     player.play_trump(tower, target=player2)
@@ -168,7 +168,7 @@ def test_prevent_trump_action_enable_on_relevant_trump(player, player2):  # noqa
     )
 
     with pytest.raises(TrumpHasNoEffect):
-        ram.affect(player)
+        ram.affect(player=player)
 
     assert tower.duration == 1
     assert player2.affecting_trumps == (tower,)
@@ -195,7 +195,7 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  #
         args={'duration': 2, 'name': 'Fortress'},
     )
     player._available_trumps = TrumpList([trump_not_to_improve])
-    prevent_action_trump.affect(player)
+    prevent_action_trump.affect(player=player)
     fortress = player._available_trumps['Fortress', None]
     player._can_play = True
     player.play_trump(fortress, target=player2)
@@ -207,11 +207,11 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  #
         delta_duration=-1,
     )
 
-    ram.affect(player2)
+    ram.affect(player=player2)
     assert fortress.duration == 1
     assert player2.affecting_trumps == (fortress,)
 
-    ram.affect(player2)
+    ram.affect(player=player2)
     assert fortress.duration == 0
     assert player2.affecting_trumps == ()
 
@@ -221,14 +221,14 @@ def test_remove_color(player):  # noqa: F811
     card = player.deck.first_card_in_hand
     color = card.color
     trump = RemoveColor(color=color, duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     player.deck.remove_color_from_possible_colors.assert_called_once_with(color)
 
 
 def test_remove_all_colors(player):  # noqa: F811
     player.deck.remove_color_from_possible_colors = MagicMock()
     trump = RemoveColor(color=Color['ALL'], duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     player.deck.remove_color_from_possible_colors.assert_called_once_with(Color['ALL'])
 
 
@@ -237,7 +237,7 @@ def test_remove_multiple_colors(player):  # noqa: F811
     card = player.deck.first_card_in_hand
     colors = {card.color, Color['BLACK']}
     trump = RemoveColor(colors=colors, duration=1)
-    trump.affect(player)
+    trump.affect(player=player)
     assert player.deck.remove_color_from_possible_colors.called
     assert player.deck.remove_color_from_possible_colors.call_count == len(colors)
 
@@ -246,7 +246,7 @@ def test_teleport_no_target_square(board, player):  # noqa: F811
     player.move = MagicMock()
     trump = Teleport(distance=1)
 
-    trump.affect(player)
+    trump.affect(player=player, square=None)
 
     assert not player.move.called
 
@@ -256,7 +256,7 @@ def test_teleport_wrong_distance(board, player):  # noqa: F811
     trump = Teleport(distance=1)
     square = board[5, 8]
 
-    trump.affect(player, square=square)
+    trump.affect(player=player, square=square)
 
     assert not player.move.called
 
@@ -266,7 +266,7 @@ def test_teleport_wrong_color(board, player):  # noqa: F811
     trump = Teleport(distance=1, color='blue')
     square = board[0, 7]
 
-    trump.affect(player, square=square)
+    trump.affect(player=player, square=square)
 
     assert not player.move.called
 
@@ -277,7 +277,7 @@ def test_teleport(board, player):  # noqa: F811
     trump = Teleport(distance=1)
     square = board[0, 7]
 
-    trump.affect(player, square=square)
+    trump.affect(player=player, square=square)
 
     player.move.assert_called_once_with(square)
 

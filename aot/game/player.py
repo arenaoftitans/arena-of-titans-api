@@ -261,12 +261,12 @@ class Player:
 
     def _enable_passive_power(self):
         if self._power and self._power.passive:
-            self._power.affect(self)
+            self._power.affect(player=self)
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
             if not trump.temporary:
-                trump.affect(self)
+                trump.affect(player=self)
 
     def complete_turn(self):
         self._revert_to_default()
@@ -317,7 +317,7 @@ class Player:
         target._check_for_cannot_be_affected_by_trumps(action)
 
         if target is not None:
-            action.affect(target, **action_args)
+            action.affect(player=target, **action_args)
             self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
                 description='played_special_action',
@@ -337,7 +337,7 @@ class Player:
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
         if self._can_play:
-            trump.affect(self)
+            trump.affect(player=self)
 
         # trump.affect may raise a TrumpHasNoEffect.
         # Only add the trump to the list if it had an effect.
