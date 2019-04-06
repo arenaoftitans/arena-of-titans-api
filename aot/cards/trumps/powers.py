@@ -97,6 +97,8 @@ class AddSpecialActionsToCardPower(AddSpecialActionsToCard, Power):
 
 
 class StealPowerPower(Power):
+    STOLEN_POWER_COST = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._stolen_power = None
@@ -121,7 +123,7 @@ class StealPowerPower(Power):
     @property
     def cost(self):
         if self._stolen_power is not None:
-            return self._stolen_power.cost
+            return self.STOLEN_POWER_COST
         return super().cost
 
     @cost.setter

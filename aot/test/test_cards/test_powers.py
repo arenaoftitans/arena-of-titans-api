@@ -316,7 +316,7 @@ def test_steal_power_properties_with_stolen_power(player):  # noqa: F811
     power.affect(power=stolen_power)
 
     assert power.color == Color.YELLOW
-    assert power.cost == 10
+    assert power.cost == power.STOLEN_POWER_COST
     assert power.description == 'Stolen power desc'
     assert power.duration is None  # Trump is passive thus duration is None
     assert not power.must_target_player
@@ -351,7 +351,7 @@ def test_steal_power_properties_setters_with_stolen_power(player):  # noqa: F811
     power.duration = 200
     power.initiator = player
 
-    assert power.cost == 100
+    assert power.cost == power.STOLEN_POWER_COST
     assert power.duration == 200
     assert power.initiator is player
     assert stolen_power.cost == 100
