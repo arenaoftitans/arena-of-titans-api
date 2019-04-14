@@ -19,6 +19,7 @@ class TrumpPlayedInfos:
     must_target_player: bool
     color: Color
     initiator: Player
+    is_power: bool = False
 
 
 def return_trump_infos(func):

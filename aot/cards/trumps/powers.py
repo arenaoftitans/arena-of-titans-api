@@ -145,6 +145,7 @@ class StealPowerPower(Power):
             must_target_player=self.must_target_player,
             color=self.color,
             initiator=self.initiator,
+            is_power=True,
         )
         self._stolen_power = power
         self._trumps_associated_with_passive_stolen_power = player.rw_available_trumps

@@ -93,6 +93,8 @@ def to_json(python_object):  # pragma: no cover
         }
         if isinstance(python_object, Power):
             data['passive'] = python_object.passive
+        if isinstance(python_object, TrumpPlayedInfos):
+            data['is_power'] = python_object.is_power
         return data
     elif isinstance(python_object, set):
         return [to_json(element) for element in python_object]
