@@ -157,14 +157,17 @@ def test_complete_turn(player):  # noqa: F811
     trump1.duration = 0
     trump2 = MagicMock()
     trump2.duration = 2
+    power = MagicMock()
     player._affecting_trumps = [trump1, trump2]
     player._number_moves_to_play = 0
+    player._power = power
 
     player.complete_turn()
 
     player.deck.revert_to_default.assert_called_once_with()
     trump1.consume.assert_called_once_with()
     trump2.consume.assert_called_once_with()
+    power.turn_teardown.assert_called_once_with()
     assert len(player.affecting_trumps) == 1
     assert player.affecting_trumps[0] is trump2
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY

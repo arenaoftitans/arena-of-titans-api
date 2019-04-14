@@ -65,6 +65,11 @@ class Power(Trump):
         for trump in trumps:
             trump.args['cost'] += self._trump_cost_delta
 
+    def turn_teardown(self):
+        '''Call this tearndown at the end of every turn.'''
+        # By default, there is nothing to do.
+        pass
+
     def clone(self):
         return deepcopy(self)
 
@@ -118,15 +123,6 @@ class StealPowerPower(Power):
             return self._steal_power(power, kwargs['player'])
 
     def _affect_from_stolen_power(self, **kwargs):
-        # Passive powers must be disabled at the beginning of the next turn of the player
-        # before the stolen power is activated.
-        # This is meant for the power (and the handicaps) to be correctly active during the turn
-        # the player stolen the power.
-        # We exit early in this case because we don't want to enable the stolen power at all.
-        if self._stolen_power.passive and self._theft_duration_left <= 0:
-            self.teardown()
-            return
-
         self._theft_duration_left -= 1
         stolen_power_infos = self._stolen_power.affect(**kwargs)
         infos = TrumpPlayedInfos(
@@ -138,8 +134,6 @@ class StealPowerPower(Power):
             color=stolen_power_infos.color,
             initiator=stolen_power_infos.initiator,
         )
-        if not self._stolen_power.passive and self._theft_duration_left <= 0:
-            self.teardown()
         return infos
 
     def _steal_power(self, power, player):
@@ -157,11 +151,16 @@ class StealPowerPower(Power):
         self._stolen_power.setup(self._trumps_associated_with_passive_stolen_power)
         self._theft_duration_left = self.STEALTH_DURATION
         if self._stolen_power.passive:
+            # This is meant to allow passive powers to be stolen until the next turn,
+            # since it is immediately activated.
+            self._theft_duration_left += 1
             self.affect(player=player)
         return infos
 
-    def teardown(self):
+    def turn_teardown(self):
         if self._stolen_power is None:
+            return
+        elif self._theft_duration_left > 0:
             return
 
         # We expect a list of SimpleTrump

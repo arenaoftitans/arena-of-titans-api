@@ -274,6 +274,8 @@ class Player:
             trump.consume()
 
         self._remove_consumed_trumps()
+        if self._power:
+            self._power.turn_teardown()
 
     def _remove_consumed_trumps(self):
         # If we modify the size of the size while looping on it, we will skip some element. For

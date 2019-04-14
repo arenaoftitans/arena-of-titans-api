@@ -416,7 +416,7 @@ def test_return_proper_trump_played_infos_after_played_stolen_power(player):  # 
     assert infos.cost == power.STOLEN_POWER_COST
 
 
-def test_return_to_initial_state_after_player_play_active_stolen_power(player):  # noqa: F811
+def test_turn_teardown_steal_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
@@ -435,9 +435,14 @@ def test_return_to_initial_state_after_player_play_active_stolen_power(player): 
         passive=False,
     )
 
+    # Just activated, teardown shouldn't have an effect.
     power.affect(power=stolen_power, player=player)
-    power.affect(player=player)
+    power.turn_teardown()
+    assert power.name == 'Stolen power'
 
+    # Fully played, teardown should work.
+    power.affect(player=player)
+    power.turn_teardown()
     assert power.name == 'Steal power'
 
 
@@ -470,7 +475,7 @@ def test_immediately_apply_passive_power(player):  # noqa: F811
     stolen_power.affect.assert_called_once_with(player=player)
 
 
-def test_return_to_inital_state_after_second_activation_of_power(player):  # noqa: F811
+def test_return_to_initial_state_after_second_activation_of_power(player):  # noqa: F811
     # The stolen power must not be active at the end, because at the 2nd activation,
     # we must disable the trump: a new turn is beginning and the theft is not active any more.
     # The stolen power must affect the player only once.
@@ -492,11 +497,13 @@ def test_return_to_inital_state_after_second_activation_of_power(player):  # noq
         passive=True,
     )
     stolen_power.affect = MagicMock()
-    initial_trump_cost = player.available_trumps[0].args['cost']
 
+    # Just activated (initial activation of passive trump), teardown shouldn't have an effect.
     power.affect(power=stolen_power, player=player)
-    power.affect(player=player)
+    power.turn_teardown()
+    assert power.name == 'Stolen power'
 
+    # Second activation, teardown shouldn't have an effect.
+    power.affect(player=player)
+    power.turn_teardown()
     assert power.name == 'Steal power'
-    assert player.available_trumps[0].args['cost'] == initial_trump_cost
-    stolen_power.affect.assert_called_once_with(player=player)
