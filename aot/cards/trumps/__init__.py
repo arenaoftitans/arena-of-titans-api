@@ -30,6 +30,7 @@ from .powers import (
     ModifyCardNumberMovesPower,
     Power,
     PreventTrumpActionPower,
+    StealPowerPower,
 )
 from .trumps import (
     CannotBeAffectedByTrumps,
@@ -43,6 +44,7 @@ from .trumps import (
     Teleport,
     Trump,
 )
+from .utils import TrumpPlayedInfos
 
 
 power_type_to_class = {
@@ -52,6 +54,7 @@ power_type_to_class = {
     'ModifyCardColors': ModifyCardColorsPower,
     'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
     'PreventTrumpAction': PreventTrumpActionPower,
+    'StealPower': StealPowerPower,
 }
 
 trump_type_to_class = {
@@ -135,4 +138,5 @@ __all__ = [
     'Gauge',
     'Trump',
     'TrumpList',
+    'TrumpPlayedInfos',
 ]

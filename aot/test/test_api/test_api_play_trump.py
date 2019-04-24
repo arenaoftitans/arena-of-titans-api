@@ -33,16 +33,16 @@ from ...board import Color
 from ...cards.trumps import CannotBeAffectedByTrumpsPower, SimpleTrump
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_wrong_trump(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_wrong_trump(api, game):  # noqa: F811
     with pytest.raises(AotError) as e:
         await api._play_trump(game, {})
 
     assert 'wrong_trump' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_missing_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_missing_target(api, game):  # noqa: F811
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
@@ -56,8 +56,8 @@ async def test_play_trump_missing_target(api, game):
     assert 'missing_trump_target' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_with_wrong_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_wrong_target(api, game):  # noqa: F811
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
             break
@@ -72,8 +72,8 @@ async def test_play_trump_with_wrong_target(api, game):
     assert 'The target of this trump does not exist' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_max_number_trumps_played(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_max_number_trumps_played(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player._number_trumps_played = game.active_player.MAX_NUMBER_TRUMPS_PLAYED
@@ -89,8 +89,8 @@ async def test_play_trump_max_number_trumps_played(api, game):
     assert 'max_number_played_trumps' in str(e)
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_max_number_affecting_trumps(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_max_number_affecting_trumps(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player._affecting_trumps = range(game.active_player.MAX_NUMBER_AFFECTING_TRUMPS)
@@ -107,8 +107,8 @@ async def test_play_trump_max_number_affecting_trumps(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_gauge_too_low(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_gauge_too_low(api, game):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump['must_target_player'] = True
     game.active_player._gauge.can_play_trump = MagicMock(return_value=False)
@@ -124,8 +124,8 @@ async def test_play_trump_gauge_too_low(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_with_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_target(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
@@ -144,8 +144,8 @@ async def test_play_trump_with_target(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_without_target(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_without_target(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if not trump['must_target_player']:
@@ -169,8 +169,8 @@ async def test_play_trump_without_target(api, game):
     assert game.active_player._gauge.can_play_trump.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     for trump in game.active_player.trumps:
         if trump['must_target_player']:
@@ -196,8 +196,8 @@ async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, gam
     assert game.active_player._gauge.can_play_trump.called
 
 
-@pytest.mark.asyncio  # noqa: F811
-async def test_play_trump_with_board_target_type(api, game):
+@pytest.mark.asyncio
+async def test_play_trump_with_board_target_type(api, game):  # noqa: F811
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
     trump = SimpleTrump(
         type='ChangeSquare',

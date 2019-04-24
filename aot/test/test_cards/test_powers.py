@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from unittest.mock import MagicMock
+from unittest.mock import create_autospec, MagicMock
 
 import pytest
 
@@ -28,15 +28,18 @@ from .. import (  # noqa: F401
     player,
     player2,
 )
+from ...board import Color
 from ...cards.trumps import (
     CannotBeAffectedByTrumps,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
     Power,
     SimpleTrump,
+    StealPowerPower,
     Teleport,
     TrumpList,
 )
+from ...cards.trumps.constants import TargetTypes
 from ...cards.trumps.exceptions import TrumpHasNoEffect
 
 
@@ -79,7 +82,7 @@ def test_modify_card_colors(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
     power = ModifyCardColorsPower(add_colors=['BLACK'], passive=True)
 
-    power.affect(player)
+    power.affect(player=player)
 
     assert power.passive
     assert power.duration is None
@@ -91,7 +94,7 @@ def test_modify_number_moves(player):  # noqa: F811
     player.modify_card_number_moves = MagicMock()
     power = ModifyCardNumberMovesPower(delta_moves=5, passive=True)
 
-    power.affect(player)
+    power.affect(player=player)
 
     assert power.passive
     assert power.duration is None
@@ -225,3 +228,282 @@ def test_cannot_be_selected_active_power_with_special_action(player, player2):  
 
     with pytest.raises(TrumpHasNoEffect):
         player2.play_special_action(action, target=player)
+
+
+def test_steal_power_target_type_reflect_target_type_stolen_power(player):  # noqa: F811
+    power = StealPowerPower(passive=True)
+    stolen_power = VoidPower(passive=False, trump_names=())
+
+    power.affect(power=stolen_power, player=player)
+
+    assert power.target_type != TargetTypes.trump
+    assert power.target_type == stolen_power.target_type
+
+
+def test_steal_power_affect_forwards_to_stolen_power(player):  # noqa: F811
+    power = StealPowerPower()
+    stolen_power = create_autospec(VoidPower)
+    stolen_power.passive = False
+
+    # Set the power stolen power to stolen_power
+    power.affect(power=stolen_power, player=player)
+    assert stolen_power.affect.call_count == 0
+
+    power.affect(player=player)
+    stolen_power.affect.assert_called_with(player)
+
+
+def test_steal_power_properties_no_stolen_power():
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+
+    assert power.color == Color.BLUE
+    assert power.cost == 1
+    assert power.description == 'Steal power desc'
+    assert power.duration == 2
+    assert power.must_target_player
+    assert power.name == 'Steal power'
+    assert power.initiator is None
+    assert not power.passive
+    assert power.target_type == TargetTypes.trump
+
+
+def test_steal_power_properties_setters_no_stolen_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+
+    power.cost = 10
+    power.duration = 20
+    power.initiator = player
+
+    assert power.cost == 10
+    assert power.duration == 20
+    assert power.initiator is player
+
+
+def test_steal_power_properties_with_stolen_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = VoidPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=True,
+    )
+    # Stolen power is passive, thus affect will be called immediately.
+    # Since it is not implemented, we mock it.
+    stolen_power.affect = MagicMock()
+
+    power.affect(power=stolen_power, player=player)
+
+    assert power.color == Color.YELLOW
+    assert power.cost == power.STOLEN_POWER_COST
+    assert power.description == 'Stolen power desc'
+    assert power.duration is None
+    assert not power.must_target_player
+    assert power.name == 'Stolen power'
+    assert power.initiator is None
+    assert power.passive
+    assert power.target_type == TargetTypes.player
+
+
+def test_steal_power_properties_setters_with_stolen_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = VoidPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=False,
+    )
+
+    power.affect(power=stolen_power, player=player)
+
+    power.cost = 100
+    power.duration = 200
+    power.initiator = player
+
+    assert power.cost == power.STOLEN_POWER_COST
+    assert power.duration == 200
+    assert power.initiator is player
+    assert stolen_power.cost == 100
+    assert stolen_power.duration == 200
+    assert stolen_power.initiator is player
+
+
+def test_return_proper_trump_played_infos_on_steal(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = VoidPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=False,
+    )
+
+    infos = power.affect(power=stolen_power, player=player)
+
+    assert infos.name == 'Steal power'
+    assert infos.description == 'Steal power desc'
+    assert infos.cost == 1
+
+
+def test_return_proper_trump_played_infos_after_played_stolen_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = ModifyCardColorsPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=False,
+    )
+
+    power.affect(power=stolen_power, player=player)
+    infos = power.affect(player=player)
+
+    assert infos.name == stolen_power.name
+    assert infos.description == stolen_power.description
+    assert infos.cost == power.STOLEN_POWER_COST
+
+
+def test_turn_teardown_steal_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = ModifyCardColorsPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=False,
+    )
+
+    # Just activated, teardown shouldn't have an effect.
+    power.affect(power=stolen_power, player=player)
+    power.turn_teardown()
+    assert power.name == 'Stolen power'
+
+    # Fully played, teardown should work.
+    power.affect(player=player)
+    power.turn_teardown()
+    assert power.name == 'Steal power'
+
+
+def test_immediately_apply_passive_power(player):  # noqa: F811
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = ModifyCardColorsPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=True,
+        trump_cost_delta=2,
+    )
+    stolen_power.affect = MagicMock()
+    initial_trump_cost = player.available_trumps[0].args['cost']
+
+    power.affect(power=stolen_power, player=player)
+
+    assert power.name == 'Stolen power'
+    assert player.available_trumps[0].args['cost'] == initial_trump_cost + 2
+    stolen_power.affect.assert_called_once_with(player=player)
+
+
+def test_return_to_initial_state_after_second_activation_of_power(player):  # noqa: F811
+    # The stolen power must not be active at the end, because at the 2nd activation,
+    # we must disable the trump: a new turn is beginning and the theft is not active any more.
+    # The stolen power must affect the player only once.
+    power = StealPowerPower(
+        color=Color.BLUE,
+        cost=1,
+        description='Steal power desc',
+        duration=2,
+        must_target_player=True,
+        name='Steal power',
+        passive=False,
+    )
+    stolen_power = ModifyCardColorsPower(
+        color=Color.YELLOW,
+        cost=10,
+        description='Stolen power desc',
+        must_target_player=False,
+        name='Stolen power',
+        passive=True,
+    )
+    stolen_power.affect = MagicMock()
+
+    # Just activated (initial activation of passive trump), teardown shouldn't have an effect.
+    power.affect(power=stolen_power, player=player)
+    power.turn_teardown()
+    assert power.name == 'Stolen power'
+
+    # Second activation, teardown shouldn't have an effect.
+    power.affect(player=player)
+    power.turn_teardown()
+    assert power.name == 'Steal power'

@@ -17,8 +17,6 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from copy import deepcopy
-
 import daiquiri
 
 from ..board import Square
@@ -263,12 +261,12 @@ class Player:
 
     def _enable_passive_power(self):
         if self._power and self._power.passive:
-            self._power.affect(self)
+            self._power.affect(player=self)
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
             if not trump.temporary:
-                trump.affect(self)
+                trump.affect(player=self)
 
     def complete_turn(self):
         self._revert_to_default()
@@ -276,6 +274,8 @@ class Player:
             trump.consume()
 
         self._remove_consumed_trumps()
+        if self._power:
+            self._power.turn_teardown()
 
     def _remove_consumed_trumps(self):
         # If we modify the size of the size while looping on it, we will skip some element. For
@@ -319,7 +319,7 @@ class Player:
         target._check_for_cannot_be_affected_by_trumps(action)
 
         if target is not None:
-            action.affect(target, **action_args)
+            action.affect(player=target, **action_args)
             self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
                 description='played_special_action',
@@ -338,16 +338,20 @@ class Player:
 
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
+        trump_played_infos = None
         if self._can_play:
-            trump.affect(self)
+            trump_played_infos = trump.affect(player=self)
 
         # trump.affect may raise a TrumpHasNoEffect.
         # Only add the trump to the list if it had an effect.
         self._affecting_trumps.append(trump)
 
+        # We must return the trump of the success infos to update the rest of the game.
+        return trump_played_infos or trump
+
     def get_trump(self, trump_name, trump_color=None):
         if self._played_power_as_trump(trump_name, trump_color):
-            return deepcopy(self._power)
+            return self._power.clone()
         return self._available_trumps[trump_name, trump_color]
 
     def _played_power_as_trump(self, trump_name, trump_color):
@@ -380,12 +384,12 @@ class Player:
         self._check_play_trump(trump)
 
         try:
-            self._play_trump(trump, target)
+            trump_played_infos = self._play_trump(trump, target)
         except trumps.exceptions.TrumpHasNoEffect:
             self._end_play_trump(trump, target=target)
             raise
         else:
-            self._end_play_trump(trump, target=target)
+            self._end_play_trump(trump_played_infos, target=target)
 
     def _check_play_trump(self, trump):
         if not self.can_play:
@@ -397,9 +401,11 @@ class Player:
 
     def _play_trump(self, trump, target):
         if trump.target_type == trumps.constants.TargetTypes.board:
-            trump.affect(board=self._board, **target)
+            return trump.affect(board=self._board, **target)
         elif trump.target_type == trumps.constants.TargetTypes.player:
-            target._affect_by(trump)
+            return target._affect_by(trump)
+        elif trump.target_type == trumps.constants.TargetTypes.trump:
+            return trump.affect(player=self, power=target.power.clone())
         else:
             raise trumps.exceptions.InvalidTargetType
 
@@ -414,6 +420,7 @@ class Player:
             target_index=getattr(target, 'index', None),
             player_index=self.index,
         )
+        return trump
 
     def can_play_trump(self, trump):
         return self.can_play and \
@@ -454,6 +461,14 @@ class Player:
     def available_trumps(self) -> tuple:
         # List of available trumps cannot be modified outside this class.
         return tuple(self._available_trumps)
+
+    @property
+    def rw_available_trumps(self):
+        '''Return a RW access to available trumps of this player.
+
+        Use this sparingly, outside StealPowerPower we shouldn't have a use case for this.
+        '''
+        return self._available_trumps
 
     @property
     def can_play(self):

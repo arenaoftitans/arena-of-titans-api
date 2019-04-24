@@ -535,6 +535,7 @@ class Api(AotWs):
             'gauge_value': player.gauge.value,
             'elapsed_time': elapsed_time,
             'nb_turns': game.nb_turns,
+            'power': player.power,
         }
 
     def _get_active_trumps_message(self, game):
@@ -652,7 +653,7 @@ class Api(AotWs):
                 'y': play_request['square']['y'],
                 'color': play_request['square']['color'],
             }
-        elif trump.target_type == TrumpsTargetTypes.player:
+        elif trump.target_type in (TrumpsTargetTypes.player, TrumpsTargetTypes.trump):
             try:
                 target = game.players[target_index]
             except IndexError:
@@ -672,6 +673,8 @@ class Api(AotWs):
         TODO: improve this.
         '''
         try:
+            target_type = trump.target_type
+            square = target if target_type == TrumpsTargetTypes.board else None
             game.play_trump(trump, target)
         except GaugeTooLowToPlayTrump:
             raise AotError('gauge_too_low')
@@ -693,12 +696,12 @@ class Api(AotWs):
                 rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
             )
         else:
-            square = target if trump.target_type == TrumpsTargetTypes.board else None
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
                 game,
                 target_index,
                 square=square,
+                target_type=target_type,
             )
 
     async def _send_trump_played_message(
@@ -707,6 +710,7 @@ class Api(AotWs):
         target_index,
         rt=RequestTypes.PLAY_TRUMP,
         square=None,
+        target_type=None,
     ):  # pragma: no cover
         message = {
             'rt': rt,
@@ -720,6 +724,8 @@ class Api(AotWs):
         }
         await self._send_all_others(message)
         message['gauge_value'] = game.active_player.gauge.value
+        if target_type == TrumpsTargetTypes.trump:
+            message['power'] = game.active_player.power
         await self.sendMessage(message)
 
     def _get_trump(self, game, trump_name, trump_color):

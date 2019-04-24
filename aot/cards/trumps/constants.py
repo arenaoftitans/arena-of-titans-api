@@ -25,3 +25,4 @@ class TargetTypes(metaclass=SimpleEnumMeta):
     # the player who played the trump.
     player = ()
     board = ()
+    trump = ()
