@@ -24,13 +24,7 @@ from .color import (
 
 
 class Square:
-    _x = 0
-    _y = 0
-    _color = None
-    _original_color = None
-    _occupied = False
-
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, color, is_occupied=False, is_arrival=False, is_departure=False):
         self._x = x
         self._y = y
         # To ease testing
@@ -38,6 +32,9 @@ class Square:
             color = Color[color]
         self._color = color
         self._original_color = self._color
+        self._occupied = is_occupied
+        self._is_arrival = is_arrival
+        self._is_departure = is_departure
 
     @property
     def x(self):
@@ -65,6 +62,14 @@ class Square:
             color = Color[color]
         self._color = color
 
+    @property
+    def is_departure(self):
+        return self._is_departure
+
+    @property
+    def is_arrival(self):
+        return self._is_arrival
+
     def __eq__(self, other):  # pragma: no cover
         return type(other) == Square and \
             other._x == self._x and \
@@ -87,9 +92,14 @@ class SquareSet(set):
 
     _colors = ColorSet()
 
-    def __init__(self, colors):
+    def __init__(self, colors=None, initial_squares=None):
         super()
+        if colors is None:
+            colors = [Color.ALL]
         self._colors = ColorSet(colors)
+        if initial_squares:
+            for square in initial_squares:
+                self.add(square)
 
     def add(self, square):
         if square is not None and square.color in self._colors:

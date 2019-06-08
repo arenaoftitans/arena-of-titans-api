@@ -49,18 +49,18 @@ def goal_squares(board):
 
 @pytest.mark.timeout(TIMEOUT)
 def test_a_star(board):  # noqa: F811
-    assert len(a_star(board[0, 8], board[19, 8], board)) == 24
-    assert len(a_star(board[0, 8], board[18, 8], board)) == 24
-    assert len(a_star(board[0, 8], board[17, 8], board)) == 24
-    assert len(a_star(board[0, 8], board[16, 8], board)) == 24
+    assert len(a_star(board[0, 8], board[19, 8], board)) == 20
+    assert len(a_star(board[0, 8], board[18, 8], board)) == 19
+    assert len(a_star(board[0, 8], board[17, 8], board)) == 18
+    assert len(a_star(board[0, 8], board[16, 8], board)) == 17
     assert len(a_star(board[18, 8], board[19, 8], board)) == 2
 
 
 @pytest.mark.timeout(TIMEOUT)
 def test_distance_difference(board):  # noqa: F811
     goal = board[19, 8]
-    assert distance_covered(board[0, 8], board[18, 8], goal, board) == 22
-    assert distance_covered(board[18, 8], board[0, 8], goal, board) == -22
+    assert distance_covered(board[0, 8], board[18, 8], goal, board) == 18
+    assert distance_covered(board[18, 8], board[0, 8], goal, board) == -18
     assert distance_covered(board[18, 8], board[18, 8], goal, board) == 0
 
 
@@ -69,10 +69,11 @@ def test_find_move_to_play_best_distance(board, goal_squares):  # noqa: F811
     card1 = Card(board, name='card1', movements_types=['line'], cost=400)
     card2 = Card(board, name='card2', movements_types=['line'], number_movements=2, cost=400)
     hand = [card1, card2]
+    board.free_all_squares()
 
     result = find_move_to_play(hand, board[0, 8], goal_squares, board)
     assert result.card == card2
-    assert result.square == board[0, 6]
+    assert result.square == board[2, 8]
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -81,9 +82,9 @@ def test_find_move_to_play_same_cost(board, goal_squares):  # noqa: F811
     card2 = Card(board, name='card2', movements_types=['line'], cost=500)
     hand = [card1, card2]
 
-    result = find_move_to_play(hand, board[0, 8], goal_squares, board)
+    result = find_move_to_play(hand, board[6, 8], goal_squares, board)
     assert result.card == card1
-    assert result.square == board[0, 7]
+    assert result.square in {board[6, 7], board[6, 9]}
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -91,10 +92,11 @@ def test_find_move_to_play_best_cost(board, goal_squares):  # noqa: F811
     card1 = Card(board, name='card1', movements_types=['line'], cost=500)
     card2 = Card(board, name='card2', movements_types=['line'], cost=400)
     hand = [card1, card2]
+    board.free_all_squares()
 
     result = find_move_to_play(hand, board[0, 8], goal_squares, board)
     assert result.card == card2
-    assert result.square == board[0, 7]
+    assert result.square == board[1, 8]
 
 
 @pytest.mark.timeout(TIMEOUT)
@@ -104,20 +106,6 @@ def test_find_move_to_play_no_move(board, goal_squares):  # noqa: F811
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[0, 8], goal_squares, board)
-    assert result.card is None
-    assert result.square is None
-
-
-@pytest.mark.timeout(TIMEOUT)
-def test_find_move_to_play_backward(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'])
-    card2 = Card(board, name='card2', movements_types=['line'])
-    hand = [card1, card2]
-
-    board[0, 6].occupied = True
-    board[1, 7].occupied = True
-    result = find_move_to_play(hand, board[0, 7], goal_squares, board)
-    assert distance_covered(board[0, 7], board[0, 8], board[19, 8], board) == -1
     assert result.card is None
     assert result.square is None
 
@@ -134,15 +122,17 @@ def test_find_move_distance_null(board, goal_squares):  # noqa: F811
 
 
 @pytest.mark.timeout(TIMEOUT)
-def test_find_move_distance_null_card1_positive_card2(board, goal_squares):  # noqa: F811
+def test_find_move_distance_null_card1_positive_card2(board):  # noqa: F811
     card1 = Card(board, name='card1', movements_types=['line'], cost=300)
     card2 = Card(board, name='card2', movements_types=['line', 'diagonal'], cost=400)
     hand = [card1, card2]
+    # board.free_all_squares()
     # Square (2, 3) is possible for card1 and reduce the distance to the goal square
     # Make it occupied so we cannot go there and the test tests what it must.
-    board[2, 3].occupied = True
+    board[5, 10].occupied = True
+    board[6, 9].occupied = True
 
-    result = find_move_to_play(hand, board[3, 3], goal_squares, board)
+    result = find_move_to_play(hand, board[6, 10], [board[3, 7]], board)
 
     assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
     assert result.card is card2
@@ -173,18 +163,6 @@ def test_find_move_distance_null_with_cheaper_card(board, goal_squares):  # noqa
 
     assert distance_covered(board[3, 3], board[3, 2], board[19, 8], board) == 0
     assert result.card is card2
-
-
-@pytest.mark.timeout(TIMEOUT)
-def test_find_move_to_play_full_set_of_goal(board):  # noqa: F811
-    goal_squares = {board[19, 8], board[18, 8], board[17, 8], board[16, 8]}
-    card1 = Card(board, name='card1', movements_types=['line'], cost=500)
-    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
-    hand = [card1, card2]
-
-    result = find_move_to_play(hand, board[19, 3], goal_squares, board)
-    assert result.card is card2
-    assert result.square is board[19, 4]
 
 
 @pytest.mark.timeout(TIMEOUT)

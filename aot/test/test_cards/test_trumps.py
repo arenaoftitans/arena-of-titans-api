@@ -254,7 +254,7 @@ def test_teleport_no_target_square(board, player):  # noqa: F811
 def test_teleport_wrong_distance(board, player):  # noqa: F811
     player.move = MagicMock()
     trump = Teleport(distance=1)
-    square = board[5, 8]
+    square = board[0, 0]
 
     trump.affect(player=player, square=square)
 
@@ -275,7 +275,7 @@ def test_teleport(board, player):  # noqa: F811
     square = None
     player.move = MagicMock()
     trump = Teleport(distance=1)
-    square = board[0, 7]
+    square = board[6, 8]
 
     trump.affect(player=player, square=square)
 
