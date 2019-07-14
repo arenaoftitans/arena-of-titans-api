@@ -335,6 +335,11 @@ class Api(AotWs):
                 # Since this is mostly for testing, we don't do anything about it.
                 except KeyError:
                     pass
+                if self._message['auto']:
+                    # It's an automated message, probably from a timer. Raise an error to quit
+                    # here but don't display it.
+                    raise AotError('not_your_turn')
+
                 raise AotErrorToDisplay('not_your_turn')
 
     def _play_ai_after_timeout(self, game):
