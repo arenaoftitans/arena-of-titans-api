@@ -76,8 +76,8 @@ class Api(AotWs):
         'unknown_request': 'Unknown request: {rt}.',
         'wrong_action': 'You provided an invalid action name or you do not have any actions to '
                         'play',
-        'wrong_card': 'This card doesn\'t exist or is not in your hand.',
-        'wrong_square': 'This square doesn\'t exist or you cannot move there yet.',
+        'wrong_card': "This card doesn't exist or is not in your hand.",
+        'wrong_square': "This square doesn't exist or you cannot move there yet.",
         'wrong_trump': 'Unknown trump.',
         'wrong_trump_target': 'Wrong target player index.',
     }

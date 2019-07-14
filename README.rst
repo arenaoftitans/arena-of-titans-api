@@ -105,6 +105,19 @@ Add a trump or a power
 #. Add the trump and power class if they don't already exist.
 #. Add its definition to the resource file.
 
+Update dependencies
+-------------------
+
+#. If required, change the version requirements in the ``Pipfile``.
+#. Run ``pipenv update`` to update the lock file.
+#. Run ``pipenv install --dev`` to sync local virtual env (if you use it locally outside docker).
+#. Run ``make VERSION=ver dockerbuild``. Version must be the two last digit of the year, two digits for the month and one digit for the build number. For instance: ``19.07.1`` for the 1st build of July 2019.
+#. Update the image version in ``docker-compose.yml``.
+#. Stop all the containers with ``docker-compose down`` and re-create them with ``docker-compose up -d``.
+#. Run the tests and lint *in the container* with ``make check``.
+#. Push the new image: ``make VERSION=ver dockerpush``.
+#. Commit and push the changes.
+
 
 Contributing
 ============
