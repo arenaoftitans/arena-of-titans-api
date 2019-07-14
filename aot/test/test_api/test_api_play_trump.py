@@ -212,7 +212,7 @@ async def test_play_trump_with_board_target_type(api, game):  # noqa: F811
     api.sendMessage = AsyncMagicMock()
     game.add_action = MagicMock()
 
-    assert game._board[0, 0].color == Color.YELLOW
+    assert game._board[0, 0].color == Color.RED
 
     await api._play_trump(game, {
         'name': 'Terraforming',
@@ -220,7 +220,7 @@ async def test_play_trump_with_board_target_type(api, game):  # noqa: F811
         'square': {
             'x': 0,
             'y': 0,
-            'color': 'red',
+            'color': 'yellow',
         },
     })
 
@@ -232,4 +232,4 @@ async def test_play_trump_with_board_target_type(api, game):  # noqa: F811
     assert call_args[0]['rt'] == 'PLAY_TRUMP'
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called
-    assert game._board[0, 0].color == Color.RED
+    assert game._board[0, 0].color == Color.YELLOW

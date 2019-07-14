@@ -19,15 +19,13 @@
 
 from .board import (
     Board,
-    get_colors_disposition,
 )
 from .color import (
     all_colors,
     Color,
     ColorSet,
 )
-from .square import Square
-from .svg import SvgBoardCreator
+from .square import Square, SquareSet
 
 
 __all__ = [
@@ -35,7 +33,6 @@ __all__ = [
     'Board',
     'Color',
     'ColorSet',
-    'get_colors_disposition',
     'Square',
-    'SvgBoardCreator',
+    SquareSet.__name__,
 ]

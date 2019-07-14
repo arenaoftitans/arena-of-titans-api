@@ -48,8 +48,6 @@ class LastAction:
 
 
 class Player:
-    BOARD_ARM_WIDTH_AND_MODULO = 4
-    BOARD_ARM_LENGTH_AND_MAX_Y = 8
     MAX_NUMBER_AFFECTING_TRUMPS = 4
     MAX_NUMBER_MOVE_TO_PLAY = 2
     MAX_NUMBER_TRUMPS_PLAYED = 1
@@ -58,7 +56,6 @@ class Player:
     MAX_NUMBER_TURN_EXPECTING_RECONNECT = 4
     LOGGER = daiquiri.getLogger(__name__)
 
-    _ai_direction_aim = None
     _aim = set()
     _aim_min_x = 0
     _aim_max_x = 0
@@ -112,11 +109,8 @@ class Player:
 
         self._affecting_trumps = []
         self._available_trumps = trumps if trumps is not None else []
-        self._aim = self._generate_aim(board)
-        self._ai_direction_aim = {next(iter(self._aim))}
-        self._current_square = board[
-            self._index * self.BOARD_ARM_WIDTH_AND_MODULO,
-            self.BOARD_ARM_LENGTH_AND_MAX_Y]
+        self._aim = board.aim
+        self._current_square = board.get_square_for_player_with_index(index)
         self._current_square.occupied = True
         self._deck = deck
         self._has_won = False
@@ -448,10 +442,7 @@ class Player:
 
     @property
     def ai_aim(self):
-        if self.on_aim_arm:
-            return self.aim
-        else:
-            return self._ai_direction_aim
+        return self.aim
 
     @property
     def aim(self):
@@ -545,9 +536,8 @@ class Player:
         self._is_connected = value
 
     @property
-    def on_aim_arm(self):
-        return self._board.is_in_arm(self._current_square) and \
-            self._aim_min_x <= self._current_square.x <= self._aim_max_x
+    def on_aim_line(self):
+        return self._current_square in self.aim
 
     @property
     def last_action(self):  # pragma: no cover

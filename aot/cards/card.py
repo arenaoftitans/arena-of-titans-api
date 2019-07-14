@@ -19,6 +19,7 @@
 
 from ..board import Color
 from ..board import ColorSet
+from ..board import SquareSet
 
 
 class Card:
@@ -92,7 +93,7 @@ class Card:
 
     def move(self, origin):
         number_movements_left = self._number_movements
-        possible_squares = {origin}
+        possible_squares = SquareSet(initial_squares={origin})
         while number_movements_left > 0:
             possible_squares_per_levels = []
             for possible_origin in possible_squares:
@@ -158,8 +159,8 @@ class Card:
             # can be None.
             if not square:
                 continue
-            right_square = self._board[square.x + 1, square.y, 'right']
-            left_square = self._board[square.x - 1, square.y, 'left']
+            right_square = self._board[square.x + 1, square.y]
+            left_square = self._board[square.x - 1, square.y]
             if right_square:
                 probable_squares.add(right_square)
             if left_square:
@@ -170,8 +171,8 @@ class Card:
     def __knight_get_vertical_squares_horizontal_first(self, origin):
         probable_squares = set()
         temporary_horizontal_squares = {
-            self._board[origin.x + 1, origin.y, 'right'],
-            self._board[origin.x - 1, origin.y, 'left'],
+            self._board[origin.x + 1, origin.y],
+            self._board[origin.x - 1, origin.y],
         }
 
         for square in temporary_horizontal_squares:
@@ -198,15 +199,15 @@ class Card:
     def __knight_get_temporary_horizontal_square(self, origin):
         # We must get horizontal squares one step at a time to avoid switching
         # board
-        square_left = self._board[origin.x - 1, origin.y, 'left']
-        square_right = self._board[origin.x + 1, origin.y, 'right']
+        square_left = self._board[origin.x - 1, origin.y]
+        square_right = self._board[origin.x + 1, origin.y]
         temporary_horizontal_squares = set()
         if square_left:
             temporary_horizontal_squares.add(
-                self._board[square_left.x - 1, square_left.y, 'left'])
+                self._board[square_left.x - 1, square_left.y])
         if square_right:
             temporary_horizontal_squares.add(
-                self._board[square_right.x + 1, square_right.y, 'right'])
+                self._board[square_right.x + 1, square_right.y])
 
         return temporary_horizontal_squares
 

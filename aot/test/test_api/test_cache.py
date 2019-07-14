@@ -254,9 +254,9 @@ async def test_create_new_game(cache):  # noqa: F811
     await cache.create_new_game()
 
     assert cache._cache.hset.call_count == 3
-    assert cache._cache.rpush.call_count == 8
+    assert cache._cache.rpush.call_count == 4
     assert cache._cache.expire.call_count == 2
-    assert cache.get_slots.call_count == 8
+    assert cache.get_slots.call_count == 4
 
 
 @pytest.mark.asyncio

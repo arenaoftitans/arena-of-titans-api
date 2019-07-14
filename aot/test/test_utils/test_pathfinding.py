@@ -90,27 +90,3 @@ def test_heuristic_cost_estimate_x1_y1__x3_y2(board):  # noqa: F811
     start = MockedSquare(x=1, y=1)
     goal = MockedSquare(x=3, y=2)
     assert heuristic_cost_estimate(start, goal, board) == 20
-
-
-def test_heuristic_cost_estimate_x0_x31(board):  # noqa: F811
-    start = MockedSquare(x=0, y=0)
-    goal = MockedSquare(x=31, y=0)
-    assert heuristic_cost_estimate(start, goal, board) == 41
-
-
-def test_heuristic_cost_estimate_x0_x29(board):  # noqa: F811
-    start = MockedSquare(x=0, y=0)
-    goal = MockedSquare(x=29, y=0)
-    assert heuristic_cost_estimate(start, goal, board) == 43
-
-
-def test_heuristic_cost_estimate_x0_x4(board):  # noqa: F811
-    start = MockedSquare(x=0, y=0)
-    goal = MockedSquare(x=4, y=0)
-    assert heuristic_cost_estimate(start, goal, board) == 24
-
-
-def test_heuristic_cost_estimate_x0_x7(board):  # noqa: F811
-    start = MockedSquare(x=0, y=0)
-    goal = MockedSquare(x=7, y=0)
-    assert heuristic_cost_estimate(start, goal, board) == 27

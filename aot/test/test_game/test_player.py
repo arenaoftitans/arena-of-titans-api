@@ -73,8 +73,8 @@ def test_has_remaining_moves_to_play(player):  # noqa: F811
 def test_move(player, board):  # noqa: F811
     start_square = player.current_square
     assert start_square.occupied
-    assert 0 == start_square.x
-    assert 8 == start_square.y
+    assert 6 == start_square.x
+    assert 7 == start_square.y
 
     square = board[8, 0]
     player.move(square)
@@ -99,8 +99,8 @@ def test_wins(player):  # noqa: F811
 def test_init_game_player_0(player, board):  # noqa: F811
     start_square = player.current_square
     assert start_square.occupied
-    assert 0 == start_square.x
-    assert 8 == start_square.y
+    assert 6 == start_square.x
+    assert 7 == start_square.y
 
     # Check the deck
     deck = player.deck  # noqa: 811
@@ -113,7 +113,7 @@ def test_init_game_player_0(player, board):  # noqa: F811
     assert -1 == player.rank
 
     # Check the aim
-    expected_aim = {board[16, 8], board[17, 8], board[18, 8], board[19, 8]}
+    expected_aim = [board[15, 1], board[15, 2], board[15, 3], board[15, 4]]
     assert expected_aim == player.aim
 
 
@@ -121,7 +121,7 @@ def test_init_game_player_1(board, deck):  # noqa: F811
     player = Player(None, None, 1, board, deck, MagicMock())  # noqa: 811
     start_square = player.current_square
     assert start_square.occupied
-    assert 4 == start_square.x
+    assert 6 == start_square.x
     assert 8 == start_square.y
 
     # Check the deck
@@ -135,7 +135,7 @@ def test_init_game_player_1(board, deck):  # noqa: F811
     assert -1 == player.rank
 
     # Check the aim
-    expected_aim = {board[20, 8], board[21, 8], board[22, 8], board[23, 8]}
+    expected_aim = [board[15, 1], board[15, 2], board[15, 3], board[15, 4]]
     assert expected_aim == player.aim
 
 
@@ -538,7 +538,7 @@ def test_play_trump_target_type_board(player):  # noqa: F811
         'color': 'blue',
     }
 
-    assert player._board[0, 0].color == Color.YELLOW
+    assert player._board[0, 0].color == Color.RED
 
     player.play_trump(trump, target=target)
     assert player._board[0, 0].color == Color.BLUE
@@ -623,14 +623,8 @@ def test_still_in_game_player_not_connected_wont_come_back(player):  # noqa: F81
 
 
 def test_ai_aim(player, board):  # noqa: F811
-    # Just direction
-    assert len(player.ai_aim) == 1
-    # On arm: full aim
     player._current_square = board[19, 3]
     assert len(player.ai_aim) == 4
-    # On wrong arm
-    player._current_square = board[8, 3]
-    assert len(player.ai_aim) == 1
 
 
 def test_complete_special_actions(player):  # noqa: F811
