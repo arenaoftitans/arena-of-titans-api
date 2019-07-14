@@ -36,7 +36,6 @@ help:
 	@echo "- venvlint: launch flake8 with command defined by VENV_FLAKE8_CMD on host."
 	@echo "- runlint: launch flake8."
 	@echo "- test: launch unit tests with coverage report."
-	@echo "- static: generate all static files for the API like SVG boards."
 
 
 .PHONY: dockerbuild
@@ -112,7 +111,6 @@ endif
 clean:
 	docker-compose down
 	rm -rf dist
-	rm -rf static
 	rm -rf .htmlcov
 	rm -rf .htmlcovapi
 	rm -rf Arena_of_Titans_API.egg-info
@@ -200,15 +198,4 @@ ifdef INSIDE_DOCKER
 	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- aot/test --testmon
 else
 	${DK_EXEC_CMD} make tdd
-endif
-
-
-.PHONY: static
-static:
-ifdef INSIDE_DOCKER
-	PYTHONPATH="${PYTHONPATH}:$(shell pwd)" ${PYTHON_CMD} scripts/gen-boards.py \
-	    -i aot/resources/games/ \
-	    -o static/boards
-else
-	${DK_EXEC_CMD} make static
 endif
