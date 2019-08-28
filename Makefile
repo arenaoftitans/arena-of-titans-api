@@ -28,7 +28,6 @@ help:
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
-	@echo "- dockerimage: build a production like image with the API installed in it."
 	@echo "- dev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
 	@echo "- check: launch lint and testall."
@@ -72,35 +71,6 @@ ifdef VERSION
 	# Push dev image.
 	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:${VERSION}"
 	docker push "registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:latest"
-else
-	@echo "You must supply VERSION"
-	exit 1
-endif
-
-
-.PHONY: dockerimage
-dockerimage:
-ifdef VERSION
-	docker build \
-		--pull \
-	    -f docker/aot-api/Dockerfile \
-	    -t "registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}" \
-	    .
-	# Testing image
-	docker run \
-		-d \
-		--rm \
-		--name aot-api-test \
-		-e ENV=development \
-		"registry.gitlab.com/arenaoftitans/arena-of-titans-api:${VERSION}"
-	sleep 10
-	@if [ "$$(docker inspect aot-api-test -f '{{ .State.Status }}')" = 'running' ]; then \
-		echo '***** Working *****'; \
-	else \
-		echo '***** Failed! *****'; \
-		exit 1; \
-	fi
-	docker stop aot-api-test
 else
 	@echo "You must supply VERSION"
 	exit 1
