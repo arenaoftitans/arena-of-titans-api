@@ -19,9 +19,10 @@
 
 import os
 import sys
-from types import MappingProxyType
 
 from environs import Env
+
+from .utils import make_immutable
 
 
 class Config:
@@ -66,7 +67,7 @@ class Config:
         if env != 'development' and not cache_sign_key:
             raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
 
-        self._config = MappingProxyType({
+        self._config = make_immutable({
             'api': {
                 'allow_debug': self.env.bool('API_ALLOW_DEBUG', False),
                 # Binding to all interfaces, bandit don't allow this (#104)
