@@ -46,7 +46,6 @@ from .trumps import (
 )
 from .utils import TrumpPlayedInfos
 
-
 power_type_to_class = {
     "AddSpecialActionsToCard": AddSpecialActionsToCardPower,
     "CannotBeAffectedByTrumps": CannotBeAffectedByTrumpsPower,

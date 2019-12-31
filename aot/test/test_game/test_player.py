@@ -21,19 +21,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (  # noqa: F401
-    board,
-    deck,
-    player,
-)
 from ...board import Color
 from ...cards import Card
-from ...cards.trumps import (
-    ChangeSquare,
-    SimpleTrump,
-    Trump,
-    TrumpList,
-)
+from ...cards.trumps import ChangeSquare, SimpleTrump, Trump, TrumpList
 from ...cards.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
     MaxNumberAffectingTrumps,
@@ -41,6 +31,7 @@ from ...cards.trumps.exceptions import (
     TrumpHasNoEffect,
 )
 from ...game import Player
+from .. import board, deck, player  # noqa: F401
 
 
 def test_view_possible_squares(player):  # noqa: F811

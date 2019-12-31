@@ -22,11 +22,7 @@ import logging
 
 from .config import config
 from .reload import run_reload
-from .run import (
-    cleanup,
-    setup_logging,
-    startup,
-)
+from .run import cleanup, setup_logging, startup
 
 
 def main(debug=False, debug_aio=False):

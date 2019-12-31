@@ -24,13 +24,9 @@ from datetime import datetime
 
 from aredis import StrictRedis as Redis
 
-from .security import (
-    decode,
-    encode,
-)
-from .utils import SlotState
 from ..config import config
-
+from .security import decode, encode
+from .utils import SlotState
 
 logger = logging.getLogger(__name__)
 

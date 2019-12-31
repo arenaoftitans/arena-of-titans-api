@@ -19,24 +19,15 @@
 
 import asyncio
 import json
-from abc import (
-    ABCMeta,
-    abstractmethod,
-)
+from abc import ABCMeta, abstractmethod
 from contextlib import asynccontextmanager
 
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
-from .cache import Cache
-from .utils import (
-    AotErrorToDisplay,
-    AotFatalError,
-    AotFatalErrorToDisplay,
-    RequestTypes,
-    to_json,
-)
 from ..utils import get_time
+from .cache import Cache
+from .utils import AotErrorToDisplay, AotFatalError, AotFatalErrorToDisplay, RequestTypes, to_json
 
 
 class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):

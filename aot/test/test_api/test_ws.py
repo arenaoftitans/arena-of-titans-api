@@ -21,18 +21,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (  # noqa: F401
-    api,
-    AsyncMagicMock,
-    game,
-)
-from ...api.utils import (
-    AotError,
-    AotErrorToDisplay,
-    AotFatalError,
-    RequestTypes,
-)
+from ...api.utils import AotError, AotErrorToDisplay, AotFatalError, RequestTypes
 from ...api.ws import AotWs
+from .. import AsyncMagicMock, api, game  # noqa: F401
 
 
 class AotWsImpl(AotWs):

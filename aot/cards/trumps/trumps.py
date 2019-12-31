@@ -22,14 +22,11 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import List, Tuple
 
+from ...board import Color, all_colors
+from .. import Card
 from .constants import TargetTypes
 from .exceptions import TrumpHasNoEffect
 from .utils import return_trump_infos
-from .. import Card
-from ...board import (
-    all_colors,
-    Color,
-)
 
 
 class Trump(metaclass=ABCMeta):

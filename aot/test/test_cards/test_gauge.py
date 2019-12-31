@@ -19,14 +19,8 @@
 
 from unittest.mock import MagicMock
 
-from .. import (  # noqa: F401
-    board,
-    gauge,
-)
-from ...cards.trumps import (
-    Gauge,
-    SimpleTrump,
-)
+from ...cards.trumps import Gauge, SimpleTrump
+from .. import board, gauge  # noqa: F401
 
 
 def test_can_play(gauge):  # noqa: F811

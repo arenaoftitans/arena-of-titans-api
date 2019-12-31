@@ -17,17 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from unittest.mock import create_autospec, MagicMock
+from unittest.mock import MagicMock, create_autospec
 
 import pytest
 
-from .. import (  # noqa: F401
-    board,
-    deck,
-    game,
-    player,
-    player2,
-)
 from ...board import Color
 from ...cards.trumps import (
     CannotBeAffectedByTrumps,
@@ -41,6 +34,7 @@ from ...cards.trumps import (
 )
 from ...cards.trumps.constants import TargetTypes
 from ...cards.trumps.exceptions import TrumpHasNoEffect
+from .. import board, deck, game, player, player2  # noqa: F401
 
 
 class VoidPower(Power):

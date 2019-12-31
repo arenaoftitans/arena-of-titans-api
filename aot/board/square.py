@@ -17,10 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .color import (
-    Color,
-    ColorSet,
-)
+from .color import Color, ColorSet
 
 
 class Square:

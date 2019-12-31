@@ -21,7 +21,6 @@ from collections import namedtuple
 
 from ...utils.pathfinding import a_star
 
-
 IACardResult = namedtuple("IAResult", "card square")
 
 

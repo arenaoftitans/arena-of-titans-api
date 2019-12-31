@@ -21,13 +21,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (  # noqa: F401
-    board,
-    deck,
-    game,
-    player,
-    player2,
-)
 from ...board import Color
 from ...cards.trumps import (
     CannotBeAffectedByTrumps,
@@ -42,6 +35,7 @@ from ...cards.trumps import (
     TrumpList,
 )
 from ...cards.trumps.exceptions import MaxNumberAffectingTrumps, TrumpHasNoEffect
+from .. import board, deck, game, player, player2  # noqa: F401
 
 
 def test_affect_modify_number_moves(player):  # noqa: F811

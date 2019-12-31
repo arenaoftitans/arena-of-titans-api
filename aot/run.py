@@ -28,7 +28,6 @@ from daiquiri_rollbar import RollbarOutput
 from .api import Api
 from .config import config
 
-
 logger = logging.getLogger(__name__)
 
 

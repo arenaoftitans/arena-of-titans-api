@@ -18,13 +18,8 @@
 ################################################################################
 
 from .board import Board
-from .color import (
-    all_colors,
-    Color,
-    ColorSet,
-)
+from .color import Color, ColorSet, all_colors
 from .square import Square, SquareSet
-
 
 __all__ = [
     "all_colors",

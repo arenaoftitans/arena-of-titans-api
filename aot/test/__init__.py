@@ -23,11 +23,7 @@ import pytest
 
 from ..api import Api
 from ..api.cache import Cache
-from ..api.game_factory import (
-    build_cards_list,
-    build_trumps_list,
-    create_game_for_players,
-)
+from ..api.game_factory import build_cards_list, build_trumps_list, create_game_for_players
 from ..board import Board
 from ..cards import Deck
 from ..cards.trumps import Gauge

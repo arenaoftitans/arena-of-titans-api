@@ -19,10 +19,7 @@
 
 import hashlib
 import hmac
-from base64 import (
-    b64decode,
-    b64encode,
-)
+from base64 import b64decode, b64encode
 
 from ..config import config
 

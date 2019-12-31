@@ -23,7 +23,6 @@ import pytest
 
 from ...utils.pathfinding import heuristic_cost_estimate
 
-
 MockedSquare = namedtuple("MockedSquare", "x y")
 
 

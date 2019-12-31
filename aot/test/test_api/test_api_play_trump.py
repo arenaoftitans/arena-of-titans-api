@@ -21,14 +21,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (  # noqa: F401
-    api,
-    AsyncMagicMock,
-    game,
-)
 from ...api.utils import AotError
 from ...board import Color
 from ...cards.trumps import CannotBeAffectedByTrumpsPower, SimpleTrump
+from .. import AsyncMagicMock, api, game  # noqa: F401
 
 
 @pytest.mark.asyncio

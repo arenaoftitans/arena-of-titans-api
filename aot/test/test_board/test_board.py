@@ -17,13 +17,9 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .. import board  # noqa: F401
-from ...board import (
-    Color,
-    ColorSet,
-    Square,
-)
+from ...board import Color, ColorSet, Square
 from ...board.square import SquareSet
+from .. import board  # noqa: F401
 
 
 def test_get_wrong_squares(board):  # noqa: F811

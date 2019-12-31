@@ -21,18 +21,10 @@ from copy import deepcopy
 
 import pytest
 
-from .. import board  # noqa: F401
-from ...board import (
-    Color,
-    ColorSet,
-    Square,
-)
+from ...board import Color, ColorSet, Square
 from ...cards import Card
-from ...cards.trumps import (
-    SimpleTrump,
-    TrumpList,
-)
-
+from ...cards.trumps import SimpleTrump, TrumpList
+from .. import board  # noqa: F401
 
 CARD_DICT = {
     "number_movements": 1,

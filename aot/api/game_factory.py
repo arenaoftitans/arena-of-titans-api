@@ -8,7 +8,6 @@ from aot.game.config import GAME_CONFIGS
 from aot.game.game import Game
 from aot.game.player import Player
 
-
 logger = logging.getLogger(__name__)
 
 

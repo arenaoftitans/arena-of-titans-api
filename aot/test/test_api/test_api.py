@@ -22,16 +22,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from ...api.game_factory import create_game_for_players
-from ...api.utils import (
-    AotError,
-    AotErrorToDisplay,
-    RequestTypes,
-)
-from ...test import (  # noqa: F401
-    api,
-    AsyncMagicMock,
-    game,
-)
+from ...api.utils import AotError, AotErrorToDisplay, RequestTypes
+from ...test import AsyncMagicMock, api, game  # noqa: F401
 
 
 @pytest.mark.asyncio

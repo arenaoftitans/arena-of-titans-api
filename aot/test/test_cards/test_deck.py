@@ -19,15 +19,8 @@
 
 from unittest.mock import MagicMock
 
-from .. import (  # noqa: F401
-    board,
-    deck,
-)
-from ...cards import (
-    Card,
-    SimpleCard,
-)
-
+from ...cards import Card, SimpleCard
+from .. import board, deck  # noqa: F401
 
 NUMBER_COLORS = 4
 NUMBER_CARD_TYPES = 7

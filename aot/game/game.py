@@ -19,10 +19,7 @@
 
 import daiquiri
 
-from .ai import (
-    find_cheapest_card,
-    find_move_to_play,
-)
+from .ai import find_cheapest_card, find_move_to_play
 
 
 class Game:

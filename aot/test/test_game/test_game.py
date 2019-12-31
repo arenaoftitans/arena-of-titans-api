@@ -19,18 +19,10 @@
 
 from unittest.mock import MagicMock
 
-from .. import (  # noqa: F401
-    board,
-    deck,
-    game,
-    player,
-)
 from ...board import Square
 from ...cards import SimpleCard
-from ...game import (
-    Game,
-    Player,
-)
+from ...game import Game, Player
+from .. import board, deck, game, player  # noqa: F401
 
 
 def test_eq(board, player):  # noqa: F811

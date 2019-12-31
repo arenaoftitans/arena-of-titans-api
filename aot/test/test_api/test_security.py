@@ -21,11 +21,7 @@ from base64 import b64encode
 
 import pytest
 
-from ...api.security import (
-    decode,
-    encode,
-    InvalidSignatureError,
-)
+from ...api.security import InvalidSignatureError, decode, encode
 from ...config import config
 
 

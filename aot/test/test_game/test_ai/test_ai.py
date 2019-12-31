@@ -21,14 +21,10 @@ import os
 
 import pytest
 
-from ... import board
 from ....cards import Card
-from ....game.ai import (
-    distance_covered,
-    find_cheapest_card,
-    find_move_to_play,
-)
+from ....game.ai import distance_covered, find_cheapest_card, find_move_to_play
 from ....utils.pathfinding import a_star
+from ... import board
 
 # board is a fixture, ignore the unsued import warnig
 

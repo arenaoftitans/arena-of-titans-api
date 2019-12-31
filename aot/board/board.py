@@ -17,10 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .square import (
-    Square,
-    SquareSet,
-)
+from .square import Square, SquareSet
 
 
 class Board:

@@ -1,6 +1,5 @@
 from .boards import load_board
 
-
 TEST_CONFIG = {
     "number_players": 4,
     "number_trumps_per_player": 4,

@@ -23,15 +23,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (  # noqa: F401
-    AsyncMagicMock,
-    cache,
-    cache_cls,
-    game,
-)
 from ...api.cache import Cache
 from ...api.security import decode
 from ...config import config
+from .. import AsyncMagicMock, cache, cache_cls, game  # noqa: F401
 
 
 def dumps_list(cache, a_list):
