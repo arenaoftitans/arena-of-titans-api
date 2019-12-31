@@ -28,6 +28,7 @@ services:
     environment:
       ENV: development
       PYTHONBREAKPOINT: pudb.set_trace
+      CACHE_HOST: aot-redis
     ports:
       - "8181:8181"
       - "6900:6900"
@@ -58,3 +59,5 @@ services:
   aot-redis:
     image: docker.io/redis
     tty: true
+    ports:
+        - "6379:6379"
