@@ -22,8 +22,6 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import List, Tuple
 
-import aot
-
 from .constants import TargetTypes
 from .exceptions import TrumpHasNoEffect
 from .utils import return_trump_infos
@@ -479,9 +477,6 @@ class RemoveColor(Trump):
 
 
 class Teleport(Trump):
-    # Class variables
-    _board = None
-
     # Instance variables
     _distance = 0
     _colors = None
@@ -514,9 +509,6 @@ class Teleport(Trump):
         else:
             self._set_colors(color, colors)
         # We use a card to get the list of possible squares for teleportation.
-        if Teleport._board is None:
-            Teleport._board = aot.get_board()
-        board = board or Teleport._board
         self._card = Card(
             board,
             color=next(iter(self._colors)),

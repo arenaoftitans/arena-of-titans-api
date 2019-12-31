@@ -29,7 +29,6 @@ from .security import (
     encode,
 )
 from .utils import SlotState
-from .. import get_number_players
 from ..config import config
 
 
@@ -148,7 +147,7 @@ class Cache:
     async def is_member_game(self, game_id, player_id):
         return player_id in await self.get_players_ids(game_id)
 
-    async def create_new_game(self, test=False):
+    async def create_new_game(self, test=False, nb_slots=4):
         await self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             self.GAME_MASTER_KEY,
@@ -161,11 +160,11 @@ class Cache:
             self.GAME_KEY_TEMPLATE.format(self._game_id),
             'test',
             test)
-        await self._init_slots()
+        await self._init_slots(nb_slots)
         await self._cache.expire(self.SLOTS_KEY_TEMPLATE.format(self._game_id), self.TTL)
         await self._cache.expire(self.GAME_KEY_TEMPLATE.format(self._game_id), self.TTL)
 
-    async def _init_slots(self):
+    async def _init_slots(self, nb_slots):
         slot = {
             'player_name': '',
             'player_id': self._player_id,
@@ -176,7 +175,7 @@ class Cache:
 
         slot['player_id'] = ''
         index = 0
-        while not await self._max_number_slots_reached():
+        while not await self._max_number_slots_reached(nb_slots):
             index += 1
             slot['index'] = index
             await self._add_slot(slot)
@@ -188,8 +187,8 @@ class Cache:
             self.dumps(slot),
         )
 
-    async def _max_number_slots_reached(self):
-        return len(await self.get_slots()) == get_number_players()
+    async def _max_number_slots_reached(self, nb_slots):
+        return len(await self.get_slots()) == nb_slots
 
     async def is_test(self):
         value = await self._cache.hget(

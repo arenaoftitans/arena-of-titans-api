@@ -21,7 +21,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from ... import get_game
+from ...api.game_factory import create_game_for_players
 from ...api.utils import (
     AotError,
     AotErrorToDisplay,
@@ -225,7 +225,7 @@ async def test_create_new_game(api, mocker):  # noqa: F811
 
     assert isinstance(api._game_id, str)
     assert len(api._game_id) == 22
-    api._cache.create_new_game.assert_called_once_with(test=False)
+    api._cache.create_new_game.assert_called_once_with(test=False, nb_slots=4)
     api._cache.affect_next_slot.assert_called_once_with(
         api._message['player_name'],
         api._message['hero'],
@@ -462,8 +462,8 @@ async def test_create_game(mocker, api):  # noqa: F811
     ]
     create_game_request[1] = None
 
-    game = get_game(create_game_request)  # noqa: 811
-    mocker.patch('aot.api.api.get_game', return_value=game)
+    game = create_game_for_players(create_game_request)  # noqa: 811
+    mocker.patch('aot.api.api.create_game_for_players', return_value=game)
     api._cache = MagicMock()
     api._send_to = AsyncMagicMock()
     api._send_game_created_message = AsyncMagicMock()

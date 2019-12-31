@@ -1,0 +1,318 @@
+from .boards import load_board
+
+
+STANDARD_CONFIG = {
+    "number_players": 4,
+    "number_trumps_per_player": 4,
+    "colors": [
+        "BLACK",
+        "BLUE",
+        "RED",
+        "YELLOW"
+    ],
+
+    "movements_cards": {
+        "number_cards_per_color": 1,
+        "cards": [
+            {
+                "name": "Assassin",
+                "number_of_movements": 2,
+                "movements_type": [
+                    "line",
+                    "diagonal"
+                ],
+                "description": "Move two squares in line or diagonal.",
+                "cost": 300,
+                "special_actions": [
+                    {
+                        "name": "Assassination",
+                        "cost": 0,
+                        "description": "Allow you to move back another player.",
+                        "duration": 0,
+                        "repeat_for_each_color": False,
+                        "must_target_player": True,
+                        "parameters": {
+                            "type": "Teleport",
+                            "distance": 1
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Bishop",
+                "number_of_movements": 2,
+                "movements_type": [
+                    "diagonal"
+                ],
+                "complementary_colors": {
+                    "BLACK": [
+                        "BLUE"
+                    ],
+                    "BLUE": [
+                        "YELLOW"
+                    ],
+                    "RED": [
+                        "BLACK"
+                    ],
+                    "YELLOW": [
+                        "RED"
+                    ]
+                },
+                "description": "Move two squares in diagonal. Can move on two different colors.",
+                "cost": 200
+            },
+            {
+                "name": "King",
+                "number_of_movements": 3,
+                "movements_type": [
+                    "line"
+                ],
+                "description": "Move three squares in line.",
+                "cost": 400
+            },
+            {
+                "name": "Knight",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "knight"
+                ],
+                "description": "Move one square in L.",
+                "cost": 200
+            },
+            {
+                "name": "Queen",
+                "number_of_movements": 2,
+                "movements_type": [
+                    "line",
+                    "diagonal"
+                ],
+                "description": "Move two squares in line or diagonal.",
+                "cost": 300
+            },
+            {
+                "name": "Warrior",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "line"
+                ],
+                "description": "Move one square in line",
+                "cost": 100
+            },
+            {
+                "name": "Wizard",
+                "number_of_movements": 1,
+                "movements_type": [
+                    "line",
+                    "diagonal"
+                ],
+                "additional_movements_colors": [
+                    "ALL"
+                ],
+                "description": "Move one squares in line or diagonal. "
+                               "Can move on a square of any color.",
+                "cost": 200
+            }
+        ]
+    },
+    "trumps": [
+        {
+            "name": "Blizzard",
+            "cost": 6,
+            "description": "Reduce the number of cards a player can play by 1.",
+            "duration": 1,
+            "repeat_for_each_color": False,
+            "must_target_player": True,
+            "parameters": {
+                "type": "ModifyNumberMoves",
+                "delta_moves": -1
+            },
+            "weight": 3
+        },
+        {
+            "name": "Fortress",
+            "cost": 7,
+            "description": "Prevent the player to move on some colors.",
+            "duration": 2,
+            "repeat_for_each_color": True,
+            "must_target_player": True,
+            "parameters": {
+                "type": "RemoveColor"
+            },
+            "weight": 1
+        },
+        {
+            "name": "Ram",
+            "cost": 4,
+            "description": "Destroy towers and reduce duration for fortress",
+            "duration": 1,
+            "repeat_for_each_color": False,
+            "must_target_player": False,
+            "parameters": {
+                "type": "ModifyTrumpDurations",
+                "delta_duration": -1,
+                "temporary": True,
+                "trump_names": [
+                    "Fortress",
+                    "Tower"
+                ]
+            },
+            "weight": 5
+        },
+        {
+            "name": "Reinforcements",
+            "cost": 8,
+            "description": "Allow the player to play one more move.",
+            "duration": 1,
+            "repeat_for_each_color": False,
+            "must_target_player": False,
+            "parameters": {
+                "type": "ModifyNumberMoves",
+                "delta_moves": 1
+            },
+            "weight": 3
+        },
+        {
+            "name": "Tower",
+            "cost": 4,
+            "description": "Prevent the player to move on some colors.",
+            "duration": 1,
+            "repeat_for_each_color": True,
+            "must_target_player": True,
+            "parameters": {
+                "type": "RemoveColor"
+            },
+            "weight": 1
+        }
+    ],
+    "powers": {
+        "arline": {
+            "name": "Night mist",
+            "description": "Disappear from the board and cannot be targeted by other players.",
+            "passive": False,
+            "cost": 10,
+            "duration": 2,
+            "repeat_for_each_color": False,
+            "must_target_player": False,
+            "parameters": {
+                "type": "CannotBeAffectedByTrumps",
+                "trump_names": None
+            }
+        },
+        "djor": {
+            "name": "Impassable",
+            "description": "Your tower and fortress cannot be destroyed.",
+            "passive": True,
+            "cost": 0,
+            "trump_cost_delta": 2,
+            "must_target_player": False,
+            "parameters": {
+                "type": "PreventTrumpAction",
+                "prevent_for_trumps": [
+                    "Force of nature",
+                    "Ram"
+                ],
+                "enable_for_trumps": [
+                    "Fortress",
+                    "Tower"
+                ]
+            }
+        },
+        "garez": {
+            "name": "Inveterate Ride",
+            "description": "Your knights can move on any colors",
+            "passive": True,
+            "cost": 0,
+            "trump_cost_delta": 2,
+            "must_target_player": False,
+            "parameters": {
+                "type": "ModifyCardColors",
+                "add_colors": [
+                    "ALL"
+                ],
+                "remove_colors": [],
+                "card_names": [
+                    "Knight"
+                ]
+            }
+        },
+        "mirindrel": {
+            "name": "Terraforming",
+            "description": "Change the color of a square",
+            "passive": False,
+            "cost": 8,
+            "must_target_player": False,
+            "parameters": {
+                "type": "ChangeSquare"
+            }
+        },
+        "razbrak": {
+            "name": "Force of nature",
+            "description": "Towers and fortresses have no effect.",
+            "passive": True,
+            "cost": 0,
+            "trump_delta_cost": 2,
+            "must_target_player": False,
+            "parameters": {
+                "type": "CannotBeAffectedByTrumps",
+                "trump_names": [
+                    "Fortress",
+                    "Tower"
+                 ]
+            }
+        },
+        "ulya": {
+            "name": "Domination",
+            "description": "Make queens move of 3 squares instead of 2.",
+            "passive": True,
+            "cost": 0,
+            "trump_cost_delta": 2,
+            "must_target_player": False,
+            "parameters": {
+                "type": "ModifyCardNumberMoves",
+                "delta_moves": 1,
+                "card_names": [
+                    "Queen"
+                ]
+            }
+        },
+        "luni" : {
+            "name": "Secret blade",
+            "description":  "Add the assassination special action to Warrior cards.",
+            "passive": False,
+            "cost": 10,
+            "trump_cost_delta": 0,
+            "must_target_player": False,
+            "parameters": {
+                "type": "AddSpecialActionsToCard",
+                "card_names": "Warrior",
+                "special_actions": [
+                    {
+                        "name": "Assassination",
+                        "cost": 0,
+                        "description": "Allow you to move back another player.",
+                        "duration": 0,
+                        "repeat_for_each_color": False,
+                        "must_target_player": True,
+                        "parameters": {
+                            "type": "Teleport",
+                            "distance": 1
+                        }
+                    }
+                ]
+            }
+        },
+        "kharliass": {
+            "name": "Metamorphosis",
+            "description": "Stole the power of one of your opponent",
+            "passive": False,
+            "cost": 10,
+            "trump_cost_delta": 0,
+            "must_target_player": True,
+            "parameters": {
+                "type": "StealPower",
+                "number_turn_theft_active": 1
+            }
+        }
+    },
+    "board": load_board('standard'),
+}

@@ -25,6 +25,7 @@ from contextlib import asynccontextmanager
 
 import daiquiri
 
+from .game_factory import create_game_for_players
 from .utils import (
     AotError,
     AotErrorToDisplay,
@@ -32,10 +33,6 @@ from .utils import (
     sanitize,
 )
 from .ws import AotWs
-from .. import (
-    get_game,
-    get_number_players,
-)
 from ..cards.trumps.constants import TargetTypes as TrumpsTargetTypes
 from ..cards.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
@@ -45,6 +42,7 @@ from ..cards.trumps.exceptions import (
 )
 from ..config import config
 from ..game import Player
+from ..game.config import GAME_CONFIGS
 from ..utils import get_time
 
 
@@ -154,7 +152,10 @@ class Api(AotWs):
     async def _initialize_cache(self, new_game=False):
         self._cache.init(game_id=self._game_id, player_id=self._id)
         if new_game:
-            await self._cache.create_new_game(test=self._message.get('test', False))
+            game_config = GAME_CONFIGS['standard']
+            await self._cache.create_new_game(
+                test=self._message.get('test', False), nb_slots=game_config['number_players'],
+            )
         index = await self._affect_current_slot()
         await self._cache.save_session(index)
         return index
@@ -249,7 +250,8 @@ class Api(AotWs):
         await self._cache.game_has_started()
 
     def _good_number_player_registered(self, number_players):
-        return number_players >= 2 and number_players <= get_number_players()
+        game_config = GAME_CONFIGS['standard']
+        return number_players >= 2 and number_players <= game_config['number_players']
 
     def _good_number_players_description(self, number_players, players_description):
         return number_players == len([player for player in players_description if player])
@@ -262,7 +264,7 @@ class Api(AotWs):
                 player['id'] = slots[index].get('player_id', None)
                 player['is_ai'] = slots[index]['state'] == 'AI'
 
-        game = get_game(players_description)
+        game = create_game_for_players(players_description)
         game.game_id = self._game_id
         game.is_debug = self._message.get('debug', False) and \
             config['api']['allow_debug']

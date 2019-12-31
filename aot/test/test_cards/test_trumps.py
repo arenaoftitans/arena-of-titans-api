@@ -244,7 +244,7 @@ def test_remove_multiple_colors(player):  # noqa: F811
 
 def test_teleport_no_target_square(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1)
+    trump = Teleport(distance=1, board=board)
 
     trump.affect(player=player, square=None)
 
@@ -253,7 +253,7 @@ def test_teleport_no_target_square(board, player):  # noqa: F811
 
 def test_teleport_wrong_distance(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1)
+    trump = Teleport(distance=1, board=board)
     square = board[0, 0]
 
     trump.affect(player=player, square=square)
@@ -263,7 +263,7 @@ def test_teleport_wrong_distance(board, player):  # noqa: F811
 
 def test_teleport_wrong_color(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1, color='blue')
+    trump = Teleport(distance=1, color='blue', board=board)
     square = board[0, 7]
 
     trump.affect(player=player, square=square)
@@ -274,7 +274,7 @@ def test_teleport_wrong_color(board, player):  # noqa: F811
 def test_teleport(board, player):  # noqa: F811
     square = None
     player.move = MagicMock()
-    trump = Teleport(distance=1)
+    trump = Teleport(distance=1, board=board)
     square = board[6, 8]
 
     trump.affect(player=player, square=square)

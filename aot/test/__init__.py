@@ -21,18 +21,18 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from .. import (
-    get_board,
-    get_cards_list,
-    get_game,
-    get_number_players,
-    get_trumps_list,
-)
 from ..api import Api
 from ..api.cache import Cache
+from ..api.game_factory import (
+    build_cards_list,
+    build_trumps_list,
+    create_game_for_players,
+)
+from ..board import Board
 from ..cards import Deck
 from ..cards.trumps import Gauge
 from ..game import Player
+from ..game.config import TEST_CONFIG
 
 
 class AsyncMagicMock(MagicMock):
@@ -53,18 +53,18 @@ def mocked_choices(a_list, weights=None, k=None):
 
 @pytest.fixture
 def board():
-    return get_board(name='test')
+    return Board(TEST_CONFIG['board'])
 
 
 @pytest.fixture
 def deck(board):
-    cards = get_cards_list(board, name='test')
+    cards = build_cards_list(TEST_CONFIG, board)
     return Deck(cards)
 
 
 @pytest.fixture
 def player(mocker, board, deck):
-    mocker.patch('aot.random.choices', mocked_choices)
+    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
     player = Player(
         'Player',
         None,
@@ -72,7 +72,7 @@ def player(mocker, board, deck):
         board,
         deck,
         MagicMock(),
-        trumps=get_trumps_list(name='test'),
+        trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
@@ -80,7 +80,7 @@ def player(mocker, board, deck):
 
 @pytest.fixture
 def player2(mocker, board, deck):
-    mocker.patch('aot.random.choices', mocked_choices)
+    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
     player = Player(
         'Player 2',
         None,
@@ -88,7 +88,7 @@ def player2(mocker, board, deck):
         board,
         deck,
         MagicMock(),
-        trumps=get_trumps_list(name='test'),
+        trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
@@ -96,14 +96,14 @@ def player2(mocker, board, deck):
 
 @pytest.fixture
 def game(mocker):
-    mocker.patch('aot.random.choices', mocked_choices)
+    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
     players_description = [{
         'name': 'Player {}'.format(i),
         'index': i,
         'id': i,
         'hero': 'Ulya',
-    } for i in range(get_number_players(name='test'))]
-    g = get_game(players_description, name='test')
+    } for i in range(TEST_CONFIG['number_players'])]
+    g = create_game_for_players(players_description, name='test')
     for player in g.players:
         player.is_connected = True
 
