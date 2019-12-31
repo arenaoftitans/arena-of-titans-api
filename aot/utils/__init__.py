@@ -19,10 +19,30 @@
 
 
 from time import time
+from types import MappingProxyType
 
 
 def get_time():
     return int(time() * 1000)
+
+
+def make_immutable(data):
+    """Make the supplied data immutable.
+
+    It only works with basic data types like dict, list and sets.
+    """
+    if isinstance(data, (bool, int, float, str, bytes, type(None))):
+        return data
+    elif isinstance(data, (tuple, list)):
+        # A tuple is immutable but it can be made of things that are not.
+        return tuple(make_immutable(elt) for elt in data)
+    elif isinstance(data, (set, frozenset)):
+        # A frozenset is immutable but it can be made of things that are not.
+        return frozenset(make_immutable(elt) for elt in data)
+    elif isinstance(data, dict):
+        return MappingProxyType({key: make_immutable(value) for key, value in data.items()})
+    else:
+        raise ValueError(f'{type(data)} cannot be made immutable with basic types.')
 
 
 class SimpleEnumMeta(type):
