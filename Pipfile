@@ -42,4 +42,4 @@ pytest-pudb = ">=0.7"
 ipython = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
