@@ -1,12 +1,26 @@
 {
-    "rt": "PLAY",
-    "your_turn": false,
-    "new_square": {
-        "x": 0,
-        "y": 8
-    },
-    "next_player": 0,
-    "winners": [],
+    "active_trumps": [
+        {
+            "player_index": 0,
+            "player_name": "Player 1",
+            "trumps": []
+        },
+        {
+            "player_index": 1,
+            "player_name": "Player 2",
+            "trumps": [
+                {
+                    "cost": 5,
+                    "description": "Prevent the player to move on some colors.",
+                    "duration": 1,
+                    "initiator": "Player 1",
+                    "must_target_player": true,
+                    "name": "Tower Blue"
+                }
+            ]
+        }
+    ],
+    "game_over": false,
     "hand": [
         {
             "color": "RED",
@@ -25,40 +39,28 @@
             "name": "Warrior"
         }
     ],
-    "game_over": false,
-    "active_trumps": [
-        {
-            "player_index": 0,
-            "player_name": "Player 1",
-            "trumps": []
-        },
-        {
-            "player_index": 1,
-            "player_name": "Player 2",
-            "trumps": [{
-              "name": "Tower Blue",
-              "cost": 5,
-              "description": "Prevent the player to move on some colors.",
-              "duration": 1,
-              "initiator": "Player 1",
-              "must_target_player": true
-            }]
+    "last_action": {
+        "card": null,
+        "description": "played_trump",
+        "player_index": 0,
+        "player_name": "Player 1",
+        "special_action": null,
+        "target_name": "Player 2",
+        "trump": {
+            "cost": 5,
+            "description": "Prevent the player to move on some colors.",
+            "duration": 1,
+            "initiator": "Player 1",
+            "must_target_player": true,
+            "name": "Tower Blue"
         }
-    ],
-  "last_action": {
-    "description": "played_trump",
-    "player_name": "Player 1",
-    "target_name": "Player 2",
-    "player_index": 0,
-    "card": null,
-    "special_action": null,
-    "trump": {
-        "cost": 5,
-        "description": "Prevent the player to move on some colors.",
-        "duration": 1,
-        "initiator": "Player 1",
-        "must_target_player": true,
-        "name": "Tower Blue"
-      }
-    }
+    },
+    "new_square": {
+        "x": 0,
+        "y": 8
+    },
+    "next_player": 0,
+    "rt": "PLAY",
+    "winners": [],
+    "your_turn": false
 }

@@ -1,9 +1,9 @@
 {
-    "rt": "PLAY",
     "play_request": {
-        "card_name": "King",
         "card_color": "RED",
+        "card_name": "King",
         "x": 0,
         "y": 7
-    }
+    },
+    "rt": "PLAY"
 }

@@ -1,8 +1,8 @@
 {
     "rt": "SLOT_UPDATED",
     "slot": {
-	"index": 1,
-	"player_name": "",
+        "index": 1,
+        "player_name": "",
         "state": "OPEN"
     }
 }

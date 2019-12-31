@@ -1,8 +1,14 @@
 {
-    "rt": "SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS",
     "possible_squares": [
-        {"x": 5, "y": 6},
-        {"x": 6, "y": 5}
+        {
+            "x": 5,
+            "y": 6
+        },
+        {
+            "x": 6,
+            "y": 5
+        }
     ],
+    "rt": "SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS",
     "special_action_name": "Assassination"
 }

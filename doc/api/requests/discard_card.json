@@ -1,8 +1,8 @@
 {
-    "rt": "PLAY",
     "play_request": {
-        "discard": true,
+        "card_color": "RED",
         "card_name": "Warrior",
-        "card_color": "RED"
-    }
+        "discard": true
+    },
+    "rt": "PLAY"
 }

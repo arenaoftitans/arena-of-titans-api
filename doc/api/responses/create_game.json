@@ -1,38 +1,48 @@
 {
-    "rt": "CREATE_GAME",
-    "your_turn": true,
+    "active_trumps": [
+        {
+            "player_index": 0,
+            "player_name": "Player 1",
+            "trumps": []
+        },
+        {
+            "player_index": 1,
+            "player_name": "Player 2",
+            "trumps": []
+        }
+    ],
     "can_play_trump": true,
-    "next_player": 0,
     "game_over": false,
+    "hand": [
+        {
+            "color": "RED",
+            "description": "A card",
+            "name": "King"
+        }
+    ],
+    "next_player": 0,
+    "players": [
+        {
+            "hero": "daemon",
+            "index": 0,
+            "name": "Player 1"
+        },
+        {
+            "hero": "daemon",
+            "index": 1,
+            "name": "Player 2"
+        }
+    ],
+    "rt": "CREATE_GAME",
+    "trumps": [
+        {
+            "cost": 0,
+            "description": "Prevents a player to move on red squares.",
+            "duration": 1,
+            "must_target_player": true,
+            "name": "Red Tower"
+        }
+    ],
     "winners": [],
-    "players": [{
-        "index": 0,
-        "hero": "daemon",
-        "name": "Player 1"
-    }, {
-        "index": 1,
-        "hero": "daemon",
-        "name": "Player 2"
-    }],
-    "active_trumps": [{
-        "player_index": 0,
-        "player_name": "Player 1",
-        "trumps": []
-    }, {
-        "player_index": 1,
-        "player_name": "Player 2",
-        "trumps": []
-    }],
-    "hand": [{
-        "name": "King",
-        "color": "RED",
-        "description": "A card"
-    }],
-    "trumps": [{
-        "name": "Red Tower",
-        "description": "Prevents a player to move on red squares.",
-        "cost": 0,
-        "duration": 1,
-        "must_target_player": true
-    }]
+    "your_turn": true
 }

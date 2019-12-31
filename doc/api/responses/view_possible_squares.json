@@ -1,6 +1,6 @@
 {
-    "rt": "VIEW_POSSIBLE_SQUARES",
     "possible_squares": [
         "square-0-7"
-    ]
+    ],
+    "rt": "VIEW_POSSIBLE_SQUARES"
 }

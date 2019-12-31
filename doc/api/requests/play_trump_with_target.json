@@ -1,7 +1,7 @@
 {
-   "rt": "PLAY_TRUMP",
-   "play_request": {
-       "target_index": 1,
-       "name": "Tower Blue"
-   }
+    "play_request": {
+        "name": "Tower Blue",
+        "target_index": 1
+    },
+    "rt": "PLAY_TRUMP"
 }

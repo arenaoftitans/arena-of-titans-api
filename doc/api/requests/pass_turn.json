@@ -1,6 +1,6 @@
 {
-    "rt": "PLAY",
     "play_request": {
-	"pass": true
-    }
+        "pass": true
+    },
+    "rt": "PLAY"
 }

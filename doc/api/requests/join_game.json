@@ -1,6 +1,6 @@
 {
-    "rt": "INIT_GAME",
     "game_id": "the_game_id",
     "hero": "daemon",
-    "player_name": "Player 2"
+    "player_name": "Player 2",
+    "rt": "INIT_GAME"
 }

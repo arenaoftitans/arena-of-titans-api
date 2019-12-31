@@ -1,5 +1,5 @@
 {
-    "rt": "INIT_GAME",
+    "hero": "daemon",
     "player_name": "Player 1",
-    "hero": "daemon"
+    "rt": "INIT_GAME"
 }

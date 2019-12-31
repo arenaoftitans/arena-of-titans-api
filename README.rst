@@ -142,30 +142,7 @@ git hooks allow you to launch a script before or after a git command. They are v
 
 In the case you don't want to launch the hooks, append the ``--no-verify`` option to the git command you want to use.
 
-pre-commit
-++++++++++
-
-.. code:: bash
-
-   #!/usr/bin/env bash
-
-   set -e
-
-   flake8 --max-line-length 99 --exclude "conf.py" --exclude "aot/test" --ignore none aot
-   flake8 --max-line-length 99 --ignore=F811,F401 aot/test/
-
-pre-push
-++++++++
-
-This is only useful if you don't use ``npm run tdd`` during development.
-
-.. code:: bash
-
-   #!/usr/bin/env bash
-
-   set -e
-
-   pytest
+This project uses `pre-commit <https://pre-commit.com/>`__ to handle git hooks automatically. To install the hooks, run ``pre-commit install`` and ``pre-commit install --hook-type pre-push``.
 
 Commit
 ------

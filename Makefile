@@ -4,16 +4,13 @@ INSIDE_DOCKER := $(shell grep -q docker /proc/self/cgroup && echo true)
 CONTAINER_NAME ?= aot-dev-api
 
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
-FLAKE8_CMD ?= flake8
+PRECOMMIT_CMD ?= pre-commit
 PYTHON_CMD ?= python3
 PYTEST_CMD ?= pytest
 PYTEST_WATCH_CMD ?= ptw
 
 # Ci Related variables. Leave empty, set only for ci.
 CI_TESTS_TIMEOUT ?=
-
-# venv related commands
-VENV_FLAKE8_CMD ?=
 
 
 .PHONY: help
@@ -32,7 +29,6 @@ help:
 	@echo "- doc: create the doc."
 	@echo "- check: launch lint and testall."
 	@echo "- lint: launch flake8 in docker."
-	@echo "- venvlint: launch flake8 with command defined by VENV_FLAKE8_CMD on host."
 	@echo "- runlint: launch flake8."
 	@echo "- test: launch unit tests with coverage report."
 
@@ -137,14 +133,9 @@ else
 endif
 
 
-.PHONY: venvlint
-venvlint:
-	FLAKE8_CMD=${VENV_FLAKE8_CMD} make runlint
-
-
 .PHONY: runlint
 runlint:
-	${FLAKE8_CMD}
+	${PRECOMMIT_CMD} run --all
 
 
 .PHONY: testall

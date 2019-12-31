@@ -1,41 +1,50 @@
 {
-    "rt": "GAME_INITIALIZED",
+    "game_id": "the_game_id",
     "index": 0,
     "is_game_master": true,
-    "game_id": "the_game_id",
     "player_id": "the_player_id",
-    "slots": [{
-        "index": 0,
-        "player_name": "Player 1",
-        "hero": "daemon",
-        "state": "TAKEN"
-    }, {
-        "index": 1,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 2,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 3,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 4,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 5,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 6,
-        "player_name": "",
-        "state": "OPEN"
-    }, {
-        "index": 7,
-        "player_name": "",
-        "state": "OPEN"
-    }]
+    "rt": "GAME_INITIALIZED",
+    "slots": [
+        {
+            "hero": "daemon",
+            "index": 0,
+            "player_name": "Player 1",
+            "state": "TAKEN"
+        },
+        {
+            "index": 1,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 2,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 3,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 4,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 5,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 6,
+            "player_name": "",
+            "state": "OPEN"
+        },
+        {
+            "index": 7,
+            "player_name": "",
+            "state": "OPEN"
+        }
+    ]
 }

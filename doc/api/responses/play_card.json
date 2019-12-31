@@ -1,34 +1,4 @@
 {
-    "rt": "PLAY",
-    "your_turn": false,
-    "can_play_trump": true,
-    "has_won": false,
-    "on_last_line": false,
-    "rank": -1,
-    "next_player": 0,
-    "nb_turns": 1,
-    "hand": [
-        {
-            "color": "RED",
-            "name": "Bishop",
-            "description": "A card"
-        },
-        {
-            "color": "BLACK",
-            "name": "Bishop",
-            "description": "A card"
-        },
-        {
-            "color": "BLUE",
-            "name": "Knight",
-            "description": "A card"
-        },
-        {
-            "color": "RED",
-            "name": "Warrior",
-            "description": "A card"
-        }
-    ],
     "active_trumps": [
         {
             "player_index": 0,
@@ -41,5 +11,35 @@
             "trumps": []
         }
     ],
-    "elapsed_time": 30000
+    "can_play_trump": true,
+    "elapsed_time": 30000,
+    "hand": [
+        {
+            "color": "RED",
+            "description": "A card",
+            "name": "Bishop"
+        },
+        {
+            "color": "BLACK",
+            "description": "A card",
+            "name": "Bishop"
+        },
+        {
+            "color": "BLUE",
+            "description": "A card",
+            "name": "Knight"
+        },
+        {
+            "color": "RED",
+            "description": "A card",
+            "name": "Warrior"
+        }
+    ],
+    "has_won": false,
+    "nb_turns": 1,
+    "next_player": 0,
+    "on_last_line": false,
+    "rank": -1,
+    "rt": "PLAY",
+    "your_turn": false
 }

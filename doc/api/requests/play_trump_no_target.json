@@ -1,7 +1,7 @@
 {
-    "rt": "PLAY_TRUMP",
-    "play_request":{
-        "target_index": null,
-        "name": "Reinforcements"
-    }
+    "play_request": {
+        "name": "Reinforcements",
+        "target_index": null
+    },
+    "rt": "PLAY_TRUMP"
 }
