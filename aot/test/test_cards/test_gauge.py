@@ -44,7 +44,7 @@ def test_can_play(gauge):  # noqa: F811
 
 
 def test_can_play_simple_trump(gauge):  # noqa: F811
-    trump = SimpleTrump(type='type', name='name', args={'cost': 5})
+    trump = SimpleTrump(type="type", name="name", args={"cost": 5})
 
     assert not gauge.can_play_trump(trump)
 
@@ -54,13 +54,13 @@ def test_can_play_simple_trump(gauge):  # noqa: F811
 
 def test_move_all_movements_types(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch("aot.cards.trumps.gauge.a_star", new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
     card = MagicMock()
     card.is_knight = False
-    card.movements_types = ['line', 'diagonal']
+    card.movements_types = ["line", "diagonal"]
 
     gauge.move(from_, to, card)
 
@@ -76,7 +76,7 @@ def test_move_line(board):  # noqa: F811
     to = board[1, 7]
     card = MagicMock()
     card.is_knight = False
-    card.movements_types = ['line']
+    card.movements_types = ["line"]
 
     gauge.move(from_, to, card)
 
@@ -85,39 +85,39 @@ def test_move_line(board):  # noqa: F811
 
 def test_move_empty(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[])
-    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch("aot.cards.trumps.gauge.a_star", new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
     card = MagicMock()
     card.is_knight = False
-    card.movements_types = ['line', 'diagonal']
+    card.movements_types = ["line", "diagonal"]
 
     gauge.move(from_, to, card)
 
-    a_star.assert_called_once_with(from_, to, None, movements_types=['line', 'diagonal'])
+    a_star.assert_called_once_with(from_, to, None, movements_types=["line", "diagonal"])
     assert gauge.value == 10
 
 
 def test_move_max(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch("aot.cards.trumps.gauge.a_star", new=a_star)
     gauge._value = gauge.MAX_VALUE
     from_ = MagicMock()
     to = MagicMock()
     card = MagicMock()
     card.is_knight = False
-    card.movements_types = ['line', 'diagonal']
+    card.movements_types = ["line", "diagonal"]
 
     gauge.move(from_, to, card)
 
-    a_star.assert_called_once_with(from_, to, None, movements_types=['line', 'diagonal'])
+    a_star.assert_called_once_with(from_, to, None, movements_types=["line", "diagonal"])
     assert gauge.value == gauge.MAX_VALUE
 
 
 def test_move_knight(gauge, mocker):  # noqa: F811
     a_star = MagicMock(return_value=[None, None, None])
-    mocker.patch('aot.cards.trumps.gauge.a_star', new=a_star)
+    mocker.patch("aot.cards.trumps.gauge.a_star", new=a_star)
     gauge._value = 10
     from_ = MagicMock()
     to = MagicMock()
@@ -133,7 +133,7 @@ def test_move_knight(gauge, mocker):  # noqa: F811
 def test_move_wrong(gauge):  # noqa: F811
     card = MagicMock()
     card.is_knight = False
-    card.movements_types = ['line', 'diagonal']
+    card.movements_types = ["line", "diagonal"]
 
     gauge.move(None, None, card)
     assert gauge.value == 0

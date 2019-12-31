@@ -23,6 +23,6 @@ from .card import Card
 from .deck import Deck
 
 
-SimpleCard = namedtuple('SimpleCard', ['name', 'color'])
+SimpleCard = namedtuple("SimpleCard", ["name", "color"])
 
-__all__ = ['Card', 'Deck', 'SimpleCard']
+__all__ = ["Card", "Deck", "SimpleCard"]

@@ -49,10 +49,10 @@ class Gauge:
 
     def can_play_trump(self, trump):
         # We are dealing with a SimpleTrump. play_trump must be called with a trump.
-        if hasattr(trump, 'cost'):
+        if hasattr(trump, "cost"):
             cost = trump.cost
         else:
-            cost = trump.args['cost']
+            cost = trump.args["cost"]
 
         if self.value >= cost:
             return True

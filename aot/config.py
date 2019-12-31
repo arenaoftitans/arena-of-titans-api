@@ -27,19 +27,19 @@ from .utils import make_immutable
 
 class Config:
     ENV_VARS = {
-        'API_ALLOW_DEBUG',
-        'API_HOST',
-        'API_WS_PORT',
-        'CACHE_HOST',
-        'CACHE_PORT',
-        'CACHE_SIGN_KEY',
-        'CACHE_TIMEOUT',
-        'CACHE_TTL',
-        'ENV',
-        'LOG_LEVEL',
-        'ROLLBAR_ACCESS_TOKEN',
-        'ROLLBAR_LEVEL',
-        'VERSION',
+        "API_ALLOW_DEBUG",
+        "API_HOST",
+        "API_WS_PORT",
+        "CACHE_HOST",
+        "CACHE_PORT",
+        "CACHE_SIGN_KEY",
+        "CACHE_TIMEOUT",
+        "CACHE_TTL",
+        "ENV",
+        "LOG_LEVEL",
+        "ROLLBAR_ACCESS_TOKEN",
+        "ROLLBAR_LEVEL",
+        "VERSION",
     }
 
     def __init__(self):
@@ -48,52 +48,52 @@ class Config:
         self.env.read_env()
 
         print(  # noqa: T001
-            'Using overridden values for',
+            "Using overridden values for",
             self.ENV_VARS.intersection(os.environ.keys()),
             file=sys.stderr,
         )
 
     def __getitem__(self, value):
         if self._config is None:
-            raise RuntimeError('Config is not loaded, cannot access it')
+            raise RuntimeError("Config is not loaded, cannot access it.")
 
         return self._config[value]
 
     def setup_config(self):
         # API must not start in prod like nev if we don't have a sign key for cache.
         # This is for security reasons.
-        env = self.env.str('ENV', 'production')
-        cache_sign_key = self.env.str('CACHE_SIGN_KEY', '')
-        if env != 'development' and not cache_sign_key:
-            raise EnvironmentError('You must supply a CACHE_SIGN_KEY env var')
+        env = self.env.str("ENV", "production")
+        cache_sign_key = self.env.str("CACHE_SIGN_KEY", "")
+        if env != "development" and not cache_sign_key:
+            raise EnvironmentError("You must supply a CACHE_SIGN_KEY env var")
 
-        self._config = make_immutable({
-            'api': {
-                'allow_debug': self.env.bool('API_ALLOW_DEBUG', False),
-                # Binding to all interfaces, bandit don't allow this (#104)
-                'host': self.env.str('API_HOST', '0.0.0.0'),  # noqa: S104
-                'ws_port': self.env.int('API_WS_PORT', 8181),
-            },
-            'cache': {
-                'host': self.env.str('CACHE_HOST', 'aot-redis'),
-                'port': self.env.int('CACHE_PORT', 6379),
-                # Sign key must be of type bytes, not str.
-                'sign_key': cache_sign_key.encode('utf-8'),
-                'timeout': self.env.int('CACHE_TIMEOUT', 5),
-                'ttl': self.env.int('CACHE_TTL', 2 * 24 * 60 * 60),  # 2 days
-            },
-            # Amount of time to wait for pending futures before forcing them to shutdown.
-            'cleanup_timeout': self.env.int('CLEANUP_TIMEOUT', 5),
-            'env': env,
-            'log': {
-                'level': self.env.str('LOG_LEVEL', None),
-            },
-            'rollbar': {
-                'access_token': self.env.str('ROLLBAR_ACCESS_TOKEN', None),
-                'level': self.env.int('ROLLBAR_LEVEL', 30),
-            },
-            'version': self.env.str('VERSION', 'latest'),
-        })
+        self._config = make_immutable(
+            {
+                "api": {
+                    "allow_debug": self.env.bool("API_ALLOW_DEBUG", False),
+                    # Binding to all interfaces, bandit don't allow this (#104)
+                    "host": self.env.str("API_HOST", "0.0.0.0"),  # noqa: S104
+                    "ws_port": self.env.int("API_WS_PORT", 8181),
+                },
+                "cache": {
+                    "host": self.env.str("CACHE_HOST", "aot-redis"),
+                    "port": self.env.int("CACHE_PORT", 6379),
+                    # Sign key must be of type bytes, not str.
+                    "sign_key": cache_sign_key.encode("utf-8"),
+                    "timeout": self.env.int("CACHE_TIMEOUT", 5),
+                    "ttl": self.env.int("CACHE_TTL", 2 * 24 * 60 * 60),  # 2 days
+                },
+                # Amount of time to wait for pending futures before forcing them to shutdown.
+                "cleanup_timeout": self.env.int("CLEANUP_TIMEOUT", 5),
+                "env": env,
+                "log": {"level": self.env.str("LOG_LEVEL", None)},
+                "rollbar": {
+                    "access_token": self.env.str("ROLLBAR_ACCESS_TOKEN", None),
+                    "level": self.env.int("ROLLBAR_LEVEL", 30),
+                },
+                "version": self.env.str("VERSION", "latest"),
+            }
+        )
 
 
 config = Config()

@@ -17,9 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from unittest.mock import (
-    MagicMock,
-)
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -242,7 +240,7 @@ def test_play_card_with_special_actions(player):  # noqa: F811
     start_square = player.current_square
     card = player.deck.first_card_in_hand
     card._special_actions = TrumpList()
-    card._special_actions.append(SimpleTrump(name='action', type=None, args=None))
+    card._special_actions.append(SimpleTrump(name="action", type=None, args=None))
 
     assert player.play_card(card, (3, 1), check_move=False)
 
@@ -254,7 +252,7 @@ def test_play_card_with_special_actions(player):  # noqa: F811
     assert start_square.x != end_square.x and start_square.y != end_square.y
     assert 3 == end_square.x
     assert 1 == end_square.y
-    assert player._special_actions_names == ['action']
+    assert player._special_actions_names == ["action"]
     assert player._special_actions is card._special_actions
     assert not player._complete_action.called
     assert player.special_action_start_time > 0
@@ -262,35 +260,35 @@ def test_play_card_with_special_actions(player):  # noqa: F811
 
 def test_has_special_actions(player):  # noqa: F811
     actions = TrumpList()
-    actions.append(SimpleTrump(name='action', type=None, args=None))
+    actions.append(SimpleTrump(name="action", type=None, args=None))
     player.special_actions = actions
 
     assert player.has_special_actions
-    assert player.name_next_special_action == 'action'
+    assert player.name_next_special_action == "action"
     assert player.has_special_actions
 
-    player._special_actions_names.remove('action')
+    player._special_actions_names.remove("action")
     assert not player.has_special_actions
 
 
 def test_play_special_action(player):  # noqa: F811
     action = MagicMock()
-    action.name = 'Action'
+    action.name = "Action"
     target = MagicMock()
-    player._special_actions_names = {'action'}
-    kwargs = {'square': 'square-0-0'}
+    player._special_actions_names = {"action"}
+    kwargs = {"square": "square-0-0"}
 
     player.play_special_action(action, target=target, action_args=kwargs)
 
-    action.affect.assert_called_once_with(player=target, ** kwargs)
+    action.affect.assert_called_once_with(player=target, **kwargs)
     assert not player.has_special_actions
 
 
 def test_play_special_action_no_args(player):  # noqa: F811
     action = MagicMock()
-    action.name = 'action'
+    action.name = "action"
     target = MagicMock()
-    player._special_actions_names = {'action'}
+    player._special_actions_names = {"action"}
 
     player.play_special_action(action, target=target)
 
@@ -299,11 +297,11 @@ def test_play_special_action_no_args(player):  # noqa: F811
 
 
 def test_cancel_special_action(player):  # noqa: F811
-    player._special_actions_names = ['action', 'action2']
+    player._special_actions_names = ["action", "action2"]
 
-    player.cancel_special_action(SimpleTrump(name='action', type=None, args=None))
+    player.cancel_special_action(SimpleTrump(name="action", type=None, args=None))
 
-    assert player._special_actions_names == ['action2']
+    assert player._special_actions_names == ["action2"]
 
 
 def test_reach_aim(player):  # noqa: F811
@@ -400,9 +398,9 @@ def test_modify_card_colors(player):  # noqa: F811
     player._deck = MagicMock()
     filter_ = lambda x: True  # noqa: E731
 
-    player.modify_card_colors({'BLUE'}, filter_=filter_)
+    player.modify_card_colors({"BLUE"}, filter_=filter_)
 
-    player._deck.modify_colors.assert_called_once_with({'BLUE'}, filter_=filter_)
+    player._deck.modify_colors.assert_called_once_with({"BLUE"}, filter_=filter_)
 
 
 def test_modify_card_number_moves(player):  # noqa: F811
@@ -417,15 +415,15 @@ def test_modify_card_number_moves(player):  # noqa: F811
 def test_modify_trump_duration(player):  # noqa: F811
     player._revert_to_default = MagicMock()
     tower = MagicMock()
-    tower.name = 'Tower'
+    tower.name = "Tower"
     tower.duration = 2
     tower.temporary = False
     blizzard = MagicMock()
-    blizzard.name = 'Blizzard'
+    blizzard.name = "Blizzard"
     blizzard.duration = 4
     blizzard.temporary = False
     ram = MagicMock()
-    ram.name = 'Ram'
+    ram.name = "Ram"
     ram.duration = 0
     ram.temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
@@ -449,21 +447,21 @@ def test_modify_trump_duration(player):  # noqa: F811
 def test_modify_trump_duration_with_filter(player):  # noqa: F811
     player._revert_to_default = MagicMock()
     tower = MagicMock()
-    tower.name = 'Tower'
+    tower.name = "Tower"
     tower.duration = 2
     tower.temporary = False
     blizzard = MagicMock()
-    blizzard.name = 'Blizzard'
+    blizzard.name = "Blizzard"
     blizzard.duration = 4
     blizzard.temporary = False
     ram = MagicMock()
-    ram.name = 'Ram'
+    ram.name = "Ram"
     ram.duration = 0
     ram.temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
     player._affecting_trumps = [tower, blizzard, ram]
 
-    player.modify_affecting_trump_durations(-2, filter_=lambda trump: trump.name == 'Tower')
+    player.modify_affecting_trump_durations(-2, filter_=lambda trump: trump.name == "Tower")
 
     assert tower.duration == 0
     assert blizzard.duration == 4
@@ -481,22 +479,22 @@ def test_get_trump(player):  # noqa: F811
     with pytest.raises(IndexError):
         assert player.get_trump(None)
     with pytest.raises(IndexError):
-        assert player.get_trump('wrong_trump') is None
-    assert isinstance(player.get_trump('Reinforcements'), Trump)
+        assert player.get_trump("wrong_trump") is None
+    assert isinstance(player.get_trump("Reinforcements"), Trump)
 
 
 def test_trumps_property(player):  # noqa: F811
     assert len(player.trumps) == 4
     trump = player.trumps[0]
-    assert 'name' in trump
-    assert 'description' in trump
-    assert 'cost' in trump
-    assert 'duration' in trump
-    assert 'must_target_player' in trump
+    assert "name" in trump
+    assert "description" in trump
+    assert "cost" in trump
+    assert "duration" in trump
+    assert "must_target_player" in trump
 
 
 def test_affecting_trumps(player):  # noqa: F811
-    trump = player.get_trump('Reinforcements')
+    trump = player.get_trump("Reinforcements")
     trump.affect = MagicMock()
     trump.consume = MagicMock()
     player._affect_by(trump)
@@ -509,7 +507,7 @@ def test_affecting_trumps(player):  # noqa: F811
 
 def test_play_trump(player):  # noqa: F811
     player.init_turn()
-    trump = player.get_trump('Reinforcements')
+    trump = player.get_trump("Reinforcements")
     trump.affect = MagicMock()
 
     player.play_trump(trump, target=player)
@@ -533,9 +531,9 @@ def test_play_trump_target_type_board(player):  # noqa: F811
     player.init_turn()
     trump = ChangeSquare()
     target = {
-        'x': 0,
-        'y': 0,
-        'color': 'blue',
+        "x": 0,
+        "y": 0,
+        "color": "blue",
     }
 
     assert player._board[0, 0].color == Color.RED
@@ -549,7 +547,7 @@ def test_play_trump_target_type_board(player):  # noqa: F811
 def test_number_affecting_trumps(player):  # noqa: F811
     # Check that the number of played trumps is only increased if the targeted
     # player can be affected.
-    trump = player.get_trump('Reinforcements')
+    trump = player.get_trump("Reinforcements")
     player._affect_by(trump)
     player._affect_by(trump)
     player._affect_by(trump)
@@ -568,11 +566,12 @@ def test_number_affecting_trumps(player):  # noqa: F811
 
 
 def test_trump_affect_raises(player, mocker):  # noqa: F811
-    trump = player.get_trump('Reinforcements')
+    trump = player.get_trump("Reinforcements")
     player._can_play = True
 
     def affect(player):
         raise TrumpHasNoEffect
+
     trump.affect = affect
 
     with pytest.raises(TrumpHasNoEffect):
@@ -582,7 +581,7 @@ def test_trump_affect_raises(player, mocker):  # noqa: F811
 
 
 def test_number_gauge_empty(player):  # noqa: F811
-    trump = player.get_trump('Reinforcements')
+    trump = player.get_trump("Reinforcements")
     player._gauge.can_play_trump = MagicMock(return_value=False)
     player.init_turn()
 
@@ -618,7 +617,7 @@ def test_still_in_game_player_not_connected_may_come_back(player):  # noqa: F811
 
 def test_still_in_game_player_not_connected_wont_come_back(player):  # noqa: F811
     player.is_connected = False
-    player._number_turns_passed_not_connected = float('inf')
+    player._number_turns_passed_not_connected = float("inf")
     assert not player.still_in_game
 
 

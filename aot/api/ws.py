@@ -53,7 +53,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     _cache = None
     _loop = None
     _message = None
-    _rt = ''
+    _rt = ""
 
     @property
     @abstractmethod
@@ -97,8 +97,8 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     async def sendMessage(self, message):  # pragma: no cover  # noqa: N802
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
-        self.LOGGER.debug(f'Sending to {self.id}: {message}')
-        message = message.encode('utf-8')
+        self.LOGGER.debug(f"Sending to {self.id}: {message}")
+        message = message.encode("utf-8")
         if isinstance(message, bytes):
             # Must not use await here: sendMessage in the base class is not a coroutine.
             super().sendMessage(message)
@@ -111,7 +111,7 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
         self.LOGGER.info(
-            f'WS n°{self.id} was closed cleanly? {was_clean} with code {code} and reason {reason}',
+            f"WS n°{self.id} was closed cleanly? {was_clean} with code {code} and reason {reason}",
         )
 
         if self._cache is not None:
@@ -131,19 +131,16 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
 
     async def _free_slot(self):
         slots = await self._cache.get_slots()
-        slots = [slot for slot in slots if slot.get('player_id', None) == self.id]
+        slots = [slot for slot in slots if slot.get("player_id", None) == self.id]
         if slots:
             slot = slots[0]
-            name = slot.get('player_name', None)
+            name = slot.get("player_name", None)
             self.LOGGER.debug(
-                f'Game n°{self._game_id}: slot for player n°{self.id} ({name}) was freed',
+                f"Game n°{self._game_id}: slot for player n°{self.id} ({name}) was freed",
             )
             self._message = {
-                'rt': RequestTypes.SLOT_UPDATED,
-                'slot': {
-                    'index': slot['index'],
-                    'state': 'OPEN',
-                },
+                "rt": RequestTypes.SLOT_UPDATED,
+                "slot": {"index": slot["index"], "state": "OPEN"},
             }
             await self._modify_slots()
 
@@ -152,8 +149,8 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
             if game:
                 player = game.get_player_by_id(self.id)
                 self.LOGGER.debug(
-                    f'Game n°{self._game_id}: player n°{self.id} ({player.name}) was '
-                    'disconnected from the game',
+                    f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was "
+                    "disconnected from the game",
                 )
                 if not game.is_over and player == game.active_player:
                     player.is_connected = False
@@ -171,30 +168,29 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
 
     @property
     def _is_reconnecting(self):
-        return self._rt == RequestTypes.INIT_GAME and \
-            'player_id' in self._message and \
-            'game_id' in self._message
+        return (
+            self._rt == RequestTypes.INIT_GAME
+            and "player_id" in self._message
+            and "game_id" in self._message
+        )
 
     @property
     async def _can_reconnect(self):
-        if self._message['player_id'] in self._clients:
-            raise AotFatalErrorToDisplay('player_already_connected')
+        if self._message["player_id"] in self._clients:
+            raise AotFatalErrorToDisplay("player_already_connected")
 
         return await self._cache.is_member_game(
-            self._message['game_id'],
-            self._message['player_id'],
+            self._message["game_id"], self._message["player_id"],
         )
 
     async def _reconnect(self):
-        self.id = self._message['player_id']
-        self._game_id = self._message['game_id']
+        self.id = self._message["player_id"]
+        self._game_id = self._message["game_id"]
         self._cache.init(game_id=self._game_id, player_id=self.id)
         self._clients[self.id] = self
 
         if self.id in self._disconnect_timeouts:
-            self.LOGGER.debug(
-                f'Game n°{self._game_id}: cancel disconnect timeout for {self.id}',
-            )
+            self.LOGGER.debug(f"Game n°{self._game_id}: cancel disconnect timeout for {self.id}",)
             self._disconnect_timeouts[self.id].cancel()
 
         message = None
@@ -226,8 +222,8 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
     def _reconnect_to_game(self, game):
         player = [player for player in game.players if player and player.id == self.id][0]
         self.LOGGER.debug(
-            f'Game n°{self._game_id}: player n°{self.id} ({player.name}) was reconnected '
-            f'to the game',
+            f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was reconnected "
+            f"to the game",
         )
         message = self._get_play_message(player, game)
 
@@ -237,30 +233,36 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         else:
             special_action = None
 
-        message['reconnect'] = {
-            'players': [{
-                'index': player.index,
-                'name': player.name,
-                'square': player.current_square,
-                'hero': player.hero,
-            } if player else None for player in game.players],
-            'trumps': player.trumps,
-            'power': player.power,
-            'index': player.index,
-            'last_action': last_action,
-            'special_action_name': special_action,
-            'special_action_elapsed_time': get_time() - player.special_action_start_time,
-            'history': self._get_history(game),
-            'game_over': game.is_over,
-            'winners': game.winners,
+        message["reconnect"] = {
+            "players": [
+                {
+                    "index": player.index,
+                    "name": player.name,
+                    "square": player.current_square,
+                    "hero": player.hero,
+                }
+                if player
+                else None
+                for player in game.players
+            ],
+            "trumps": player.trumps,
+            "power": player.power,
+            "index": player.index,
+            "last_action": last_action,
+            "special_action_name": special_action,
+            "special_action_elapsed_time": get_time() - player.special_action_start_time,
+            "history": self._get_history(game),
+            "game_over": game.is_over,
+            "winners": game.winners,
         }
 
         return message
 
     def _get_history(self, game):
         return [
-            [self._get_action_message(action) for action in player.history]
-            if player else None for player in game.players]
+            [self._get_action_message(action) for action in player.history] if player else None
+            for player in game.players
+        ]
 
     async def _send_all(self, message, excluded_players=None):  # pragma: no cover
         if excluded_players is None:
@@ -289,29 +291,28 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         if not isinstance(error, AotErrorToDisplay):
             payload = self._message if self._message else None
             payload = json.dumps(payload)
-            self.LOGGER.error(message['error'], extra_data={'payload': payload})
+            self.LOGGER.error(message["error"], extra_data={"payload": payload})
 
         await self.sendMessage(message)
 
     async def _send_debug(self, message):  # pragma: no cover
-        await self._send_all({'debug': message})
+        await self._send_all({"debug": message})
 
     def _format_error(self, error):
-        message_key = 'error_to_display' if isinstance(error, AotErrorToDisplay) else 'error'
+        message_key = "error_to_display" if isinstance(error, AotErrorToDisplay) else "error"
         # Some error messages to display can be formated with infos from the exception
         # to give extra information to the user.
         raw_message = str(error)
-        formatted_message = self._error_messages.get(raw_message, raw_message)\
-            .format(**error.infos)
+        formatted_message = self._error_messages.get(raw_message, raw_message).format(**error.infos)
 
         formatted_error = {
-            'is_fatal': False,
+            "is_fatal": False,
             message_key: formatted_message,
         }
         if error.infos:
-            formatted_error['extra_data'] = error.infos
+            formatted_error["extra_data"] = error.infos
         if isinstance(error, AotFatalError):
-            formatted_error['is_fatal'] = True
+            formatted_error["is_fatal"] = True
 
         return formatted_error
 

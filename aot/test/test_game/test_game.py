@@ -41,11 +41,11 @@ def test_eq(board, player):  # noqa: F811
     assert not game1 == other_obj
     assert game1 != game2
 
-    game1.game_id = 'game-id'
-    game2.game_id = 'game-id'
+    game1.game_id = "game-id"
+    game2.game_id = "game-id"
     assert game1 == game2
 
-    game2.game_id = 'other-game-id'
+    game2.game_id = "other-game-id"
     assert game1 != game2
 
 
@@ -246,9 +246,9 @@ def test_can_move(game):  # noqa: F811
 def test_actions(game):  # noqa: F811
     assert len(game._actions) == 0
     assert game.last_action is None
-    game.add_action('An action')
+    game.add_action("An action")
     assert len(game._actions) == 1
-    assert game.last_action == 'An action'
+    assert game.last_action == "An action"
 
 
 def test_disconnect(game):  # noqa: F811
@@ -270,7 +270,7 @@ def test_has_enough_players_to_continue(game):  # noqa: F811
     game.players[1]._has_won = True
     for player in game.players[2:]:  # noqa
         player.is_connected = False
-        player._number_turns_passed_not_connected = float('inf')
+        player._number_turns_passed_not_connected = float("inf")
 
     assert not game._has_enough_players_to_continue()
 
@@ -331,8 +331,8 @@ def test_play_auto(game, mocker):  # noqa: F811
     game.discard = MagicMock()
     game.play_card = MagicMock()
     game.complete_special_actions = MagicMock()
-    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
-    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+    mocker.patch("aot.game.game.find_move_to_play", side_effect=find_move_to_play)
+    mocker.patch("aot.game.game.find_cheapest_card", side_effect=find_cheapeast_card)
 
     game.play_auto()
 
@@ -351,14 +351,14 @@ def test_play_auto(game, mocker):  # noqa: F811
 
 def test_play_auto_card_with_special_action(game, mocker):  # noqa: F811
     card = game.active_player.hand[0]
-    card._special_actions = ['action']
+    card._special_actions = ["action"]
     find_move_to_play = MagicMock(return_value=(card, None))
     find_cheapeast_card = MagicMock()
     game.discard = MagicMock()
     game.play_card = MagicMock()
     game.complete_special_actions = MagicMock()
-    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
-    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+    mocker.patch("aot.game.game.find_move_to_play", side_effect=find_move_to_play)
+    mocker.patch("aot.game.game.find_cheapest_card", side_effect=find_cheapeast_card)
 
     game.play_auto()
 
@@ -384,8 +384,8 @@ def test_play_auto_on_last_line(game, mocker):  # noqa: F811
     game.discard = MagicMock()
     game.play_card = MagicMock()
     game.pass_turn = MagicMock()
-    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
-    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+    mocker.patch("aot.game.game.find_move_to_play", side_effect=find_move_to_play)
+    mocker.patch("aot.game.game.find_cheapest_card", side_effect=find_cheapeast_card)
 
     game.play_auto()
 
@@ -400,12 +400,12 @@ def test_play_auto_no_moves_when_starting_turn(game, mocker):  # noqa: F811
     card = game.active_player.hand[0]
     find_move_to_play = MagicMock(return_value=(card, None))
     find_cheapeast_card = MagicMock()
-    game.active_player._number_moves_played = float('inf')
+    game.active_player._number_moves_played = float("inf")
     game.discard = MagicMock()
     game.play_card = MagicMock()
     game.pass_turn = MagicMock()
-    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
-    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+    mocker.patch("aot.game.game.find_move_to_play", side_effect=find_move_to_play)
+    mocker.patch("aot.game.game.find_cheapest_card", side_effect=find_cheapeast_card)
 
     game.play_auto()
 
@@ -421,8 +421,8 @@ def test_play_auto_no_card_found(game, mocker):  # noqa: F811
     find_cheapeast_card = MagicMock(return_value=game.active_player.hand[0])
     game.discard = MagicMock()
     game.play_card = MagicMock()
-    mocker.patch('aot.game.game.find_move_to_play', side_effect=find_move_to_play)
-    mocker.patch('aot.game.game.find_cheapest_card', side_effect=find_cheapeast_card)
+    mocker.patch("aot.game.game.find_move_to_play", side_effect=find_move_to_play)
+    mocker.patch("aot.game.game.find_cheapest_card", side_effect=find_cheapeast_card)
 
     game.play_auto()
 

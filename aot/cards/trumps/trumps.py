@@ -35,9 +35,9 @@ from ...board import (
 class Trump(metaclass=ABCMeta):
     target_type = TargetTypes.player
 
-    _name = ''
+    _name = ""
     _duration = 0
-    _description = ''
+    _description = ""
     _must_target_player = False
     _initiator = None
     #: List of trumps names that cannot modify this trump.
@@ -48,9 +48,9 @@ class Trump(metaclass=ABCMeta):
         self,
         duration=0,
         cost=5,
-        description='',
+        description="",
         must_target_player=False,
-        name='',
+        name="",
         color=None,
         temporary=False,
         prevent_trumps_to_modify=None,
@@ -94,8 +94,10 @@ class Trump(metaclass=ABCMeta):
         self._duration -= 1
 
     def __str__(self):  # pragma: no cover
-        return f'{type(self).__name__}(duration={self.duration}, cost={self.cost}, '\
-            f'must_target_player={self.must_target_player}, name={self.name})'
+        return (
+            f"{type(self).__name__}(duration={self.duration}, cost={self.cost}, "
+            f"must_target_player={self.must_target_player}, name={self.name})"
+        )
 
     def __repr___(self):  # pragma: no cover
         return str(self)
@@ -118,14 +120,14 @@ class Trump(metaclass=ABCMeta):
 
     @property
     def duration(self):  # pragma: no cover
-        if self._duration == float('inf'):
+        if self._duration == float("inf"):
             return
         return self._duration
 
     @duration.setter
     def duration(self, value):
         if not isinstance(value, int):
-            raise ValueError('Duration must be an int')
+            raise ValueError("Duration must be an int")
 
         self._duration = value
 
@@ -157,9 +159,9 @@ class ModifyNumberMoves(Trump):
         self,
         cost=5,
         delta_moves=0,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         color=None,
         must_target_player=False,
         **kwargs,
@@ -190,9 +192,9 @@ class ModifyCardColors(Trump):
         card_names=None,
         cost=5,
         add_colors=None,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         color=None,
         must_target_player=False,
         **kwargs,
@@ -213,6 +215,7 @@ class ModifyCardColors(Trump):
     def affect(self, *, player):
         filter_ = None
         if self._card_names is not None:
+
             def filter_(card: Card):
                 return card.name in self._card_names
 
@@ -224,12 +227,9 @@ class CannotBeAffectedByTrumps(Trump):
     _trump_names = []
 
     def __init__(
-        self,
-        *,
-        trump_names,
-        **kwargs,
+        self, *, trump_names, **kwargs,
     ):
-        '''Prevent the given trumps to have an effect.'''
+        """Prevent the given trumps to have an effect."""
         super().__init__(**kwargs)
         self._trump_names = trump_names
 
@@ -246,10 +246,7 @@ class CannotBeAffectedByTrumps(Trump):
         # but ``self.name in trump._prevent_trumps_to_modify`` says
         # the trump has an effect nonetheless.
         # So we randomly pick an outcome.
-        if (
-            trump.name in self._trump_names
-            and self.name in trump._prevent_trumps_to_modify
-        ):
+        if trump.name in self._trump_names and self.name in trump._prevent_trumps_to_modify:
             return random.choice((False, True))  # noqa: S311 (random generator)
 
         if trump.name in self._trump_names:
@@ -261,13 +258,12 @@ class ChangeSquare(Trump):
     target_type = TargetTypes.board
 
     def __init__(
-        self,
-        **kwargs,
+        self, **kwargs,
     ):
-        '''Change a square.
+        """Change a square.
 
         We currently only support changing the color.
-        '''
+        """
         super().__init__(**kwargs)
 
     @return_trump_infos
@@ -285,9 +281,9 @@ class ModifyCardNumberMoves(Trump):
         card_names=None,
         cost=5,
         delta_moves=0,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         color=None,
         must_target_player=False,
         **kwargs,
@@ -308,6 +304,7 @@ class ModifyCardNumberMoves(Trump):
     def affect(self, *, player):
         filter_ = None
         if self._card_names is not None:
+
             def filter_(card: Card):
                 return card.name in self._card_names
 
@@ -324,9 +321,9 @@ class AddSpecialActionsToCard(Trump):
         card_names=None,
         special_actions=None,
         cost=5,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         color=None,
         must_target_player=False,
         **kwargs,
@@ -341,19 +338,17 @@ class AddSpecialActionsToCard(Trump):
             **kwargs,
         )
         from aot.cards.trumps import TrumpList, SimpleTrump
+
         self._card_names = card_names
         self._special_actions = TrumpList()
         for action in special_actions:
-            type_ = action['parameters']['type']
-            del action['parameters']['type']
-            action.update(action['parameters'])
-            del action['parameters']
-            self._special_actions.append(SimpleTrump(
-                type=type_,
-                name=action['name'],
-                color=None,
-                args=action,
-            ))
+            type_ = action["parameters"]["type"]
+            del action["parameters"]["type"]
+            action.update(action["parameters"])
+            del action["parameters"]
+            self._special_actions.append(
+                SimpleTrump(type=type_, name=action["name"], color=None, args=action,)
+            )
 
     @return_trump_infos
     def affect(self, *, player):
@@ -366,9 +361,9 @@ class ModifyTrumpDurations(Trump):
         trump_names=None,
         cost=5,
         delta_duration=0,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         color=None,
         must_target_player=False,
         temporary=False,
@@ -390,10 +385,13 @@ class ModifyTrumpDurations(Trump):
     @return_trump_infos
     def affect(self, *, player):
         if self._trump_names is None:
-            def filter_(trump: 'Trump'):
+
+            def filter_(trump: "Trump"):
                 return False
+
         else:
-            def filter_(trump: 'Trump'):
+
+            def filter_(trump: "Trump"):
                 return (
                     trump is not self
                     and trump.name in self._trump_names
@@ -407,8 +405,7 @@ class ModifyTrumpDurations(Trump):
                 raise TrumpHasNoEffect
 
             player.modify_affecting_trump_durations(
-                self._delta_duration,
-                filter_=filter_,
+                self._delta_duration, filter_=filter_,
             )
 
 
@@ -417,13 +414,9 @@ class PreventTrumpAction(Trump):
     _enable_for_trumps: Tuple[str] = ()
 
     def __init__(
-        self,
-        *,
-        prevent_for_trumps: List[str],
-        enable_for_trumps: List[str],
-        **kwargs,
+        self, *, prevent_for_trumps: List[str], enable_for_trumps: List[str], **kwargs,
     ):
-        '''Prevent the normal behavior of a trump.
+        """Prevent the normal behavior of a trump.
 
         For instance with the power *Impassable*, the towers and fortresses played are immune
         to the *Ram* trump. This trump is meant to make this possible.
@@ -433,7 +426,7 @@ class PreventTrumpAction(Trump):
                 ``enable_for_trumps``
             enable_for_trumps: List of trump names to modify. Only the trumps with these names
                 will be modified and cannot be affected by ``prevent_trumps``.
-        '''
+        """
         super().__init__(**kwargs)
         self._prevent_for_trumps = tuple(prevent_for_trumps)
         self._enable_for_trumps = tuple(enable_for_trumps)
@@ -442,7 +435,7 @@ class PreventTrumpAction(Trump):
     def affect(self, *, player):
         for trump in player.available_trumps:
             if trump.name in self._enable_for_trumps:
-                trump.args['prevent_trumps_to_modify'] = self._prevent_for_trumps
+                trump.args["prevent_trumps_to_modify"] = self._prevent_for_trumps
 
 
 class RemoveColor(Trump):
@@ -453,9 +446,9 @@ class RemoveColor(Trump):
         color=None,
         colors=None,
         cost=5,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         must_target_player=False,
         **kwargs,
     ):
@@ -488,9 +481,9 @@ class Teleport(Trump):
         color=None,
         colors=None,
         cost=10,
-        description='',
+        description="",
         duration=0,
-        name='',
+        name="",
         must_target_player=False,
         **kwargs,
     ):
@@ -513,8 +506,8 @@ class Teleport(Trump):
             board,
             color=next(iter(self._colors)),
             complementary_colors=self._colors,
-            name='Teleportation',
-            movements_types=['line', 'diagonal'],
+            name="Teleportation",
+            movements_types=["line", "diagonal"],
             number_movements=distance,
         )
 

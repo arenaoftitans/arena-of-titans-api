@@ -19,10 +19,10 @@
 
 
 def a_star(start, goal, board, movements_types=None):
-    '''A* algorithom to find shortest path from start to goal.
+    """A* algorithom to find shortest path from start to goal.
 
     Take and adapted from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
-    '''
+    """
     # The set of nodes already evaluated
     closed_set = set()
     # The set of currently discovered nodes still to be evaluated.
@@ -70,12 +70,12 @@ def a_star(start, goal, board, movements_types=None):
 
 
 def heuristic_cost_estimate(start, goal, board):
-    '''Give an estimation of the cost required to go from start to goal.
+    """Give an estimation of the cost required to go from start to goal.
 
     The cost is calculated as follows:
 
     We compute the absolute difference between the two abscissas and the two ordinates.
-    '''
+    """
     xx = abs(start.x - goal.x)
     yy = abs(start.y - goal.y)
     if xx == yy:
@@ -89,7 +89,7 @@ def heuristic_cost_estimate(start, goal, board):
 
 
 def get_node_lowest_fscore(fscore, open_set):
-    score_min = float('inf')
+    score_min = float("inf")
     square_min = None
     for square, score in fscore.items():
         if score < score_min and square in open_set:

@@ -44,11 +44,11 @@ from ...cards.trumps.exceptions import TrumpHasNoEffect
 
 
 class VoidPower(Power):
-    '''Sample power to be used in tests.
+    """Sample power to be used in tests.
 
-    It exists to tests common behavior to all power. We cannot instansiate Power directly
+    It exists to tests common behavior to all power. We cannot instantiate Power directly
     because it is abstract.
-    '''
+    """
 
     def affect(self, player):  # noqa: F811
         raise NotImplementedError
@@ -70,24 +70,24 @@ def test_create_passive_power():
 
 def test_enable():
     trump = MagicMock()
-    trump.args = {'cost': 1}
+    trump.args = {"cost": 1}
     power = VoidPower(trump_cost_delta=5, passive=True)
 
     power.setup([trump])
 
-    assert trump.args == {'cost': 6}
+    assert trump.args == {"cost": 6}
 
 
 def test_modify_card_colors(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
-    power = ModifyCardColorsPower(add_colors=['BLACK'], passive=True)
+    power = ModifyCardColorsPower(add_colors=["BLACK"], passive=True)
 
     power.affect(player=player)
 
     assert power.passive
     assert power.duration is None
     assert len(power._colors) == 1
-    player.modify_card_colors.assert_called_once_with({'BLACK'}, filter_=None)
+    player.modify_card_colors.assert_called_once_with({"BLACK"}, filter_=None)
 
 
 def test_modify_number_moves(player):  # noqa: F811
@@ -103,96 +103,78 @@ def test_modify_number_moves(player):  # noqa: F811
 
 
 def test_prevent_trump_action(player, player2, mocker):  # noqa: F811
-    '''Test how PreventTrumpAction and CannotBeAffectedByTrumps works together.
+    """Test how PreventTrumpAction and CannotBeAffectedByTrumps works together.
 
     GIVEN: a first player with Impassible power which prevents towers to be destroyed.
     GIVEN: a second player with Force of Nature which automatically destroys towers
     WHEN: the first player plays a tower against the second player
     THEN: the result is random.
-    '''
+    """
     # Setup player 1.
     impassable_power = SimpleTrump(
-        type='PreventTrumpAction',
-        name='Impassable',
+        type="PreventTrumpAction",
+        name="Impassable",
         args={
-            'prevent_for_trumps': ['Force of nature'],
-            'enable_for_trumps': ['Tower'],
-            'name': 'Impassable',
-            'passive': True,
+            "prevent_for_trumps": ["Force of nature"],
+            "enable_for_trumps": ["Tower"],
+            "name": "Impassable",
+            "passive": True,
         },
     )
-    player._available_trumps = TrumpList([
-        SimpleTrump(
-            type='RemoveColor',
-            name='Tower',
-            args={
-                'cost': 1,
-                'name': 'Tower',
-            },
-        ),
-    ])
+    player._available_trumps = TrumpList(
+        [SimpleTrump(type="RemoveColor", name="Tower", args={"cost": 1, "name": "Tower"})]
+    )
     player._setup_power(impassable_power)
     player._enable_passive_power()
-    trump_to_play = player._available_trumps['Tower', None]
+    trump_to_play = player._available_trumps["Tower", None]
     player._can_play = True
     # We will play many trumps here and we don't care.
-    player.MAX_NUMBER_TRUMPS_PLAYED = float('inf')
+    player.MAX_NUMBER_TRUMPS_PLAYED = float("inf")
 
     # Setup player 2
     force_of_nature_power = SimpleTrump(
-        type='CannotBeAffectedByTrumps',
-        name='Force of nature',
-        args={
-            'name': 'Force of nature',
-            'passive': True,
-            'trump_names': ['Tower'],
-        },
+        type="CannotBeAffectedByTrumps",
+        name="Force of nature",
+        args={"name": "Force of nature", "passive": True, "trump_names": ["Tower"]},
     )
     player2._setup_power(force_of_nature_power)
 
     # In this case, whether the trump has an effect or not is random.
     # We mock the choice function to make it stable.
-    mocker.patch('aot.cards.trumps.trumps.random.choice', return_value=False)
+    mocker.patch("aot.cards.trumps.trumps.random.choice", return_value=False)
     with pytest.raises(TrumpHasNoEffect):
         player.play_trump(trump_to_play, target=player2)
 
-    mocker.patch('aot.cards.trumps.trumps.random.choice', return_value=True)
+    mocker.patch("aot.cards.trumps.trumps.random.choice", return_value=True)
     # Must not raise.
     player.play_trump(trump_to_play, target=player2)
 
 
 def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
-    '''Test that we can use an active power (or trump) to prevent any trump action.
+    """Test that we can use an active power (or trump) to prevent any trump action.
 
     GIVEN: a first player with "Night mist" which prevents any trump to affect it.
     GIVEN: a second player with a trump.
     WHEN: the second player tries to play a trump against the first player.
     THEN: the trump has no effect.
-    '''
+    """
     # Setup player 1.
     night_mist = CannotBeAffectedByTrumps(
-        name='Night Mist',
-        must_target_player=False,
-        passive=False,
-        trump_names=None,
+        name="Night Mist", must_target_player=False, passive=False, trump_names=None,
     )
     player._can_play = True
     player.play_trump(night_mist, target=player)
     # We will play many trumps here and we don't care.
-    player.MAX_NUMBER_TRUMPS_PLAYED = float('inf')
+    player.MAX_NUMBER_TRUMPS_PLAYED = float("inf")
 
     # Setup player 2.
     a_trump = SimpleTrump(
-        type='RemoveColor',
-        name='Tower',
-        args={
-            'cost': 1,
-            'must_target_player': True,
-            'name': 'Tower',
-        },
+        type="RemoveColor",
+        name="Tower",
+        args={"cost": 1, "must_target_player": True, "name": "Tower"},
     )
     player2._available_trumps = TrumpList([a_trump])
-    trump_to_play = player2._available_trumps['Tower', None]
+    trump_to_play = player2._available_trumps["Tower", None]
     player2._can_play = True
 
     with pytest.raises(TrumpHasNoEffect):
@@ -203,28 +185,22 @@ def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
 
 
 def test_cannot_be_selected_active_power_with_special_action(player, player2):  # noqa: F811
-    '''Test that we can use an active power (or trump) to prevent any special action.
+    """Test that we can use an active power (or trump) to prevent any special action.
 
     GIVEN: a first player with "Night mist" which prevents any trump to affect it.
     GIVEN: a second player with a special action.
     WHEN: the second player tries to play the special action against the first player.
     THEN: the special action has no effect.
-    '''
+    """
     # Setup player 1.
     night_mist = CannotBeAffectedByTrumps(
-        name='Night Mist',
-        must_target_player=False,
-        passive=False,
-        trump_names=None,
+        name="Night Mist", must_target_player=False, passive=False, trump_names=None,
     )
     player._can_play = True
     player.play_trump(night_mist, target=player)
 
     # Setup player 2.
-    action = Teleport(
-        name='Teleport',
-        must_target_player=True,
-    )
+    action = Teleport(name="Teleport", must_target_player=True,)
 
     with pytest.raises(TrumpHasNoEffect):
         player2.play_special_action(action, target=player)
@@ -257,19 +233,19 @@ def test_steal_power_properties_no_stolen_power():
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
 
     assert power.color == Color.BLUE
     assert power.cost == 1
-    assert power.description == 'Steal power desc'
+    assert power.description == "Steal power desc"
     assert power.duration == 2
     assert power.must_target_player
-    assert power.name == 'Steal power'
+    assert power.name == "Steal power"
     assert power.initiator is None
     assert not power.passive
     assert power.target_type == TargetTypes.trump
@@ -279,10 +255,10 @@ def test_steal_power_properties_setters_no_stolen_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
 
@@ -299,18 +275,18 @@ def test_steal_power_properties_with_stolen_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = VoidPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=True,
     )
     # Stolen power is passive, thus affect will be called immediately.
@@ -321,10 +297,10 @@ def test_steal_power_properties_with_stolen_power(player):  # noqa: F811
 
     assert power.color == Color.YELLOW
     assert power.cost == power.STOLEN_POWER_COST
-    assert power.description == 'Stolen power desc'
+    assert power.description == "Stolen power desc"
     assert power.duration is None
     assert not power.must_target_player
-    assert power.name == 'Stolen power'
+    assert power.name == "Stolen power"
     assert power.initiator is None
     assert power.passive
     assert power.target_type == TargetTypes.player
@@ -334,18 +310,18 @@ def test_steal_power_properties_setters_with_stolen_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = VoidPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=False,
     )
 
@@ -367,25 +343,25 @@ def test_return_proper_trump_played_infos_on_steal(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = VoidPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=False,
     )
 
     infos = power.affect(power=stolen_power, player=player)
 
-    assert infos.name == 'Steal power'
-    assert infos.description == 'Steal power desc'
+    assert infos.name == "Steal power"
+    assert infos.description == "Steal power desc"
     assert infos.cost == 1
 
 
@@ -393,18 +369,18 @@ def test_return_proper_trump_played_infos_after_played_stolen_power(player):  # 
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = ModifyCardColorsPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=False,
     )
 
@@ -420,58 +396,58 @@ def test_turn_teardown_steal_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = ModifyCardColorsPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=False,
     )
 
     # Just activated, teardown shouldn't have an effect.
     power.affect(power=stolen_power, player=player)
     power.turn_teardown()
-    assert power.name == 'Stolen power'
+    assert power.name == "Stolen power"
 
     # Fully played, teardown should work.
     power.affect(player=player)
     power.turn_teardown()
-    assert power.name == 'Steal power'
+    assert power.name == "Steal power"
 
 
 def test_immediately_apply_passive_power(player):  # noqa: F811
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = ModifyCardColorsPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=True,
         trump_cost_delta=2,
     )
     stolen_power.affect = MagicMock()
-    initial_trump_cost = player.available_trumps[0].args['cost']
+    initial_trump_cost = player.available_trumps[0].args["cost"]
 
     power.affect(power=stolen_power, player=player)
 
-    assert power.name == 'Stolen power'
-    assert player.available_trumps[0].args['cost'] == initial_trump_cost + 2
+    assert power.name == "Stolen power"
+    assert player.available_trumps[0].args["cost"] == initial_trump_cost + 2
     stolen_power.affect.assert_called_once_with(player=player)
 
 
@@ -482,18 +458,18 @@ def test_return_to_initial_state_after_second_activation_of_power(player):  # no
     power = StealPowerPower(
         color=Color.BLUE,
         cost=1,
-        description='Steal power desc',
+        description="Steal power desc",
         duration=2,
         must_target_player=True,
-        name='Steal power',
+        name="Steal power",
         passive=False,
     )
     stolen_power = ModifyCardColorsPower(
         color=Color.YELLOW,
         cost=10,
-        description='Stolen power desc',
+        description="Stolen power desc",
         must_target_player=False,
-        name='Stolen power',
+        name="Stolen power",
         passive=True,
     )
     stolen_power.affect = MagicMock()
@@ -501,9 +477,9 @@ def test_return_to_initial_state_after_second_activation_of_power(player):  # no
     # Just activated (initial activation of passive trump), teardown shouldn't have an effect.
     power.affect(power=stolen_power, player=player)
     power.turn_teardown()
-    assert power.name == 'Stolen power'
+    assert power.name == "Stolen power"
 
     # Second activation, teardown shouldn't have an effect.
     power.affect(player=player)
     power.turn_teardown()
-    assert power.name == 'Steal power'
+    assert power.name == "Steal power"

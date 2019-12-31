@@ -32,29 +32,29 @@ class InvalidSignatureError(ValueError):
 
 
 def encode(data):
-    '''Encode data in base 64 and append its b64 signature.'''
+    """Encode data in base 64 and append its b64 signature."""
     signature = sign(data)
-    return b64encode(data) + b':' + b64encode(signature)
+    return b64encode(data) + b":" + b64encode(signature)
 
 
 def sign(data):
-    '''Sign ``data`` with the sign_key from the config and return the signature.
+    """Sign ``data`` with the sign_key from the config and return the signature.
 
     The result contains a b64 representation of the signature, a colon and a b64 representation
     of the data. This is meant to garante that the colon is present in neither of them.
-    '''
-    secret = config['cache']['sign_key']
+    """
+    secret = config["cache"]["sign_key"]
     return hmac.new(secret, msg=data, digestmod=hashlib.sha512).digest()
 
 
 def decode(signed_data):
-    '''Return the decoded data from a signed data.
+    """Return the decoded data from a signed data.
 
     raise:
         InvalidSignatureError: if the signature from signed_data in invalid.
-    '''
+    """
     try:
-        encoded_data, encoded_signature = signed_data.rsplit(b':', 1)
+        encoded_data, encoded_signature = signed_data.rsplit(b":", 1)
         data = b64decode(encoded_data)
         signature = b64decode(encoded_signature)
         computed_signature = sign(data)

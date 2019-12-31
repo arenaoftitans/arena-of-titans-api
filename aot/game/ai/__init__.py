@@ -22,7 +22,7 @@ from collections import namedtuple
 from ...utils.pathfinding import a_star
 
 
-IACardResult = namedtuple('IAResult', 'card square')
+IACardResult = namedtuple("IAResult", "card square")
 
 
 def distance_covered(start_square, proposed_destination_square, goal_square, board):
@@ -43,9 +43,11 @@ def find_move_to_play(hand, current_square, goal_squares, board):
                     return IACardResult(card=card, square=square)
 
                 distance = distance_covered(current_square, square, goal_square, board)
-                if distance > best_distance or \
-                        should_make_null_move(distance, best_distance, card, best_card) or \
-                        is_card_cheaper(distance, best_distance, card, best_card):
+                if (
+                    distance > best_distance
+                    or should_make_null_move(distance, best_distance, card, best_card)
+                    or is_card_cheaper(distance, best_distance, card, best_card)
+                ):
                     best_card = card
                     best_square = square
                     best_distance = distance
@@ -54,9 +56,11 @@ def find_move_to_play(hand, current_square, goal_squares, board):
 
 
 def should_make_null_move(distance, best_distance, card, best_card):
-    return best_distance == 0 and \
-        distance == 0 and \
-        (best_card is None or is_card_cheaper(distance, best_distance, card, best_card))
+    return (
+        best_distance == 0
+        and distance == 0
+        and (best_card is None or is_card_cheaper(distance, best_distance, card, best_card))
+    )
 
 
 def is_card_cheaper(distance, best_distance, card, best_card):

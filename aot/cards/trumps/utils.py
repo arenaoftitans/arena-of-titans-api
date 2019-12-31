@@ -6,11 +6,11 @@ from ...game.player import Player
 
 @dataclass(frozen=True)
 class TrumpPlayedInfos:
-    '''Mimics the attribute of a trump.
+    """Mimics the attribute of a trump.
 
     This way we can use this instead when updating the gauge and creating the action.
     This is required to pass the proper information of ProxyTrumps.
-    '''
+    """
 
     name: str
     description: str
@@ -34,4 +34,5 @@ def return_trump_infos(func):
             color=trump.color,
             initiator=trump.initiator,
         )
+
     return wrapper

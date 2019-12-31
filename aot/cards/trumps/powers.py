@@ -37,9 +37,9 @@ class Power(Trump):
         self,
         duration=0,
         cost=5,
-        description='',
+        description="",
         must_target_player=False,
-        name='',
+        name="",
         passive=False,
         trump_cost_delta=0,
         **kwargs,
@@ -55,7 +55,7 @@ class Power(Trump):
         self._passive = passive
         self._trump_cost_delta = trump_cost_delta
         if self._passive:
-            self._duration = float('inf')
+            self._duration = float("inf")
 
     def setup(self, trumps):
         if not self.passive:
@@ -63,10 +63,10 @@ class Power(Trump):
 
         # We expect a list of SimpleTrump
         for trump in trumps:
-            trump.args['cost'] += self._trump_cost_delta
+            trump.args["cost"] += self._trump_cost_delta
 
     def turn_teardown(self):
-        '''Call this tearndown at the end of every turn.'''
+        """Call this tearndown at the end of every turn."""
         # By default, there is nothing to do.
         pass
 
@@ -120,7 +120,7 @@ class StealPowerPower(Power):
         if self._stolen_power:
             return self._affect_from_stolen_power(**kwargs)
         else:
-            return self._steal_power(power, kwargs['player'])
+            return self._steal_power(power, kwargs["player"])
 
     def _affect_from_stolen_power(self, **kwargs):
         self._theft_duration_left -= 1
@@ -166,7 +166,7 @@ class StealPowerPower(Power):
 
         # We expect a list of SimpleTrump
         for trump in self._trumps_associated_with_passive_stolen_power:
-            trump.args['cost'] -= self.trump_cost_delta
+            trump.args["cost"] -= self.trump_cost_delta
 
         self._stolen_power = None
         self._trumps_associated_with_passive_stolen_power = []

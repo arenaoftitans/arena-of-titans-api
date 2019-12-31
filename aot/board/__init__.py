@@ -17,9 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .board import (
-    Board,
-)
+from .board import Board
 from .color import (
     all_colors,
     Color,
@@ -29,10 +27,10 @@ from .square import Square, SquareSet
 
 
 __all__ = [
-    'all_colors',
-    'Board',
-    'Color',
-    'ColorSet',
-    'Square',
+    "all_colors",
+    "Board",
+    "Color",
+    "ColorSet",
+    "Square",
     SquareSet.__name__,
 ]

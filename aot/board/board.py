@@ -26,20 +26,22 @@ from .square import (
 class Board:
     def __init__(self, board_description):
         self._board = {}
-        for square in board_description['squares']:
-            type_ = square['type']
-            color = board_description['squares-types-to-colors'].get(type_)
-            x = square['x']
-            y = square['y']
+        for square in board_description["squares"]:
+            type_ = square["type"]
+            color = board_description["squares-types-to-colors"].get(type_)
+            x = square["x"]
+            y = square["y"]
             self._board[(x, y)] = Square(
-                x, y, color,
-                is_occupied=square['id'] is None,
-                is_arrival=square['is-arrival'],
-                is_departure=square['is-departure'],
+                x,
+                y,
+                color,
+                is_occupied=square["id"] is None,
+                is_arrival=square["is-arrival"],
+                is_departure=square["is-departure"],
             )
 
     def free_all_squares(self):
-        '''Can be used in some tests to move outside the "normal" board on hidden squares.'''
+        """Can be used in some tests to move outside the "normal" board on hidden squares."""
         for square in self._board.values():
             square.occupied = False
 
@@ -61,10 +63,10 @@ class Board:
 
     def get_neighbors(self, square, movements_types=None):
         neighbors = set()
-        if movements_types is None or 'line' in movements_types:
-            neighbors.update(self.get_line_squares(square, ['all']))
-        if movements_types is None or 'diagonal' in movements_types:
-            neighbors.update(self.get_diagonal_squares(square, ['all']))
+        if movements_types is None or "line" in movements_types:
+            neighbors.update(self.get_line_squares(square, ["all"]))
+        if movements_types is None or "diagonal" in movements_types:
+            neighbors.update(self.get_diagonal_squares(square, ["all"]))
         return neighbors
 
     def get_square_for_player_with_index(self, index):
@@ -75,14 +77,14 @@ class Board:
         return len(self._board)
 
     def __getitem__(self, coords):
-        '''Return the square at the given coordinates.
+        """Return the square at the given coordinates.
 
         **PARAMETERS**
 
         * *coords* - tuple of coordinates. Use a third optional element to
           indicate horizontal direction (among 'left', 'right'). Use a forth optional element to
           indicate if you are currently on the circle.
-        '''
+        """
         if coords is None:
             return
 

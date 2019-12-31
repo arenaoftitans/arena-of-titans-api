@@ -23,11 +23,11 @@ from ..utils import SimpleEnumMeta
 
 
 class Color(metaclass=SimpleEnumMeta):
-    BLACK = 'BLACK'
-    BLUE = 'BLUE'
-    RED = 'RED'
-    YELLOW = 'YELLOW'
-    ALL = 'ALL'
+    BLACK = "BLACK"
+    BLUE = "BLUE"
+    RED = "RED"
+    YELLOW = "YELLOW"
+    ALL = "ALL"
 
 
 all_colors = OrderedSet(Color)
@@ -35,10 +35,10 @@ all_colors.remove(Color.ALL)
 
 
 class ColorSet(set):
-    '''Set that contains values of the Color Enum.Color.
+    """Set that contains values of the Color Enum.Color.
 
     Convert string to the proper color on addition or update if necessary.
-    '''
+    """
 
     def __init__(self, colors=None):
         super()

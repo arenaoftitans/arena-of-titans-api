@@ -27,15 +27,15 @@ from ..utils import get_time
 
 class LastAction:
     def __init__(
-            self,
-            description='',
-            special_action=None,
-            card=None,
-            trump=None,
-            player_name='',
-            player_index=None,
-            target_name='',
-            target_index=None,
+        self,
+        description="",
+        special_action=None,
+        card=None,
+        trump=None,
+        player_name="",
+        player_index=None,
+        target_name="",
+        target_index=None,
     ):
         self.description = description
         self.player_name = player_name
@@ -70,12 +70,12 @@ class Player:
     _deck = None
     _has_won = False
     _history = None
-    _id = ''
+    _id = ""
     _index = -1
     _is_ai = False
     _last_action = None
     _last_square_previous_turn = None
-    _name = ''
+    _name = ""
     _number_moves_to_play = 2
     _number_trumps_played = 0
     _number_turns_passed_not_connected = 0
@@ -87,17 +87,7 @@ class Player:
     _turn_start_time = 0
 
     def __init__(
-            self,
-            name,
-            id_,
-            index,
-            board,
-            deck,
-            gauge,
-            trumps=None,
-            hero='',
-            is_ai=False,
-            power=None,
+        self, name, id_, index, board, deck, gauge, trumps=None, hero="", is_ai=False, power=None,
     ):
         self._name = name
         self._id = id_
@@ -128,8 +118,9 @@ class Player:
         self._power.setup(self._available_trumps)
 
     def _generate_aim(self, board):
-        opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * \
-            (1 if self._index >= self.BOARD_ARM_WIDTH_AND_MODULO else -1)
+        opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * (
+            1 if self._index >= self.BOARD_ARM_WIDTH_AND_MODULO else -1
+        )
         aim_x = set()
         for i in range(self.BOARD_ARM_WIDTH_AND_MODULO):
             x = self.BOARD_ARM_WIDTH_AND_MODULO * opposite_index + i
@@ -166,12 +157,13 @@ class Player:
         if card is not None:
             self._gauge.move(start_square, dest_square, card)
             self.last_action = LastAction(
-                description='played_card',
+                description="played_card",
                 card=card.infos,
                 player_name=self.name,
-                player_index=self.index)
+                player_index=self.index,
+            )
         else:
-            self.last_action = LastAction(description='problem')
+            self.last_action = LastAction(description="problem")
 
         if card is not None and len(card.special_actions) > 0:
             self.special_actions = card.special_actions
@@ -207,27 +199,27 @@ class Player:
     def discard(self, card):
         self._deck.play(card)
         self.last_action = LastAction(
-            description='dicarded_card',
+            description="dicarded_card",
             card=card.infos,
             player_name=self.name,
-            player_index=self.index)
+            player_index=self.index,
+        )
         self._complete_action()
 
     def pass_turn(self):
         if not self.is_connected and not self.is_ai:
             self._number_turns_passed_not_connected += 1
             self.LOGGER.debug(
-                f'Game n°{self.game_id}: player n°{self.id} ({self.name}) pass his/her turn '
-                f'automatically (disconnected). '
-                f'{self._number_turns_passed_not_connected}/'
-                f'{self.MAX_NUMBER_TURN_EXPECTING_RECONNECT} before exclusion '
-                f'from the game.',
+                f"Game n°{self.game_id}: player n°{self.id} ({self.name}) pass his/her turn "
+                f"automatically (disconnected). "
+                f"{self._number_turns_passed_not_connected}/"
+                f"{self.MAX_NUMBER_TURN_EXPECTING_RECONNECT} before exclusion "
+                f"from the game.",
             )
 
         self.last_action = LastAction(
-            description='passed_turn',
-            player_name=self.name,
-            player_index=self.index)
+            description="passed_turn", player_name=self.name, player_index=self.index
+        )
         self._can_play = False
         self._deck.init_turn()
 
@@ -316,7 +308,7 @@ class Player:
             action.affect(player=target, **action_args)
             self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
-                description='played_special_action',
+                description="played_special_action",
                 special_action=action,
                 player_name=self.name,
                 target_name=target.name,
@@ -368,10 +360,7 @@ class Player:
     def _check_for_cannot_be_affected_by_trumps(self, trump):
         # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
         for affecting_trump in self._affecting_trumps:
-            if (
-                not affecting_trump.allow_trump_to_affect(trump)
-                and trump.must_target_player
-            ):
+            if not affecting_trump.allow_trump_to_affect(trump) and trump.must_target_player:
                 raise trumps.exceptions.TrumpHasNoEffect
 
     def play_trump(self, trump, *, target):
@@ -407,23 +396,26 @@ class Player:
         self._number_trumps_played += 1
         self._gauge.play_trump(trump)
         self.last_action = LastAction(
-            description='played_trump',
+            description="played_trump",
             trump=trump,
             player_name=self.name,
-            target_name=getattr(target, 'name', None),
-            target_index=getattr(target, 'index', None),
+            target_name=getattr(target, "name", None),
+            target_index=getattr(target, "index", None),
             player_index=self.index,
         )
         return trump
 
     def can_play_trump(self, trump):
-        return self.can_play and \
-            self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED and \
-            self._gauge.can_play_trump(trump)
+        return (
+            self.can_play
+            and self._number_trumps_played < self.MAX_NUMBER_TRUMPS_PLAYED
+            and self._gauge.can_play_trump(trump)
+        )
 
     def __str__(self):  # pragma: no cover
-        return 'Player(id={id}, name={name}, index={index})'\
-            .format(id=self.id, name=self.name, index=self.index)
+        return "Player(id={id}, name={name}, index={index})".format(
+            id=self.id, name=self.name, index=self.index
+        )
 
     def __repr__(self):  # pragma: no cover
         return str(self)
@@ -455,10 +447,10 @@ class Player:
 
     @property
     def rw_available_trumps(self):
-        '''Return a RW access to available trumps of this player.
+        """Return a RW access to available trumps of this player.
 
         Use this sparingly, outside StealPowerPower we shouldn't have a use case for this.
-        '''
+        """
         return self._available_trumps
 
     @property
@@ -503,7 +495,7 @@ class Player:
 
     @property
     def hand_for_debug(self):
-        return list(map(lambda card: '{} {}'.format(card.name, card.color), self.hand))
+        return list(map(lambda card: "{} {}".format(card.name, card.color), self.hand))
 
     @property
     def has_remaining_moves_to_play(self):
@@ -614,13 +606,15 @@ class Player:
     def trumps(self):
         return [
             {
-                'name': trump.args['name'],
-                'color': trump.args.get('color'),
-                'description': trump.args['description'],
-                'duration': trump.args['duration'],
-                'cost': trump.args['cost'],
-                'must_target_player': trump.args['must_target_player'],
-            } for trump in self._available_trumps]
+                "name": trump.args["name"],
+                "color": trump.args.get("color"),
+                "description": trump.args["description"],
+                "duration": trump.args["duration"],
+                "cost": trump.args["cost"],
+                "must_target_player": trump.args["must_target_player"],
+            }
+            for trump in self._available_trumps
+        ]
 
     @property
     def trumps_statuses(self):

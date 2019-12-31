@@ -36,10 +36,10 @@ def main(debug=False, debug_aio=False):
     wsserver, loop = None, None
 
     try:
-        logging.info('API is starting')
+        logging.info("API is starting")
         cleanup(None, None)
         wsserver, loop = startup(debug=debug, debug_aio=debug_aio)
-        logging.info('API is ready')
+        logging.info("API is ready")
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -47,23 +47,21 @@ def main(debug=False, debug_aio=False):
         cleanup(wsserver, loop)
 
 
-if __name__ == '__main__':  # pragma: no cover
-    parser = argparse.ArgumentParser(description='Start the AoT API')
+if __name__ == "__main__":  # pragma: no cover
+    parser = argparse.ArgumentParser(description="Start the AoT API")
     parser.add_argument(
-        '--debug',
-        help='Start in debug mode',
-        action='store_true',
+        "--debug", help="Start in debug mode", action="store_true",
     )
     parser.add_argument(
-        '--debug-aio',
-        help='Launch asyncio event loop in debug mode (very verbose)',
-        action='store_true',
+        "--debug-aio",
+        help="Launch asyncio event loop in debug mode (very verbose)",
+        action="store_true",
     )
     parser.add_argument(
-        '--reload',
-        help='Start the API in development mode and reload it on each modification',
-        dest='reload',
-        action='store_true',
+        "--reload",
+        help="Start the API in development mode and reload it on each modification",
+        dest="reload",
+        action="store_true",
     )
     args = parser.parse_args()
 

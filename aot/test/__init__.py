@@ -53,7 +53,7 @@ def mocked_choices(a_list, weights=None, k=None):
 
 @pytest.fixture
 def board():
-    return Board(TEST_CONFIG['board'])
+    return Board(TEST_CONFIG["board"])
 
 
 @pytest.fixture
@@ -64,15 +64,9 @@ def deck(board):
 
 @pytest.fixture
 def player(mocker, board, deck):
-    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
+    mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
     player = Player(
-        'Player',
-        None,
-        0,
-        board,
-        deck,
-        MagicMock(),
-        trumps=build_trumps_list(TEST_CONFIG),
+        "Player", None, 0, board, deck, MagicMock(), trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
@@ -80,15 +74,9 @@ def player(mocker, board, deck):
 
 @pytest.fixture
 def player2(mocker, board, deck):
-    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
+    mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
     player = Player(
-        'Player 2',
-        None,
-        1,
-        board,
-        deck,
-        MagicMock(),
-        trumps=build_trumps_list(TEST_CONFIG),
+        "Player 2", None, 1, board, deck, MagicMock(), trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
@@ -96,14 +84,12 @@ def player2(mocker, board, deck):
 
 @pytest.fixture
 def game(mocker):
-    mocker.patch('aot.api.game_factory.random.choices', mocked_choices)
-    players_description = [{
-        'name': 'Player {}'.format(i),
-        'index': i,
-        'id': i,
-        'hero': 'Ulya',
-    } for i in range(TEST_CONFIG['number_players'])]
-    g = create_game_for_players(players_description, name='test')
+    mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
+    players_description = [
+        {"name": "Player {}".format(i), "index": i, "id": i, "hero": "Ulya"}
+        for i in range(TEST_CONFIG["number_players"])
+    ]
+    g = create_game_for_players(players_description, name="test")
     for player in g.players:
         player.is_connected = True
 
@@ -128,15 +114,15 @@ def api():
 
 @pytest.fixture
 def cache(mocker):
-    mocker.patch('aot.api.cache.Redis', site_effect=aredis())
+    mocker.patch("aot.api.cache.Redis", site_effect=aredis())
     cache = Cache()
-    cache.init('game_id', 'player_id')
+    cache.init("game_id", "player_id")
     cache._cache = MagicMock()
     return cache
 
 
 @pytest.fixture
 def cache_cls(mocker):
-    mocker.patch('aot.api.cache.Redis', site_effect=MagicMock())
+    mocker.patch("aot.api.cache.Redis", site_effect=MagicMock())
 
     return Cache

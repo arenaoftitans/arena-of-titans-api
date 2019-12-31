@@ -27,35 +27,33 @@ from lxml import etree
 
 
 NS = {
-    'svg': 'http://www.w3.org/2000/svg',
-    'xlink': 'http://www.w3.org/1999/xlink',
+    "svg": "http://www.w3.org/2000/svg",
+    "xlink": "http://www.w3.org/1999/xlink",
 }
 
 
 def print_help():
-    print('./extract-images-svg.py SVG_FILE')
-    print('This will extract the images included in b64 in the SVG.')
+    print("./extract-images-svg.py SVG_FILE")
+    print("This will extract the images included in b64 in the SVG.")
 
 
 def extract_images_svg(file_name):
     with open(file_name) as svg_file:
         svg = etree.parse(svg_file)
 
-    images = svg.xpath('.//svg:image', namespaces=NS)
+    images = svg.xpath(".//svg:image", namespaces=NS)
     for index, img in enumerate(images):
-        content = img.get('{http://www.w3.org/1999/xlink}href')
-        if content.startswith('data:image/'):
-            meta, img_b64 = content.split(';base64,')
-            _, img_format = meta.split('/')
-            img_file_name = 'img-{index}.{format}'.format(index=index, format=img_format)
-            img.set('{http://www.w3.org/1999/xlink}href', img_file_name)
-            with open(img_file_name, 'wb') as img_file:
+        content = img.get("{http://www.w3.org/1999/xlink}href")
+        if content.startswith("data:image/"):
+            meta, img_b64 = content.split(";base64,")
+            _, img_format = meta.split("/")
+            img_file_name = "img-{index}.{format}".format(index=index, format=img_format)
+            img.set("{http://www.w3.org/1999/xlink}href", img_file_name)
+            with open(img_file_name, "wb") as img_file:
                 img_file.write(b64decode(img_b64))
 
-    with open('svg-without-images.svg', 'w') as svg_file:
-        svg_content = etree.tostring(svg)\
-                .decode('utf-8')\
-                .replace('&gt;', '>')
+    with open("svg-without-images.svg", "w") as svg_file:
+        svg_content = etree.tostring(svg).decode("utf-8").replace("&gt;", ">")
         svg_file.write(svg_content)
 
 

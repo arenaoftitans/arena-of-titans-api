@@ -42,7 +42,7 @@ def make_immutable(data):
     elif isinstance(data, dict):
         return MappingProxyType({key: make_immutable(value) for key, value in data.items()})
     else:
-        raise ValueError(f'{type(data)} cannot be made immutable with basic types.')
+        raise ValueError(f"{type(data)} cannot be made immutable with basic types.")
 
 
 class SimpleEnumMeta(type):
@@ -52,7 +52,7 @@ class SimpleEnumMeta(type):
         simple_enum_cls._member_names_ = set(classdict.keys()) - object_attrs
         non_members = set()
         for attr in simple_enum_cls._member_names_:
-            if attr.startswith('_') and attr.endswith('_'):
+            if attr.startswith("_") and attr.endswith("_"):
                 non_members.add(attr)
             else:
                 setattr(simple_enum_cls, attr, attr)

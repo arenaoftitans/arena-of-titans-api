@@ -48,8 +48,9 @@ class Game:
         self._board = board
         self._is_over = False
         self._players = players
-        self._players_id_to_index = {player.id: index for index, player in enumerate(players)
-                                     if player}
+        self._players_id_to_index = {
+            player.id: index for index, player in enumerate(players) if player
+        }
         self._nb_turns = 0
         self._next_rank_available = 1
         self._winners = []
@@ -116,8 +117,8 @@ class Game:
                     remaining_human_players.add(player)
             elif player is not None and not player.is_ai:
                 self.LOGGER.debug(
-                    f'Game n°{self.game_id}: player n°{player.id} ({player.name}) has '
-                    f'been disconnected too long. Remove from remaining players',
+                    f"Game n°{self.game_id}: player n°{player.id} ({player.name}) has "
+                    f"been disconnected too long. Remove from remaining players",
                 )
         remaining_players = remaining_ai.union(remaining_human_players)
 
@@ -179,8 +180,9 @@ class Game:
             # last remaining players. won during the same turn, there is no
             # more player who has not won. This is the easiest the remainding
             # player.
-            self._winners.extend([player for player in self._players
-                                  if player is not None and not player.has_won])
+            self._winners.extend(
+                [player for player in self._players if player is not None and not player.has_won]
+            )
 
     def pass_turn(self):
         self._active_player.pass_turn()
@@ -229,9 +231,7 @@ class Game:
     @game_id.setter
     def game_id(self, value):
         if self._game_id is not None:  # pragma: no cover
-            self.LOGGER.warning(
-                f'Changing game id for game {self._game_id} to {value}',
-            )
+            self.LOGGER.warning(f"Changing game id for game {self._game_id} to {value}",)
         self._game_id = value
         for player in self.players:
             if player:

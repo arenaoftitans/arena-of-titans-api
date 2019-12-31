@@ -29,15 +29,16 @@ from ....game.ai import (
     find_move_to_play,
 )
 from ....utils.pathfinding import a_star
+
 # board is a fixture, ignore the unsued import warnig
 
 
 # Allow the tests timeout to be changed by a enviroment variable:
 # in CI runners with small hardware it may take more than 1s to complete.
-if os.getenv('CI_TESTS_TIMEOUT'):
+if os.getenv("CI_TESTS_TIMEOUT"):
     # Don't use default value here since the variable can be set to an empty string.
     # In this case, the default value won't be used.
-    TIMEOUT = int(os.getenv('CI_TESTS_TIMEOUT'))
+    TIMEOUT = int(os.getenv("CI_TESTS_TIMEOUT"))
 else:
     TIMEOUT = 1
 
@@ -66,8 +67,8 @@ def test_distance_difference(board):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_best_distance(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'], cost=400)
-    card2 = Card(board, name='card2', movements_types=['line'], number_movements=2, cost=400)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=400)
+    card2 = Card(board, name="card2", movements_types=["line"], number_movements=2, cost=400)
     hand = [card1, card2]
     board.free_all_squares()
 
@@ -78,8 +79,8 @@ def test_find_move_to_play_best_distance(board, goal_squares):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_same_cost(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'], cost=500)
-    card2 = Card(board, name='card2', movements_types=['line'], cost=500)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=500)
+    card2 = Card(board, name="card2", movements_types=["line"], cost=500)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[6, 8], goal_squares, board)
@@ -89,8 +90,8 @@ def test_find_move_to_play_same_cost(board, goal_squares):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_best_cost(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'], cost=500)
-    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=500)
+    card2 = Card(board, name="card2", movements_types=["line"], cost=400)
     hand = [card1, card2]
     board.free_all_squares()
 
@@ -101,8 +102,8 @@ def test_find_move_to_play_best_cost(board, goal_squares):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_to_play_no_move(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1')
-    card2 = Card(board, name='card2')
+    card1 = Card(board, name="card1")
+    card2 = Card(board, name="card2")
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[0, 8], goal_squares, board)
@@ -112,7 +113,7 @@ def test_find_move_to_play_no_move(board, goal_squares):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'])
+    card1 = Card(board, name="card1", movements_types=["line"])
     hand = [card1]
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
@@ -123,8 +124,8 @@ def test_find_move_distance_null(board, goal_squares):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_card1_positive_card2(board):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'], cost=300)
-    card2 = Card(board, name='card2', movements_types=['line', 'diagonal'], cost=400)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=300)
+    card2 = Card(board, name="card2", movements_types=["line", "diagonal"], cost=400)
     hand = [card1, card2]
     # board.free_all_squares()
     # Square (2, 3) is possible for card1 and reduce the distance to the goal square
@@ -140,8 +141,8 @@ def test_find_move_distance_null_card1_positive_card2(board):  # noqa: F811
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_card2_positive_card1(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line', 'diagonal'], cost=300)
-    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
+    card1 = Card(board, name="card1", movements_types=["line", "diagonal"], cost=300)
+    card2 = Card(board, name="card2", movements_types=["line"], cost=400)
     hand = [card1, card2]
     # Square (2, 3) is possible for card1 and reduce the distance to the goal square
     # Make it occupied so we cannot go there and the test tests what it must.
@@ -155,8 +156,8 @@ def test_find_move_distance_null_card2_positive_card1(board, goal_squares):  # n
 
 @pytest.mark.timeout(TIMEOUT)
 def test_find_move_distance_null_with_cheaper_card(board, goal_squares):  # noqa: F811
-    card1 = Card(board, name='card1', movements_types=['line'], cost=500)
-    card2 = Card(board, name='card2', movements_types=['line'], cost=400)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=500)
+    card2 = Card(board, name="card2", movements_types=["line"], cost=400)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[3, 3], goal_squares, board)
@@ -171,7 +172,7 @@ def test_move_to_goal(board):  # noqa: F811
     # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
     # to evaluate the distance from board[19, 8] first for this test to be valid.
     goal_squares = [board[19, 8], board[18, 8], board[17, 8], board[16, 8]]
-    card1 = Card(board, name='card1', movements_types=['line'], cost=400)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=400)
     hand = [card1]
 
     result = find_move_to_play(hand, board[16, 7], goal_squares, board)
@@ -185,8 +186,8 @@ def test_move_to_goal_same_distance_cheapest_card(board):  # noqa: F811
     # Going from board[16, 7] to board[17, 7] gets us closer of board[19, 8] by one. So we need
     # to evaluate the distance from board[19, 8] first for this test to be valid.
     goal_squares = [board[19, 8], board[18, 8], board[17, 8], board[16, 8]]
-    card1 = Card(board, name='card1', movements_types=['line'], cost=800)
-    card2 = Card(board, name='card2', movements_types=['line'], color='blue', cost=600)
+    card1 = Card(board, name="card1", movements_types=["line"], cost=800)
+    card2 = Card(board, name="card2", movements_types=["line"], color="blue", cost=600)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[16, 7], goal_squares, board)
@@ -195,16 +196,16 @@ def test_move_to_goal_same_distance_cheapest_card(board):  # noqa: F811
 
 
 def test_find_cheapest_card_same_cost():  # noqa: F811
-    card1 = Card(board, name='card1')
-    card2 = Card(board, name='card2')
+    card1 = Card(board, name="card1")
+    card2 = Card(board, name="card2")
     hand = [card1, card2]
 
     assert find_cheapest_card(hand) == card1
 
 
 def test_find_cheapest_card():  # noqa: F811
-    card1 = Card(board, name='card1', cost=500)
-    card2 = Card(board, name='card2', cost=200)
+    card1 = Card(board, name="card1", cost=500)
+    card2 = Card(board, name="card2", cost=200)
     hand = [card1, card2]
 
     assert find_cheapest_card(hand) == card2

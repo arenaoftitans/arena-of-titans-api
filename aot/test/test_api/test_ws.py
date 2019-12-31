@@ -36,7 +36,7 @@ from ...api.ws import AotWs
 
 
 class AotWsImpl(AotWs):
-    '''It exists to instance the abstract class AotWS for testing purposes.'''
+    """It exists to instance the abstract class AotWS for testing purposes."""
 
     pass
 
@@ -150,14 +150,8 @@ async def test_onClose_just_before_ai(api, game):  # noqa: F811
 async def test_onClose_creating_game(api, game):  # noqa: F811
     api._cache = MagicMock()
     slots = [
-        {
-            'index': 0,
-            'player_id': 0,
-        },
-        {
-            'index': 1,
-            'player_id': 1,
-        },
+        {"index": 0, "player_id": 0},
+        {"index": 1, "player_id": 1},
     ]
     api._cache.get_slots = AsyncMagicMock(return_value=slots)
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
@@ -175,11 +169,8 @@ async def test_onClose_creating_game(api, game):  # noqa: F811
     await api._disconnect_player()
 
     assert api._message == {
-        'rt': RequestTypes.SLOT_UPDATED,
-        'slot': {
-            'index': 0,
-            'state': 'OPEN',
-        },
+        "rt": RequestTypes.SLOT_UPDATED,
+        "slot": {"index": 0, "state": "OPEN"},
     }
     api._modify_slots.assert_called_once_with()
 
@@ -191,22 +182,22 @@ async def test_reconnect_creating_game(api, game):  # noqa: F811
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
     api._cache.get_player_index = AsyncMagicMock(return_value=0)
     api._reconnect_to_game = MagicMock()
-    api._get_initialized_game_message = AsyncMagicMock(return_value={'message': 'smth'})
-    api._game_id = 'game-id'
+    api._get_initialized_game_message = AsyncMagicMock(return_value={"message": "smth"})
+    api._game_id = "game-id"
     api._message = {
-        'player_id': 'player_id',
-        'game_id': 'game_id',
+        "player_id": "player_id",
+        "game_id": "game_id",
     }
-    api._disconnect_timeouts['player_id'] = timer
+    api._disconnect_timeouts["player_id"] = timer
     api.sendMessage = AsyncMagicMock()
 
     await api._reconnect()
 
     timer.cancel.assert_called_once_with()
     api._get_initialized_game_message.assert_called_once_with(0)
-    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
-    assert api.id == 'player_id'
-    assert api._game_id == 'game_id'
+    api._cache.init.assert_called_once_with(game_id="game_id", player_id="player_id")
+    assert api.id == "player_id"
+    assert api._game_id == "game_id"
     assert api.sendMessage.call_count == 1
 
 
@@ -217,13 +208,13 @@ async def test_reconnect_creating_game_slot_freed(api, game):  # noqa: F811
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
     api._cache.get_player_index = AsyncMagicMock(side_effect=IndexError)
     api._reconnect_to_game = MagicMock()
-    api._get_initialized_game_message = AsyncMagicMock(return_value={'message': 'smth'})
-    api._game_id = 'game-id'
+    api._get_initialized_game_message = AsyncMagicMock(return_value={"message": "smth"})
+    api._game_id = "game-id"
     api._message = {
-        'player_id': 'player_id',
-        'game_id': 'game_id',
+        "player_id": "player_id",
+        "game_id": "game_id",
     }
-    api._disconnect_timeouts['player_id'] = timer
+    api._disconnect_timeouts["player_id"] = timer
     api.sendMessage = AsyncMagicMock()
 
     await api._reconnect()
@@ -243,10 +234,10 @@ async def test_reconnect_reconnect_to_game(api, game):  # noqa: F811
     api._save_game = AsyncMagicMock()
     api._reconnect_to_game = MagicMock()
     api._message = {
-        'player_id': 'player_id',
-        'game_id': 'game_id',
+        "player_id": "player_id",
+        "game_id": "game_id",
     }
-    api._disconnect_timeouts['player_id'] = timer
+    api._disconnect_timeouts["player_id"] = timer
     api._play_ai_after_timeout = MagicMock()
     api.sendMessage = AsyncMagicMock()
 
@@ -254,13 +245,13 @@ async def test_reconnect_reconnect_to_game(api, game):  # noqa: F811
 
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(game)
-    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    api._cache.init.assert_called_once_with(game_id="game_id", player_id="player_id")
     assert api._save_game.call_count == 0
     assert api._play_ai_after_timeout.call_count == 0
-    assert api.id == 'player_id'
-    assert api._game_id == 'game_id'
+    assert api.id == "player_id"
+    assert api._game_id == "game_id"
     assert api.sendMessage.call_count == 1
-    assert api._clients_pending_reconnection_for_game == {'player_id'}
+    assert api._clients_pending_reconnection_for_game == {"player_id"}
 
 
 @pytest.mark.asyncio
@@ -272,10 +263,10 @@ async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):  # noqa: F
     api._save_game = AsyncMagicMock()
     api._reconnect_to_game = MagicMock()
     api._message = {
-        'player_id': 'player_id',
-        'game_id': 'game_id',
+        "player_id": "player_id",
+        "game_id": "game_id",
     }
-    api._disconnect_timeouts['player_id'] = timer
+    api._disconnect_timeouts["player_id"] = timer
     api._play_ai_after_timeout = MagicMock()
     api.sendMessage = AsyncMagicMock()
     game._active_player = game.players[1]
@@ -285,59 +276,59 @@ async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):  # noqa: F
 
     timer.cancel.assert_called_once_with()
     api._reconnect_to_game.assert_called_once_with(game)
-    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    api._cache.init.assert_called_once_with(game_id="game_id", player_id="player_id")
     api._play_ai_after_timeout.assert_called_once_with(game)
     assert api._save_game.call_count == 0
-    assert api.id == 'player_id'
-    assert api._game_id == 'game_id'
+    assert api.id == "player_id"
+    assert api._game_id == "game_id"
     assert api.sendMessage.call_count == 1
-    assert api._clients_pending_reconnection_for_game == {'player_id'}
+    assert api._clients_pending_reconnection_for_game == {"player_id"}
 
 
 def test_reconnect_to_game(api, game):  # noqa: F811
-    game.active_player._id = 'player_id'
+    game.active_player._id = "player_id"
     game.active_player.is_connected = False
-    api.id = 'player_id'
+    api.id = "player_id"
     api._get_action_message = MagicMock()
 
     message = api._reconnect_to_game(game)
 
     api._get_action_message.assert_called_once_with(None)
-    assert message['reconnect']['special_action_name'] is None
+    assert message["reconnect"]["special_action_name"] is None
 
 
 def test_reconnect_to_game_with_special_action(api, game):  # noqa: F811
-    game.active_player._id = 'player_id'
+    game.active_player._id = "player_id"
     game.active_player.is_connected = False
-    api.id = 'player_id'
+    api.id = "player_id"
     api._get_action_message = MagicMock()
-    game.active_player._special_actions_names = ['action']
+    game.active_player._special_actions_names = ["action"]
 
     message = api._reconnect_to_game(game)
 
     api._get_action_message.assert_called_once_with(None)
-    assert message['reconnect']['special_action_name'] == 'action'
+    assert message["reconnect"]["special_action_name"] == "action"
 
 
 def test_append_to_clients_pending_reconnection(api):  # noqa: F811
-    api._game_id = 'game_id'
-    api._id = 'player_id'
-    api._clients_pending_disconnection_for_game.add('player_id')
+    api._game_id = "game_id"
+    api._id = "player_id"
+    api._clients_pending_disconnection_for_game.add("player_id")
 
     api._append_to_clients_pending_reconnection()
 
-    assert api._clients_pending_reconnection_for_game == {'player_id'}
+    assert api._clients_pending_reconnection_for_game == {"player_id"}
     assert api._clients_pending_disconnection_for_game == set()
 
 
 def test_append_to_clients_pending_disconnection(api):  # noqa: F811
-    api._game_id = 'game_id'
-    api._id = 'player_id'
-    api._clients_pending_reconnection_for_game.add('player_id')
+    api._game_id = "game_id"
+    api._id = "player_id"
+    api._clients_pending_reconnection_for_game.add("player_id")
 
     api._append_to_clients_pending_disconnection()
 
-    assert api._clients_pending_disconnection_for_game == {'player_id'}
+    assert api._clients_pending_disconnection_for_game == {"player_id"}
     assert api._clients_pending_reconnection_for_game == set()
 
 
@@ -345,18 +336,14 @@ def test_append_to_clients_pending_disconnection(api):  # noqa: F811
 async def test_send_error_with_extra_data(api):  # noqa: F811
     api.LOGGER = MagicMock()
     api.sendMessage = AsyncMagicMock()
-    api._message = {'ping': 'pong'}
+    api._message = {"ping": "pong"}
 
-    await api._send_error(AotError('An error'))
+    await api._send_error(AotError("An error"))
 
     api.LOGGER.error.assert_called_once_with(
-        'An error',
-        extra_data={'payload': '{"ping": "pong"}'},
+        "An error", extra_data={"payload": '{"ping": "pong"}'},
     )
-    api.sendMessage.assert_called_once_with({
-        'error': 'An error',
-        'is_fatal': False,
-    })
+    api.sendMessage.assert_called_once_with({"error": "An error", "is_fatal": False})
 
 
 @pytest.mark.asyncio
@@ -365,13 +352,10 @@ async def test_send_error_without_extra_data():  # noqa: F811
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
-    await ws._send_error(AotError('An error'))
+    await ws._send_error(AotError("An error"))
 
-    ws.LOGGER.error.assert_called_once_with('An error', extra_data={'payload': 'null'})
-    ws.sendMessage.assert_called_once_with({
-        'error': 'An error',
-        'is_fatal': False,
-    })
+    ws.LOGGER.error.assert_called_once_with("An error", extra_data={"payload": "null"})
+    ws.sendMessage.assert_called_once_with({"error": "An error", "is_fatal": False})
 
 
 @pytest.mark.asyncio
@@ -380,13 +364,12 @@ async def test_send_error_to_display():  # noqa: F811
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
-    await ws._send_error(AotErrorToDisplay('An error to display'))
+    await ws._send_error(AotErrorToDisplay("An error to display"))
 
     assert not ws.LOGGER.error.called
-    ws.sendMessage.assert_called_once_with({
-        'error_to_display': 'An error to display',
-        'is_fatal': False,
-    })
+    ws.sendMessage.assert_called_once_with(
+        {"error_to_display": "An error to display", "is_fatal": False}
+    )
 
 
 @pytest.mark.asyncio
@@ -395,7 +378,7 @@ async def test_send_fatal_error():  # noqa: F811
     ws.LOGGER = MagicMock()
     ws.sendMessage = AsyncMagicMock()
 
-    await ws._send_error(AotFatalError('A fatal error'))
+    await ws._send_error(AotFatalError("A fatal error"))
 
     assert ws.LOGGER.error.called
-    ws.sendMessage.assert_called_once_with({'error': 'A fatal error', 'is_fatal': True})
+    ws.sendMessage.assert_called_once_with({"error": "A fatal error", "is_fatal": True})

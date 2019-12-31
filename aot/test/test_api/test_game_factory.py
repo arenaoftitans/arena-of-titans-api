@@ -24,12 +24,12 @@ from aot.game.config import TEST_CONFIG
 def test_get_cards_list():
     cards = build_cards_list(TEST_CONFIG, None)
     for card in cards:
-        if card.name == 'Bishop':
+        if card.name == "Bishop":
             assert len(card.colors) == 2
-        elif card.name == 'Assassin':
+        elif card.name == "Assassin":
             assert len(card._special_actions) == 1
             action = card._special_actions[0]
-            assert action.name == 'Assassination'
-            assert action.type == 'Teleport'
-            assert action.args['must_target_player']
-            assert action.args['distance'] == 1
+            assert action.name == "Assassination"
+            assert action.type == "Teleport"
+            assert action.args["must_target_player"]
+            assert action.args["distance"] == 1

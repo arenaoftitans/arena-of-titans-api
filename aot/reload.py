@@ -29,16 +29,16 @@ from .run import cleanup
 
 
 class AotEventHandler(FileSystemEventHandler):
-    '''Inspired by RegexMatchingEventHandler.
+    """Inspired by RegexMatchingEventHandler.
 
     https://github.com/gorakhargosh/watchdog/blob/d7ceb7ddd48037f6d04ab37297a63116655926d9/src/watchdog/events.py#L457.
-    '''
+    """
 
-    IGNORE_REGEXES = [re.compile(r'.*test.*'), re.compile(r'.*__pycache__.*')]
-    EVENT_TYPE_MOVED = 'moved'
-    EVENT_TYPE_DELETED = 'deleted'
-    EVENT_TYPE_CREATED = 'created'
-    EVENT_TYPE_MODIFIED = 'modified'
+    IGNORE_REGEXES = [re.compile(r".*test.*"), re.compile(r".*__pycache__.*")]
+    EVENT_TYPE_MOVED = "moved"
+    EVENT_TYPE_DELETED = "deleted"
+    EVENT_TYPE_CREATED = "created"
+    EVENT_TYPE_MODIFIED = "modified"
 
     def __init__(self):
         super().__init__()
@@ -46,7 +46,7 @@ class AotEventHandler(FileSystemEventHandler):
 
     def dispatch(self, event):
         paths = []
-        if hasattr(event, 'dest_path'):
+        if hasattr(event, "dest_path"):
             paths.append(event.dest_path)
         if event.src_path:
             paths.append(event.src_path)
@@ -66,17 +66,13 @@ class AotEventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         super().on_any_event(event)
-        print('Reload: start', file=sys.stderr)  # noqa: T001
+        print("Reload: start", file=sys.stderr)  # noqa: T001
         self.stop_app()
         self.start_app()
-        print('Reload: done', file=sys.stderr)  # noqa: T001
+        print("Reload: done", file=sys.stderr)  # noqa: T001
 
     def start_app(self):
-        self.app = Popen([  # noqa: S603,S607 (Popen usage)
-            'python3',
-            '-m', 'aot',
-            '--debug',
-        ])
+        self.app = Popen(["python3", "-m", "aot", "--debug"])  # noqa: S603,S607 (Popen usage)
 
     def stop_app(self):
         self.app.terminate()
@@ -95,7 +91,7 @@ def run_reload():
     aot_event_handler = AotEventHandler()
     aot_event_handler.start_app()
     observer = Observer()
-    observer.schedule(aot_event_handler, 'aot', recursive=True)
+    observer.schedule(aot_event_handler, "aot", recursive=True)
     observer.start()
     # Make dependent thread shutdown on SIGTERM.
     # This is required for the container to stop with the 0 status code.

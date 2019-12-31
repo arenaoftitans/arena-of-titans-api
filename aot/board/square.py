@@ -71,14 +71,18 @@ class Square:
         return self._is_arrival
 
     def __eq__(self, other):  # pragma: no cover
-        return type(other) == Square and \
-            other._x == self._x and \
-            other._y == self._y and \
-            other._original_color == self._original_color
+        return (
+            type(other) == Square
+            and other._x == self._x
+            and other._y == self._y
+            and other._original_color == self._original_color
+        )
 
     def __str__(self):  # pragma: no cover
-        return f'Square(x={self.x}, y={self.y}, color={self.color}, '\
-               f'original_color={self._original_color})'
+        return (
+            f"Square(x={self.x}, y={self.y}, color={self.color}, "
+            f"original_color={self._original_color})"
+        )
 
     def __repr__(self):  # pragma: no cover
         return str(self)
@@ -88,7 +92,7 @@ class Square:
 
 
 class SquareSet(set):
-    '''Set that can only contains square of a given set of colors.'''
+    """Set that can only contains square of a given set of colors."""
 
     _colors = ColorSet()
 

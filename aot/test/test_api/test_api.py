@@ -43,15 +43,13 @@ async def test_test_success(api):  # noqa: F811
     await api.onMessage(b'{"rt": "test"}', False)
 
     api._cache.test.assert_called_once_with()
-    api.sendMessage.assert_called_once_with({
-        'success': True,
-    })
+    api.sendMessage.assert_called_once_with({"success": True})
 
 
 @pytest.mark.asyncio
 async def test_test_failure(api):  # noqa: F811
     def cache_test():
-        raise Exception('Error in redis')
+        raise Exception("Error in redis")
 
     api._cache = MagicMock()
     api._cache.test = MagicMock(side_effect=cache_test)
@@ -60,45 +58,38 @@ async def test_test_failure(api):  # noqa: F811
     await api.onMessage(b'{"rt": "test"}', False)
 
     api._cache.test.assert_called_once_with()
-    api.sendMessage.assert_called_once_with({
-        'success': False,
-        'errors': 'Error in redis',
-    })
+    api.sendMessage.assert_called_once_with({"success": False, "errors": "Error in redis"})
 
 
 @pytest.mark.asyncio
 async def test_info(api):  # noqa: F811
     api._clients = {
-        'client',
-        'info_request',
+        "client",
+        "info_request",
     }
     api._cache = MagicMock()
-    api._cache.info = AsyncMagicMock(return_value={'success': True})
+    api._cache.info = AsyncMagicMock(return_value={"success": True})
     api.sendMessage = MagicMock()
 
     await api.onMessage(b'{"rt": "info"}', False)
 
     api._cache.info.assert_called_once_with()
-    api.sendMessage.assert_called_once_with({
-        'success': True,
-        'number_connected_players': 1,
-    })
+    api.sendMessage.assert_called_once_with({"success": True, "number_connected_players": 1})
 
 
 @pytest.mark.asyncio
 async def test_onMessage_unknown_request_type(api):  # noqa: F811
     api.sendMessage = AsyncMagicMock()
 
-    await api.onMessage(b'{}', False)
+    await api.onMessage(b"{}", False)
 
-    api.sendMessage.assert_called_once_with({
-        'error': 'Unknown request: .',
-        'extra_data': {
-            'rt': '',
-            'where': 'on_message',
-        },
-        'is_fatal': False,
-    })
+    api.sendMessage.assert_called_once_with(
+        {
+            "error": "Unknown request: .",
+            "extra_data": {"rt": "", "where": "on_message"},
+            "is_fatal": False,
+        }
+    )
 
 
 @pytest.mark.asyncio
@@ -108,11 +99,10 @@ async def test_onMessage_reconnect(api):  # noqa: F811
     api._cache.is_member_game = AsyncMagicMock(return_value=True)
 
     await api.onMessage(
-        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
-        False,
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False,
     )
 
-    api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
+    api._cache.is_member_game.assert_called_once_with("game_id", "player_id")
     api._reconnect.assert_called_once_with()
 
 
@@ -124,16 +114,14 @@ async def test_onMessage_reconnect_cannot_join(api):  # noqa: F811
     api.sendMessage = AsyncMagicMock()
 
     await api.onMessage(
-        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
-        False,
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False,
     )
 
-    api._cache.is_member_game.assert_called_once_with('game_id', 'player_id')
+    api._cache.is_member_game.assert_called_once_with("game_id", "player_id")
     assert api._reconnect.call_count == 0
-    api.sendMessage.assert_called_once_with({
-        'error_to_display': 'You cannot join this game. No slots opened.',
-        'is_fatal': False,
-    })
+    api.sendMessage.assert_called_once_with(
+        {"error_to_display": "You cannot join this game. No slots opened.", "is_fatal": False}
+    )
 
 
 @pytest.mark.asyncio
@@ -141,18 +129,16 @@ async def test_onMessage_reconnect_while_already_connected(api):  # noqa: F811
     api._reconnect = AsyncMagicMock()
     api._cache = MagicMock()
     api.sendMessage = AsyncMagicMock()
-    api._clients['player_id'] = MagicMock()
+    api._clients["player_id"] = MagicMock()
 
     await api.onMessage(
-        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}',
-        False,
+        b'{"rt": "INIT_GAME", "player_id": "player_id", "game_id": "game_id"}', False,
     )
 
     assert api._reconnect.call_count == 0
-    api.sendMessage.assert_called_once_with({
-        'error_to_display': 'errors.player_already_connected',
-        'is_fatal': True,
-    })
+    api.sendMessage.assert_called_once_with(
+        {"error_to_display": "errors.player_already_connected", "is_fatal": True}
+    )
 
 
 @pytest.mark.asyncio
@@ -171,7 +157,7 @@ async def test_onMessage_creating_game(api):  # noqa: F811
     api._process_create_game_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=False)
-    api._game_id = 'game_id'
+    api._game_id = "game_id"
     api.sendMessage = MagicMock()
 
     await api.onMessage(b'{"rt": "INIT_GAME", "game_id": "game_id"}', False)
@@ -184,7 +170,7 @@ async def test_onMessage_process_play_request(api):  # noqa: F811
     api._process_play_request = MagicMock()
     api._cache = MagicMock()
     api._cache.has_game_started = AsyncMagicMock(return_value=True)
-    api._game_id = 'game_id'
+    api._game_id = "game_id"
 
     await api.onMessage(b'{"rt": "VIEW_POSSIBLE_SQUARES", "game_id": "game_id"}', False)
 
@@ -197,13 +183,13 @@ def test_new_game_no_game_id(api):  # noqa: F811
 
 
 def test_new_game_with_game_id(api):  # noqa: F811
-    api._game_id = 'game_id'
+    api._game_id = "game_id"
     assert not api._creating_new_game
 
 
 def test_new_game_request_on_old_connection(api):  # noqa: F811
-    api._game_id = 'game_id'
-    api._rt = 'INIT_GAME'
+    api._game_id = "game_id"
+    api._rt = "INIT_GAME"
     api._message = {}
     assert api._creating_new_game
 
@@ -216,8 +202,8 @@ async def test_create_new_game(api, mocker):  # noqa: F811
     api._get_initialized_game_message = AsyncMagicMock()
     api._cache.affect_next_slot = AsyncMagicMock(return_value=api.INDEX_FIRST_PLAYER)
     api._message = {
-        'player_name': 'Game Master',
-        'hero': 'daemon',
+        "player_name": "Game Master",
+        "hero": "daemon",
     }
     api.sendMessage = AsyncMagicMock()
 
@@ -227,8 +213,7 @@ async def test_create_new_game(api, mocker):  # noqa: F811
     assert len(api._game_id) == 22
     api._cache.create_new_game.assert_called_once_with(test=False, nb_slots=4)
     api._cache.affect_next_slot.assert_called_once_with(
-        api._message['player_name'],
-        api._message['hero'],
+        api._message["player_name"], api._message["hero"],
     )
     api._cache.save_session.assert_called_once_with(api.INDEX_FIRST_PLAYER)
     api._get_initialized_game_message.assert_called_once_with(api.INDEX_FIRST_PLAYER)
@@ -244,7 +229,7 @@ async def test_process_create_game_request_not_allowed(api):  # noqa: F811
     with pytest.raises(AotErrorToDisplay) as e:
         await api._process_create_game_request()
 
-    assert 'game_master_request' in str(e)
+    assert "game_master_request" in str(e)
 
 
 @pytest.mark.asyncio
@@ -281,7 +266,7 @@ async def test_process_create_game_request_join_cannot_join(api):  # noqa: F811
     with pytest.raises(AotError) as e:
         await api._process_create_game_request()
 
-    assert 'cannot_join' in str(e)
+    assert "cannot_join" in str(e)
 
 
 @pytest.mark.asyncio
@@ -313,12 +298,7 @@ async def test_process_create_game_request_create_game(api):  # noqa: F811
 @pytest.mark.asyncio
 async def test_join(api):  # noqa: F811
     game_message = {
-        'slots': [
-            None,
-            {
-                'state': 'TAKEN',
-            },
-        ],
+        "slots": [None, {"state": "TAKEN"}],
     }
     api._get_initialized_game_message = AsyncMagicMock(return_value=game_message)
     api.sendMessage = AsyncMagicMock()
@@ -326,25 +306,24 @@ async def test_join(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.affect_next_slot = AsyncMagicMock(return_value=1)
     api._cache.save_session = AsyncMagicMock()
-    api.id = 'player_id'
-    api._game_id = 'game_id'
+    api.id = "player_id"
+    api._game_id = "game_id"
     api._message = {
-        'hero': 'daemon',
-        'player_name': 'Player 2',
+        "hero": "daemon",
+        "player_name": "Player 2",
     }
 
     await api._join()
 
-    api._cache.init.assert_called_once_with(game_id='game_id', player_id='player_id')
+    api._cache.init.assert_called_once_with(game_id="game_id", player_id="player_id")
     assert api._cache.create_new_game.call_count == 0
-    api._cache.affect_next_slot.assert_called_once_with('Player 2', 'daemon')
+    api._cache.affect_next_slot.assert_called_once_with("Player 2", "daemon")
     api._cache.save_session.assert_called_once_with(1)
     api._get_initialized_game_message.assert_called_once_with(1)
     api.sendMessage.assert_called_once_with(game_message)
-    api._send_all_others.assert_called_once_with({
-        'rt': RequestTypes.SLOT_UPDATED,
-        'slot': game_message['slots'][1],
-    })
+    api._send_all_others.assert_called_once_with(
+        {"rt": RequestTypes.SLOT_UPDATED, "slot": game_message["slots"][1]}
+    )
 
 
 @pytest.mark.asyncio
@@ -354,13 +333,13 @@ async def test_modify_slots_empty_request(api):  # noqa: F811
     with pytest.raises(AotErrorToDisplay) as e:
         await api._modify_slots()
 
-    assert 'no_slot' in str(e)
+    assert "no_slot" in str(e)
 
 
 @pytest.mark.asyncio
 async def test_modify_slots_non_existent_slot(api):  # noqa: F811
     api._message = {
-        'slot': {},
+        "slot": {},
     }
     api._cache = MagicMock()
     api._cache.slot_exists = AsyncMagicMock(return_value=False)
@@ -368,7 +347,7 @@ async def test_modify_slots_non_existent_slot(api):  # noqa: F811
     with pytest.raises(AotError) as e:
         await api._modify_slots()
 
-    assert 'non-existent_slot' in str(e)
+    assert "non-existent_slot" in str(e)
 
 
 @pytest.mark.asyncio
@@ -378,10 +357,10 @@ async def test_modify_slots(api):  # noqa: F811
     api._cache.slot_exists = AsyncMagicMock(return_value=True)
     api._cache.update_slot = AsyncMagicMock()
     slot = {
-        'player_id': 'player_id',
+        "player_id": "player_id",
     }
     api._message = {
-        'slot': slot,
+        "slot": slot,
     }
 
     await api._modify_slots()
@@ -394,13 +373,12 @@ async def test_modify_slots(api):  # noqa: F811
 async def test_create_game_no_create_game_request(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
-    api._message = {
-    }
+    api._message = {}
 
     with pytest.raises(AotError) as e:
         await api._create_game()
 
-    assert 'no_request' in str(e)
+    assert "no_request" in str(e)
 
 
 @pytest.mark.asyncio
@@ -408,13 +386,13 @@ async def test_create_game_too_many_players(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = AsyncMagicMock(return_value=9)
     api._message = {
-        'create_game_request': [{'name': i} for i in range(9)],
+        "create_game_request": [{"name": i} for i in range(9)],
     }
 
     with pytest.raises(AotError) as e:
         await api._create_game()
 
-    assert 'registered_different_description' in str(e)
+    assert "registered_different_description" in str(e)
 
 
 @pytest.mark.asyncio
@@ -422,13 +400,13 @@ async def test_create_game_too_few_players(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = AsyncMagicMock(return_value=1)
     api._message = {
-        'create_game_request': [{'name': 0}],
+        "create_game_request": [{"name": 0}],
     }
 
     with pytest.raises(AotError) as e:
         await api._create_game()
 
-    assert 'registered_different_description' in str(e)
+    assert "registered_different_description" in str(e)
 
 
 @pytest.mark.asyncio
@@ -436,34 +414,29 @@ async def test_create_game_wrong_registration(api):  # noqa: F811
     api._cache = MagicMock()
     api._cache.number_taken_slots = AsyncMagicMock(return_value=2)
     api._message = {
-        'create_game_request': [],
+        "create_game_request": [],
     }
 
     with pytest.raises(AotError) as e:
         await api._create_game()
 
-    assert 'registered_different_description' in str(e)
+    assert "registered_different_description" in str(e)
 
 
 @pytest.mark.asyncio
 async def test_create_game(mocker, api):  # noqa: F811
     create_game_request = [
-        {
-            'name': str(i),
-            'index': i,
-            'id': str(i),
-            'hero': 'Ulya',
-        } for i in range(3)
+        {"name": str(i), "index": i, "id": str(i), "hero": "Ulya"} for i in range(3)
     ]
     slots = [
-        {'state': None},
+        {"state": None},
         None,
-        {'state': None},
+        {"state": None},
     ]
     create_game_request[1] = None
 
     game = create_game_for_players(create_game_request)  # noqa: 811
-    mocker.patch('aot.api.api.create_game_for_players', return_value=game)
+    mocker.patch("aot.api.api.create_game_for_players", return_value=game)
     api._cache = MagicMock()
     api._send_to = AsyncMagicMock()
     api._send_game_created_message = AsyncMagicMock()
@@ -473,9 +446,9 @@ async def test_create_game(mocker, api):  # noqa: F811
     api._cache.save_game = AsyncMagicMock()
     api._cache.game_has_started = AsyncMagicMock(return_value=False)
     api._message = {
-        'create_game_request': create_game_request,
+        "create_game_request": create_game_request,
     }
-    api._clients['0'] = None
+    api._clients["0"] = None
 
     await api._create_game()
 
@@ -489,32 +462,32 @@ async def test_create_game(mocker, api):  # noqa: F811
 
 def test_disconnect_pending_players(api, game):  # noqa: F811
     api._clients_pending_disconnection = {
-        'game_id': [0, 1],
+        "game_id": [0, 1],
     }
-    api._game_id = 'game_id'
+    api._game_id = "game_id"
     game.players[0].is_connected = True
     game.players[1].is_connected = True
 
     api._disconnect_pending_players(game)
 
     assert len(api._clients_pending_disconnection) == 1
-    assert len(api._clients_pending_disconnection['game_id']) == 0
+    assert len(api._clients_pending_disconnection["game_id"]) == 0
     assert not game.players[0].is_connected
     assert not game.players[1].is_connected
 
 
 def test_reconnect_pending_players(api, game):  # noqa: F811
     api._clients_pending_reconnection = {
-        'game_id': [0, 1],
+        "game_id": [0, 1],
     }
-    api._game_id = 'game_id'
+    api._game_id = "game_id"
     game.players[0].is_connected = False
     game.players[1].is_connected = False
 
     api._reconnect_pending_players(game)
 
     assert len(api._clients_pending_reconnection) == 1
-    assert len(api._clients_pending_reconnection['game_id']) == 0
+    assert len(api._clients_pending_reconnection["game_id"]) == 0
     assert game.players[0].is_connected
     assert game.players[1].is_connected
 
@@ -523,9 +496,8 @@ def test_reconnect_pending_players(api, game):  # noqa: F811
 async def test_notify_special_actions(api, game):  # noqa: F811
     api.sendMessage = AsyncMagicMock()
 
-    await api._notify_special_action('action')
+    await api._notify_special_action("action")
 
-    api.sendMessage.assert_called_once_with({
-        'rt': RequestTypes.SPECIAL_ACTION_NOTIFY,
-        'special_action_name': 'action',
-    })
+    api.sendMessage.assert_called_once_with(
+        {"rt": RequestTypes.SPECIAL_ACTION_NOTIFY, "special_action_name": "action"}
+    )

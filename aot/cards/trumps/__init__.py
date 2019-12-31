@@ -48,26 +48,26 @@ from .utils import TrumpPlayedInfos
 
 
 power_type_to_class = {
-    'AddSpecialActionsToCard': AddSpecialActionsToCardPower,
-    'CannotBeAffectedByTrumps': CannotBeAffectedByTrumpsPower,
-    'ChangeSquare': ChangeSquarePower,
-    'ModifyCardColors': ModifyCardColorsPower,
-    'ModifyCardNumberMoves': ModifyCardNumberMovesPower,
-    'PreventTrumpAction': PreventTrumpActionPower,
-    'StealPower': StealPowerPower,
+    "AddSpecialActionsToCard": AddSpecialActionsToCardPower,
+    "CannotBeAffectedByTrumps": CannotBeAffectedByTrumpsPower,
+    "ChangeSquare": ChangeSquarePower,
+    "ModifyCardColors": ModifyCardColorsPower,
+    "ModifyCardNumberMoves": ModifyCardNumberMovesPower,
+    "PreventTrumpAction": PreventTrumpActionPower,
+    "StealPower": StealPowerPower,
 }
 
 trump_type_to_class = {
-    'CannotBeAffectedByTrumps': CannotBeAffectedByTrumps,
-    'ChangeSquare': ChangeSquare,
-    'ModifyNumberMoves': ModifyNumberMoves,
-    'ModifyTrumpDurations': ModifyTrumpDurations,
-    'PreventTrumpAction': PreventTrumpAction,
-    'RemoveColor': RemoveColor,
-    'Teleport': Teleport,
+    "CannotBeAffectedByTrumps": CannotBeAffectedByTrumps,
+    "ChangeSquare": ChangeSquare,
+    "ModifyNumberMoves": ModifyNumberMoves,
+    "ModifyTrumpDurations": ModifyTrumpDurations,
+    "PreventTrumpAction": PreventTrumpAction,
+    "RemoveColor": RemoveColor,
+    "Teleport": Teleport,
 }
 
-SimpleTrump = namedtuple('SimpleTrump', 'type name color args')
+SimpleTrump = namedtuple("SimpleTrump", "type name color args")
 SimpleTrump.__new__.__defaults__ = (None, None, None, None)
 
 
@@ -112,31 +112,28 @@ class TrumpList(list):
         if xor(trump.color is None, color is None):
             return False
 
-        return (
-            (color is None and trump.color is None)
-            or trump.color.lower() == color.lower()
-        )
+        return (color is None and trump.color is None) or trump.color.lower() == color.lower()
 
 
 __all__ = [
     # Powers
-    'ModifyCardColorsPower',
-    'ModifyCardNumberMovesPower',
+    "ModifyCardColorsPower",
+    "ModifyCardNumberMovesPower",
     # Power utils
-    'Power',
+    "Power",
     # Trumps
-    'CannotBeAffectedByTrumps',
-    'ChangeSquare',
-    'ModifyCardColors',
-    'ModifyCardNumberMoves',
-    'ModifyNumberMoves',
-    'ModifyTrumpDurations',
-    'RemoveColor',
-    'SimpleTrump',
-    'Teleport',
+    "CannotBeAffectedByTrumps",
+    "ChangeSquare",
+    "ModifyCardColors",
+    "ModifyCardNumberMoves",
+    "ModifyNumberMoves",
+    "ModifyTrumpDurations",
+    "RemoveColor",
+    "SimpleTrump",
+    "Teleport",
     # Trump utils
-    'Gauge',
-    'Trump',
-    'TrumpList',
-    'TrumpPlayedInfos',
+    "Gauge",
+    "Trump",
+    "TrumpList",
+    "TrumpPlayedInfos",
 ]

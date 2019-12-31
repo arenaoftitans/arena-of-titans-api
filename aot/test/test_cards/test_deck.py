@@ -38,17 +38,18 @@ NUMBER_TOTAL_CARDS = NUMBER_CARD_TYPES * NUMBER_COLORS
 def test_get_card(deck):  # noqa: F811
     card = deck.first_card_in_hand
     assert card is deck.get_card(card.name, card.color)
-    assert deck.get_card('Azerty', 'Black') is None
-    assert deck.get_card(None, 'Black') is None
-    assert deck.get_card('King', 'king') is None
-    assert deck.get_card('King', None) is None
+    assert deck.get_card("Azerty", "Black") is None
+    assert deck.get_card(None, "Black") is None
+    assert deck.get_card("King", "king") is None
+    assert deck.get_card("King", None) is None
     assert deck.get_card(None, None) is None
 
 
 def test_init_deck(deck):  # noqa: F811
-    assert NUMBER_TOTAL_CARDS == deck.number_cards_in_hand + \
-        deck.number_cards_in_stock + \
-        deck.number_cards_in_graveyard
+    assert (
+        NUMBER_TOTAL_CARDS
+        == deck.number_cards_in_hand + deck.number_cards_in_stock + deck.number_cards_in_graveyard
+    )
     assert deck.number_cards_in_graveyard == 0
     assert NUMBER_CARDS_HAND == deck.number_cards_in_hand
     assert NUMBER_TOTAL_CARDS - NUMBER_CARDS_HAND == deck.number_cards_in_stock
@@ -158,17 +159,17 @@ def test_modify_colors(deck):  # noqa: F811
     for card in deck.hand:
         card.modify_colors = MagicMock()
 
-    deck.modify_colors({'BLACK'})
+    deck.modify_colors({"BLACK"})
 
     for card in deck.hand:
-        card.modify_colors.assert_called_once_with({'BLACK'})
+        card.modify_colors.assert_called_once_with({"BLACK"})
 
 
 def test_modify_colors_with_filter(deck):  # noqa: F811
     for card in deck.hand:
         card.modify_colors = MagicMock()
-    deck.first_card_in_hand._name = 'Card to keep'
-    filter_ = lambda card: card.name == 'Card to keep'  # noqa: E731
+    deck.first_card_in_hand._name = "Card to keep"
+    filter_ = lambda card: card.name == "Card to keep"  # noqa: E731
 
     deck.modify_colors(5, filter_=filter_)
 
@@ -190,8 +191,8 @@ def test_modify_number_moves(deck):  # noqa: F811
 def test_modify_number_moves_with_filter(deck):  # noqa: F811
     for card in deck.hand:
         card.modify_number_moves = MagicMock()
-    deck.first_card_in_hand._name = 'Card to keep'
-    filter_ = lambda card: card.name == 'Card to keep'  # noqa: E731
+    deck.first_card_in_hand._name = "Card to keep"
+    filter_ = lambda card: card.name == "Card to keep"  # noqa: E731
 
     deck.modify_number_moves(5, filter_=filter_)
 

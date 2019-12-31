@@ -28,8 +28,8 @@ class Card:
     _colors = set()
     _default_colors = set()
     _default_number_moves = 0
-    _description = ''
-    _name = ''
+    _description = ""
+    _name = ""
     _movements = []
     _number_movements = 0
     _cost = 0
@@ -41,8 +41,8 @@ class Card:
         board,
         color=Color.ALL,
         complementary_colors=None,
-        name='',
-        description='',
+        name="",
+        description="",
         movements_types=None,
         number_movements=1,
         cost=0,
@@ -54,9 +54,9 @@ class Card:
             movements_types = set()
 
         self.movements_methods = {
-            'line': self._line_move,
-            'diagonal': self._diagonal_move,
-            'knight': self._knight_move,
+            "line": self._line_move,
+            "diagonal": self._diagonal_move,
+            "knight": self._knight_move,
         }
 
         self._board = board
@@ -66,9 +66,7 @@ class Card:
         self._default_colors = set(self._colors)
         self._description = description
         self._name = name
-        self._movements = [
-            self.movements_methods[mvt] for mvt in movements_types
-        ]
+        self._movements = [self.movements_methods[mvt] for mvt in movements_types]
         self._movements_types = movements_types
         self._default_number_moves = number_movements
         self._number_movements = number_movements
@@ -76,7 +74,7 @@ class Card:
         if special_actions is not None:
             self._special_actions = special_actions
             for action in self._special_actions:
-                action.args['color'] = self._color
+                action.args["color"] = self._color
         else:
             self._special_actions = []
 
@@ -89,7 +87,7 @@ class Card:
     def set_special_actions(self, actions):
         self._special_actions = actions
         for action in self._special_actions:
-            action.args['color'] = self._color
+            action.args["color"] = self._color
 
     def move(self, origin):
         number_movements_left = self._number_movements
@@ -105,8 +103,9 @@ class Card:
 
             number_movements_left -= 1
 
-        return {square for square in possible_squares
-                if not square.occupied and square is not origin}
+        return {
+            square for square in possible_squares if not square.occupied and square is not origin
+        }
 
     def _move_level(self, origin):
         possible_squares_level = set()
@@ -132,11 +131,9 @@ class Card:
 
     def _knight_move(self, origin):
         possible_squares = set()
-        possible_squares.update(
-            self.__knight_get_vertical_squares(origin))
+        possible_squares.update(self.__knight_get_vertical_squares(origin))
 
-        possible_squares.update(
-            self.__knigt_get_horizontal_square(origin))
+        possible_squares.update(self.__knigt_get_horizontal_square(origin))
 
         return possible_squares
 
@@ -144,8 +141,11 @@ class Card:
         probable_squares = self.__knight_get_vertical_squares_vertical_first(origin)
         probable_squares.update(self.__knight_get_vertical_squares_horizontal_first(origin))
 
-        return [square for square in probable_squares
-                if square.color in self._colors and not square.occupied]
+        return [
+            square
+            for square in probable_squares
+            if square.color in self._colors and not square.occupied
+        ]
 
     def __knight_get_vertical_squares_vertical_first(self, origin):
         probable_squares = set()
@@ -193,8 +193,11 @@ class Card:
             if square:
                 probable_squares.update(self.__knight_get_temporary_horizontal_square(square))
 
-        return [square for square in probable_squares
-                if square and square.color in self._colors and not square.occupied]
+        return [
+            square
+            for square in probable_squares
+            if square and square.color in self._colors and not square.occupied
+        ]
 
     def __knight_get_temporary_horizontal_square(self, origin):
         # We must get horizontal squares one step at a time to avoid switching
@@ -203,11 +206,9 @@ class Card:
         square_right = self._board[origin.x + 1, origin.y]
         temporary_horizontal_squares = set()
         if square_left:
-            temporary_horizontal_squares.add(
-                self._board[square_left.x - 1, square_left.y])
+            temporary_horizontal_squares.add(self._board[square_left.x - 1, square_left.y])
         if square_right:
-            temporary_horizontal_squares.add(
-                self._board[square_right.x + 1, square_right.y])
+            temporary_horizontal_squares.add(self._board[square_right.x + 1, square_right.y])
 
         return temporary_horizontal_squares
 
@@ -244,9 +245,9 @@ class Card:
     @property
     def infos(self):
         return {
-            'name': self.name,
-            'color': self.color,
-            'description': self.description,
+            "name": self.name,
+            "color": self.color,
+            "description": self.description,
         }
 
     @property
@@ -262,8 +263,9 @@ class Card:
         return self._special_actions
 
     def __str__(self):  # pragma: no cover
-        return 'Card(name={name}, color={color}, colors={colors})'\
-            .format(name=self.name, color=self.color, colors=self.colors)
+        return "Card(name={name}, color={color}, colors={colors})".format(
+            name=self.name, color=self.color, colors=self.colors
+        )
 
     def __repr__(self):  # pragma: no cover
         return str(self)

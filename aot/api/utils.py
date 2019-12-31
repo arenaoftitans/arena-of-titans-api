@@ -78,25 +78,25 @@ def to_json(python_object):  # pragma: no cover
         return python_object.value
     elif isinstance(python_object, Square):
         return {
-            'x': python_object.x,
-            'y': python_object.y,
+            "x": python_object.x,
+            "y": python_object.y,
         }
     elif isinstance(python_object, (Trump, TrumpPlayedInfos)):
         data = {
-            'cost': python_object.cost,
-            'description': python_object.description,
-            'duration': python_object.duration,
-            'must_target_player': python_object.must_target_player,
-            'name': python_object.name,
-            'color': python_object.color,
-            'initiator': python_object.initiator,
+            "cost": python_object.cost,
+            "description": python_object.description,
+            "duration": python_object.duration,
+            "must_target_player": python_object.must_target_player,
+            "name": python_object.name,
+            "color": python_object.color,
+            "initiator": python_object.initiator,
         }
         if isinstance(python_object, Power):
-            data['passive'] = python_object.passive
+            data["passive"] = python_object.passive
         if isinstance(python_object, TrumpPlayedInfos):
-            data['is_power'] = python_object.is_power
+            data["is_power"] = python_object.is_power
         return data
     elif isinstance(python_object, set):
         return [to_json(element) for element in python_object]
     # Normally, this is unreachable
-    raise TypeError(str(python_object) + ' is not JSON serializable')  # pragma: no cover
+    raise TypeError(str(python_object) + " is not JSON serializable")  # pragma: no cover

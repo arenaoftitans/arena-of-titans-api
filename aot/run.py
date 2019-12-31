@@ -35,31 +35,28 @@ logger = logging.getLogger(__name__)
 def setup_logging(debug=False):
     if debug:
         level = logging.DEBUG
-    elif config['log']['level']:
-        level = getattr(logging, config['log']['level'], logging.DEBUG)
+    elif config["log"]["level"]:
+        level = getattr(logging, config["log"]["level"], logging.DEBUG)
     else:
         level = logging.INFO
 
-    outputs = (
-        'stderr',
-    )
+    outputs = ("stderr",)
 
-    if config['rollbar']['access_token'] is None:
+    if config["rollbar"]["access_token"] is None:
         print(  # noqa: T001
-            'Note: not loading rollbar, no access_token found.',
-            file=sys.stderr,
+            "Note: not loading rollbar, no access_token found.", file=sys.stderr,
         )
     else:
         rollbar_output = RollbarOutput(
-            access_token=config['rollbar']['access_token'],
-            environment=config['env'],
-            level=config['rollbar']['level'],
+            access_token=config["rollbar"]["access_token"],
+            environment=config["env"],
+            level=config["rollbar"]["level"],
         )
         outputs = (*outputs, rollbar_output)
 
     daiquiri.setup(level=level, outputs=outputs)
     level_name = logging.getLevelName(level)
-    logger.info(f'Logging configured with level: {level_name} and ouputs: {outputs}')
+    logger.info(f"Logging configured with level: {level_name} and ouputs: {outputs}")
 
 
 def startup(debug=False, debug_aio=False):
@@ -73,10 +70,10 @@ def startup(debug=False, debug_aio=False):
 
 
 def _create_tcp_server(loop):
-    host = config['api']['host']
-    port = config['api']['ws_port']
-    ws_endpoint = f'ws://{host}:{port}'
-    logger.info(f'API listening to {ws_endpoint}')
+    host = config["api"]["host"]
+    port = config["api"]["ws_port"]
+    ws_endpoint = f"ws://{host}:{port}"
+    logger.info(f"API listening to {ws_endpoint}")
     factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
     return loop.create_server(factory, host, port)
@@ -89,7 +86,7 @@ def cleanup(wsserver, loop):
         # Leave tasks a chance to complete.
         pending = asyncio.Task.all_tasks()
         if len(pending) > 0:
-            loop.run_until_complete(asyncio.wait(pending, timeout=config['cleanup_timeout']))
+            loop.run_until_complete(asyncio.wait(pending, timeout=config["cleanup_timeout"]))
         # Quit all.
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()

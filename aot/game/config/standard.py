@@ -4,23 +4,14 @@ from .boards import load_board
 STANDARD_CONFIG = {
     "number_players": 4,
     "number_trumps_per_player": 4,
-    "colors": [
-        "BLACK",
-        "BLUE",
-        "RED",
-        "YELLOW"
-    ],
-
+    "colors": ["BLACK", "BLUE", "RED", "YELLOW"],
     "movements_cards": {
         "number_cards_per_color": 1,
         "cards": [
             {
                 "name": "Assassin",
                 "number_of_movements": 2,
-                "movements_type": [
-                    "line",
-                    "diagonal"
-                ],
+                "movements_type": ["line", "diagonal"],
                 "description": "Move two squares in line or diagonal.",
                 "cost": 300,
                 "special_actions": [
@@ -31,88 +22,61 @@ STANDARD_CONFIG = {
                         "duration": 0,
                         "repeat_for_each_color": False,
                         "must_target_player": True,
-                        "parameters": {
-                            "type": "Teleport",
-                            "distance": 1
-                        }
+                        "parameters": {"type": "Teleport", "distance": 1},
                     }
-                ]
+                ],
             },
             {
                 "name": "Bishop",
                 "number_of_movements": 2,
-                "movements_type": [
-                    "diagonal"
-                ],
+                "movements_type": ["diagonal"],
                 "complementary_colors": {
-                    "BLACK": [
-                        "BLUE"
-                    ],
-                    "BLUE": [
-                        "YELLOW"
-                    ],
-                    "RED": [
-                        "BLACK"
-                    ],
-                    "YELLOW": [
-                        "RED"
-                    ]
+                    "BLACK": ["BLUE"],
+                    "BLUE": ["YELLOW"],
+                    "RED": ["BLACK"],
+                    "YELLOW": ["RED"],
                 },
                 "description": "Move two squares in diagonal. Can move on two different colors.",
-                "cost": 200
+                "cost": 200,
             },
             {
                 "name": "King",
                 "number_of_movements": 3,
-                "movements_type": [
-                    "line"
-                ],
+                "movements_type": ["line"],
                 "description": "Move three squares in line.",
-                "cost": 400
+                "cost": 400,
             },
             {
                 "name": "Knight",
                 "number_of_movements": 1,
-                "movements_type": [
-                    "knight"
-                ],
+                "movements_type": ["knight"],
                 "description": "Move one square in L.",
-                "cost": 200
+                "cost": 200,
             },
             {
                 "name": "Queen",
                 "number_of_movements": 2,
-                "movements_type": [
-                    "line",
-                    "diagonal"
-                ],
+                "movements_type": ["line", "diagonal"],
                 "description": "Move two squares in line or diagonal.",
-                "cost": 300
+                "cost": 300,
             },
             {
                 "name": "Warrior",
                 "number_of_movements": 1,
-                "movements_type": [
-                    "line"
-                ],
+                "movements_type": ["line"],
                 "description": "Move one square in line",
-                "cost": 100
+                "cost": 100,
             },
             {
                 "name": "Wizard",
                 "number_of_movements": 1,
-                "movements_type": [
-                    "line",
-                    "diagonal"
-                ],
-                "additional_movements_colors": [
-                    "ALL"
-                ],
+                "movements_type": ["line", "diagonal"],
+                "additional_movements_colors": ["ALL"],
                 "description": "Move one squares in line or diagonal. "
-                               "Can move on a square of any color.",
-                "cost": 200
-            }
-        ]
+                "Can move on a square of any color.",
+                "cost": 200,
+            },
+        ],
     },
     "trumps": [
         {
@@ -122,11 +86,8 @@ STANDARD_CONFIG = {
             "duration": 1,
             "repeat_for_each_color": False,
             "must_target_player": True,
-            "parameters": {
-                "type": "ModifyNumberMoves",
-                "delta_moves": -1
-            },
-            "weight": 3
+            "parameters": {"type": "ModifyNumberMoves", "delta_moves": -1},
+            "weight": 3,
         },
         {
             "name": "Fortress",
@@ -135,10 +96,8 @@ STANDARD_CONFIG = {
             "duration": 2,
             "repeat_for_each_color": True,
             "must_target_player": True,
-            "parameters": {
-                "type": "RemoveColor"
-            },
-            "weight": 1
+            "parameters": {"type": "RemoveColor"},
+            "weight": 1,
         },
         {
             "name": "Ram",
@@ -151,12 +110,9 @@ STANDARD_CONFIG = {
                 "type": "ModifyTrumpDurations",
                 "delta_duration": -1,
                 "temporary": True,
-                "trump_names": [
-                    "Fortress",
-                    "Tower"
-                ]
+                "trump_names": ["Fortress", "Tower"],
             },
-            "weight": 5
+            "weight": 5,
         },
         {
             "name": "Reinforcements",
@@ -165,11 +121,8 @@ STANDARD_CONFIG = {
             "duration": 1,
             "repeat_for_each_color": False,
             "must_target_player": False,
-            "parameters": {
-                "type": "ModifyNumberMoves",
-                "delta_moves": 1
-            },
-            "weight": 3
+            "parameters": {"type": "ModifyNumberMoves", "delta_moves": 1},
+            "weight": 3,
         },
         {
             "name": "Tower",
@@ -178,11 +131,9 @@ STANDARD_CONFIG = {
             "duration": 1,
             "repeat_for_each_color": True,
             "must_target_player": True,
-            "parameters": {
-                "type": "RemoveColor"
-            },
-            "weight": 1
-        }
+            "parameters": {"type": "RemoveColor"},
+            "weight": 1,
+        },
     ],
     "powers": {
         "arline": {
@@ -193,10 +144,7 @@ STANDARD_CONFIG = {
             "duration": 2,
             "repeat_for_each_color": False,
             "must_target_player": False,
-            "parameters": {
-                "type": "CannotBeAffectedByTrumps",
-                "trump_names": None
-            }
+            "parameters": {"type": "CannotBeAffectedByTrumps", "trump_names": None},
         },
         "djor": {
             "name": "Impassable",
@@ -207,15 +155,9 @@ STANDARD_CONFIG = {
             "must_target_player": False,
             "parameters": {
                 "type": "PreventTrumpAction",
-                "prevent_for_trumps": [
-                    "Force of nature",
-                    "Ram"
-                ],
-                "enable_for_trumps": [
-                    "Fortress",
-                    "Tower"
-                ]
-            }
+                "prevent_for_trumps": ["Force of nature", "Ram"],
+                "enable_for_trumps": ["Fortress", "Tower"],
+            },
         },
         "garez": {
             "name": "Inveterate Ride",
@@ -226,14 +168,10 @@ STANDARD_CONFIG = {
             "must_target_player": False,
             "parameters": {
                 "type": "ModifyCardColors",
-                "add_colors": [
-                    "ALL"
-                ],
+                "add_colors": ["ALL"],
                 "remove_colors": [],
-                "card_names": [
-                    "Knight"
-                ]
-            }
+                "card_names": ["Knight"],
+            },
         },
         "mirindrel": {
             "name": "Terraforming",
@@ -241,9 +179,7 @@ STANDARD_CONFIG = {
             "passive": False,
             "cost": 8,
             "must_target_player": False,
-            "parameters": {
-                "type": "ChangeSquare"
-            }
+            "parameters": {"type": "ChangeSquare"},
         },
         "razbrak": {
             "name": "Force of nature",
@@ -254,11 +190,8 @@ STANDARD_CONFIG = {
             "must_target_player": False,
             "parameters": {
                 "type": "CannotBeAffectedByTrumps",
-                "trump_names": [
-                    "Fortress",
-                    "Tower"
-                 ]
-            }
+                "trump_names": ["Fortress", "Tower"],
+            },
         },
         "ulya": {
             "name": "Domination",
@@ -270,14 +203,12 @@ STANDARD_CONFIG = {
             "parameters": {
                 "type": "ModifyCardNumberMoves",
                 "delta_moves": 1,
-                "card_names": [
-                    "Queen"
-                ]
-            }
+                "card_names": ["Queen"],
+            },
         },
-        "luni" : {
+        "luni": {
             "name": "Secret blade",
-            "description":  "Add the assassination special action to Warrior cards.",
+            "description": "Add the assassination special action to Warrior cards.",
             "passive": False,
             "cost": 10,
             "trump_cost_delta": 0,
@@ -293,13 +224,10 @@ STANDARD_CONFIG = {
                         "duration": 0,
                         "repeat_for_each_color": False,
                         "must_target_player": True,
-                        "parameters": {
-                            "type": "Teleport",
-                            "distance": 1
-                        }
+                        "parameters": {"type": "Teleport", "distance": 1},
                     }
-                ]
-            }
+                ],
+            },
         },
         "kharliass": {
             "name": "Metamorphosis",
@@ -308,11 +236,8 @@ STANDARD_CONFIG = {
             "cost": 10,
             "trump_cost_delta": 0,
             "must_target_player": True,
-            "parameters": {
-                "type": "StealPower",
-                "number_turn_theft_active": 1
-            }
-        }
+            "parameters": {"type": "StealPower", "number_turn_theft_active": 1},
+        },
     },
-    "board": load_board('standard'),
+    "board": load_board("standard"),
 }
