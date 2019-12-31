@@ -77,7 +77,7 @@ Usage
 Use the ``make`` command to launch task. Tasks will be launched from the host within the docker container by default. Use ``make venvlint`` to run the linter from within a venv instead. Use ``make`` to view the list of possible targets and their description. Alternatively, you can use:
 
 - To launch the API in development mode (reload on modification): ``python3 aot/test_main.py``
-- To launch the unit tests with code coverage: ``python3 setup.py test``
+- To launch the unit tests with code coverage: ``pytest --cov``
 - To relaunch the unit tests on each modifications:
 
    - On Linux: ``ptw aot --runner py.test -- aot/test --testmon``
@@ -165,7 +165,7 @@ This is only useful if you don't use ``npm run tdd`` during development.
 
    set -e
 
-   python3 setup.py test
+   pytest
 
 Commit
 ------
