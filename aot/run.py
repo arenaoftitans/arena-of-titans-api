@@ -29,6 +29,9 @@ from .api import Api
 from .config import config
 
 
+logger = logging.getLogger(__name__)
+
+
 def setup_logging(debug=False):
     if debug:
         level = logging.DEBUG
@@ -56,7 +59,7 @@ def setup_logging(debug=False):
 
     daiquiri.setup(level=level, outputs=outputs)
     level_name = logging.getLevelName(level)
-    logging.info(f'Logging configured with level: {level_name} and ouputs: {outputs}')
+    logger.info(f'Logging configured with level: {level_name} and ouputs: {outputs}')
 
 
 def startup(debug=False, debug_aio=False):
@@ -73,6 +76,7 @@ def _create_tcp_server(loop):
     host = config['api']['host']
     port = config['api']['ws_port']
     ws_endpoint = f'ws://{host}:{port}'
+    logger.info(f'API listening to {ws_endpoint}')
     factory = WebSocketServerFactory(ws_endpoint)
     factory.protocol = Api
     return loop.create_server(factory, host, port)
