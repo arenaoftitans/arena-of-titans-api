@@ -517,6 +517,11 @@ class Api(AotWs):
                 for card in player.hand
             ],
             "active_trumps": self._get_active_trumps_message(game),
+            "trump_target_indexes": [
+                player.index
+                for player in game.players
+                if player and player.can_be_targeted_by_trumps
+            ],
             "has_remaining_moves_to_play": player.has_remaining_moves_to_play,
             "trumps_statuses": player.trumps_statuses,
             "can_power_be_played": player.can_power_be_played,
