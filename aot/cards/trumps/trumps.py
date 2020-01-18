@@ -250,6 +250,10 @@ class CannotBeAffectedByTrumps(Trump):
             return False
         return True
 
+    @property
+    def is_affecting_all_trumps(self):
+        return not self._trump_names
+
 
 class ChangeSquare(Trump):
     target_type = TargetTypes.board

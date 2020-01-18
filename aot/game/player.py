@@ -454,6 +454,18 @@ class Player:
         return self._available_trumps
 
     @property
+    def can_be_targeted_by_trumps(self):
+        """Return true if the player can be targeted by at least one kind of trump.
+
+        It returns false only when the player cannot be targeted by any trump.
+        """
+        for trump in self.affecting_trumps:
+            if isinstance(trump, trumps.CannotBeAffectedByTrumps) and trump.is_affecting_all_trumps:
+                return False
+
+        return True
+
+    @property
     def can_play(self):
         return self._can_play
 
