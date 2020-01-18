@@ -76,7 +76,7 @@ class Config:
                     "ws_port": self.env.int("API_WS_PORT", 8181),
                 },
                 "cache": {
-                    "host": self.env.str("CACHE_HOST", "aot-redis"),
+                    "host": self.env.str("CACHE_HOST", "127.0.0.1"),
                     "port": self.env.int("CACHE_PORT", 6379),
                     # Sign key must be of type bytes, not str.
                     "sign_key": cache_sign_key.encode("utf-8"),
