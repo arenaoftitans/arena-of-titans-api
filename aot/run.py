@@ -22,8 +22,9 @@ import logging
 import sys
 
 import daiquiri
+import sentry_sdk
 from autobahn.asyncio.websocket import WebSocketServerFactory
-from daiquiri_rollbar import RollbarOutput
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .api import Api
 from .config import config
@@ -39,19 +40,23 @@ def setup_logging(debug=False):
     else:
         level = logging.INFO
 
-    outputs = ("stderr",)
-
-    if config["rollbar"]["access_token"] is None:
+    if config["sentry_dsn"] is None:
         print(  # noqa: T001
-            "Note: not loading rollbar, no access_token found.", file=sys.stderr,
+            "Note: not loading sentry, no dsn configured.", file=sys.stderr,
         )
     else:
-        rollbar_output = RollbarOutput(
-            access_token=config["rollbar"]["access_token"],
-            environment=config["env"],
-            level=config["rollbar"]["level"],
+        sentry_logging = LoggingIntegration(
+            level=logging.INFO,  # Capture info and above as breadcrumbs
+            event_level=logging.WARNING,  # Send warnings as events
         )
-        outputs = (*outputs, rollbar_output)
+        sentry_sdk.init(
+            config["sentry_dsn"],
+            release=config["version"],
+            environment=config["env"],
+            integrations=[sentry_logging],
+        )
+
+    outputs = ("stderr",)
 
     daiquiri.setup(level=level, outputs=outputs)
     level_name = logging.getLevelName(level)
