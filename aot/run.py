@@ -19,11 +19,9 @@
 
 import asyncio
 import logging
-import sys
 
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerFactory
-from daiquiri_rollbar import RollbarOutput
 
 from .api import Api
 from .config import config
@@ -40,18 +38,6 @@ def setup_logging(debug=False):
         level = logging.INFO
 
     outputs = ("stderr",)
-
-    if config["rollbar"]["access_token"] is None:
-        print(  # noqa: T001
-            "Note: not loading rollbar, no access_token found.", file=sys.stderr,
-        )
-    else:
-        rollbar_output = RollbarOutput(
-            access_token=config["rollbar"]["access_token"],
-            environment=config["env"],
-            level=config["rollbar"]["level"],
-        )
-        outputs = (*outputs, rollbar_output)
 
     daiquiri.setup(level=level, outputs=outputs)
     level_name = logging.getLevelName(level)

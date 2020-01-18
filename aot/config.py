@@ -37,8 +37,6 @@ class Config:
         "CACHE_TTL",
         "ENV",
         "LOG_LEVEL",
-        "ROLLBAR_ACCESS_TOKEN",
-        "ROLLBAR_LEVEL",
         "VERSION",
     }
 
@@ -87,10 +85,6 @@ class Config:
                 "cleanup_timeout": self.env.int("CLEANUP_TIMEOUT", 5),
                 "env": env,
                 "log": {"level": self.env.str("LOG_LEVEL", None)},
-                "rollbar": {
-                    "access_token": self.env.str("ROLLBAR_ACCESS_TOKEN", None),
-                    "level": self.env.int("ROLLBAR_LEVEL", 30),
-                },
                 "version": self.env.str("VERSION", "latest"),
             }
         )
