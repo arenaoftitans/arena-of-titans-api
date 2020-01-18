@@ -37,6 +37,7 @@ class Config:
         "CACHE_TTL",
         "ENV",
         "LOG_LEVEL",
+        "SENTRY_DSN",
         "VERSION",
     }
 
@@ -85,6 +86,7 @@ class Config:
                 "cleanup_timeout": self.env.int("CLEANUP_TIMEOUT", 5),
                 "env": env,
                 "log": {"level": self.env.str("LOG_LEVEL", None)},
+                "sentry_dsn": self.env.str("SENTRY_DSN", None),
                 "version": self.env.str("VERSION", "latest"),
             }
         )

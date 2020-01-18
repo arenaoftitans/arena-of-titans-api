@@ -19,9 +19,12 @@
 
 import asyncio
 import logging
+import sys
 
 import daiquiri
+import sentry_sdk
 from autobahn.asyncio.websocket import WebSocketServerFactory
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .api import Api
 from .config import config
@@ -36,6 +39,22 @@ def setup_logging(debug=False):
         level = getattr(logging, config["log"]["level"], logging.DEBUG)
     else:
         level = logging.INFO
+
+    if config["sentry_dsn"] is None:
+        print(  # noqa: T001
+            "Note: not loading sentry, no dsn configured.", file=sys.stderr,
+        )
+    else:
+        sentry_logging = LoggingIntegration(
+            level=logging.INFO,  # Capture info and above as breadcrumbs
+            event_level=logging.WARNING,  # Send warnings as events
+        )
+        sentry_sdk.init(
+            config["sentry_dsn"],
+            release=config["version"],
+            environment=config["env"],
+            integrations=[sentry_logging],
+        )
 
     outputs = ("stderr",)
 
