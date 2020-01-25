@@ -44,7 +44,6 @@ from .ws import AotWs
 class Api(AotWs):
     # Class variables.
     INDEX_FIRST_PLAYER = 0
-    AI_TIMEOUT = 6
     MIN_ELAPSED_TIME_TO_CONSIDER = 8
     LOGGER = daiquiri.getLogger(__name__)
     _error_messages = {
@@ -341,7 +340,7 @@ class Api(AotWs):
             self.LOGGER.debug(f"Game n°{self._game_id}: schedule play for AI",)
             self._pending_ai.add(self._game_id)
             self._loop.call_later(
-                self.AI_TIMEOUT, lambda: asyncio.ensure_future(self._process_play_request()),
+                self._api_delay, lambda: asyncio.ensure_future(self._process_play_request()),
             )
 
     async def _play_ai(self, game):
@@ -715,6 +714,10 @@ class Api(AotWs):
 
     def _get_trump(self, game, trump_name, trump_color):
         return game.active_player.get_trump(trump_name, trump_color)
+
+    @property
+    def _api_delay(self):
+        return config["ai"]["delay"]
 
     @property
     async def _can_join(self):

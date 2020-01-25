@@ -30,6 +30,7 @@ class Config:
         "API_ALLOW_DEBUG",
         "API_HOST",
         "API_WS_PORT",
+        "AI_DELAY",
         "CACHE_HOST",
         "CACHE_PORT",
         "CACHE_SIGN_KEY",
@@ -74,6 +75,7 @@ class Config:
                     "host": self.env.str("API_HOST", "0.0.0.0"),  # noqa: S104
                     "ws_port": self.env.int("API_WS_PORT", 8181),
                 },
+                "ai": {"delay": self.env.int("AI_DELAY", 5)},
                 "cache": {
                     "host": self.env.str("CACHE_HOST", "127.0.0.1"),
                     "port": self.env.int("CACHE_PORT", 6379),

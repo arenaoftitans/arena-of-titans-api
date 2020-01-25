@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
@@ -98,7 +98,8 @@ def gauge():
 
 
 @pytest.fixture
-def api():
+def api(mocker):
+    mocker.patch("aot.api.Api._api_delay", new_callable=PropertyMock, return_value=10)
     a = Api()
     a._id = 0
     a._clients_pending_disconnection = {}

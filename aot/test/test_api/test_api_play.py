@@ -70,7 +70,7 @@ async def test_process_play_request_ai_after_player(api, game):  # noqa: F811
     api._play_game.assert_called_once_with(game)
     assert api._play_ai.call_count == 0
     assert api._loop.call_later.call_count == 1
-    assert api._loop.call_later.call_args[0][0] == api.AI_TIMEOUT
+    assert api._loop.call_later.call_args[0][0] == 10
     assert callable(api._loop.call_later.call_args[0][1])
 
 
@@ -117,7 +117,7 @@ def test_play_ai_after_timeout(api, game):  # noqa: F811
     api._play_ai_after_timeout(game)
 
     assert api._loop.call_later.call_count == 1
-    assert api._loop.call_later.call_args[0][0] == api.AI_TIMEOUT
+    assert api._loop.call_later.call_args[0][0] == 10
     assert callable(api._loop.call_later.call_args[0][1])
     assert "game_id" in api._pending_ai
 
