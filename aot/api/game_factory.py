@@ -1,12 +1,12 @@
 import logging
 import random
 
-from aot.board import Board, Color
-from aot.cards import Card, Deck
-from aot.cards.trumps import Gauge, SimpleTrump, TrumpList
+from aot.game.board import Board, Color
+from aot.game.cards import Card, Deck
 from aot.game.config import GAME_CONFIGS
 from aot.game.game import Game
 from aot.game.player import Player
+from aot.game.trumps import Gauge, SimpleTrump, TrumpList
 
 logger = logging.getLogger(__name__)
 

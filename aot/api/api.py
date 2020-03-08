@@ -25,17 +25,17 @@ from contextlib import asynccontextmanager
 
 import daiquiri
 
-from ..cards.trumps.constants import TargetTypes as TrumpsTargetTypes
-from ..cards.trumps.exceptions import (
+from ..config import config
+from ..game import Player
+from ..game.config import GAME_CONFIGS
+from ..game.trumps.constants import TargetTypes as TrumpsTargetTypes
+from ..game.trumps.exceptions import (
     GaugeTooLowToPlayTrump,
     MaxNumberAffectingTrumps,
     MaxNumberTrumpPlayed,
     TrumpHasNoEffect,
 )
-from ..config import config
-from ..game import Player
-from ..game.config import GAME_CONFIGS
-from ..utils import get_time
+from ..game.utils import get_time
 from .game_factory import create_game_for_players
 from .utils import AotError, AotErrorToDisplay, RequestTypes, sanitize
 from .ws import AotWs

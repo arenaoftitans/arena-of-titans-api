@@ -19,9 +19,9 @@
 
 import bleach
 
-from ..board import Square
-from ..cards.trumps import Power, Trump, TrumpPlayedInfos
-from ..utils import SimpleEnumMeta
+from aot.game.board import Square
+from aot.game.trumps import Power, Trump, TrumpPlayedInfos
+from aot.game.utils import SimpleEnumMeta
 
 
 class AotError(Exception):

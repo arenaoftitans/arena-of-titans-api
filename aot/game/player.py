@@ -19,10 +19,10 @@
 
 import daiquiri
 
-from ..board import Square
-from ..cards import trumps
-from ..game.exceptions import NotYourTurn
-from ..utils import get_time
+from . import trumps
+from .board import Square
+from .exceptions import NotYourTurn
+from .utils import get_time
 
 
 class LastAction:

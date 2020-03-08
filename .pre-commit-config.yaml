@@ -22,7 +22,6 @@ repos:
             -   id: debug-statements
             -   id: detect-private-key
             -   id: mixed-line-ending
-            -   id: name-tests-test
     -   repo: local
         hooks:
             -   id: black

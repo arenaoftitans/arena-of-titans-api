@@ -1,5 +1,4 @@
-from aot.utils import make_immutable
-
+from ..utils import make_immutable
 from .standard import STANDARD_CONFIG
 from .test import TEST_CONFIG
 
