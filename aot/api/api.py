@@ -30,10 +30,10 @@ from ..game import Player
 from ..game.config import GAME_CONFIGS
 from ..game.trumps.constants import TargetTypes as TrumpsTargetTypes
 from ..game.trumps.exceptions import (
-    GaugeTooLowToPlayTrump,
-    MaxNumberAffectingTrumps,
-    MaxNumberTrumpPlayed,
-    TrumpHasNoEffect,
+    GaugeTooLowToPlayTrumpError,
+    MaxNumberAffectingTrumpsError,
+    MaxNumberTrumpPlayedError,
+    TrumpHasNoEffectError,
 )
 from ..game.utils import get_time
 from .game_factory import create_game_for_players
@@ -672,17 +672,17 @@ class Api(AotWs):
             target_type = trump.target_type
             square = target if target_type == TrumpsTargetTypes.board else None
             game.play_trump(trump, target)
-        except GaugeTooLowToPlayTrump:
+        except GaugeTooLowToPlayTrumpError:
             raise AotError("gauge_too_low")
-        except MaxNumberTrumpPlayed:
+        except MaxNumberTrumpPlayedError:
             raise AotError(
                 "max_number_played_trumps", infos={"num": Player.MAX_NUMBER_TRUMPS_PLAYED},
             )
-        except MaxNumberAffectingTrumps:
+        except MaxNumberAffectingTrumpsError:
             raise AotErrorToDisplay(
                 "max_number_trumps", {"num": Player.MAX_NUMBER_AFFECTING_TRUMPS},
             )
-        except TrumpHasNoEffect:
+        except TrumpHasNoEffectError:
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
                 game, target_index, rt=RequestTypes.TRUMP_HAS_NO_EFFECT,

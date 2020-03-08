@@ -25,7 +25,7 @@ from typing import List, Tuple
 from ..board import Color, all_colors
 from ..cards import Card
 from .constants import TargetTypes
-from .exceptions import TrumpHasNoEffect
+from .exceptions import TrumpHasNoEffectError
 from .utils import return_trump_infos
 
 
@@ -403,7 +403,7 @@ class ModifyTrumpDurations(Trump):
             # Currently we can only apply this to affecting trumps.
             affected_trumps = [trump for trump in player.affecting_trumps if filter_(trump)]
             if len(affected_trumps) == 0:
-                raise TrumpHasNoEffect
+                raise TrumpHasNoEffectError
 
             player.modify_affecting_trump_durations(
                 self._delta_duration, filter_=filter_,

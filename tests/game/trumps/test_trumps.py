@@ -34,7 +34,7 @@ from aot.game.trumps import (
     Teleport,
     TrumpList,
 )
-from aot.game.trumps.exceptions import MaxNumberAffectingTrumps, TrumpHasNoEffect
+from aot.game.trumps.exceptions import MaxNumberAffectingTrumpsError, TrumpHasNoEffectError
 
 
 def test_affect_modify_number_moves(player):  # noqa: F811
@@ -106,7 +106,7 @@ def test_affect_modify_card_number_moves_with_filter_(player):  # noqa: F811
 def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
     player.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         trump.affect(player=player)
     assert not player.modify_affecting_trump_durations.called
 
@@ -152,7 +152,7 @@ def test_prevent_trump_action_enable_on_relevant_trump(player, player2):  # noqa
     # Setup trump to play but will have no effect.
     ram = ModifyTrumpDurations(name="Ram", trump_names=["Tower", "Fortress"], duration=1,)
 
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         ram.affect(player=player)
 
     assert tower.duration == 1
@@ -278,7 +278,7 @@ def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):
         assert len(player1.affecting_trumps) == i + 1
 
     trump = RemoveColor(colors=[Color["BLACK"]], duration=1)
-    with pytest.raises(MaxNumberAffectingTrumps):
+    with pytest.raises(MaxNumberAffectingTrumpsError):
         player1._affect_by(trump)
     assert len(player1.affecting_trumps) == player1.MAX_NUMBER_AFFECTING_TRUMPS
 

@@ -26,10 +26,10 @@ from aot.game.board import Color
 from aot.game.cards import Card
 from aot.game.trumps import ChangeSquare, SimpleTrump, Trump, TrumpList
 from aot.game.trumps.exceptions import (
-    GaugeTooLowToPlayTrump,
-    MaxNumberAffectingTrumps,
-    MaxNumberTrumpPlayed,
-    TrumpHasNoEffect,
+    GaugeTooLowToPlayTrumpError,
+    MaxNumberAffectingTrumpsError,
+    MaxNumberTrumpPlayedError,
+    TrumpHasNoEffectError,
 )
 
 
@@ -504,7 +504,7 @@ def test_play_trump(player):  # noqa: F811
     trump.affect.assert_called_once_with(player=player)
     player._gauge.can_play_trump.assert_called_once_with(trump)
     player._gauge.play_trump.assert_called_once()
-    with pytest.raises(MaxNumberTrumpPlayed):
+    with pytest.raises(MaxNumberTrumpPlayedError):
         player.play_trump(trump, target=player)
     assert trump.affect.call_count == 1
 
@@ -543,12 +543,12 @@ def test_number_affecting_trumps(player):  # noqa: F811
     player._affect_by(trump)
     player._affect_by(trump)
 
-    with pytest.raises(MaxNumberAffectingTrumps):
+    with pytest.raises(MaxNumberAffectingTrumpsError):
         player._affect_by(trump)
     assert len(player.affecting_trumps) == 4
 
     player.init_turn()
-    with pytest.raises(MaxNumberAffectingTrumps):
+    with pytest.raises(MaxNumberAffectingTrumpsError):
         player.play_trump(trump, target=player)
     assert len(player.affecting_trumps) == 4
     assert not player._gauge.play_trump.called
@@ -560,11 +560,11 @@ def test_trump_affect_raises(player, mocker):  # noqa: F811
     player._can_play = True
 
     def affect(player):
-        raise TrumpHasNoEffect
+        raise TrumpHasNoEffectError
 
     trump.affect = affect
 
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         player.play_trump(trump, target=player)
 
     assert len(player.affecting_trumps) == 0
@@ -575,7 +575,7 @@ def test_number_gauge_empty(player):  # noqa: F811
     player._gauge.can_play_trump = MagicMock(return_value=False)
     player.init_turn()
 
-    with pytest.raises(GaugeTooLowToPlayTrump):
+    with pytest.raises(GaugeTooLowToPlayTrumpError):
         player.play_trump(trump, target=player)
     assert not player._gauge.play_trump.called
     assert player._number_trumps_played == 0

@@ -24,25 +24,25 @@ class TrumpError(GameError):
     pass
 
 
-class GaugeTooLowToPlayTrump(TrumpError):
+class GaugeTooLowToPlayTrumpError(TrumpError):
     pass
 
 
-class MaxNumberAffectingTrumps(TrumpError):
+class MaxNumberAffectingTrumpsError(TrumpError):
     pass
 
 
-class MaxNumberTrumpPlayed(TrumpError):
+class MaxNumberTrumpPlayedError(TrumpError):
     pass
 
 
-class NonExistantTrumpTarget(TrumpError):
+class NonExistentTrumpTargetError(TrumpError):
     pass
 
 
-class InvalidTargetType(TrumpError):
+class InvalidTargetTypeError(TrumpError):
     pass
 
 
-class TrumpHasNoEffect(TrumpError):
+class TrumpHasNoEffectError(TrumpError):
     pass

@@ -33,7 +33,7 @@ from aot.game.trumps import (
     TrumpList,
 )
 from aot.game.trumps.constants import TargetTypes
-from aot.game.trumps.exceptions import TrumpHasNoEffect
+from aot.game.trumps.exceptions import TrumpHasNoEffectError
 
 
 class VoidPower(Power):
@@ -135,7 +135,7 @@ def test_prevent_trump_action(player, player2, mocker):  # noqa: F811
     # In this case, whether the trump has an effect or not is random.
     # We mock the choice function to make it stable.
     mocker.patch("aot.game.trumps.trumps.random.choice", return_value=False)
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         player.play_trump(trump_to_play, target=player2)
 
     mocker.patch("aot.game.trumps.trumps.random.choice", return_value=True)
@@ -170,7 +170,7 @@ def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
     trump_to_play = player2._available_trumps["Tower", None]
     player2._can_play = True
 
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         player2.play_trump(trump_to_play, target=player)
 
     # Player 1 can still play trumps on itself.
@@ -195,7 +195,7 @@ def test_cannot_be_selected_active_power_with_special_action(player, player2):  
     # Setup player 2.
     action = Teleport(name="Teleport", must_target_player=True,)
 
-    with pytest.raises(TrumpHasNoEffect):
+    with pytest.raises(TrumpHasNoEffectError):
         player2.play_special_action(action, target=player)
 
 

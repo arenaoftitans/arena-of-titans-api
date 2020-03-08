@@ -22,5 +22,5 @@ class GameError(Exception):
     pass
 
 
-class NotYourTurn(GameError):
+class NotYourTurnError(GameError):
     pass
