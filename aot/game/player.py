@@ -117,20 +117,6 @@ class Player:
         self._power = trumps.create_power(power)
         self._power.setup(self._available_trumps)
 
-    def _generate_aim(self, board):
-        opposite_index = self._index + self.BOARD_ARM_WIDTH_AND_MODULO * (
-            1 if self._index >= self.BOARD_ARM_WIDTH_AND_MODULO else -1
-        )
-        aim_x = set()
-        for i in range(self.BOARD_ARM_WIDTH_AND_MODULO):
-            x = self.BOARD_ARM_WIDTH_AND_MODULO * opposite_index + i
-            aim_x.add(self._board.correct_x(x))
-
-        self._aim_max_x = max(aim_x)
-        self._aim_min_x = min(aim_x)
-
-        return {board[x, self.BOARD_ARM_LENGTH_AND_MAX_Y] for x in aim_x}
-
     def view_possible_squares(self, card):
         return self._deck.view_possible_squares(card, self._current_square)
 
