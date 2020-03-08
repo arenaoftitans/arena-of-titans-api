@@ -26,18 +26,20 @@ repos:
         hooks:
             -   id: black
                 name: black
-                entry: black
-                args: [--line-length=100]
+                entry: ./scripts/ensure-runs-in-venv.sh
+                args: [black, --line-length=100]
                 language: system
                 types: [python]
             -   id: flake8
                 name: flake8
-                entry: flake8
+                entry: ./scripts/ensure-runs-in-venv.sh
+                args: [flake8]
                 language: system
                 types: [python]
             -   id: pytest
                 name: pytest
-                entry: pytest
+                entry: ./scripts/ensure-runs-in-venv.sh
+                args: [pytest]
                 pass_filenames: false
                 language: system
                 types: [python]
