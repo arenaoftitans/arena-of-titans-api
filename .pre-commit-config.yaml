@@ -18,7 +18,6 @@ repos:
             -   id: check-symlinks
             -   id: check-toml
             -   id: check-xml
-            -   id: check-xml
             -   id: debug-statements
             -   id: detect-private-key
             -   id: mixed-line-ending
@@ -34,6 +33,11 @@ repos:
                 name: flake8
                 entry: ./scripts/ensure-runs-in-venv.sh
                 args: [flake8]
+                language: system
+                types: [python]
+            -   id: license
+                name: license
+                entry: ./scripts/detect-license.sh
                 language: system
                 types: [python]
             -   id: pytest
