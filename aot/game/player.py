@@ -237,7 +237,7 @@ class Player:
 
     def _enable_trumps(self):
         for trump in self._affecting_trumps:
-            if not trump.temporary:
+            if not trump.is_temporary:
                 trump.affect(player=self)
 
     def complete_turn(self):

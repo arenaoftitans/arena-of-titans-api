@@ -127,7 +127,7 @@ STANDARD_CONFIG = {
             "parameters": {
                 "type": "ModifyTrumpDurations",
                 "delta_duration": -1,
-                "temporary": True,
+                "is_temporary": True,
                 "trump_names": ["Fortress", "Tower"],
             },
             "weight": 5,

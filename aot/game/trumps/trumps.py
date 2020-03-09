@@ -49,7 +49,7 @@ class Trump(metaclass=ABCMeta):
         must_target_player=False,
         name="",
         color=None,
-        temporary=False,
+        is_temporary=False,
         prevent_trumps_to_modify=None,
         **kwargs,
     ):
@@ -61,7 +61,7 @@ class Trump(metaclass=ABCMeta):
         self._color = color
         if isinstance(color, str):
             self._color = Color[color]
-        self._temporary = temporary
+        self._is_temporary = is_temporary
         self._prevent_trumps_to_modify = (
             prevent_trumps_to_modify if prevent_trumps_to_modify else ()
         )
@@ -145,8 +145,8 @@ class Trump(metaclass=ABCMeta):
         self._initiator = initiator
 
     @property
-    def temporary(self):
-        return self._temporary
+    def is_temporary(self):
+        return self._is_temporary
 
 
 class ModifyNumberMoves(Trump):
@@ -367,7 +367,7 @@ class ModifyTrumpDurations(Trump):
         name="",
         color=None,
         must_target_player=False,
-        temporary=False,
+        is_temporary=False,
         **kwargs,
     ):
         super().__init__(
@@ -377,7 +377,7 @@ class ModifyTrumpDurations(Trump):
             must_target_player=must_target_player,
             name=name,
             color=color,
-            temporary=temporary,
+            is_temporary=is_temporary,
             **kwargs,
         )
         self._delta_duration = delta_duration
@@ -387,12 +387,12 @@ class ModifyTrumpDurations(Trump):
     def affect(self, *, player):
         if self._trump_names is None:
 
-            def filter_(trump: "Trump"):
+            def filter_(trump: Trump):
                 return False
 
         else:
 
-            def filter_(trump: "Trump"):
+            def filter_(trump: Trump):
                 return (
                     trump is not self
                     and trump.name in self._trump_names

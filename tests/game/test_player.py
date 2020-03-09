@@ -407,15 +407,15 @@ def test_modify_trump_duration(player):  # noqa: F811
     tower = MagicMock()
     tower.name = "Tower"
     tower.duration = 2
-    tower.temporary = False
+    tower.is_temporary = False
     blizzard = MagicMock()
     blizzard.name = "Blizzard"
     blizzard.duration = 4
-    blizzard.temporary = False
+    blizzard.is_temporary = False
     ram = MagicMock()
     ram.name = "Ram"
     ram.duration = 0
-    ram.temporary = True
+    ram.is_temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
     player._affecting_trumps = [tower, blizzard, ram]
 
@@ -439,15 +439,15 @@ def test_modify_trump_duration_with_filter(player):  # noqa: F811
     tower = MagicMock()
     tower.name = "Tower"
     tower.duration = 2
-    tower.temporary = False
+    tower.is_temporary = False
     blizzard = MagicMock()
     blizzard.name = "Blizzard"
     blizzard.duration = 4
-    blizzard.temporary = False
+    blizzard.is_temporary = False
     ram = MagicMock()
     ram.name = "Ram"
     ram.duration = 0
-    ram.temporary = True
+    ram.is_temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
     player._affecting_trumps = [tower, blizzard, ram]
 
