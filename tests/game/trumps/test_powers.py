@@ -73,7 +73,7 @@ def test_enable():
 
 def test_modify_card_colors(player):  # noqa: F811
     player.modify_card_colors = MagicMock()
-    power = ModifyCardColorsPower(add_colors=["BLACK"], passive=True)
+    power = ModifyCardColorsPower(extra_colors=["BLACK"], passive=True)
 
     power.affect(player=player)
 
@@ -193,7 +193,7 @@ def test_cannot_be_selected_active_power_with_special_action(player, player2):  
     player.play_trump(night_mist, target=player)
 
     # Setup player 2.
-    action = Teleport(name="Teleport", must_target_player=True,)
+    action = Teleport(name="Teleport", must_target_player=True, color=Color.BLACK)
 
     with pytest.raises(TrumpHasNoEffectError):
         player2.play_special_action(action, target=player)

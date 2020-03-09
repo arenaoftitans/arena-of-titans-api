@@ -22,7 +22,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from aot.api.utils import AotError, AotErrorToDisplay, RequestTypes
-from aot.game.board import Square
+from aot.game.board import Color, Square
 from aot.game.player import Player
 from aot.game.trumps import SimpleTrump, Trump, TrumpList
 
@@ -77,7 +77,7 @@ async def test_view_possible_action_wrong_action(api, game):  # noqa: F811
 async def test_view_possible_action(api, game):  # noqa: F811
     api.sendMessage = AsyncMock()
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
     game.active_player.special_actions = actions
 
     await api._view_possible_actions(game, {"special_action_name": "action", "target_index": 0})
@@ -128,7 +128,7 @@ async def test_play_special_action_wrong_action(api, game):  # noqa: F811
 async def test_play_special_action_no_square(api, game):  # noqa: F811
     api.sendMessage = AsyncMock()
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
     game.active_player.special_actions = actions
 
     with pytest.raises(AotErrorToDisplay) as e:
@@ -146,7 +146,7 @@ async def test_play_special_action(api, game):  # noqa: F811
     api._send_play_message_to_players = AsyncMock()
     api._notify_special_action = AsyncMock()
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
     game.active_player.special_actions = actions
     game.play_special_action = MagicMock(side_effect=consume_action)
     game.complete_special_actions = MagicMock()
@@ -184,8 +184,8 @@ async def test_play_special_action_actions_still_remaining(api, game):  # noqa: 
     api._send_play_message_to_players = AsyncMock()
     api._notify_special_action = AsyncMock()
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
-    actions.append(SimpleTrump(name="action2", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
+    actions.append(SimpleTrump(name="action2", type="Teleport", args={"color": Color.RED}))
     game.active_player.special_actions = actions
     game.play_special_action = MagicMock(side_effect=consume_action)
     game.complete_special_actions = MagicMock()
@@ -222,7 +222,7 @@ async def test_cancel_special_action(api, game):  # noqa: F811
     api._send_player_played_special_action = AsyncMock()
     api._send_play_message_to_players = AsyncMock()
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
     game.active_player.special_actions = actions
     game.play_special_action = MagicMock()
     game.complete_special_actions = MagicMock()

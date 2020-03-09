@@ -127,7 +127,7 @@ TEST_CONFIG = {
             "must_target_player": False,
             "parameters": {
                 "type": "ModifyCardColors",
-                "add_colors": ["ALL"],
+                "extra_colors": ["ALL"],
                 "remove_colors": [],
                 "card_names": ["Knight"],
             },

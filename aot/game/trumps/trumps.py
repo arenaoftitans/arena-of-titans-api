@@ -19,10 +19,8 @@
 
 import random
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 from typing import List, Tuple
 
-from ..board import Color, all_colors
 from ..cards import Card
 from .constants import TargetTypes
 from .exceptions import TrumpHasNoEffectError
@@ -49,6 +47,7 @@ class Trump(metaclass=ABCMeta):
         must_target_player=False,
         name="",
         color=None,
+        extra_colors=(),
         is_temporary=False,
         prevent_trumps_to_modify=None,
         **kwargs,
@@ -59,26 +58,11 @@ class Trump(metaclass=ABCMeta):
         self._must_target_player = must_target_player
         self._name = name
         self._color = color
-        if isinstance(color, str):
-            self._color = Color[color]
+        self._colors = frozenset(color for color in [self._color, *extra_colors] if color)
         self._is_temporary = is_temporary
         self._prevent_trumps_to_modify = (
             prevent_trumps_to_modify if prevent_trumps_to_modify else ()
         )
-
-    def _set_colors(self, color, colors):
-        self._colors = set()
-        if colors is not None:
-            for color in colors:
-                self._add_color(color)
-        if color is not None:
-            self._add_color(color)
-
-    def _add_color(self, color):
-        if isinstance(color, str):  # pragma: no cover
-            self._colors.add(Color[color])
-        else:  # pragma: no cover
-            self._colors.add(color)
 
     @abstractmethod
     def affect(self, **kwargs):
@@ -188,7 +172,7 @@ class ModifyCardColors(Trump):
         self,
         card_names=None,
         cost=5,
-        add_colors=None,
+        extra_colors=(),
         description="",
         duration=0,
         name="",
@@ -202,10 +186,10 @@ class ModifyCardColors(Trump):
             duration=duration,
             must_target_player=must_target_player,
             name=name,
-            color=color,
             **kwargs,
+            color=color,
+            extra_colors=extra_colors,
         )
-        self._set_colors(None, add_colors)
         self._card_names = card_names
 
     @return_trump_infos
@@ -445,7 +429,7 @@ class RemoveColor(Trump):
     def __init__(
         self,
         color=None,
-        colors=None,
+        extra_colors=(),
         cost=5,
         description="",
         duration=0,
@@ -460,9 +444,9 @@ class RemoveColor(Trump):
             must_target_player=must_target_player,
             name=name,
             color=color,
+            extra_colors=extra_colors,
             **kwargs,
         )
-        self._set_colors(color, colors)
 
     @return_trump_infos
     def affect(self, *, player):
@@ -480,7 +464,7 @@ class Teleport(Trump):
         board=None,
         distance=0,
         color=None,
-        colors=None,
+        extra_colors=(),
         cost=10,
         description="",
         duration=0,
@@ -495,13 +479,10 @@ class Teleport(Trump):
             must_target_player=must_target_player,
             name=name,
             color=color,
+            extra_colors=extra_colors,
             **kwargs,
         )
         self._distance = distance
-        if color is None and colors is None:
-            self._colors = deepcopy(all_colors)
-        else:
-            self._set_colors(color, colors)
         # We use a card to get the list of possible squares for teleportation.
         self._card = Card(
             board,

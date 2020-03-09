@@ -186,8 +186,7 @@ STANDARD_CONFIG = {
             "must_target_player": False,
             "parameters": {
                 "type": "ModifyCardColors",
-                "add_colors": ["ALL"],
-                "remove_colors": [],
+                "extra_colors": ["ALL"],
                 "card_names": ["Knight"],
             },
         },

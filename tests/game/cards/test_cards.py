@@ -45,7 +45,7 @@ def edge_card_properties():
 
 def test_set_color_to_special_action():  # noqa: F811
     actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions.append(SimpleTrump(name="action", type="Teleport", args={"color": Color.RED}))
 
     card = Card(None, color="red", special_actions=actions)
 
