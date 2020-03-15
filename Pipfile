@@ -39,6 +39,7 @@ pre-commit = "*"
 black = "*"
 flake8-isort = "*"
 pycodestyle = "*"
+factory-boy = "*"
 
 [requires]
 python_version = "3.8"
