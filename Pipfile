@@ -38,8 +38,11 @@ ipython = "*"
 pre-commit = "*"
 black = "*"
 flake8-isort = "*"
-pycodestyle = "*"
 factory-boy = "*"
+# We currently need to install pyflakes and pycodestyle from git for Python 3.8 support.
+# This will be required until 2.2.0 comes out.
+pyflakes = {git = "https://github.com/PyCQA/pyflakes.git",ref = "c688d2b02ac6e3416775b88d6411ee6a3e8a51ec"}
+pycodestyle = {git = "https://github.com/PyCQA/pycodestyle.git",ref = "68cc24fbe60ce31e2f9b40dc6dd484b2abf3a705"}
 
 [requires]
 python_version = "3.8"
