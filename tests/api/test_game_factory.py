@@ -19,6 +19,7 @@
 
 from aot.api.game_factory import build_cards_list
 from aot.game.config import TEST_CONFIG
+from aot.game.trumps.special_actions import SpecialAction
 
 
 def test_get_cards_list():
@@ -29,7 +30,4 @@ def test_get_cards_list():
         elif card.name == "Assassin":
             assert len(card._special_actions) == 1
             action = card._special_actions[0]
-            assert action.name == "Assassination"
-            assert action.type == "Teleport"
-            assert action.args["must_target_player"]
-            assert action.args["distance"] == 1
+            assert isinstance(action, SpecialAction)

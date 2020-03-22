@@ -443,7 +443,7 @@ def test_complete_special_actions(game):  # noqa: F811
 def test_play_special_action(game):  # noqa: F811
     game.active_player.play_special_action = MagicMock()
 
-    game.play_special_action(None, target=None, action_args=None)
+    game.play_special_action(None, target=None, context=None)
 
     assert game.active_player.play_special_action.called
 

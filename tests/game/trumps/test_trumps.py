@@ -36,127 +36,137 @@ from aot.game.trumps import (
 )
 from aot.game.trumps.exceptions import MaxNumberAffectingTrumpsError, TrumpHasNoEffectError
 
+from ...utilities import AnyFunction
 
-def test_affect_modify_number_moves(player):  # noqa: F811
-    player.modify_number_moves = MagicMock()
+
+@pytest.fixture()
+def initiator(player):
+    return player
+
+
+@pytest.fixture()
+def target(player2):
+    return player2
+
+
+@pytest.fixture()
+def red_tower_trump():
+    return RemoveColor(name="Tower", color=Color.RED, cost=4, duration=1, must_target_player=True)
+
+
+@pytest.fixture()
+def blizzard_trump():
+    return ModifyNumberMoves(
+        delta_moves=-1, duration=1, cost=4, name="Blizzard", must_target_player=True
+    )
+
+
+def test_affect_modify_number_moves(initiator, target):
+    target.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=1, duration=1)
-    trump.affect(player=player)
-    player.modify_number_moves.assert_called_once_with(1)
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    target.modify_number_moves.assert_called_once_with(1)
 
 
-def test_affect_modify_number_moves_negative_delta(player):  # noqa: F811
-    player.modify_number_moves = MagicMock()
+def test_affect_modify_number_moves_negative_delta(initiator, target):
+    target.modify_number_moves = MagicMock()
     trump = ModifyNumberMoves(delta_moves=-1, duration=1)
-    trump.affect(player=player)
-    player.modify_number_moves.assert_called_once_with(-1)
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    target.modify_number_moves.assert_called_once_with(-1)
 
 
-def test_affect_modify_card_colors(player):  # noqa: F811
-    player.modify_card_colors = MagicMock()
-    trump = ModifyCardColors(extra_colors=["BLACK"], duration=1)
+def test_affect_modify_card_colors(initiator, target):
+    target.modify_card_colors = MagicMock()
+    trump = ModifyCardColors(colors={Color.BLACK}, duration=1)
 
-    trump.affect(player=player)
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
 
-    player.modify_card_colors.assert_called_once_with({"BLACK"}, filter_=None)
+    target.modify_card_colors.assert_called_once_with({"BLACK"}, filter_=AnyFunction())
 
 
-def test_affect_modify_card_colors_with_filter_(player):  # noqa: F811
-    player.modify_card_colors = MagicMock()
-    trump = ModifyCardColors(extra_colors=["BLACK"], card_names=["Queen"], duration=1)
+def test_affect_modify_card_colors_with_filter(target, initiator):
+    target.modify_card_colors = MagicMock()
+    trump = ModifyCardColors(colors={Color.BLACK}, card_names=["Queen"], duration=1)
     queen = MagicMock()
     queen.name = "Queen"
     king = MagicMock()
     king.name = "King"
 
-    trump.affect(player=player)
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
 
-    assert player.modify_card_colors.called
-    assert player.modify_card_colors.call_args[0][0] == {"BLACK"}
-    assert callable(player.modify_card_colors.call_args[1]["filter_"])
-    filter_ = player.modify_card_colors.call_args[1]["filter_"]
+    assert target.modify_card_colors.called
+    assert target.modify_card_colors.call_args[0][0] == {"BLACK"}
+    assert callable(target.modify_card_colors.call_args[1]["filter_"])
+    filter_ = target.modify_card_colors.call_args[1]["filter_"]
     assert filter_(queen)
     assert not filter_(king)
 
 
-def test_affect_modify_card_number_moves(player):  # noqa: F811
-    player.modify_card_number_moves = MagicMock()
+def test_affect_modify_card_number_moves(initiator, target):
+    target.modify_card_number_moves = MagicMock()
     trump = ModifyCardNumberMoves(delta_moves=1, duration=1)
-    trump.affect(player=player)
-    player.modify_card_number_moves.assert_called_once_with(1, filter_=None)
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    target.modify_card_number_moves.assert_called_once_with(1, filter_=AnyFunction())
 
 
-def test_affect_modify_card_number_moves_with_filter_(player):  # noqa: F811
-    player.modify_card_number_moves = MagicMock()
+def test_affect_modify_card_number_moves_with_filter_(target, initiator):
+    target.modify_card_number_moves = MagicMock()
     trump = ModifyCardNumberMoves(delta_moves=1, duration=1, card_names=["Queen"])
     queen = MagicMock()
     queen.name = "Queen"
     king = MagicMock()
     king.name = "King"
 
-    trump.affect(player=player)
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
 
-    assert player.modify_card_number_moves.called
-    assert player.modify_card_number_moves.call_args[0][0] == 1
-    assert callable(player.modify_card_number_moves.call_args[1]["filter_"])
-    filter_ = player.modify_card_number_moves.call_args[1]["filter_"]
+    assert target.modify_card_number_moves.called
+    assert target.modify_card_number_moves.call_args[0][0] == 1
+    assert callable(target.modify_card_number_moves.call_args[1]["filter_"])
+    filter_ = target.modify_card_number_moves.call_args[1]["filter_"]
     assert filter_(queen)
     assert not filter_(king)
 
 
-def test_affect_modify_affecting_trump_durations(player):  # noqa: F811
-    player.modify_affecting_trump_durations = MagicMock()
+def test_affect_modify_affecting_trump_durations(initiator, target):  # noqa: F811
+    target.modify_affecting_trump_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
-    with pytest.raises(TrumpHasNoEffectError):
-        trump.affect(player=player)
-    assert not player.modify_affecting_trump_durations.called
-
-
-def test_affect_modify_affecting_trump_durations_with_filter_(player):  # noqa: F811
-    trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=["Tower"])
-    tower = MagicMock()
-    tower.name = "Tower"
-    tower.duration = 1
-    blizzard = MagicMock()
-    blizzard.name = "Blizzard"
-    blizzard.duration = 1
-    player._affecting_trumps = [tower, blizzard]
-
-    trump.affect(player=player)
-
-    assert tower.duration == 0
-    assert blizzard.duration == 1
-    assert player._affecting_trumps == [blizzard]
-
-
-def test_prevent_trump_action_enable_on_relevant_trump(player, player2):  # noqa: F811
-    """Test that we can prevent the action of a trump.
-
-    GIVEN: a prevent action trump enabled on 'Tower' trumps to prevent the 'Ram' trump.
-    GIVEN: a Tower trump that affects a player
-    GIVEN: a Ram trump
-    WHEN: the Ram trump is played against the player to cancel the Tower
-    THEN: it has no effect.
-    """
-    # Setup up player.
-    prevent_action_trump = PreventTrumpAction(
-        name="Impassable Trump", prevent_for_trumps=["Ram"], enable_for_trumps=["Tower"],
-    )
-    trump_to_improve = SimpleTrump(
-        type="RemoveColor", name="Tower", args={"duration": 1, "name": "Tower"},
-    )
-    player._available_trumps = TrumpList([trump_to_improve])
-    prevent_action_trump.affect(player=player)
-    tower = player._available_trumps["Tower", None]
-    player._can_play = True
-    player.play_trump(tower, target=player2)
-    # Setup trump to play but will have no effect.
-    ram = ModifyTrumpDurations(name="Ram", trump_names=["Tower", "Fortress"], duration=1,)
 
     with pytest.raises(TrumpHasNoEffectError):
-        ram.affect(player=player)
+        effect = trump.create_effect(initiator=initiator, target=target, context={})
+        effect.apply()
 
-    assert tower.duration == 1
-    assert player2.affecting_trumps == (tower,)
+    assert not target.modify_affecting_trump_durations.called
+
+
+def test_affect_modify_affecting_trump_durations_with_filter_(
+    initiator, target, red_tower_trump, blizzard_trump
+):  # noqa: F811
+    trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=("Tower",))
+    tower_effect = red_tower_trump.create_effect(initiator=initiator, target=target, context={})
+    blizzard_effect = blizzard_trump.create_effect(initiator=initiator, target=target, context={})
+    target._affecting_trumps = [
+        tower_effect,
+        blizzard_effect,
+    ]
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    assert tower_effect.duration == 0
+    assert blizzard_effect.duration == 1
+    assert target._affecting_trumps == [blizzard_effect]
 
 
 def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  # noqa: F811
@@ -170,81 +180,97 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  #
     """
     # Setup player.
     prevent_action_trump = PreventTrumpAction(
-        name="Impassable Trump", prevent_for_trumps=["Ram"], enable_for_trumps=["Tower"],
+        name="Impassable Trump", prevent_trumps_to_modify=["Ram"], enable_for_trumps=["Tower"],
     )
     trump_not_to_improve = SimpleTrump(
         type="RemoveColor", name="Fortress", args={"duration": 2, "name": "Fortress"},
     )
     player._available_trumps = TrumpList([trump_not_to_improve])
-    prevent_action_trump.affect(player=player)
+    effect = prevent_action_trump.create_effect(initiator=player, target=player, context={})
+    effect.apply()
     fortress = player._available_trumps["Fortress", None]
     player._can_play = True
-    player.play_trump(fortress, target=player2)
+    player.play_trump(fortress, target=player2, context={})
     # Setup trump to play.
     ram = ModifyTrumpDurations(
-        name="Ram", trump_names=["Tower", "Fortress"], duration=1, delta_duration=-1,
+        name="Ram", trump_names=("Tower", "Fortress"), duration=1, delta_duration=-1,
     )
 
-    ram.affect(player=player2)
-    assert fortress.duration == 1
-    assert player2.affecting_trumps == (fortress,)
+    ram.create_effect(initiator=player2, target=player2, context={}).apply()
 
-    ram.affect(player=player2)
-    assert fortress.duration == 0
+    fortress_effect = player2.affecting_trumps[0]
+    assert len(player2.affecting_trumps) == 1
+    assert fortress_effect.duration == 1
+
+    ram.create_effect(initiator=player2, target=player2, context={}).apply()
+    assert fortress_effect.duration == 0
     assert player2.affecting_trumps == ()
 
 
-def test_remove_color(player):  # noqa: F811
-    player.deck.remove_color_from_possible_colors = MagicMock()
-    card = player.deck.first_card_in_hand
-    color = card.color
+def test_remove_color(initiator, target):  # noqa: F811
+    target.deck.remove_color_from_possible_colors = MagicMock()
+    color = Color.RED
     trump = RemoveColor(color=color, duration=1)
-    trump.affect(player=player)
-    player.deck.remove_color_from_possible_colors.assert_called_once_with(color)
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    target.deck.remove_color_from_possible_colors.assert_called_once_with(color)
 
 
-def test_remove_all_colors(player):  # noqa: F811
-    player.deck.remove_color_from_possible_colors = MagicMock()
+def test_remove_all_colors(initiator, target):  # noqa: F811
+    target.deck.remove_color_from_possible_colors = MagicMock()
     trump = RemoveColor(color=Color["ALL"], duration=1)
-    trump.affect(player=player)
-    player.deck.remove_color_from_possible_colors.assert_called_once_with(Color["ALL"])
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    target.deck.remove_color_from_possible_colors.assert_called_once_with(Color["ALL"])
 
 
-def test_remove_multiple_colors(player):  # noqa: F811
-    player.deck.remove_color_from_possible_colors = MagicMock()
-    card = player.deck.first_card_in_hand
-    colors = {card.color, Color["BLACK"]}
-    trump = RemoveColor(extra_colors=colors, duration=1)
-    trump.affect(player=player)
-    assert player.deck.remove_color_from_possible_colors.called
-    assert player.deck.remove_color_from_possible_colors.call_count == len(colors)
+def test_remove_multiple_colors(initiator, target):
+    target.deck.remove_color_from_possible_colors = MagicMock()
+    colors = {Color.BLACK, Color.RED}
+    trump = RemoveColor(colors=colors, duration=1)
+
+    effect = trump.create_effect(initiator=initiator, target=target, context={})
+    effect.apply()
+
+    assert target.deck.remove_color_from_possible_colors.called
+    assert target.deck.remove_color_from_possible_colors.call_count == len(colors)
 
 
 def test_teleport_no_target_square(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1, board=board, color=Color.BLACK)
+    trump = Teleport(distance=1, color=Color.BLACK)
 
-    trump.affect(player=player, square=None)
+    trump.create_effect(
+        initiator=player, target=player, context={"board": board, "square": None}
+    ).apply()
 
     assert not player.move.called
 
 
 def test_teleport_wrong_distance(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1, board=board, color=Color.BLACK)
+    trump = Teleport(distance=1, color=Color.BLACK)
     square = board[0, 0]
 
-    trump.affect(player=player, square=square)
+    trump.create_effect(
+        initiator=player, target=player, context={"board": board, "square": square}
+    ).apply()
 
     assert not player.move.called
 
 
 def test_teleport_wrong_color(board, player):  # noqa: F811
     player.move = MagicMock()
-    trump = Teleport(distance=1, color="blue", board=board)
+    trump = Teleport(distance=1, color=Color.BLUE)
     square = board[0, 7]
 
-    trump.affect(player=player, square=square)
+    trump.create_effect(
+        initiator=player, target=player, context={"board": board, "square": square}
+    ).apply()
 
     assert not player.move.called
 
@@ -252,34 +278,31 @@ def test_teleport_wrong_color(board, player):  # noqa: F811
 def test_teleport(board, player):  # noqa: F811
     player.move = MagicMock()
     square = board[6, 8]
-    trump = Teleport(distance=1, board=board, color=square.color)
+    trump = Teleport(distance=1, color=square.color)
 
-    trump.affect(player=player, square=square)
+    trump.create_effect(
+        initiator=player, target=player, context={"board": board, "square": square}
+    ).apply()
 
     player.move.assert_called_once_with(square)
 
 
-def test_teleport_view_possible_squares(player):  # noqa: F811
-    trump = Teleport(distance=1, color=Color.BLACK)
-    trump._card = MagicMock()
+def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(
+    target, initiator
+):  # noqa: F811
+    for i in range(target.MAX_NUMBER_AFFECTING_TRUMPS):
+        trump = RemoveColor(colors=[Color["BLACK"]], duration=1)
+        initiator.can_play = True
+        initiator._number_trumps_played = 0
+        initiator.play_trump(trump, target=target, context={})
+        assert len(target.affecting_trumps) == i + 1
 
-    trump.view_possible_squares(player)
-
-    trump._card.move.assert_called_once_with(player.current_square)
-
-
-def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(game):  # noqa: F811
-    player1 = game.players[0]
-
-    for i in range(player1.MAX_NUMBER_AFFECTING_TRUMPS):
-        trump = RemoveColor(colors_to_remove=[Color["BLACK"]], duration=1)
-        player1._affect_by(trump)
-        assert len(player1.affecting_trumps) == i + 1
-
-    trump = RemoveColor(colors_to_remove=[Color["BLACK"]], duration=1)
+    trump = RemoveColor(colors=[Color["BLACK"]], duration=1)
     with pytest.raises(MaxNumberAffectingTrumpsError):
-        player1._affect_by(trump)
-    assert len(player1.affecting_trumps) == player1.MAX_NUMBER_AFFECTING_TRUMPS
+        initiator.can_play = True
+        initiator._number_trumps_played = 0
+        initiator.play_trump(trump, target=target, context={})
+    assert len(target.affecting_trumps) == target.MAX_NUMBER_AFFECTING_TRUMPS
 
 
 def test_cannot_be_affected_by_trump_empty_list_names(player, player2):  # noqa: F811

@@ -28,7 +28,6 @@ import daiquiri
 from ..config import config
 from ..game import Player
 from ..game.config import GAME_CONFIGS
-from ..game.trumps.constants import TargetTypes as TrumpsTargetTypes
 from ..game.trumps.exceptions import (
     GaugeTooLowToPlayTrumpError,
     MaxNumberAffectingTrumpsError,
@@ -328,7 +327,7 @@ class Api(AotWs):
                 # Since this is mostly for testing, we don't do anything about it.
                 except KeyError:
                     pass
-                if self._message and self._message["auto"]:
+                if self._message and self._message.get("auto", False):
                     # It's an automated message, probably from a timer. Raise an error to quit
                     # here but don't display it.
                     raise AotError("not_your_turn")
@@ -554,7 +553,9 @@ class Api(AotWs):
             "special_action_name": action.name,
         }
         if action.require_target_square:
-            message["possible_squares"] = action.view_possible_squares(game.players[target_index])
+            message["possible_squares"] = action.view_possible_squares(
+                game.players[target_index], game.board
+            )
 
         await self.sendMessage(message)
 
@@ -593,14 +594,15 @@ class Api(AotWs):
             await self._send_play_message_to_players(game)
 
     async def _play_special_action_on_target(self, game, play_request, action, target_index):
-        kwargs = {}
+        context = {}
         target = game.players[target_index]
         if action.require_target_square:
-            kwargs["square"] = self._get_square(play_request, game)
-            if kwargs["square"] is None:
+            context["square"] = self._get_square(play_request, game)
+            context["board"] = game.board
+            if context["square"] is None:
                 raise AotErrorToDisplay("wrong_square")
 
-        game.play_special_action(action, target=target, action_args=kwargs)
+        game.play_special_action(action, target=target, context=context)
         last_action = game.active_player.last_action
         game.add_action(last_action)
         await self._send_player_played_special_action(game.active_player, target)
@@ -629,12 +631,10 @@ class Api(AotWs):
         except IndexError:
             raise AotError("wrong_trump")
 
-        if trump.must_target_player:
-            trump.initiator = game.active_player.name
+        target = self._get_trump_target(game, trump, play_request)
+        context = self._get_trump_context(game, trump, play_request)
 
-        target, target_index = self._get_trump_target(game, trump, play_request)
-
-        await self._play_trump_with_target(game, trump, target, target_index)
+        await self._play_trump_with_target(game, trump, target, context)
 
     def _get_trump_target(self, game, trump, play_request):
         target_index = play_request.get("target_index", None)
@@ -643,23 +643,25 @@ class Api(AotWs):
         elif not trump.must_target_player:
             target_index = game.active_player.index
 
-        if trump.target_type == TrumpsTargetTypes.board:
-            target = {
+        try:
+            return game.players[target_index]
+        except IndexError:
+            raise AotError("The target of this trump does not exist")
+
+    def _get_trump_context(self, game, trump, play_request):
+        context = {
+            "board": game.board,
+        }
+        if "square" in play_request:
+            context["square"] = {
                 "x": play_request["square"]["x"],
                 "y": play_request["square"]["y"],
                 "color": play_request["square"]["color"],
             }
-        elif trump.target_type in (TrumpsTargetTypes.player, TrumpsTargetTypes.trump):
-            try:
-                target = game.players[target_index]
-            except IndexError:
-                raise AotError("The target of this trump does not exist")
-        else:
-            raise AotError("invalid_trump")
 
-        return target, target_index
+        return context
 
-    async def _play_trump_with_target(self, game, trump, target, target_index):
+    async def _play_trump_with_target(self, game, trump, target, context):
         """Play a trump on its target.
 
         Target represent what the trump will target (ie a player or a square)
@@ -669,9 +671,7 @@ class Api(AotWs):
         TODO: improve this.
         """
         try:
-            target_type = trump.target_type
-            square = target if target_type == TrumpsTargetTypes.board else None
-            game.play_trump(trump, target)
+            game.play_trump(trump, target, context)
         except GaugeTooLowToPlayTrumpError:
             raise AotError("gauge_too_low")
         except MaxNumberTrumpPlayedError:
@@ -685,16 +685,16 @@ class Api(AotWs):
         except TrumpHasNoEffectError:
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
-                game, target_index, rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
+                game, target.index, rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
             )
         else:
             game.add_action(game.active_player.last_action)
             await self._send_trump_played_message(
-                game, target_index, square=square, target_type=target_type,
+                game, target.index, square=context.get("square"),
             )
 
     async def _send_trump_played_message(
-        self, game, target_index, rt=RequestTypes.PLAY_TRUMP, square=None, target_type=None,
+        self, game, target_index, rt=RequestTypes.PLAY_TRUMP, square=None,
     ):  # pragma: no cover
         message = {
             "rt": rt,
@@ -708,8 +708,7 @@ class Api(AotWs):
         }
         await self._send_all_others(message)
         message["gauge_value"] = game.active_player.gauge.value
-        if target_type == TrumpsTargetTypes.trump:
-            message["power"] = game.active_player.power
+        message["power"] = game.active_player.power
         await self.sendMessage(message)
 
     def _get_trump(self, game, trump_name, trump_color):

@@ -19,7 +19,7 @@
 
 from unittest.mock import MagicMock
 
-from aot.game.trumps import Gauge, SimpleTrump
+from aot.game.trumps import Gauge
 
 
 def test_can_play(gauge):  # noqa: F811
@@ -33,15 +33,6 @@ def test_can_play(gauge):  # noqa: F811
     gauge._value = 6
 
     trump.cost = 5
-    assert gauge.can_play_trump(trump)
-
-
-def test_can_play_simple_trump(gauge):  # noqa: F811
-    trump = SimpleTrump(type="type", name="name", args={"cost": 5})
-
-    assert not gauge.can_play_trump(trump)
-
-    gauge._value = 6
     assert gauge.can_play_trump(trump)
 
 

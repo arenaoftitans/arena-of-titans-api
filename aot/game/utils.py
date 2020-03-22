@@ -45,6 +45,24 @@ def make_immutable(data):
         raise ValueError(f"{type(data)} cannot be made immutable with basic types.")
 
 
+def remove_mappingproxies(data: dict):
+    """Remove mappingproxies from the data structure by copying them.
+
+    It can be required because mappingproxies cannot be pickled.
+    """
+    if isinstance(data, (bool, int, float, str, bytes, type(None))):
+        return data
+
+    data = data.copy()
+    for key, value in data.items():
+        if isinstance(value, MappingProxyType):
+            data[key] = remove_mappingproxies(value)
+        elif isinstance(value, (list, tuple)):
+            data[key] = tuple(remove_mappingproxies(elts) for elts in value)
+
+    return data
+
+
 class SimpleEnumMeta(type):
     def __new__(metacls, cls, bases, classdict):  # noqa: N804
         object_attrs = set(dir(type(cls, (object,), {})))

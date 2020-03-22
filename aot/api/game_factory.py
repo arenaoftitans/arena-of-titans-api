@@ -25,7 +25,15 @@ from aot.game.cards import Card, Deck
 from aot.game.config import GAME_CONFIGS
 from aot.game.game import Game
 from aot.game.player import Player
-from aot.game.trumps import Gauge, SimpleTrump, TrumpList
+from aot.game.trumps import (
+    Gauge,
+    NewTrumpsList,
+    SpecialActionsList,
+    create_action_from_description,
+    power_type_to_class,
+    trump_type_to_class,
+)
+from aot.game.utils import remove_mappingproxies
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +100,9 @@ def _get_cards_for_each_color(board, card_description, colors, number_cards_per_
             color, additional_movements_color, complementary_colors
         )
         for _ in range(number_cards_per_color):
-            special_actions = _get_special_actions(card_description.get("special_actions", []))
+            special_actions = _get_special_actions(
+                card_description.get("special_actions", []), color
+            )
             card = Card(
                 board,
                 number_movements=number_movements,
@@ -108,12 +118,12 @@ def _get_cards_for_each_color(board, card_description, colors, number_cards_per_
     return cards
 
 
-def _get_special_actions(description):
-    actions = TrumpList()
+def _get_special_actions(description, color):
+    actions = []
     for action_description in description:
-        actions.extend(_get_trumps(action_description))
+        actions.append(create_action_from_description(action_description, color))
 
-    return actions
+    return SpecialActionsList(actions)
 
 
 def _get_additional_colors(color, additional_movements_color, complementary_colors):  # noqa: E503
@@ -125,34 +135,14 @@ def _get_additional_colors(color, additional_movements_color, complementary_colo
 
 def _get_trumps(description):
     trumps = []
-    trump_description = description.copy()
-    trump_description["parameters"] = trump_description["parameters"].copy()
-    repeat_for_each_color = trump_description["repeat_for_each_color"]
-    del trump_description["repeat_for_each_color"]
-    trump_type = trump_description["parameters"]["type"]
-    del trump_description["parameters"]["type"]
-    trump_description.update(trump_description["parameters"])
-    del trump_description["parameters"]
-    if repeat_for_each_color:
+    trump_cls = trump_type_to_class[description["type"]]
+    if description.get("repeat_for_each_color", False):
         for color in Color:
-            color_trump_description = trump_description.copy()
             if color == Color.ALL:
                 continue
-            trump_name = color_trump_description["name"]
-            color_trump_description["name"] = trump_name
-            color_trump_description["color"] = color
-            color_trump_description = color_trump_description.copy()
-            trumps.append(
-                SimpleTrump(
-                    type=trump_type, name=trump_name, color=color, args=color_trump_description,
-                )
-            )
+            trumps.append(trump_cls(**description["args"], color=color))
     else:
-        trump_name = trump_description["name"]
-        trump_description["color"] = None
-        trumps.append(
-            SimpleTrump(type=trump_type, name=trump_name, color=None, args=trump_description,)
-        )
+        trumps.append(trump_cls(**description["args"], color=None))
 
     return trumps
 
@@ -161,17 +151,14 @@ def build_trumps_list(config):
     trumps_descriptions = config["trumps"]
     trumps = []
     weights = []
-    for raw_trump_description in trumps_descriptions:
-        raw_trump_description = raw_trump_description.copy()
-        weight = raw_trump_description["weight"]
-        del raw_trump_description["weight"]
-        generated_trumps = _get_trumps(raw_trump_description)
+    for trump_description in trumps_descriptions:
+        generated_trumps = _get_trumps(trump_description)
         trumps.extend(generated_trumps)
-        weights.extend([weight] * len(generated_trumps))
+        weights.extend([trump_description["weight"]] * len(generated_trumps))
 
     # Return 4 trumps at random among all the possible ones
     randomized_trumps = _get_random_trump_list(config, trumps, weights)
-    return TrumpList(randomized_trumps)
+    return NewTrumpsList(randomized_trumps)
 
 
 def _get_random_trump_list(config, trumps, weights):
@@ -191,11 +178,7 @@ def _get_random_trump_list(config, trumps, weights):
 def _get_power(config, hero=None):
     power_description = config["powers"].get(hero.lower(), None)
     if power_description is not None:
-        power_description = power_description.copy()
-        power_description["parameters"] = power_description["parameters"].copy()
-        power_type = power_description["parameters"]["type"]
-        del power_description["parameters"]["type"]
-        power_description.update(power_description["parameters"])
-        del power_description["parameters"]
-        power_name = power_description["name"]
-        return SimpleTrump(type=power_type, name=power_name, args=power_description)
+        power_cls = power_type_to_class[power_description["type"]]
+        # We must create copies here, because mappingproxy objects cannot be pickled.
+        power_args = remove_mappingproxies(power_description["args"])
+        return power_cls(**power_args)

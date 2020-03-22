@@ -65,9 +65,9 @@ class Deck:
         for card in filter(filter_, self._hand):
             card.modify_number_moves(delta)
 
-    def set_special_actions_to_card(self, card_name, actions):
+    def set_special_actions_to_card(self, card_name, special_action_descriptions):
         for card in filter(lambda x: x.name == card_name, self._hand):
-            actions_copy = copy.deepcopy(actions)
+            actions_copy = copy.deepcopy(special_action_descriptions)
             card.set_special_actions(actions_copy)
 
     def view_possible_squares(self, card, position):

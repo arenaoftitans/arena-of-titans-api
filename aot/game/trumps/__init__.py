@@ -31,7 +31,9 @@ from .powers import (
     Power,
     PreventTrumpActionPower,
     StealPowerPower,
+    VoidPower,
 )
+from .special_actions import TeleportSpecialAction
 from .trumps import (
     CannotBeAffectedByTrumps,
     ChangeSquare,
@@ -44,7 +46,11 @@ from .trumps import (
     Teleport,
     Trump,
 )
-from .utils import TrumpPlayedInfos
+from .utils import NewTrumpsList, SpecialActionsList
+
+special_action_type_to_class = {
+    "Teleport": TeleportSpecialAction,
+}
 
 power_type_to_class = {
     "AddSpecialActionsToCard": AddSpecialActionsToCardPower,
@@ -66,25 +72,25 @@ trump_type_to_class = {
     "Teleport": Teleport,
 }
 
+
+def create_action_from_description(action_description, color=None):
+    action_cls = special_action_type_to_class[action_description["type"]]
+    direct_args = action_description["args"].copy()
+    trump_args = direct_args.pop("trump_args").copy()
+    trump_args["color"] = color
+    return action_cls(**direct_args, trump_args=trump_args)
+
+
 SimpleTrump = namedtuple("SimpleTrump", "type name color args")
 SimpleTrump.__new__.__defaults__ = (None, None, None, None)
 
 
-def create_power(power: SimpleTrump):
-    kwargs = copy.copy(power.args)
-    return power_type_to_class[power.type](**kwargs)
-
-
 class TrumpList(list):
     def __init__(self, trumps=None):
-        self._additionnal_arguments = {}
         if trumps is not None:
             super().__init__(trumps)
         else:
             super().__init__()
-
-    def set_additionnal_arguments(self, **kwargs):
-        self._additionnal_arguments = kwargs
 
     def __getitem__(self, key):
         if key is None:
@@ -94,7 +100,6 @@ class TrumpList(list):
             for trump in self:
                 if self._has_proper_name(trump, name) and self._has_proper_color(trump, color):
                     kwargs = copy.copy(trump.args)
-                    kwargs.update(self._additionnal_arguments)
                     return trump_type_to_class[trump.type](**kwargs)
             raise IndexError
         elif isinstance(key, int):
@@ -115,9 +120,12 @@ class TrumpList(list):
 
 
 __all__ = [
+    power_type_to_class,
+    special_action_type_to_class,
     # Powers
     "ModifyCardColorsPower",
     "ModifyCardNumberMovesPower",
+    "VoidPower",
     # Power utils
     "Power",
     # Trumps
@@ -134,5 +142,6 @@ __all__ = [
     "Gauge",
     "Trump",
     "TrumpList",
-    "TrumpPlayedInfos",
+    "NewTrumpsList",
+    "SpecialActionsList",
 ]
