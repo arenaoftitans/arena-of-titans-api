@@ -22,6 +22,7 @@ import daiquiri
 from . import trumps as imported_trumps
 from .board import Square
 from .exceptions import NotYourTurnError
+from .trumps import exceptions as trumps_exceptions
 from .utils import get_time
 
 
@@ -331,10 +332,10 @@ class Player:
 
     def _check_can_be_affected_by_trump(self, trump):
         if len(self._trump_effects) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
-            raise imported_trumps.exceptions.MaxNumberAffectingTrumpsError
+            raise trumps_exceptions.MaxNumberAffectingTrumpsError
 
         if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
-            raise imported_trumps.exceptions.TrumpHasNoEffectError
+            raise trumps_exceptions.TrumpHasNoEffectError
 
         self._check_for_cannot_be_affected_by_trumps(trump)
 
@@ -342,14 +343,14 @@ class Player:
         # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
         for effect in self._trump_effects:
             if not effect.allow_trump_to_affect(trump) and trump.must_target_player:
-                raise imported_trumps.exceptions.TrumpHasNoEffectError
+                raise trumps_exceptions.TrumpHasNoEffectError
 
     def play_trump(self, trump, *, target, context):
         self._check_play_trump(trump)
 
         try:
             trump_played_infos = target._affect_by(trump, initiator=self, context=context)
-        except imported_trumps.exceptions.TrumpHasNoEffectError:
+        except trumps_exceptions.TrumpHasNoEffectError:
             self._end_play_trump(trump, target=target)
             raise
         else:
@@ -359,9 +360,9 @@ class Player:
         if not self.can_play:
             raise NotYourTurnError
         if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
-            raise imported_trumps.exceptions.MaxNumberTrumpPlayedError
+            raise trumps_exceptions.MaxNumberTrumpPlayedError
         if not self._gauge.can_play_trump(trump):
-            raise imported_trumps.exceptions.GaugeTooLowToPlayTrumpError
+            raise trumps_exceptions.GaugeTooLowToPlayTrumpError
 
     def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
