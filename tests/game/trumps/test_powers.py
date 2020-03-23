@@ -28,12 +28,12 @@ from aot.game.trumps import (
     ModifyCardColors,
     ModifyCardColorsPower,
     ModifyCardNumberMovesPower,
-    NewTrumpsList,
     Power,
     PreventTrumpActionPower,
     RemoveColor,
     StealPowerPower,
     Teleport,
+    TrumpsList,
 )
 from aot.game.trumps.exceptions import TrumpHasNoEffectError
 from tests.factories import PlayerFactory
@@ -163,7 +163,7 @@ def test_prevent_trump_action(mocker, red_tower_trump):  # noqa: F811
         passive=True,
     )
     player = PlayerFactory(
-        power=impassable_power, trumps=NewTrumpsList([red_tower_trump]), gauge__value=40,
+        power=impassable_power, trumps=TrumpsList([red_tower_trump]), gauge__value=40,
     )
     player.init_turn()
     trump_to_play = player._available_trumps["Tower", Color.RED]
@@ -207,7 +207,7 @@ def test_cannot_be_selected_active_power(player, player2, red_tower_trump):  # n
     player.MAX_NUMBER_TRUMPS_PLAYED = float("inf")
 
     # Setup player 2.
-    player2._available_trumps = NewTrumpsList([red_tower_trump])
+    player2._available_trumps = TrumpsList([red_tower_trump])
     trump_to_play = player2._available_trumps["Tower", Color.RED]
     player2._can_play = True
 

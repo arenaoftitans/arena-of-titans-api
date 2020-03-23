@@ -27,8 +27,8 @@ from aot.game.game import Game
 from aot.game.player import Player
 from aot.game.trumps import (
     Gauge,
-    NewTrumpsList,
     SpecialActionsList,
+    TrumpsList,
     create_action_from_description,
     power_type_to_class,
     trump_type_to_class,
@@ -158,7 +158,7 @@ def build_trumps_list(config):
 
     # Return 4 trumps at random among all the possible ones
     randomized_trumps = _get_random_trump_list(config, trumps, weights)
-    return NewTrumpsList(randomized_trumps)
+    return TrumpsList(randomized_trumps)
 
 
 def _get_random_trump_list(config, trumps, weights):

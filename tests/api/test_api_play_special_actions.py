@@ -24,7 +24,7 @@ import pytest
 from aot.api.utils import AotError, AotErrorToDisplay, RequestTypes
 from aot.game.board import Color, Square
 from aot.game.player import Player
-from aot.game.trumps import NewTrumpsList, SpecialActionsList, TeleportSpecialAction
+from aot.game.trumps import SpecialActionsList, TeleportSpecialAction, TrumpsList
 from tests.factories import TeleportSpecialActionFactory
 
 
@@ -69,7 +69,7 @@ async def test_view_possible_action_no_action_for_player(api, game):  # noqa: F8
 
 @pytest.mark.asyncio
 async def test_view_possible_action_wrong_action(api, game, teleport_action):  # noqa: F811
-    actions = NewTrumpsList([teleport_action])
+    actions = TrumpsList([teleport_action])
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:
@@ -121,7 +121,7 @@ async def test_play_special_action_no_action_for_player(api, game):  # noqa: F81
 
 @pytest.mark.asyncio
 async def test_play_special_action_wrong_action(api, game, teleport_action):  # noqa: F811
-    actions = NewTrumpsList([teleport_action])
+    actions = TrumpsList([teleport_action])
     game.active_player.special_actions = actions
 
     with pytest.raises(AotError) as e:

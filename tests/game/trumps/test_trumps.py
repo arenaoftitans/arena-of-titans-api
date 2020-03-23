@@ -28,10 +28,10 @@ from aot.game.trumps import (
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     ModifyTrumpDurations,
-    NewTrumpsList,
     PreventTrumpAction,
     RemoveColor,
     Teleport,
+    TrumpsList,
 )
 from aot.game.trumps.exceptions import MaxNumberAffectingTrumpsError, TrumpHasNoEffectError
 
@@ -190,7 +190,7 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(
     prevent_action_trump = PreventTrumpAction(
         name="Impassable Trump", prevent_trumps_to_modify=["Ram"], enable_for_trumps=["Tower"],
     )
-    player._available_trumps = NewTrumpsList([red_fortress_trump])
+    player._available_trumps = TrumpsList([red_fortress_trump])
     effect = prevent_action_trump.create_effect(initiator=player, target=player, context={})
     effect.apply()
     fortress = player._available_trumps["Fortress", Color.RED]

@@ -23,7 +23,7 @@ import pytest
 
 from aot.api.utils import AotError
 from aot.game.board import Color
-from aot.game.trumps import CannotBeAffectedByTrumpsPower, NewTrumpsList, RemoveColor
+from aot.game.trumps import CannotBeAffectedByTrumpsPower, RemoveColor, TrumpsList
 
 
 @pytest.fixture()
@@ -86,7 +86,7 @@ async def test_play_trump_max_number_affecting_trumps(
 ):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump["must_target_player"] = True
-    game.active_player._affecting_trumps = NewTrumpsList(
+    game.active_player._affecting_trumps = TrumpsList(
         [red_tower_trump.create_effect(initiator=player, target=player, context={})]
         * game.active_player.MAX_NUMBER_AFFECTING_TRUMPS
     )

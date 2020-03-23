@@ -30,7 +30,7 @@ from .trumps import (
     StealPower,
     VoidTrump,
 )
-from .utils import NewTrumpsList
+from .utils import TrumpsList
 
 
 @dataclass(frozen=True)
@@ -52,17 +52,13 @@ class Power:
         if not self.passive:
             return trumps
 
-        return NewTrumpsList(
-            trump.update_cost(trump.cost + self.trump_cost_delta) for trump in trumps
-        )
+        return TrumpsList(trump.update_cost(trump.cost + self.trump_cost_delta) for trump in trumps)
 
     def teardown(self, trumps):
         if not self.passive:
             return trumps
 
-        return NewTrumpsList(
-            trump.update_cost(trump.cost - self.trump_cost_delta) for trump in trumps
-        )
+        return TrumpsList(trump.update_cost(trump.cost - self.trump_cost_delta) for trump in trumps)
 
     @property
     def apply_on_initiator(self):
@@ -132,7 +128,7 @@ class PreventTrumpActionPower(Power):
     def setup(self, trumps):
         trumps = super().setup(trumps)
 
-        return NewTrumpsList(
+        return TrumpsList(
             trump.update_prevent_trumps_to_modify(self.trump.prevent_trumps_to_modify)
             if trump.name in self.trump.enable_for_trumps
             else trump

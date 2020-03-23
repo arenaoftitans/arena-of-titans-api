@@ -42,7 +42,7 @@ from .trumps import (
     Teleport,
     Trump,
 )
-from .utils import NewTrumpsList, SpecialActionsList
+from .utils import SpecialActionsList, TrumpsList
 
 special_action_type_to_class = {
     "Teleport": TeleportSpecialAction,
@@ -98,6 +98,6 @@ __all__ = [
     # Trump utils
     "Gauge",
     "Trump",
-    "NewTrumpsList",
+    "TrumpsList",
     "SpecialActionsList",
 ]

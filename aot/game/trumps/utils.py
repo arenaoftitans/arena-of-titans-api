@@ -66,7 +66,7 @@ class SpecialActionsList(BaseTrumpsLikeList):
         return [action for action in self._trumps_like if action.trump.name.lower() == name.lower()]
 
 
-class NewTrumpsList(BaseTrumpsLikeList):
+class TrumpsList(BaseTrumpsLikeList):
     def _get_matching_trumps_like(self, name, color):
         return [
             trump
