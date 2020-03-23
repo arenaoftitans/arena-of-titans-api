@@ -88,7 +88,17 @@ class Player:
     _turn_start_time = 0
 
     def __init__(
-        self, name, id_, index, board, deck, gauge, trumps=None, hero="", is_ai=False, power=None,
+        self,
+        name,
+        id_,
+        index,
+        board,
+        deck,
+        gauge,
+        available_trumps=None,
+        hero="",
+        is_ai=False,
+        power=None,
     ):
         self._name = name
         self._id = id_
@@ -108,7 +118,7 @@ class Player:
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
         self._power = power or imported_trumps.VoidPower()
-        self._available_trumps = self._power.setup(trumps or ())
+        self._available_trumps = self._power.setup(available_trumps or ())
         self._rank = -1
 
     def setup_new_power(self, power):

@@ -57,7 +57,7 @@ def create_game_for_players(players_description, name="standard"):
                 board,
                 deck,
                 gauge,
-                trumps=trumps,
+                available_trumps=trumps,
                 hero=hero,
                 is_ai=player.get("is_ai", False),
                 power=power,

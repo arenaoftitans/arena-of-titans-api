@@ -55,7 +55,7 @@ class PlayerFactory(factory.Factory):
     board = factory.SubFactory(BoardFactory)
     deck = factory.SubFactory(DeckFactory)
     gauge = factory.SubFactory(GaugeFactory, board=factory.SelfAttribute("..board"))
-    trumps = ()
+    available_trumps = ()
     hero = ""
 
     class Meta:

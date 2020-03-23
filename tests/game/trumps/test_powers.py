@@ -163,7 +163,7 @@ def test_prevent_trump_action(mocker, red_tower_trump):  # noqa: F811
         passive=True,
     )
     player = PlayerFactory(
-        power=impassable_power, trumps=TrumpsList([red_tower_trump]), gauge__value=40,
+        power=impassable_power, available_trumps=TrumpsList([red_tower_trump]), gauge__value=40,
     )
     player.init_turn()
     trump_to_play = player._available_trumps["Tower", Color.RED]
