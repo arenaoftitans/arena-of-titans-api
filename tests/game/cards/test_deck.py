@@ -19,7 +19,7 @@
 
 from unittest.mock import MagicMock
 
-from aot.game.cards import Card, SimpleCard
+from aot.game.cards import Card
 
 NUMBER_COLORS = 4
 NUMBER_CARD_TYPES = 7
@@ -67,19 +67,6 @@ def test_play_existing_card(deck):  # noqa: F811
     assert played_card in deck.graveyard
 
 
-def test_play_card_from_name_color(deck):  # noqa: F811
-    nb_remaining_cards_before_play = deck.number_cards_in_stock
-    played_card = deck.first_card_in_hand
-    played_card.revert_to_default = MagicMock()
-    simple_card = SimpleCard(name=played_card.name, color=played_card.color)
-
-    deck.play(simple_card)
-    nb_remaining_cards_after_play = deck.number_cards_in_stock
-    assert nb_remaining_cards_before_play == nb_remaining_cards_after_play
-    assert NUMBER_CARDS_HAND - 1 == deck.number_cards_in_hand
-    played_card.revert_to_default.assert_called_once_with()
-
-
 def test_play_no_card(deck):  # noqa: F811
     nb_remaining_cards_before_play = deck.number_cards_in_stock
     deck.play(None)
@@ -124,7 +111,6 @@ def test_view_possible_square(deck):  # noqa: F811
     assert isinstance(deck.view_possible_squares(None, None), set)
     assert isinstance(deck.view_possible_squares(deck.first_card_in_hand, None), set)
     card = deck.first_card_in_hand
-    card = SimpleCard(name=card.name, color=card.color)
     assert isinstance(deck.view_possible_squares(card, None), set)
 
 

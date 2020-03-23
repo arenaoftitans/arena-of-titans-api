@@ -17,11 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import namedtuple
-
 from .card import Card
 from .deck import Deck
 
-SimpleCard = namedtuple("SimpleCard", ["name", "color"])
-
-__all__ = ["Card", "Deck", "SimpleCard"]
+__all__ = ["Card", "Deck"]

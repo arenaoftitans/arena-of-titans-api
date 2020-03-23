@@ -21,7 +21,6 @@ from unittest.mock import MagicMock
 
 from aot.game import Game, Player
 from aot.game.board import Square
-from aot.game.cards import SimpleCard
 
 
 def test_eq(board, player):  # noqa: F811
@@ -210,9 +209,8 @@ def test_view_possible_squares(game):  # noqa: F811
     # Must not throw. Correctness of the list is tested in card module
     card = game.active_player.deck.first_card_in_hand
     game.active_player.view_possible_squares = MagicMock()
-    card_properties = SimpleCard(name=card.name, color=card.color)
-    game.view_possible_squares(card_properties)
-    game.active_player.view_possible_squares.assert_called_once_with(card_properties)
+    game.view_possible_squares(card)
+    game.active_player.view_possible_squares.assert_called_once_with(card)
 
 
 def test_get_square(game):  # noqa: F811
