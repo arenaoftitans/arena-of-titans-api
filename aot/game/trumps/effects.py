@@ -158,11 +158,11 @@ class ModifyTrumpDurationsEffect(TrumpEffect):
             )
 
         # Currently we can only apply this to affecting trumps.
-        affected_trumps = [trump for trump in self._target.affecting_trumps if filter_(trump)]
+        affected_trumps = [trump for trump in self._target.trump_effects if filter_(trump)]
         if len(affected_trumps) == 0:
             raise TrumpHasNoEffectError
 
-        self._target.modify_affecting_trump_durations(
+        self._target.modify_trump_effects_durations(
             self._trump.delta_duration, filter_=filter_,
         )
 

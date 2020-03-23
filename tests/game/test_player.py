@@ -147,7 +147,7 @@ def test_complete_turn(player):  # noqa: F811
     trump2 = MagicMock()
     trump2.duration = 2
     power = MagicMock()
-    player._affecting_trumps = [trump1, trump2]
+    player._trump_effects = [trump1, trump2]
     player._number_moves_to_play = 0
     player._power = power
 
@@ -158,8 +158,8 @@ def test_complete_turn(player):  # noqa: F811
     trump2.consume.assert_called_once_with()
     trump1.teardown.assert_called_once()
     assert not trump2.teardown.called
-    assert len(player.affecting_trumps) == 1
-    assert player.affecting_trumps[0] is trump2
+    assert len(player.trump_effects) == 1
+    assert player.trump_effects[0] is trump2
     assert player._number_moves_to_play == player.MAX_NUMBER_MOVE_TO_PLAY
 
 
@@ -168,12 +168,12 @@ def test_complet_turn_collect_all_consumed_trumps(player):  # noqa: F811
     trump1.duration = 0
     trump2 = MagicMock()
     trump2.duration = 0
-    player._affecting_trumps = [trump1, trump2]
+    player._trump_effects = [trump1, trump2]
     player._number_moves_to_play = 0
 
     player.complete_turn()
 
-    assert len(player.affecting_trumps) == 0
+    assert len(player.trump_effects) == 0
 
 
 def test_play_card_cannot_play(board, player):  # noqa: F811
@@ -410,20 +410,20 @@ def test_modify_trump_duration(player):  # noqa: F811
     ram.duration = 0
     ram.is_temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
-    player._affecting_trumps = [tower, blizzard, ram]
+    player._trump_effects = [tower, blizzard, ram]
 
-    player.modify_affecting_trump_durations(-2)
+    player.modify_trump_effects_durations(-2)
 
     assert tower.duration == 0
     assert blizzard.duration == 2
-    assert player.affecting_trumps == (blizzard,)
+    assert player.trump_effects == (blizzard,)
     # Trumps must be disabled then re-enabled to take into account the changes.
     assert player._revert_to_default.called
     # The tower is not available any more
     assert not tower.apply.called
     assert blizzard.apply.called
     # The ram must not be enabled again or we will enter an infinite loop that will call
-    # player.modify_affecting_trump_durations again.
+    # player.modify_trump_effects_durations again.
     assert not ram.apply.called
 
 
@@ -442,19 +442,19 @@ def test_modify_trump_duration_with_filter(player):  # noqa: F811
     ram.duration = 0
     ram.is_temporary = True
     # Note: the trump that modifies the durations in in the affecting trumps list
-    player._affecting_trumps = [tower, blizzard, ram]
+    player._trump_effects = [tower, blizzard, ram]
 
-    player.modify_affecting_trump_durations(-2, filter_=lambda trump: trump.name == "Tower")
+    player.modify_trump_effects_durations(-2, filter_=lambda trump: trump.name == "Tower")
 
     assert tower.duration == 0
     assert blizzard.duration == 4
-    assert player._affecting_trumps == [blizzard]
+    assert player._trump_effects == [blizzard]
     assert player._revert_to_default.called
     # The tower is not available any more
     assert not tower.apply.called
     assert blizzard.apply.called
     # The ram must not be enabled again or we will enter an infinite loop that will call
-    # player.modify_affecting_trump_durations again.
+    # player.modify_trump_effects_durations again.
     assert not ram.apply.called
 
 
@@ -474,13 +474,13 @@ def test_trumps_property(player):  # noqa: F811
     assert "must_target_player" in trump
 
 
-def test_affecting_trumps(player):  # noqa: F811
+def test_trump_effects(player):  # noqa: F811
     trump = player.get_trump("Reinforcements")
     player._affect_by(trump, initiator=player, context={})
     player.init_turn()
 
-    assert len(player.affecting_trumps) == 1
-    assert isinstance(player.affecting_trumps[0], TrumpEffect)
+    assert len(player.trump_effects) == 1
+    assert isinstance(player.trump_effects[0], TrumpEffect)
 
 
 def test_play_trump(player):  # noqa: F811
@@ -492,14 +492,14 @@ def test_play_trump(player):  # noqa: F811
     player._gauge.play_trump.assert_called_once()
     with pytest.raises(MaxNumberTrumpPlayedError):
         player.play_trump(trump, target=player, context={})
-    assert len(player.affecting_trumps) == 1
+    assert len(player.trump_effects) == 1
 
     player.complete_turn()
     player.init_turn()
     player.play_trump(trump, target=player, context={})
     assert player._gauge.can_play_trump.call_count == 2
     player._gauge.play_trump.call_count == 2
-    assert len(player.affecting_trumps) == 1
+    assert len(player.trump_effects) == 1
 
 
 def test_play_trump_target_type_board(board, player):  # noqa: F811
@@ -519,7 +519,7 @@ def test_play_trump_target_type_board(board, player):  # noqa: F811
     player._gauge.play_trump.assert_called_once()
 
 
-def test_number_affecting_trumps(player):  # noqa: F811
+def test_number_trump_effects(player):  # noqa: F811
     # Check that the number of played trumps is only increased if the targeted
     # player can be affected.
     trump = player.get_trump("Reinforcements")
@@ -530,12 +530,12 @@ def test_number_affecting_trumps(player):  # noqa: F811
 
     with pytest.raises(MaxNumberAffectingTrumpsError):
         player._affect_by(trump, initiator=player, context={})
-    assert len(player.affecting_trumps) == 4
+    assert len(player.trump_effects) == 4
 
     player.init_turn()
     with pytest.raises(MaxNumberAffectingTrumpsError):
         player.play_trump(trump, target=player, context={})
-    assert len(player.affecting_trumps) == 4
+    assert len(player.trump_effects) == 4
     assert not player._gauge.play_trump.called
     assert player._number_trumps_played == 0
 

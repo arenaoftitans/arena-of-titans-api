@@ -81,12 +81,12 @@ async def test_play_trump_max_number_trumps_played(api, game):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_play_trump_max_number_affecting_trumps(
+async def test_play_trump_max_number_trump_effects(
     api, game, player, red_tower_trump
 ):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump["must_target_player"] = True
-    game.active_player._affecting_trumps = TrumpsList(
+    game.active_player._trump_effects = TrumpsList(
         [red_tower_trump.create_effect(initiator=player, target=player, context={})]
         * game.active_player.MAX_NUMBER_AFFECTING_TRUMPS
     )

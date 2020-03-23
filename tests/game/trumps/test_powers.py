@@ -251,8 +251,8 @@ def test_steal_power_target_type_reflect_target_type_stolen_power(target, initia
 
     initiator.play_trump(power, target=target, context={"stolen_power": stolen_power})
 
-    assert len(initiator.affecting_trumps) == 1
-    assert initiator.affecting_trumps[0].name == "Steal"
+    assert len(initiator.trump_effects) == 1
+    assert initiator.trump_effects[0].name == "Steal"
     assert initiator.power == target.power
     assert initiator.power.name == "Stolen power"
 
@@ -279,7 +279,7 @@ def test_immediately_apply_passive_power(
         steal_power_power, target=target, context={"stolen_power": passive_stolen_power}
     )
 
-    assert len(initiator.affecting_trumps) == 2
-    assert initiator.affecting_trumps[0].name == "Stolen power"
-    assert initiator.affecting_trumps[1].name == "Steal power"
+    assert len(initiator.trump_effects) == 2
+    assert initiator.trump_effects[0].name == "Stolen power"
+    assert initiator.trump_effects[1].name == "Steal power"
     assert initiator.available_trumps[0].cost == initial_trump_cost + 2

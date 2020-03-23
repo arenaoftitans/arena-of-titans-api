@@ -534,7 +534,7 @@ class Api(AotWs):
             {
                 "player_index": game_player.index,
                 "player_name": game_player.name,
-                "trumps": game_player.affecting_trumps,
+                "trumps": game_player.trump_effects,
             }
             if game_player
             else None

@@ -59,7 +59,7 @@ class Player:
     _aim = set()
     _aim_min_x = 0
     _aim_max_x = 0
-    _affecting_trumps = None
+    _trump_effects = None
     _available_trumps = None
     _board = None
     _can_play = False
@@ -97,7 +97,7 @@ class Player:
         self._board = board
         self._gauge = gauge
 
-        self._affecting_trumps = []
+        self._trump_effects = []
         self._aim = board.aim
         self._current_square = board.get_square_for_player_with_index(index)
         self._current_square.occupied = True
@@ -234,12 +234,12 @@ class Player:
             self._power.create_effect(initiator=self, target=self, context={}).apply()
 
     def _enable_trumps(self):
-        for trump_effect in self._affecting_trumps:
+        for trump_effect in self._trump_effects:
             trump_effect.apply()
 
     def complete_turn(self):
         self._revert_to_default()
-        for trump in self._affecting_trumps:
+        for trump in self._trump_effects:
             trump.consume()
 
         self._remove_consumed_trumps()
@@ -248,14 +248,14 @@ class Player:
         # If we modify the size of the size while looping on it, we will skip some element. For
         # instance if two elements are consumed in the list, only the first one will be removed.
         to_remove = []
-        for trump in self._affecting_trumps:
+        for trump in self._trump_effects:
             if trump.duration <= 0:
                 to_remove.append(trump)
 
         for trump in to_remove:
-            if trump in self._affecting_trumps:
+            if trump in self._trump_effects:
                 self._available_trumps = trump.teardown(self._available_trumps)
-                self._affecting_trumps.remove(trump)
+                self._trump_effects.remove(trump)
 
     def _revert_to_default(self):
         self._deck.revert_to_default()
@@ -273,8 +273,8 @@ class Player:
     def set_special_actions_to_cards_in_deck(self, card_name, special_action_descriptions):
         self._deck.set_special_actions_to_card(card_name, special_action_descriptions)
 
-    def modify_affecting_trump_durations(self, delta, filter_=None):
-        for trump in filter(filter_, self._affecting_trumps):
+    def modify_trump_effects_durations(self, delta, filter_=None):
+        for trump in filter(filter_, self._trump_effects):
             trump.duration += delta
 
         self._remove_consumed_trumps()
@@ -311,7 +311,7 @@ class Player:
         player_to_apply_trump_on = initiator if trump.apply_on_initiator else self
         if player_to_apply_trump_on._can_play:
             trump_effect.apply()
-        player_to_apply_trump_on._affecting_trumps.append(trump_effect)
+        player_to_apply_trump_on._trump_effects.append(trump_effect)
 
         # We must return the trump of the success infos to update the rest of the game.
         return trump_played_infos or trump
@@ -330,7 +330,7 @@ class Player:
         )
 
     def _check_can_be_affected_by_trump(self, trump):
-        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+        if len(self._trump_effects) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
             raise imported_trumps.exceptions.MaxNumberAffectingTrumpsError
 
         if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
@@ -340,8 +340,8 @@ class Player:
 
     def _check_for_cannot_be_affected_by_trumps(self, trump):
         # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
-        for affecting_trump in self._affecting_trumps:
-            if not affecting_trump.allow_trump_to_affect(trump) and trump.must_target_player:
+        for effect in self._trump_effects:
+            if not effect.allow_trump_to_affect(trump) and trump.must_target_player:
                 raise imported_trumps.exceptions.TrumpHasNoEffectError
 
     def play_trump(self, trump, *, target, context):
@@ -400,8 +400,8 @@ class Player:
         return self._last_square_previous_turn in self._aim
 
     @property
-    def affecting_trumps(self):
-        return tuple(self._affecting_trumps)
+    def trump_effects(self):
+        return tuple(self._trump_effects)
 
     @property
     def ai_aim(self):
@@ -421,7 +421,7 @@ class Player:
 
         It returns false only when the player cannot be targeted by any trump.
         """
-        for trump in self.affecting_trumps:
+        for trump in self.trump_effects:
             if (
                 isinstance(trump, imported_trumps.CannotBeAffectedByTrumps)
                 and trump.is_affecting_all_trumps
@@ -543,7 +543,7 @@ class Player:
 
     @property
     def power(self):
-        for effect in self._affecting_trumps:
+        for effect in self._trump_effects:
             if stolen_power := effect.context.get("stolen_power"):
                 return stolen_power
 

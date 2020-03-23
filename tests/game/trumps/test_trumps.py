@@ -145,24 +145,24 @@ def test_affect_modify_card_number_moves_with_filter_(target, initiator):
     assert not filter_(king)
 
 
-def test_affect_modify_affecting_trump_durations(initiator, target):  # noqa: F811
-    target.modify_affecting_trump_durations = MagicMock()
+def test_affect_modify_trump_effects_durations(initiator, target):  # noqa: F811
+    target.modify_trump_effects_durations = MagicMock()
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1)
 
     with pytest.raises(TrumpHasNoEffectError):
         effect = trump.create_effect(initiator=initiator, target=target, context={})
         effect.apply()
 
-    assert not target.modify_affecting_trump_durations.called
+    assert not target.modify_trump_effects_durations.called
 
 
-def test_affect_modify_affecting_trump_durations_with_filter_(
+def test_affect_modify_trump_effects_durations_with_filter_(
     initiator, target, red_tower_trump, blizzard_trump
 ):  # noqa: F811
     trump = ModifyTrumpDurations(delta_duration=-1, duration=1, trump_names=("Tower",))
     tower_effect = red_tower_trump.create_effect(initiator=initiator, target=target, context={})
     blizzard_effect = blizzard_trump.create_effect(initiator=initiator, target=target, context={})
-    target._affecting_trumps = [
+    target._trump_effects = [
         tower_effect,
         blizzard_effect,
     ]
@@ -172,7 +172,7 @@ def test_affect_modify_affecting_trump_durations_with_filter_(
 
     assert tower_effect.duration == 0
     assert blizzard_effect.duration == 1
-    assert target._affecting_trumps == [blizzard_effect]
+    assert target._trump_effects == [blizzard_effect]
 
 
 def test_prevent_trump_action_dont_enable_on_relevant_trump(
@@ -203,13 +203,13 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(
 
     ram.create_effect(initiator=player2, target=player2, context={}).apply()
 
-    fortress_effect = player2.affecting_trumps[0]
-    assert len(player2.affecting_trumps) == 1
+    fortress_effect = player2.trump_effects[0]
+    assert len(player2.trump_effects) == 1
     assert fortress_effect.duration == 1
 
     ram.create_effect(initiator=player2, target=player2, context={}).apply()
     assert fortress_effect.duration == 0
-    assert player2.affecting_trumps == ()
+    assert player2.trump_effects == ()
 
 
 def test_remove_color(initiator, target):  # noqa: F811
@@ -292,7 +292,7 @@ def test_teleport(board, player):  # noqa: F811
     player.move.assert_called_once_with(square)
 
 
-def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(
+def test_player_can_only_be_affected_by_max_trump_effects_number_trump(
     target, initiator
 ):  # noqa: F811
     for i in range(target.MAX_NUMBER_AFFECTING_TRUMPS):
@@ -300,14 +300,14 @@ def test_player_can_only_be_affected_by_max_affecting_trumps_number_trump(
         initiator.can_play = True
         initiator._number_trumps_played = 0
         initiator.play_trump(trump, target=target, context={})
-        assert len(target.affecting_trumps) == i + 1
+        assert len(target.trump_effects) == i + 1
 
     trump = RemoveColor(colors=[Color["BLACK"]], duration=1)
     with pytest.raises(MaxNumberAffectingTrumpsError):
         initiator.can_play = True
         initiator._number_trumps_played = 0
         initiator.play_trump(trump, target=target, context={})
-    assert len(target.affecting_trumps) == target.MAX_NUMBER_AFFECTING_TRUMPS
+    assert len(target.trump_effects) == target.MAX_NUMBER_AFFECTING_TRUMPS
 
 
 def test_cannot_be_affected_by_trump_empty_list_names(player, player2):  # noqa: F811
