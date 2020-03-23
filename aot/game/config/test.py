@@ -34,13 +34,17 @@ TEST_CONFIG = {
                 "cost": 300,
                 "special_actions": [
                     {
-                        "name": "Assassination",
-                        "cost": 0,
-                        "description": "Allow you to move back another player.",
-                        "duration": 0,
-                        "repeat_for_each_color": False,
-                        "must_target_player": True,
-                        "parameters": {"type": "Teleport", "distance": 1},
+                        "type": "Teleport",
+                        "args": {
+                            "trump_args": {
+                                "name": "Assassination",
+                                "cost": 0,
+                                "description": "Allow you to move back another player.",
+                                "duration": 0,
+                                "must_target_player": True,
+                                "distance": 1,
+                            }
+                        },
                     }
                 ],
             },
@@ -97,39 +101,46 @@ TEST_CONFIG = {
     },
     "trumps": [
         {
-            "name": "Reinforcements",
-            "cost": 6,
-            "description": "Allow the player to play one more move.",
-            "duration": 1,
-            "repeat_for_each_color": False,
-            "must_target_player": False,
-            "parameters": {"type": "ModifyNumberMoves", "delta_moves": 1},
+            "type": "ModifyNumberMoves",
             "weight": 1,
+            "repeat_for_each_color": False,
+            "args": {
+                "name": "Reinforcements",
+                "cost": 6,
+                "description": "Allow the player to play one more move.",
+                "duration": 1,
+                "must_target_player": False,
+                "delta_moves": 1,
+            },
         },
         {
-            "name": "Tower",
-            "cost": 4,
-            "description": "Prevent the player to move on some colors.",
-            "duration": 1,
-            "repeat_for_each_color": True,
-            "must_target_player": True,
-            "parameters": {"type": "RemoveColor"},
+            "type": "RemoveColor",
             "weight": 1,
+            "repeat_for_each_color": True,
+            "args": {
+                "name": "Tower",
+                "cost": 4,
+                "description": "Prevent the player to move on some colors.",
+                "duration": 1,
+                "must_target_player": True,
+            },
         },
     ],
     "powers": {
         "garez": {
-            "name": "Inveterate Ride",
-            "description": "Your knights can move on any colors",
-            "passive": True,
-            "cost": 0,
-            "trump_cost_delta": 2,
-            "must_target_player": False,
-            "parameters": {
-                "type": "ModifyCardColors",
-                "add_colors": ["ALL"],
-                "remove_colors": [],
-                "card_names": ["Knight"],
+            "type": "ModifyCardColors",
+            "args": {
+                "passive": True,
+                "trump_cost_delta": 2,
+                "args": {
+                    "name": "Inveterate Ride",
+                    "description": "Your knights can move on any colors",
+                    "cost": 0,
+                    "must_target_player": False,
+                    "extra_colors": ["ALL"],
+                    "remove_colors": [],
+                    "card_names": ["Knight"],
+                },
             },
         }
     },

@@ -23,13 +23,18 @@ import pytest
 
 from aot.api.utils import AotError
 from aot.game.board import Color
-from aot.game.trumps import CannotBeAffectedByTrumpsPower, SimpleTrump
+from aot.game.trumps import CannotBeAffectedByTrumpsPower, RemoveColor, TrumpsList
+
+
+@pytest.fixture()
+def red_tower_trump():
+    return RemoveColor(name="Tower", color=Color.RED, cost=4, duration=1, must_target_player=True)
 
 
 @pytest.mark.asyncio
 async def test_play_trump_wrong_trump(api, game):  # noqa: F811
     with pytest.raises(AotError) as e:
-        await api._play_trump(game, {})
+        await api._play_trump(game, {"name": "Inexistant name"})
 
     assert "wrong_trump" in str(e)
 
@@ -76,10 +81,15 @@ async def test_play_trump_max_number_trumps_played(api, game):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_play_trump_max_number_affecting_trumps(api, game):  # noqa: F811
+async def test_play_trump_max_number_trump_effects(
+    api, game, player, red_tower_trump
+):  # noqa: F811
     trump = game.active_player.trumps[0]
     trump["must_target_player"] = True
-    game.active_player._affecting_trumps = range(game.active_player.MAX_NUMBER_AFFECTING_TRUMPS)
+    game.active_player._trump_effects = TrumpsList(
+        [red_tower_trump.create_effect(initiator=player, target=player, context={})]
+        * game.active_player.MAX_NUMBER_AFFECTING_TRUMPS
+    )
     game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
 
     with pytest.raises(AotError) as e:
@@ -153,7 +163,9 @@ async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, gam
     api._send_all_others = AsyncMock()
     api.sendMessage = AsyncMock()
     game.add_action = MagicMock()
-    game.active_player._power = CannotBeAffectedByTrumpsPower(trump_names=["Tower"], passive=True)
+    game.active_player._power = CannotBeAffectedByTrumpsPower(
+        trump_args={"trump_names": ("Tower",)}, passive=True
+    )
 
     await api._play_trump(game, {"name": trump["name"], "color": trump["color"], "target_index": 0})
 
@@ -165,32 +177,3 @@ async def test_play_trump_with_target_with_passive_trump_disallow_trump(api, gam
     assert call_args[0]["rt"] == "TRUMP_HAS_NO_EFFECT"
     assert game.add_action.call_count == 1
     assert game.active_player._gauge.can_play_trump.called
-
-
-@pytest.mark.asyncio
-async def test_play_trump_with_board_target_type(api, game):  # noqa: F811
-    game.active_player._gauge.can_play_trump = MagicMock(return_value=True)
-    trump = SimpleTrump(
-        type="ChangeSquare", name="Terraforming", args={"cost": 1, "name": "Terraforming"},
-    )
-    game.active_player._available_trumps[0] = trump
-    api._send_all_others = AsyncMock()
-    api.sendMessage = AsyncMock()
-    game.add_action = MagicMock()
-
-    assert game._board[0, 0].color == Color.RED
-
-    await api._play_trump(
-        game,
-        {"name": "Terraforming", "color": None, "square": {"x": 0, "y": 0, "color": "yellow"}},
-    )
-
-    assert api._send_all_others.called
-    call_args = api._send_all_others.call_args[0]
-    assert call_args[0]["rt"] == "PLAY_TRUMP"
-    assert api.sendMessage.called
-    call_args = api.sendMessage.call_args[0]
-    assert call_args[0]["rt"] == "PLAY_TRUMP"
-    assert game.add_action.call_count == 1
-    assert game.active_player._gauge.can_play_trump.called
-    assert game._board[0, 0].color == Color.YELLOW

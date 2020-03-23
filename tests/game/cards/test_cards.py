@@ -23,7 +23,8 @@ import pytest
 
 from aot.game.board import Color, ColorSet, Square
 from aot.game.cards import Card
-from aot.game.trumps import SimpleTrump, TrumpList
+from aot.game.trumps import SpecialActionsList
+from tests.factories import TeleportSpecialActionFactory
 
 CARD_DICT = {
     "number_movements": 1,
@@ -44,15 +45,15 @@ def edge_card_properties():
 
 
 def test_set_color_to_special_action():  # noqa: F811
-    actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type="Teleport", args={}))
+    actions = SpecialActionsList(
+        [TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})]
+    )
 
     card = Card(None, color="red", special_actions=actions)
 
     assert len(card.special_actions) == 1
-    assert isinstance(card.special_actions[0], SimpleTrump)
     action = card.special_actions[0]
-    assert action.args == {"color": "RED"}
+    assert action.trump.color == Color.RED
 
 
 def test_line_card(board):  # noqa: F811

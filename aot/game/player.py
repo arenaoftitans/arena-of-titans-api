@@ -22,6 +22,7 @@ import daiquiri
 from . import trumps
 from .board import Square
 from .exceptions import NotYourTurnError
+from .trumps import exceptions as trumps_exceptions
 from .utils import get_time
 
 
@@ -59,7 +60,7 @@ class Player:
     _aim = set()
     _aim_min_x = 0
     _aim_max_x = 0
-    _affecting_trumps = None
+    _trump_effects = None
     _available_trumps = None
     _board = None
     _can_play = False
@@ -87,7 +88,17 @@ class Player:
     _turn_start_time = 0
 
     def __init__(
-        self, name, id_, index, board, deck, gauge, trumps=None, hero="", is_ai=False, power=None,
+        self,
+        name,
+        id_,
+        index,
+        board,
+        deck,
+        gauge,
+        available_trumps=None,
+        hero="",
+        is_ai=False,
+        power=None,
     ):
         self._name = name
         self._id = id_
@@ -97,8 +108,7 @@ class Player:
         self._board = board
         self._gauge = gauge
 
-        self._affecting_trumps = []
-        self._available_trumps = trumps if trumps is not None else []
+        self._trump_effects = []
         self._aim = board.aim
         self._current_square = board.get_square_for_player_with_index(index)
         self._current_square.occupied = True
@@ -107,15 +117,14 @@ class Player:
         self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
-        self._setup_power(power)
+        self._power = power or trumps.VoidPower()
+        self._available_trumps = self._power.setup(available_trumps or ())
         self._rank = -1
 
-    def _setup_power(self, power):
-        if power is None:
-            return
-
-        self._power = trumps.create_power(power)
-        self._power.setup(self._available_trumps)
+    def setup_new_power(self, power):
+        # This is to correctly enable stolen power. They will be teardowned as part of the normal
+        # trump effect process.
+        self._available_trumps = power.setup(self._available_trumps)
 
     def view_possible_squares(self, card):
         return self._deck.view_possible_squares(card, self._current_square)
@@ -232,33 +241,32 @@ class Player:
         self._enable_trumps()
 
     def _enable_passive_power(self):
-        if self._power and self._power.passive:
-            self._power.affect(player=self)
+        if self._power.passive:
+            self._power.create_effect(initiator=self, target=self, context={}).apply()
 
     def _enable_trumps(self):
-        for trump in self._affecting_trumps:
-            if not trump.temporary:
-                trump.affect(player=self)
+        for trump_effect in self._trump_effects:
+            trump_effect.apply()
 
     def complete_turn(self):
         self._revert_to_default()
-        for trump in self._affecting_trumps:
+        for trump in self._trump_effects:
             trump.consume()
 
         self._remove_consumed_trumps()
-        if self._power:
-            self._power.turn_teardown()
 
     def _remove_consumed_trumps(self):
         # If we modify the size of the size while looping on it, we will skip some element. For
         # instance if two elements are consumed in the list, only the first one will be removed.
-        to_remove = set()
-        for trump in self._affecting_trumps:
+        to_remove = []
+        for trump in self._trump_effects:
             if trump.duration <= 0:
-                to_remove.add(trump)
+                to_remove.append(trump)
 
         for trump in to_remove:
-            self._affecting_trumps.remove(trump)
+            if trump in self._trump_effects:
+                self._available_trumps = trump.teardown(self._available_trumps)
+                self._trump_effects.remove(trump)
 
     def _revert_to_default(self):
         self._deck.revert_to_default()
@@ -273,25 +281,22 @@ class Player:
     def modify_card_number_moves(self, delta, filter_=None):
         self._deck.modify_number_moves(delta, filter_=filter_)
 
-    def set_special_actions_to_cards_in_deck(self, card_name, actions):
-        self._deck.set_special_actions_to_card(card_name, actions)
+    def set_special_actions_to_cards_in_deck(self, card_name, special_action_descriptions):
+        self._deck.set_special_actions_to_card(card_name, special_action_descriptions)
 
-    def modify_affecting_trump_durations(self, delta, filter_=None):
-        for trump in filter(filter_, self._affecting_trumps):
+    def modify_trump_effects_durations(self, delta, filter_=None):
+        for trump in filter(filter_, self._trump_effects):
             trump.duration += delta
 
         self._remove_consumed_trumps()
         self._revert_to_default()
         self._enable_trumps()
 
-    def play_special_action(self, action, target=None, action_args=None):
-        if action_args is None:
-            action_args = {}
-
+    def play_special_action(self, action, target, context):
         target._check_for_cannot_be_affected_by_trumps(action)
 
         if target is not None:
-            action.affect(player=target, **action_args)
+            action.create_effect(initiator=self, target=target, context=context).apply()
             self._special_actions_names.remove(action.name.lower())
             self.last_action = LastAction(
                 description="played_special_action",
@@ -305,56 +310,57 @@ class Player:
     def cancel_special_action(self, action):
         self._special_actions_names.remove(action.name.lower())
 
-    def _affect_by(self, trump):
+    def _affect_by(self, trump, *, initiator, context):
         self._check_can_be_affected_by_trump(trump)
 
         # The trump has just been played. We only trigger the effect if this is the target's turn.
         # If not, it will be applied once the turn begins.
         trump_played_infos = None
-        if self._can_play:
-            trump_played_infos = trump.affect(player=self)
-
+        trump_effect = trump.create_effect(target=self, initiator=initiator, context=context)
         # trump.affect may raise a TrumpHasNoEffect.
         # Only add the trump to the list if it had an effect.
-        self._affecting_trumps.append(trump)
+        player_to_apply_trump_on = initiator if trump.apply_on_initiator else self
+        if player_to_apply_trump_on._can_play:
+            trump_effect.apply()
+        player_to_apply_trump_on._trump_effects.append(trump_effect)
 
         # We must return the trump of the success infos to update the rest of the game.
         return trump_played_infos or trump
 
     def get_trump(self, trump_name, trump_color=None):
         if self._played_power_as_trump(trump_name, trump_color):
-            return self._power.clone()
+            return self.power
         return self._available_trumps[trump_name, trump_color]
 
     def _played_power_as_trump(self, trump_name, trump_color):
         return (
-            self._power
-            and not self._power.passive
-            and trump_name == self._power.name
-            and trump_color == self._power.color
+            self.power
+            and not self.power.passive
+            and trump_name == self.power.name
+            and trump_color == self.power.color
         )
 
     def _check_can_be_affected_by_trump(self, trump):
-        if len(self._affecting_trumps) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
-            raise trumps.exceptions.MaxNumberAffectingTrumpsError
+        if len(self._trump_effects) >= self.MAX_NUMBER_AFFECTING_TRUMPS:
+            raise trumps_exceptions.MaxNumberAffectingTrumpsError
 
         if self._power and self._power.passive and not self._power.allow_trump_to_affect(trump):
-            raise trumps.exceptions.TrumpHasNoEffectError
+            raise trumps_exceptions.TrumpHasNoEffectError
 
         self._check_for_cannot_be_affected_by_trumps(trump)
 
     def _check_for_cannot_be_affected_by_trumps(self, trump):
         # A CannotBeAffectedByTrumps can be affecting the player, we need to check those too.
-        for affecting_trump in self._affecting_trumps:
-            if not affecting_trump.allow_trump_to_affect(trump) and trump.must_target_player:
-                raise trumps.exceptions.TrumpHasNoEffectError
+        for effect in self._trump_effects:
+            if not effect.allow_trump_to_affect(trump) and trump.must_target_player:
+                raise trumps_exceptions.TrumpHasNoEffectError
 
-    def play_trump(self, trump, *, target):
+    def play_trump(self, trump, *, target, context):
         self._check_play_trump(trump)
 
         try:
-            trump_played_infos = self._play_trump(trump, target)
-        except trumps.exceptions.TrumpHasNoEffectError:
+            trump_played_infos = target._affect_by(trump, initiator=self, context=context)
+        except trumps_exceptions.TrumpHasNoEffectError:
             self._end_play_trump(trump, target=target)
             raise
         else:
@@ -364,19 +370,9 @@ class Player:
         if not self.can_play:
             raise NotYourTurnError
         if self._number_trumps_played >= self.MAX_NUMBER_TRUMPS_PLAYED:
-            raise trumps.exceptions.MaxNumberTrumpPlayedError
+            raise trumps_exceptions.MaxNumberTrumpPlayedError
         if not self._gauge.can_play_trump(trump):
-            raise trumps.exceptions.GaugeTooLowToPlayTrumpError
-
-    def _play_trump(self, trump, target):
-        if trump.target_type == trumps.constants.TargetTypes.board:
-            return trump.affect(board=self._board, **target)
-        elif trump.target_type == trumps.constants.TargetTypes.player:
-            return target._affect_by(trump)
-        elif trump.target_type == trumps.constants.TargetTypes.trump:
-            return trump.affect(player=self, power=target.power.clone())
-        else:
-            raise trumps.exceptions.InvalidTargetTypeError
+            raise trumps_exceptions.GaugeTooLowToPlayTrumpError
 
     def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
@@ -415,8 +411,8 @@ class Player:
         return self._last_square_previous_turn in self._aim
 
     @property
-    def affecting_trumps(self):
-        return tuple(self._affecting_trumps)
+    def trump_effects(self):
+        return tuple(self._trump_effects)
 
     @property
     def ai_aim(self):
@@ -428,16 +424,7 @@ class Player:
 
     @property
     def available_trumps(self) -> tuple:
-        # List of available trumps cannot be modified outside this class.
         return tuple(self._available_trumps)
-
-    @property
-    def rw_available_trumps(self):
-        """Return a RW access to available trumps of this player.
-
-        Use this sparingly, outside StealPowerPower we shouldn't have a use case for this.
-        """
-        return self._available_trumps
 
     @property
     def can_be_targeted_by_trumps(self):
@@ -445,7 +432,7 @@ class Player:
 
         It returns false only when the player cannot be targeted by any trump.
         """
-        for trump in self.affecting_trumps:
+        for trump in self.trump_effects:
             if isinstance(trump, trumps.CannotBeAffectedByTrumps) and trump.is_affecting_all_trumps:
                 return False
 
@@ -564,6 +551,10 @@ class Player:
 
     @property
     def power(self):
+        for effect in self._trump_effects:
+            if stolen_power := effect.context.get("stolen_power"):
+                return stolen_power
+
         return self._power
 
     @property
@@ -583,7 +574,6 @@ class Player:
         if actions is not None:
             self._special_actions_names = [action.name.lower() for action in actions]
             self._special_actions = actions
-            self._special_actions.set_additionnal_arguments(board=self._board)
 
     @property
     def name_next_special_action(self):
@@ -604,12 +594,12 @@ class Player:
     def trumps(self):
         return [
             {
-                "name": trump.args["name"],
-                "color": trump.args.get("color"),
-                "description": trump.args["description"],
-                "duration": trump.args["duration"],
-                "cost": trump.args["cost"],
-                "must_target_player": trump.args["must_target_player"],
+                "name": trump.name,
+                "color": trump.color,
+                "description": trump.description,
+                "duration": trump.duration,
+                "cost": trump.cost,
+                "must_target_player": trump.must_target_player,
             }
             for trump in self._available_trumps
         ]

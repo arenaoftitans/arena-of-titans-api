@@ -16,10 +16,16 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
-from ..utils import SimpleEnumMeta
 
 
-class EffectTypes(metaclass=SimpleEnumMeta):
-    trump = ()
-    special_action = ()
-    power = ()
+class Any:
+    def __init__(self, type_):
+        self._type = type_
+
+    def __eq__(self, other):
+        return type(other) is self._type
+
+
+class AnyFunction:
+    def __eq__(self, other):
+        return callable(other)

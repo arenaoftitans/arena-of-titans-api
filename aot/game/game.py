@@ -73,11 +73,12 @@ class Game:
 
         return has_special_actions
 
-    def play_trump(self, trump, target):
-        self.active_player.play_trump(trump, target=target)
+    def play_trump(self, trump, target, context):
+        self.active_player.play_trump(trump, target=target, context=context)
 
-    def play_special_action(self, action, target=None, action_args=None):
-        self.active_player.play_special_action(action, target=target, action_args=action_args)
+    def play_special_action(self, action, target=None, context=None):
+        context = context or {}
+        self.active_player.play_special_action(action, target=target, context=context)
 
     def cancel_special_action(self, action):
         self.active_player.cancel_special_action(action)
@@ -220,6 +221,10 @@ class Game:
     @property
     def active_player(self):
         return self._active_player
+
+    @property
+    def board(self):
+        return self._board
 
     @property
     def game_id(self):  # pragma: no cover

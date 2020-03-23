@@ -48,16 +48,7 @@ class Gauge:
             self._value = self.MAX_VALUE
 
     def can_play_trump(self, trump):
-        # We are dealing with a SimpleTrump. play_trump must be called with a trump.
-        if hasattr(trump, "cost"):
-            cost = trump.cost
-        else:
-            cost = trump.args["cost"]
-
-        if self.value >= cost:
-            return True
-        else:
-            return False
+        return self.value >= trump.cost
 
     def play_trump(self, trump):
         self._value -= trump.cost

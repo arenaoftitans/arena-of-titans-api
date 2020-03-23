@@ -57,7 +57,13 @@ def deck(board):
 def player(mocker, board, deck):
     mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
     player = Player(
-        "Player", None, 0, board, deck, MagicMock(), trumps=build_trumps_list(TEST_CONFIG),
+        "Player",
+        None,
+        0,
+        board,
+        deck,
+        MagicMock(),
+        available_trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
@@ -67,7 +73,13 @@ def player(mocker, board, deck):
 def player2(mocker, board, deck):
     mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
     player = Player(
-        "Player 2", None, 1, board, deck, MagicMock(), trumps=build_trumps_list(TEST_CONFIG),
+        "Player 2",
+        None,
+        1,
+        board,
+        deck,
+        MagicMock(),
+        available_trumps=build_trumps_list(TEST_CONFIG),
     )
     player.is_connected = True
     return player
