@@ -19,7 +19,7 @@
 
 import daiquiri
 
-from . import trumps as imported_trumps
+from . import trumps
 from .board import Square
 from .exceptions import NotYourTurnError
 from .trumps import exceptions as trumps_exceptions
@@ -117,7 +117,7 @@ class Player:
         self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
-        self._power = power or imported_trumps.VoidPower()
+        self._power = power or trumps.VoidPower()
         self._available_trumps = self._power.setup(available_trumps or ())
         self._rank = -1
 
@@ -433,10 +433,7 @@ class Player:
         It returns false only when the player cannot be targeted by any trump.
         """
         for trump in self.trump_effects:
-            if (
-                isinstance(trump, imported_trumps.CannotBeAffectedByTrumps)
-                and trump.is_affecting_all_trumps
-            ):
+            if isinstance(trump, trumps.CannotBeAffectedByTrumps) and trump.is_affecting_all_trumps:
                 return False
 
         return True
