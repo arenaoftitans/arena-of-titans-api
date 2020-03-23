@@ -28,11 +28,10 @@ from aot.game.trumps import (
     ModifyCardNumberMoves,
     ModifyNumberMoves,
     ModifyTrumpDurations,
+    NewTrumpsList,
     PreventTrumpAction,
     RemoveColor,
-    SimpleTrump,
     Teleport,
-    TrumpList,
 )
 from aot.game.trumps.exceptions import MaxNumberAffectingTrumpsError, TrumpHasNoEffectError
 
@@ -52,6 +51,13 @@ def target(player2):
 @pytest.fixture()
 def red_tower_trump():
     return RemoveColor(name="Tower", color=Color.RED, cost=4, duration=1, must_target_player=True)
+
+
+@pytest.fixture()
+def red_fortress_trump():
+    return RemoveColor(
+        name="Fortress", color=Color.RED, cost=4, duration=2, must_target_player=True
+    )
 
 
 @pytest.fixture()
@@ -169,7 +175,9 @@ def test_affect_modify_affecting_trump_durations_with_filter_(
     assert target._affecting_trumps == [blizzard_effect]
 
 
-def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  # noqa: F811
+def test_prevent_trump_action_dont_enable_on_relevant_trump(
+    player, player2, red_fortress_trump
+):  # noqa: F811
     """Test that we only prevent the action of proper trumps.
 
     GIVEN: a prevent action trump enabled on 'Tower' trumps to prevent the 'Ram' trump for player.
@@ -182,13 +190,10 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(player, player2):  #
     prevent_action_trump = PreventTrumpAction(
         name="Impassable Trump", prevent_trumps_to_modify=["Ram"], enable_for_trumps=["Tower"],
     )
-    trump_not_to_improve = SimpleTrump(
-        type="RemoveColor", name="Fortress", args={"duration": 2, "name": "Fortress"},
-    )
-    player._available_trumps = TrumpList([trump_not_to_improve])
+    player._available_trumps = NewTrumpsList([red_fortress_trump])
     effect = prevent_action_trump.create_effect(initiator=player, target=player, context={})
     effect.apply()
-    fortress = player._available_trumps["Fortress", None]
+    fortress = player._available_trumps["Fortress", Color.RED]
     player._can_play = True
     player.play_trump(fortress, target=player2, context={})
     # Setup trump to play.

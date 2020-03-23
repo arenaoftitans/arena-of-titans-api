@@ -32,10 +32,8 @@ from aot.game.trumps import (
     Power,
     PreventTrumpActionPower,
     RemoveColor,
-    SimpleTrump,
     StealPowerPower,
     Teleport,
-    TrumpList,
 )
 from aot.game.trumps.exceptions import TrumpHasNoEffectError
 from tests.factories import PlayerFactory
@@ -190,7 +188,7 @@ def test_prevent_trump_action(mocker, red_tower_trump):  # noqa: F811
     player.play_trump(trump_to_play, target=player2, context={})
 
 
-def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
+def test_cannot_be_selected_active_power(player, player2, red_tower_trump):  # noqa: F811
     """Test that we can use an active power (or trump) to prevent any trump action.
 
     GIVEN: a first player with "Night mist" which prevents any trump to affect it.
@@ -209,13 +207,8 @@ def test_cannot_be_selected_active_power(player, player2):  # noqa: F811
     player.MAX_NUMBER_TRUMPS_PLAYED = float("inf")
 
     # Setup player 2.
-    a_trump = SimpleTrump(
-        type="RemoveColor",
-        name="Tower",
-        args={"cost": 1, "must_target_player": True, "name": "Tower"},
-    )
-    player2._available_trumps = TrumpList([a_trump])
-    trump_to_play = player2._available_trumps["Tower", None]
+    player2._available_trumps = NewTrumpsList([red_tower_trump])
+    trump_to_play = player2._available_trumps["Tower", Color.RED]
     player2._can_play = True
 
     with pytest.raises(TrumpHasNoEffectError):

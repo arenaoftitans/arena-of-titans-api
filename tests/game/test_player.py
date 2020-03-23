@@ -24,13 +24,14 @@ import pytest
 from aot.game import Player
 from aot.game.board import Color
 from aot.game.cards import Card
-from aot.game.trumps import ChangeSquare, SimpleTrump, Trump, TrumpList
+from aot.game.trumps import ChangeSquare, SpecialActionsList, Trump
 from aot.game.trumps.effects import TrumpEffect
 from aot.game.trumps.exceptions import (
     GaugeTooLowToPlayTrumpError,
     MaxNumberAffectingTrumpsError,
     MaxNumberTrumpPlayedError,
 )
+from tests.factories import TeleportSpecialActionFactory
 
 
 def test_view_possible_squares(player):  # noqa: F811
@@ -230,8 +231,9 @@ def test_play_card_with_special_actions(player):  # noqa: F811
     player._complete_action = MagicMock()
     start_square = player.current_square
     card = player.deck.first_card_in_hand
-    card._special_actions = TrumpList()
-    card._special_actions.append(SimpleTrump(name="action", type=None, args=None))
+    card._special_actions = SpecialActionsList(
+        [TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})]
+    )
 
     assert player.play_card(card, (3, 1), check_move=False)
 
@@ -243,22 +245,23 @@ def test_play_card_with_special_actions(player):  # noqa: F811
     assert start_square.x != end_square.x and start_square.y != end_square.y
     assert 3 == end_square.x
     assert 1 == end_square.y
-    assert player._special_actions_names == ["action"]
+    assert player._special_actions_names == ["teleport"]
     assert player._special_actions is card._special_actions
     assert not player._complete_action.called
     assert player.special_action_start_time > 0
 
 
 def test_has_special_actions(player):  # noqa: F811
-    actions = TrumpList()
-    actions.append(SimpleTrump(name="action", type=None, args=None))
+    actions = SpecialActionsList(
+        [TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})]
+    )
     player.special_actions = actions
 
     assert player.has_special_actions
-    assert player.name_next_special_action == "action"
+    assert player.name_next_special_action == "teleport"
     assert player.has_special_actions
 
-    player._special_actions_names.remove("action")
+    player._special_actions_names.remove("teleport")
     assert not player.has_special_actions
 
 
@@ -276,9 +279,10 @@ def test_play_special_action(player):  # noqa: F811
 
 
 def test_cancel_special_action(player):  # noqa: F811
-    player._special_actions_names = ["action", "action2"]
+    player._special_actions_names = ["teleport", "action2"]
+    action = TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})
 
-    player.cancel_special_action(SimpleTrump(name="action", type=None, args=None))
+    player.cancel_special_action(action)
 
     assert player._special_actions_names == ["action2"]
 

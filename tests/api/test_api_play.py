@@ -22,7 +22,9 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from aot.api.utils import AotError, AotErrorToDisplay
-from aot.game.trumps import SimpleTrump, TrumpList
+from aot.game.board import Color
+from aot.game.trumps import SpecialActionsList
+from tests.factories import TeleportSpecialActionFactory
 
 
 @pytest.mark.asyncio
@@ -307,8 +309,9 @@ async def test_play_card(api, game):  # noqa: F811
 async def test_play_card_with_special_actions(api, game):  # noqa: F811
     card = game.active_player.hand[0]
     square = game.get_square(0, 0)
-    special_actions = TrumpList()
-    special_actions.append(SimpleTrump(name="Action", type=None, args=None))
+    special_actions = SpecialActionsList(
+        [TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})]
+    )
     game.active_player.special_actions = special_actions
     game.play_card = MagicMock(return_value=True)
     game.get_square = MagicMock(return_value=square)
@@ -320,4 +323,4 @@ async def test_play_card_with_special_actions(api, game):  # noqa: F811
 
     game.play_card.assert_called_once_with(card, square)
     api._send_play_message.assert_called_once_with(game, game.active_player)
-    api._notify_special_action.assert_called_once_with("action")
+    api._notify_special_action.assert_called_once_with("teleport")

@@ -17,10 +17,6 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import copy
-from collections import namedtuple
-from operator import xor
-
 from .gauge import Gauge
 from .powers import (
     AddSpecialActionsToCardPower,
@@ -81,44 +77,6 @@ def create_action_from_description(action_description, color=None):
     return action_cls(**direct_args, trump_args=trump_args)
 
 
-SimpleTrump = namedtuple("SimpleTrump", "type name color args")
-SimpleTrump.__new__.__defaults__ = (None, None, None, None)
-
-
-class TrumpList(list):
-    def __init__(self, trumps=None):
-        if trumps is not None:
-            super().__init__(trumps)
-        else:
-            super().__init__()
-
-    def __getitem__(self, key):
-        if key is None:
-            raise IndexError
-        elif isinstance(key, (tuple, list)):
-            name, color = key
-            for trump in self:
-                if self._has_proper_name(trump, name) and self._has_proper_color(trump, color):
-                    kwargs = copy.copy(trump.args)
-                    return trump_type_to_class[trump.type](**kwargs)
-            raise IndexError
-        elif isinstance(key, int):
-            return super().__getitem__(key)
-        elif isinstance(key, slice):
-            return TrumpList(trumps=super().__getitem__(key))
-
-    def _has_proper_name(self, trump, name):
-        if name is None:
-            return False
-        return trump.name.lower() == name.lower()
-
-    def _has_proper_color(self, trump, color):
-        if xor(trump.color is None, color is None):
-            return False
-
-        return (color is None and trump.color is None) or trump.color.lower() == color.lower()
-
-
 __all__ = [
     power_type_to_class,
     special_action_type_to_class,
@@ -136,12 +94,10 @@ __all__ = [
     "ModifyNumberMoves",
     "ModifyTrumpDurations",
     "RemoveColor",
-    "SimpleTrump",
     "Teleport",
     # Trump utils
     "Gauge",
     "Trump",
-    "TrumpList",
     "NewTrumpsList",
     "SpecialActionsList",
 ]
