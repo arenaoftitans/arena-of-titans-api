@@ -1,0 +1,30 @@
+#
+#  Copyright (C) 2015-2020 by Arena of Titans Contributors.
+#
+#  This file is part of Arena of Titans.
+#
+#  Arena of Titans is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Arena of Titans is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
+#
+
+from .play_actions import play_action, view_possible_actions
+from .play_cards import play_card, view_possible_squares
+from .play_trump import play_trump
+
+__all__ = [
+    play_action.__name__,
+    view_possible_actions.__name__,
+    play_card.__name__,
+    view_possible_squares.__name__,
+    play_trump.__name__,
+]

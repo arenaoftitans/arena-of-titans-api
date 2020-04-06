@@ -26,17 +26,11 @@ from contextlib import asynccontextmanager
 import daiquiri
 
 from ..config import config
-from ..game import Player
 from ..game.config import GAME_CONFIGS
-from ..game.trumps.exceptions import (
-    GaugeTooLowToPlayTrumpError,
-    MaxNumberAffectingTrumpsError,
-    MaxNumberTrumpPlayedError,
-    TrumpHasNoEffectError,
-)
 from ..game.utils import get_time
 from .game_factory import create_game_for_players
 from .utils import AotError, AotErrorToDisplay, RequestTypes, sanitize
+from .views import play_action, play_card, play_trump, view_possible_actions, view_possible_squares
 from .ws import AotWs
 
 
@@ -414,47 +408,16 @@ class Api(AotWs):
             raise AotError("unknown_request", {"rt": self._rt, "where": "play_game"})
 
     async def _view_possible_squares(self, game, play_request):
-        card = self._get_card(game, play_request)
-        if card is not None:
-            possible_squares = game.view_possible_squares(card)
-            await self.sendMessage(
-                {"rt": RequestTypes.VIEW_POSSIBLE_SQUARES, "possible_squares": possible_squares}
-            )
-        else:
-            raise AotErrorToDisplay("wrong_card")
-
-    def _get_card(self, game, play_request):
-        name = play_request.get("card_name", None)
-        color = play_request.get("card_color", None)
-        return game.active_player.get_card(name, color)
+        possible_squares = view_possible_squares(game, play_request)
+        await self.sendMessage(
+            {"rt": RequestTypes.VIEW_POSSIBLE_SQUARES, "possible_squares": possible_squares}
+        )
 
     async def _play(self, game, play_request):
-        this_player = game.active_player
-        has_special_actions = False
-        if play_request.get("pass", False):
-            game.pass_turn()
-        elif play_request.get("discard", False):
-            card = self._get_card(game, play_request)
-            if card is None:
-                raise AotErrorToDisplay("wrong_card")
-            game.discard(card)
-        else:
-            card = self._get_card(game, play_request)
-            square = self._get_square(play_request, game)
-            if card is None:
-                raise AotErrorToDisplay("wrong_card")
-            elif square is None or not game.can_move(card, square):
-                raise AotErrorToDisplay("wrong_square")
-            has_special_actions = game.play_card(card, square)
-
+        this_player, has_special_actions = play_card(game, play_request)
         await self._send_play_message(game, this_player)
         if has_special_actions:
             await self._notify_special_action(game.active_player.name_next_special_action)
-
-    def _get_square(self, play_request, game):
-        x = play_request.get("x", None)
-        y = play_request.get("y", None)
-        return game.get_square(x, y)
 
     async def _send_play_message(self, game, this_player):  # pragma: no cover
         game.add_action(this_player.last_action)
@@ -547,65 +510,20 @@ class Api(AotWs):
         )
 
     async def _view_possible_actions(self, game, play_request):
-        action, target_index = self._get_action(game, play_request)
-        message = {
-            "rt": RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
-            "special_action_name": action.name,
-        }
-        if action.require_target_square:
-            message["possible_squares"] = action.view_possible_squares(
-                game.players[target_index], game.board
-            )
-
+        message = view_possible_actions(game, play_request)
+        message["rt"] = RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS
         await self.sendMessage(message)
 
-    def _get_action(self, game, play_request):
-        action_name = play_request.get("special_action_name", None)
-        action_color = play_request.get("special_action_color", None)
-        target_index = play_request.get("target_index", None)
-        allow_no_target = play_request.get("cancel", False)
-
-        if not action_name:
-            raise AotError("missing_action_name")
-        elif target_index is None and not allow_no_target:
-            raise AotError("missing_action_target")
-
-        try:
-            return game.active_player.special_actions[action_name, action_color], target_index
-        except IndexError:
-            raise AotError("wrong_action")
-        except TypeError as e:
-            if str(e) == "'NoneType' object is not subscriptable":
-                raise AotError("no_action")
-            else:  # pragma: no cover
-                raise e
-
     async def _play_special_action(self, game, play_request):
-        action, target_index = self._get_action(game, play_request)
-        if play_request.get("cancel", False):
-            game.cancel_special_action(action)
-        else:
-            await self._play_special_action_on_target(game, play_request, action, target_index)
+        was_played, target = play_action(game, play_request)
+        if was_played:
+            await self._send_player_played_special_action(game.active_player, target)
 
         if game.active_player.has_special_actions:
             await self._notify_special_action(game.active_player.name_next_special_action)
         else:
             game.complete_special_actions()
             await self._send_play_message_to_players(game)
-
-    async def _play_special_action_on_target(self, game, play_request, action, target_index):
-        context = {}
-        target = game.players[target_index]
-        if action.require_target_square:
-            context["square"] = self._get_square(play_request, game)
-            context["board"] = game.board
-            if context["square"] is None:
-                raise AotErrorToDisplay("wrong_square")
-
-        game.play_special_action(action, target=target, context=context)
-        last_action = game.active_player.last_action
-        game.add_action(last_action)
-        await self._send_player_played_special_action(game.active_player, target)
 
     async def _send_player_played_special_action(self, player, target):  # pragma: no cover
         await self._send_all(
@@ -624,74 +542,11 @@ class Api(AotWs):
         )
 
     async def _play_trump(self, game, play_request):
-        try:
-            trump = self._get_trump(
-                game, play_request.get("name", None), play_request.get("color", None),
-            )
-        except IndexError:
-            raise AotError("wrong_trump")
+        target, context, rt = play_trump(game, play_request)
 
-        target = self._get_trump_target(game, trump, play_request)
-        context = self._get_trump_context(game, trump, play_request)
-
-        await self._play_trump_with_target(game, trump, target, context)
-
-    def _get_trump_target(self, game, trump, play_request):
-        target_index = play_request.get("target_index", None)
-        if trump.must_target_player and target_index is None:
-            raise AotError("missing_trump_target")
-        elif not trump.must_target_player:
-            target_index = game.active_player.index
-
-        try:
-            return game.players[target_index]
-        except IndexError:
-            raise AotError("The target of this trump does not exist")
-
-    def _get_trump_context(self, game, trump, play_request):
-        context = {
-            "board": game.board,
-        }
-        if "square" in play_request:
-            context["square"] = {
-                "x": play_request["square"]["x"],
-                "y": play_request["square"]["y"],
-                "color": play_request["square"]["color"],
-            }
-
-        return context
-
-    async def _play_trump_with_target(self, game, trump, target, context):
-        """Play a trump on its target.
-
-        Target represent what the trump will target (ie a player or a square)
-        whereas the target_index represents the index of the player that was the target
-        of the trump (the active player if the target is a square).
-
-        TODO: improve this.
-        """
-        try:
-            game.play_trump(trump, target, context)
-        except GaugeTooLowToPlayTrumpError:
-            raise AotError("gauge_too_low")
-        except MaxNumberTrumpPlayedError:
-            raise AotError(
-                "max_number_played_trumps", infos={"num": Player.MAX_NUMBER_TRUMPS_PLAYED},
-            )
-        except MaxNumberAffectingTrumpsError:
-            raise AotErrorToDisplay(
-                "max_number_trumps", {"num": Player.MAX_NUMBER_AFFECTING_TRUMPS},
-            )
-        except TrumpHasNoEffectError:
-            game.add_action(game.active_player.last_action)
-            await self._send_trump_played_message(
-                game, target.index, rt=RequestTypes.TRUMP_HAS_NO_EFFECT,
-            )
-        else:
-            game.add_action(game.active_player.last_action)
-            await self._send_trump_played_message(
-                game, target.index, square=context.get("square"),
-            )
+        await self._send_trump_played_message(
+            game, target.index, square=context.get("square"), rt=rt,
+        )
 
     async def _send_trump_played_message(
         self, game, target_index, rt=RequestTypes.PLAY_TRUMP, square=None,
@@ -710,9 +565,6 @@ class Api(AotWs):
         message["gauge_value"] = game.active_player.gauge.value
         message["power"] = game.active_player.power
         await self.sendMessage(message)
-
-    def _get_trump(self, game, trump_name, trump_color):
-        return game.active_player.get_trump(trump_name, trump_color)
 
     @property
     def _api_delay(self):
