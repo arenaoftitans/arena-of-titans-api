@@ -72,6 +72,7 @@ class Api(AotWs):
     _id = None
     _must_save_game = True
     _pending_ai = set()
+    _is_debug_mode_enabled = False
 
     async def onMessage(self, payload, is_binary):  # noqa: C901 (too complex)
         self.LOGGER.debug(f"Received from {self.id}: {payload}")
@@ -247,7 +248,9 @@ class Api(AotWs):
 
         game = create_game_for_players(players_description)
         game.game_id = self._game_id
-        game.is_debug = self._message.get("debug", False) and config["api"]["allow_debug"]
+        self._is_debug_mode_enabled = (
+            self._message.get("debug", False) and config["api"]["allow_debug"]
+        )
         for player in game.players:
             if player is not None and player.id in self._clients:
                 player.is_connected = True
@@ -340,7 +343,7 @@ class Api(AotWs):
         self._pending_ai.discard(self._game_id)
         if game.active_player.is_ai:
             this_player = game.active_player
-            if game.is_debug:
+            if self._is_debug_mode_enabled:
                 await self._send_debug(
                     {"player": this_player.name, "hand": this_player.hand_for_debug}
                 )

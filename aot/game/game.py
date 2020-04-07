@@ -30,7 +30,6 @@ class Game:
     _board = None
     _game_id = None
     _index_first_player = 0
-    _is_debug = False
     _is_over = False
     _nb_turns = 0
     _next_rank_available = 1
@@ -238,14 +237,6 @@ class Game:
         for player in self.players:
             if player:
                 player.game_id = value
-
-    @property
-    def is_debug(self):
-        return self._is_debug
-
-    @is_debug.setter
-    def is_debug(self, value):
-        self._is_debug = bool(value)
 
     @property
     def is_over(self):

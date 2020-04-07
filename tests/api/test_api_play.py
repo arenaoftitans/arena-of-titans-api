@@ -142,9 +142,9 @@ async def test_play_ai_mode_debug(api, game):  # noqa: F811
     api._game_id = "game_id"
     api._pending_ai.add("game_id")
     api._play_ai_after_timeout = MagicMock()
+    api._is_debug_mode_enabled = True
     game.active_player._is_ai = True
     game.play_auto = MagicMock()
-    game._is_debug = True
 
     await api._play_ai(game)
 
