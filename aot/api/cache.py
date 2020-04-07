@@ -77,7 +77,7 @@ class Cache:
         return encode(pickle_data)
 
     def __init__(self):
-        self._cache = self._get_redis_instance(new=True)
+        self._cache = self._get_redis_instance()
         self.TTL = config["cache"]["ttl"]
 
     async def test(self):
