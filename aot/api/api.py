@@ -34,6 +34,7 @@ from .utils import (
     AotError,
     AotErrorToDisplay,
     AotFatalErrorToDisplay,
+    MustNotSaveGameError,
     RequestTypes,
     WsResponse,
     sanitize,
@@ -53,7 +54,6 @@ class Api:
         self._loop = loop
         self._game_id = None
         self._id = default_id
-        self._must_save_game = True
         self._pending_ai = set()
         self._is_debug_mode_enabled = False
         self._cache = Cache()
@@ -149,7 +149,7 @@ class Api:
                 return message
             else:
                 self._append_to_clients_pending_disconnection()
-                self._must_save_game = False
+                raise MustNotSaveGameError
 
     def _append_to_clients_pending_disconnection(self):
         self._clients_pending_disconnection_from_game.add(self.id)
@@ -174,8 +174,7 @@ class Api:
             finally:
                 message = await self._get_initialized_game_message(index)
         else:
-            async with self._load_game() as game:
-                self._must_save_game = False
+            async with self._load_game(must_save=False) as game:
                 self._append_to_clients_pending_reconnection()
                 message = self._reconnect_to_game(game)
                 if game.active_player.is_ai and self._game_id not in self._pending_ai:
@@ -407,7 +406,6 @@ class Api:
             elif game.active_player.is_ai:
                 return self._play_ai(game)
             else:
-                self._must_save_game = False
                 # We have a not_your_turn error that is displayed sometimes
                 # without an action for the player. We add logs to understand why.
                 try:
@@ -459,19 +457,20 @@ class Api:
             return play_messages.add_debug_message(debug_message).add_future_message(future_message)
 
     @asynccontextmanager
-    async def _load_game(self):
-        self._must_save_game = True
+    async def _load_game(self, must_save=True):
         game = await self._cache.get_game()
         self._disconnect_pending_players(game)
         self._reconnect_pending_players(game)
 
         try:
             yield game
+        except MustNotSaveGameError:
+            self.logger.info("Action asked not to save the game.", exc_info=True)
         except Exception:
             self.logger.exception("Uncaught error while playing, will not save the loaded game")
             raise
         else:
-            if self._must_save_game:
+            if must_save:
                 await self._cache.save_game(game)
 
     def _disconnect_pending_players(self, game):

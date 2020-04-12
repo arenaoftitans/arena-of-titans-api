@@ -52,6 +52,10 @@ class AotFatalErrorToDisplay(AotFatalError, AotErrorToDisplay):
     pass
 
 
+class MustNotSaveGameError(Exception):
+    pass
+
+
 @dataclasses.dataclass(frozen=True)
 class WsResponse:
     future_message: Optional[asyncio.Future] = None
