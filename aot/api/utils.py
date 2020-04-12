@@ -17,8 +17,10 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import asyncio
 import dataclasses
 import math
+from typing import Dict, List, Optional
 
 import bleach
 
@@ -48,6 +50,24 @@ class AotFatalError(AotError):
 
 class AotFatalErrorToDisplay(AotFatalError, AotErrorToDisplay):
     pass
+
+
+@dataclasses.dataclass(frozen=True)
+class WsResponse:
+    future_message: Optional[asyncio.Future] = None
+    include_number_connected_clients: bool = False
+    send_to_all: List[dict] = dataclasses.field(default_factory=list)
+    send_to_all_others: List[dict] = dataclasses.field(default_factory=list)
+    # This is a mapping of player_id and the messages to send to the player.
+    send_to_each_players: Dict[str, List[dict]] = dataclasses.field(default_factory=dict)
+    send_to_current_player: List[dict] = dataclasses.field(default_factory=list)
+    send_debug: List[dict] = dataclasses.field(default_factory=list)
+
+    def add_debug_message(self, message):
+        return dataclasses.replace(self, send_debug=message)
+
+    def add_future_message(self, future):
+        return dataclasses.replace(self, future_message=future)
 
 
 class RequestTypes(metaclass=SimpleEnumMeta):

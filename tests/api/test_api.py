@@ -343,7 +343,7 @@ async def test_modify_slots_non_existent_slot(api):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_modify_slots(api):  # noqa: F811
-    api._send_all = AsyncMock()
+    api._send_to_all = AsyncMock()
     api._cache = MagicMock()
     api._cache.slot_exists = AsyncMock(return_value=True)
     api._cache.update_slot = AsyncMock()
@@ -357,7 +357,7 @@ async def test_modify_slots(api):  # noqa: F811
     await api._modify_slots()
 
     api._cache.update_slot.assert_called_once_with(slot)
-    assert api._send_all.call_count == 1
+    assert api._send_to_all.call_count == 1
 
 
 @pytest.mark.asyncio
@@ -487,7 +487,7 @@ def test_reconnect_pending_players(api, game):  # noqa: F811
 async def test_notify_special_actions(api, game):  # noqa: F811
     api.sendMessage = AsyncMock()
 
-    await api._notify_special_action("action")
+    await api._get_notify_special_action_message("action")
 
     api.sendMessage.assert_called_once_with(
         {"rt": RequestTypes.SPECIAL_ACTION_NOTIFY, "special_action_name": "action"}

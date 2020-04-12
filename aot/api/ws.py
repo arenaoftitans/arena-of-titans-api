@@ -19,279 +19,190 @@
 
 import asyncio
 import json
-from abc import ABCMeta, abstractmethod
-from contextlib import asynccontextmanager
 
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
-from ..game.utils import get_time
-from .cache import Cache
-from .utils import AotErrorToDisplay, AotFatalError, AotFatalErrorToDisplay, RequestTypes, to_json
+from .api import Api as AotApi
+from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse, to_json
 
 
-class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
+class AotWs(WebSocketServerProtocol):
     # Class variables.
     DISCONNECTED_TIMEOUT_WAIT = 10  # In seconds.
-    LOGGER = daiquiri.getLogger(__name__)
+    logger = daiquiri.getLogger(__name__)
     _clients = {}
-    _clients_pending_disconnection = {}
-    _clients_pending_reconnection = {}
     _disconnect_timeouts = {}
-    _error_messages = {}
+    _error_messages = {
+        "cannot_join": "You cannot join this game. No slots opened.",
+        "game_master_request": "Only the game master can use {rt} request.",
+        "gauge_too_low": "trumps.gauge_too_low",
+        "non-existent_slot": "Trying to update non existent slot.",
+        "max_number_trumps": "trumps.max_number_trumps",
+        "max_number_played_trumps": "trumps.max_number_played_trumps",
+        "missing_action_name": "You must specify the name of the action you want to do",
+        "missing_action_target": "You must specify the target for the action",
+        "missing_trump_target": "You must specify a target player.",
+        "no_action": "You have no special actions to do.",
+        "no_slot": "No slot provided.",
+        "not_your_turn": "Not your turn.",
+        "no_request": "No request was provided",
+        "player_already_connected": "errors.player_already_connected",
+        "registered_different_description": "Number of registered players differs with number of "
+        "players descriptions or too many/too few players are "
+        "registered.",
+        "unknown_error": "Unknown error.",
+        "unknown_request": "Unknown request: {rt}.",
+        "wrong_action": "You provided an invalid action name or you do not have any actions to "
+        "play",
+        "wrong_card": "This card doesn't exist or is not in your hand.",
+        "wrong_square": "This square doesn't exist or you cannot move there yet.",
+        "wrong_trump": "Unknown trump.",
+        "wrong_trump_target": "Wrong target player index.",
+    }
 
-    # Instance variable
-    _cache = None
+    # Instance variables.
+    _api = None
     _loop = None
-    _message = None
-    _rt = ""
+    _id = None
 
-    @property
-    @abstractmethod
-    def _creating_new_game(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _create_new_game(self):  # pragma: no cover
-        pass
-
-    @property
-    @abstractmethod
-    async def _creating_game(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _process_create_game_request(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _process_play_request(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _get_action_message(self, action):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    @asynccontextmanager
-    async def _load_game(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _modify_slots(self):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def _play_ai_after_timeout(self, game):  # pragma: no cover
-        pass
-
-    async def sendMessage(self, message):  # pragma: no cover  # noqa: N802
-        if isinstance(message, dict):
-            message = json.dumps(message, default=to_json)
-        self.LOGGER.debug(f"Sending to {self.id}: {message}")
-        message = message.encode("utf-8")
-        if isinstance(message, bytes):
-            # Must not use await here: sendMessage in the base class is not a coroutine.
-            super().sendMessage(message)
-
-    async def onOpen(self):  # pragma: no cover  # noqa: N802
-        self.id = self._wskey
+    async def onOpen(self):
+        self._id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
-        self._cache = Cache()
+        self._api = AotApi(default_id=self.id, loop=self._loop)
+
+    async def onMessage(self, payload, is_binary):
+        message = json.loads(payload.decode("utf-8"))
+        try:
+            response = await self._api.process_message(message)
+            self._handle_id_change()
+        except AotError as e:
+            await self._send_error(e, message)
+        except Exception:
+            self.logger.exception("Unexpected error while processing message.")
+        else:
+            self._cancel_disconnect_player()
+            await self._send_response(response)
+
+    def _handle_id_change(self):
+        # If the player reconnected, its id won't be _wskey (the id of the websocket) but the true
+        # id of the player (the one it had before being disconnected). To avoid issues when sending
+        # messages, we need to update the id here:
+        if self.id == self._api.id:
+            return
+
+        self._clients.pop(self.id, None)
+        self._id = self._api.id
+        self._clients[self.id] = self
+
+    async def _send_response(self, response: WsResponse):
+        if response.include_number_connected_clients:
+            # The client making the info request is in the clients dict. We must not count it.
+            response.send_to_current_player[0]["number_connected_players"] = len(self._clients) - 1
+
+        sent_responses = []
+        if response.future_message:
+            response.future_message.add_done_callback(
+                lambda future: asyncio.ensure_future(
+                    self._send_response(future.result()), loop=self._loop
+                )
+            )
+        if response.send_to_all:
+            sent_responses.append(self._send_to_all(response.send_to_all))
+        if response.send_to_all_others:
+            sent_responses.append(
+                self._send_to_all(response.send_to_all_others, excluded_players={self.id})
+            )
+        if response.send_to_current_player:
+            sent_responses.append(self.send_messages(response.send_to_current_player))
+        if response.send_debug:
+            sent_responses.append(self._send_debug(response.send_debug))
+        if response.send_to_each_players:
+            for player_id, messages in response.send_to_each_players.items():
+                sent_responses.append(self._send_to(messages, player_id))
+        await asyncio.gather(*sent_responses)
+
+    async def send_messages(self, messages):
+        sent_messages = []
+        for message in messages:
+            sent_messages.append(self.sendMessage(message))
+        await asyncio.gather(*sent_messages)
+
+    async def sendMessage(
+        self, message, is_binary=False, fragment_size=None, sync=False, do_not_compress=False
+    ):
+        if isinstance(message, dict):
+            message = json.dumps(message, default=to_json)
+        self.logger.debug(f"Sending to {self.id}: {message}")
+        message = message.encode("utf-8")
+        # Must not use await here: sendMessage in the base class is not a coroutine.
+        super().sendMessage(
+            message,
+            isBinary=is_binary,
+            fragmentSize=fragment_size,
+            sync=sync,
+            doNotCompress=do_not_compress,
+        )
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
-        self.LOGGER.info(
+        self.logger.info(
             f"WS n°{self.id} was closed cleanly? {was_clean} with code {code} and reason {reason}",
         )
 
-        if self._cache is not None:
-            self._disconnect_timeouts[self.id] = self._loop.call_later(
-                self.DISCONNECTED_TIMEOUT_WAIT,
-                lambda: asyncio.ensure_future(self._disconnect_player()),
-            )
+        self._disconnect_timeouts[self.id] = self._loop.call_later(
+            self.DISCONNECTED_TIMEOUT_WAIT,
+            lambda: asyncio.ensure_future(self._disconnect_player()),
+        )
 
-        if self.id in self._clients:
-            del self._clients[self.id]
+        self._clients.pop(self.id, None)
 
     async def _disconnect_player(self):
-        if await self._creating_game:
-            await self._free_slot()
-        else:
-            await self._disconnect_player_from_game()
+        response = await self._api.disconnect_player()
+        if response:
+            await self._send_response(response)
 
-    async def _free_slot(self):
-        slots = await self._cache.get_slots()
-        slots = [slot for slot in slots if slot.get("player_id", None) == self.id]
-        if slots:
-            slot = slots[0]
-            name = slot.get("player_name", None)
-            self.LOGGER.debug(
-                f"Game n°{self._game_id}: slot for player n°{self.id} ({name}) was freed",
-            )
-            self._message = {
-                "rt": RequestTypes.SLOT_UPDATED,
-                "slot": {"index": slot["index"], "state": "OPEN"},
-            }
-            await self._modify_slots()
+    def _cancel_disconnect_player(self):
+        if self.id not in self._disconnect_timeouts:
+            return
 
-    async def _disconnect_player_from_game(self):
-        async with self._load_game() as game:
-            if game:
-                player = game.get_player_by_id(self.id)
-                self.LOGGER.debug(
-                    f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was "
-                    "disconnected from the game",
-                )
-                if not game.is_over and player == game.active_player:
-                    player.is_connected = False
-                    game.pass_turn()
-                    await self._send_play_message(game, player)
-                    if game.active_player.is_ai:
-                        self._play_ai_after_timeout(game)
-                else:
-                    self._append_to_clients_pending_disconnection()
-                    self._must_save_game = False
+        self.logger.debug(f"Game n°{self._api.game_id}: cancel disconnect timeout for {self.id}",)
+        self._disconnect_timeouts[self.id].cancel()
 
-    def _append_to_clients_pending_disconnection(self):
-        self._clients_pending_disconnection_for_game.add(self.id)
-        self._clients_pending_reconnection_for_game.discard(self.id)
-
-    @property
-    def _is_reconnecting(self):
-        return (
-            self._rt == RequestTypes.INIT_GAME
-            and "player_id" in self._message
-            and "game_id" in self._message
-        )
-
-    @property
-    async def _can_reconnect(self):
-        if self._message["player_id"] in self._clients:
-            raise AotFatalErrorToDisplay("player_already_connected")
-
-        return await self._cache.is_member_game(
-            self._message["game_id"], self._message["player_id"],
-        )
-
-    async def _reconnect(self):
-        self.id = self._message["player_id"]
-        self._game_id = self._message["game_id"]
-        self._cache.init(game_id=self._game_id, player_id=self.id)
-        self._clients[self.id] = self
-
-        if self.id in self._disconnect_timeouts:
-            self.LOGGER.debug(f"Game n°{self._game_id}: cancel disconnect timeout for {self.id}",)
-            self._disconnect_timeouts[self.id].cancel()
-
-        message = None
-
-        if await self._creating_game:
-            try:
-                index = await self._cache.get_player_index()
-            except IndexError:
-                # We were disconnected and we must register again
-                self._game_id = None
-                index = -1
-            finally:
-                message = await self._get_initialized_game_message(index)
-        else:
-            async with self._load_game() as game:
-                self._must_save_game = False
-                self._append_to_clients_pending_reconnection()
-                message = self._reconnect_to_game(game)
-                if game.active_player.is_ai and self._game_id not in self._pending_ai:
-                    self._play_ai_after_timeout(game)
-
-        if message:
-            await self.sendMessage(message)
-
-    def _append_to_clients_pending_reconnection(self):
-        self._clients_pending_reconnection_for_game.add(self.id)
-        self._clients_pending_disconnection_for_game.discard(self.id)
-
-    def _reconnect_to_game(self, game):
-        player = [player for player in game.players if player and player.id == self.id][0]
-        self.LOGGER.debug(
-            f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was reconnected "
-            f"to the game",
-        )
-        message = self._get_play_message(player, game)
-
-        last_action = self._get_action_message(game.last_action)
-        if game.active_player.has_special_actions:
-            special_action = game.active_player.name_next_special_action
-        else:
-            special_action = None
-
-        message["reconnect"] = {
-            "players": [
-                {
-                    "index": player.index,
-                    "name": player.name,
-                    "square": player.current_square,
-                    "hero": player.hero,
-                }
-                if player
-                else None
-                for player in game.players
-            ],
-            "trumps": player.trumps,
-            "power": player.power,
-            "index": player.index,
-            "last_action": last_action,
-            "special_action_name": special_action,
-            "special_action_elapsed_time": get_time() - player.special_action_start_time,
-            "history": self._get_history(game),
-            "game_over": game.is_over,
-            "winners": game.winners,
-        }
-
-        return message
-
-    def _get_history(self, game):
-        return [
-            [self._get_action_message(action) for action in player.history] if player else None
-            for player in game.players
-        ]
-
-    async def _send_all(self, message, excluded_players=None):  # pragma: no cover
+    async def _send_to_all(self, messages, excluded_players=None):
         if excluded_players is None:
             excluded_players = set()
 
-        messages = []
+        sent_messages = []
 
-        for player_id in await self._cache.get_players_ids():
+        for player_id in await self._api.player_ids:
             player = self._clients.get(player_id, None)
             if player is not None and player_id not in excluded_players:
-                messages.append(player.sendMessage(message))
+                sent_messages.append(player.send_messages(messages))
 
-        await asyncio.gather(*messages)
+        await asyncio.gather(*sent_messages)
 
-    async def _send_all_others(self, message):  # pragma: no cover
-        await self._send_all(message, excluded_players={self.id})
+    async def _send_to(self, messages, client_id):
+        if client_id in self._clients:
+            await self._clients[client_id].send_messages(messages)
 
-    async def _send_to(self, message, id):  # pragma: no cover
-        if id in self._clients:
-            await self._clients[id].sendMessage(message)
-
-    async def _send_error(self, error):
+    async def _send_error(self, error, received_message):
         message = self._format_error(error)
-        # Errors to display are sent to the user and are forseen in the application.
+        # Errors to display are sent to the user and are foreseen in the application.
         # No need to log them.
         if not isinstance(error, AotErrorToDisplay):
-            payload = self._message if self._message else None
-            payload = json.dumps(payload)
-            self.LOGGER.error(message["error"], extra_data={"payload": payload})
+            payload = json.dumps(received_message)
+            self.logger.error(message["error"], extra_data={"payload": payload})
 
-        await self.sendMessage(message)
+        await self.send_messages([message])
 
-    async def _send_debug(self, message):  # pragma: no cover
-        await self._send_all({"debug": message})
+    async def _send_debug(self, message):
+        if self._api.is_debug_mode_enabled:
+            await self._send_to_all([{"debug": message}])
 
     def _format_error(self, error):
         message_key = "error_to_display" if isinstance(error, AotErrorToDisplay) else "error"
-        # Some error messages to display can be formated with infos from the exception
+        # Some error messages to display can be formatted with infos from the exception
         # to give extra information to the user.
         raw_message = str(error)
         formatted_message = self._error_messages.get(raw_message, raw_message).format(**error.infos)
@@ -308,9 +219,5 @@ class AotWs(WebSocketServerProtocol, metaclass=ABCMeta):
         return formatted_error
 
     @property
-    def _clients_pending_reconnection_for_game(self):
-        return self._clients_pending_reconnection.setdefault(self._game_id, set())
-
-    @property
-    def _clients_pending_disconnection_for_game(self):
-        return self._clients_pending_disconnection.setdefault(self._game_id, set())
+    def id(self):
+        return self._id

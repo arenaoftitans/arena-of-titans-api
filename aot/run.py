@@ -26,7 +26,7 @@ import sentry_sdk
 from autobahn.asyncio.websocket import WebSocketServerFactory
 from sentry_sdk.integrations.logging import LoggingIntegration
 
-from .api import Api
+from .api.ws import AotWs
 from .config import config
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def _create_tcp_server(loop):
     ws_endpoint = f"ws://{host}:{port}"
     logger.info(f"API listening to {ws_endpoint}")
     factory = WebSocketServerFactory(ws_endpoint)
-    factory.protocol = Api
+    factory.protocol = AotWs
     return loop.create_server(factory, host, port)
 
 

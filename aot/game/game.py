@@ -56,6 +56,9 @@ class Game:
     def add_action(self, action):
         self._actions.append(action)
 
+    def get_player_by_index(self, index):
+        return self._players[index]
+
     def get_player_by_id(self, player_id):
         player_index = self._players_id_to_index[player_id]
         player = self._players[player_index]
@@ -255,7 +258,11 @@ class Game:
 
     @property
     def players(self):
-        return self._players
+        for player in self._players:
+            # Some slots can be empty. To avoid issues with consumer code, we only return the actual
+            # players here.
+            if player is not None:
+                yield player
 
     @property
     def winners(self):

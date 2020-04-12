@@ -50,7 +50,7 @@ def _get_trump_target(game, trump, request):
         target_index = game.active_player.index
 
     try:
-        return game.players[target_index]
+        return game.get_player_by_index(target_index)
     except IndexError:
         raise AotError("The target of this trump does not exist")
 

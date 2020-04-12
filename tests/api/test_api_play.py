@@ -317,10 +317,10 @@ async def test_play_card_with_special_actions(api, game):  # noqa: F811
     game.get_square = MagicMock(return_value=square)
     game.can_move = MagicMock(return_value=True)
     api._send_play_message = AsyncMock()
-    api._notify_special_action = AsyncMock()
+    api._get_notify_special_action_message = AsyncMock()
 
     await api._play(game, {"card_name": card.name, "card_color": card.color, "x": 0, "y": 0})
 
     game.play_card.assert_called_once_with(card, square)
     api._send_play_message.assert_called_once_with(game, game.active_player)
-    api._notify_special_action.assert_called_once_with("teleport")
+    api._get_notify_special_action_message.assert_called_once_with("teleport")

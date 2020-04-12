@@ -241,7 +241,7 @@ async def test_reconnect_reconnect_to_game(api, game):  # noqa: F811
     assert api.id == "player_id"
     assert api._game_id == "game_id"
     assert api.sendMessage.call_count == 1
-    assert api._clients_pending_reconnection_for_game == {"player_id"}
+    assert api._clients_pending_reconnection_from_game == {"player_id"}
 
 
 @pytest.mark.asyncio
@@ -272,7 +272,7 @@ async def test_reconnect_reconnect_to_game_during_turn_ai(api, game):  # noqa: F
     assert api.id == "player_id"
     assert api._game_id == "game_id"
     assert api.sendMessage.call_count == 1
-    assert api._clients_pending_reconnection_for_game == {"player_id"}
+    assert api._clients_pending_reconnection_from_game == {"player_id"}
 
 
 def test_reconnect_to_game(api, game):  # noqa: F811
@@ -303,23 +303,23 @@ def test_reconnect_to_game_with_special_action(api, game):  # noqa: F811
 def test_append_to_clients_pending_reconnection(api):  # noqa: F811
     api._game_id = "game_id"
     api._id = "player_id"
-    api._clients_pending_disconnection_for_game.add("player_id")
+    api._clients_pending_disconnection_from_game.add("player_id")
 
     api._append_to_clients_pending_reconnection()
 
-    assert api._clients_pending_reconnection_for_game == {"player_id"}
-    assert api._clients_pending_disconnection_for_game == set()
+    assert api._clients_pending_reconnection_from_game == {"player_id"}
+    assert api._clients_pending_disconnection_from_game == set()
 
 
 def test_append_to_clients_pending_disconnection(api):  # noqa: F811
     api._game_id = "game_id"
     api._id = "player_id"
-    api._clients_pending_reconnection_for_game.add("player_id")
+    api._clients_pending_reconnection_from_game.add("player_id")
 
     api._append_to_clients_pending_disconnection()
 
-    assert api._clients_pending_disconnection_for_game == {"player_id"}
-    assert api._clients_pending_reconnection_for_game == set()
+    assert api._clients_pending_disconnection_from_game == {"player_id"}
+    assert api._clients_pending_reconnection_from_game == set()
 
 
 @pytest.mark.asyncio
@@ -339,24 +339,24 @@ async def test_send_error_with_extra_data(api):  # noqa: F811
 @pytest.mark.asyncio
 async def test_send_error_without_extra_data():  # noqa: F811
     ws = AotWsImpl()
-    ws.LOGGER = MagicMock()
+    ws.logger = MagicMock()
     ws.sendMessage = AsyncMock()
 
     await ws._send_error(AotError("An error"))
 
-    ws.LOGGER.error.assert_called_once_with("An error", extra_data={"payload": "null"})
+    ws.logger.error.assert_called_once_with("An error", extra_data={"payload": "null"})
     ws.sendMessage.assert_called_once_with({"error": "An error", "is_fatal": False})
 
 
 @pytest.mark.asyncio
 async def test_send_error_to_display():  # noqa: F811
     ws = AotWsImpl()
-    ws.LOGGER = MagicMock()
+    ws.logger = MagicMock()
     ws.sendMessage = AsyncMock()
 
     await ws._send_error(AotErrorToDisplay("An error to display"))
 
-    assert not ws.LOGGER.error.called
+    assert not ws.logger.error.called
     ws.sendMessage.assert_called_once_with(
         {"error_to_display": "An error to display", "is_fatal": False}
     )
@@ -365,10 +365,10 @@ async def test_send_error_to_display():  # noqa: F811
 @pytest.mark.asyncio
 async def test_send_fatal_error():  # noqa: F811
     ws = AotWsImpl()
-    ws.LOGGER = MagicMock()
+    ws.logger = MagicMock()
     ws.sendMessage = AsyncMock()
 
     await ws._send_error(AotFatalError("A fatal error"))
 
-    assert ws.LOGGER.error.called
+    assert ws.logger.error.called
     ws.sendMessage.assert_called_once_with({"error": "A fatal error", "is_fatal": True})

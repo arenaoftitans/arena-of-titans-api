@@ -154,9 +154,9 @@ async def test_play_special_action(api, game, teleport_action):  # noqa: F811
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove("teleport")
 
-    api._send_player_played_special_action = AsyncMock()
+    api._get_player_played_special_action_message = AsyncMock()
     api._send_play_message_to_players = AsyncMock()
-    api._notify_special_action = AsyncMock()
+    api._get_notify_special_action_message = AsyncMock()
     actions = SpecialActionsList([teleport_action])
     game.active_player.special_actions = actions
     game.play_special_action = MagicMock(side_effect=consume_action)
@@ -181,10 +181,10 @@ async def test_play_special_action(api, game, teleport_action):  # noqa: F811
     assert len(args[0][1].get("context", {})) == 2
     assert isinstance(args[0][1]["context"].get("square", None), Square)
     assert game.add_action.called
-    assert api._send_player_played_special_action.called
+    assert api._get_player_played_special_action_message.called
     assert api._send_play_message_to_players.called
     game.complete_special_actions.assert_called_once_with()
-    assert not api._notify_special_action.called
+    assert not api._get_notify_special_action_message.called
 
 
 @pytest.mark.asyncio
@@ -194,9 +194,9 @@ async def test_play_special_action_actions_still_remaining(
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove("teleport")
 
-    api._send_player_played_special_action = AsyncMock()
+    api._get_player_played_special_action_message = AsyncMock()
     api._send_play_message_to_players = AsyncMock()
-    api._notify_special_action = AsyncMock()
+    api._get_notify_special_action_message = AsyncMock()
     actions = SpecialActionsList([teleport_action, TeleportSpecialActionFactory()])
     game.active_player.special_actions = actions
     game.play_special_action = MagicMock(side_effect=consume_action)
@@ -221,10 +221,10 @@ async def test_play_special_action_actions_still_remaining(
     assert len(args[0][1].get("context", {})) == 2
     assert isinstance(args[0][1]["context"].get("square", None), Square)
     assert game.add_action.called
-    assert api._send_player_played_special_action.called
+    assert api._get_player_played_special_action_message.called
     assert not api._send_play_message_to_players.called
     assert not game.complete_special_actions.called
-    api._notify_special_action.assert_called_once_with("teleportfromfactory")
+    api._get_notify_special_action_message.assert_called_once_with("teleportfromfactory")
 
 
 @pytest.mark.asyncio
@@ -232,7 +232,7 @@ async def test_cancel_special_action(api, game, teleport_action):  # noqa: F811
     def consume_action(*args, **kwargs):
         game.active_player._special_actions_names.remove("teleport")
 
-    api._send_player_played_special_action = AsyncMock()
+    api._get_player_played_special_action_message = AsyncMock()
     api._send_play_message_to_players = AsyncMock()
     actions = SpecialActionsList([teleport_action])
     game.active_player.special_actions = actions
@@ -250,6 +250,6 @@ async def test_cancel_special_action(api, game, teleport_action):  # noqa: F811
 
     assert game.cancel_special_action.called
     assert not game.add_action.called
-    assert not api._send_player_played_special_action.called
+    assert not api._get_player_played_special_action_message.called
     assert api._send_play_message_to_players.called
     assert game.complete_special_actions.called
