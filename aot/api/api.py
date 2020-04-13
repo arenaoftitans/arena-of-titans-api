@@ -83,6 +83,7 @@ class Api:
             "test": self._test,
             "info": self._info,
         }
+        self._message = {}
 
     async def process_message(self, message):
         self.logger.debug(
@@ -90,16 +91,14 @@ class Api:
         )
 
         self._message = message
-        self._rt = self._message.get("rt", "")
 
-        request_type = message.get("rt")
-        if request_type in self._utility_request_types_to_views:
-            return await self._utility_request_types_to_views[request_type]()
+        if self._request_type in self._utility_request_types_to_views:
+            return await self._utility_request_types_to_views[self._request_type]()
         elif self._is_reconnecting and await self._can_reconnect:
             return await self._reconnect()
-        elif request_type in self._lobby_request_types_to_views:
+        elif self._request_type in self._lobby_request_types_to_views:
             return await self._process_lobby_request()
-        elif request_type in self._play_game_requests_to_views:
+        elif self._request_type in self._play_game_requests_to_views:
             return await self._process_play_request()
 
         raise AotErrorToDisplay("cannot_join")
@@ -254,7 +253,7 @@ class Api:
 
     async def _process_lobby_request(self):
         if not await self._current_request_allowed:
-            raise AotErrorToDisplay("game_master_request", {"rt": self._rt})
+            raise AotErrorToDisplay("game_master_request", {"rt": self._request_type})
 
         self._is_debug_mode_enabled = (
             self._message.get("debug", False) and config["api"]["allow_debug"]
@@ -263,9 +262,11 @@ class Api:
         self._message["player_id"] = self.id
         self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-        response = self._lobby_request_types_to_views[self._rt](self._message, self._cache)
+        response = self._lobby_request_types_to_views[self._request_type](
+            self._message, self._cache
+        )
 
-        if self._rt in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
+        if self._request_type in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
             # The cache was initiated with the proper game id we couldn't know before.
             # Save it now.
             self._game_id = self._cache.game_id
@@ -277,7 +278,7 @@ class Api:
             if self._is_this_player_turn(game):
                 request = self._message.get("play_request", None)
 
-                response = self._play_game_requests_to_views[self._rt](request, game)
+                response = self._play_game_requests_to_views[self._request_type](request, game)
                 if game.active_player.is_ai:
                     future_message = asyncio.Future(loop=self._loop)
                     self._play_ai_after_timeout(game, future_message)
@@ -489,7 +490,7 @@ class Api:
 
     @property
     async def _current_request_allowed(self):
-        return await self._cache.is_game_master() or self._rt in (
+        return await self._cache.is_game_master() or self._request_type in (
             RequestTypes.SLOT_UPDATED,
             RequestTypes.CREATE_LOBBY,
         )
@@ -497,7 +498,7 @@ class Api:
     @property
     def _is_reconnecting(self):
         return (
-            self._rt == RequestTypes.INIT_GAME
+            self._request_type == RequestTypes.INIT_GAME
             and "player_id" in self._message
             and "game_id" in self._message
         )
@@ -510,3 +511,7 @@ class Api:
         return await self._cache.is_member_game(
             self._message["game_id"], self._message["player_id"],
         )
+
+    @property
+    def _request_type(self):
+        return self._message.get("rt")
