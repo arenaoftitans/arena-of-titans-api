@@ -24,7 +24,7 @@ from typing import Dict, List, Optional
 
 import bleach
 
-from aot.game.board import Square
+from aot.game.board import Board, Square
 from aot.game.trumps import Power
 from aot.game.trumps.effects import TrumpEffect
 
@@ -113,6 +113,8 @@ def to_json(python_object):  # pragma: no cover
             "x": python_object.x,
             "y": python_object.y,
         }
+    elif isinstance(python_object, Board):
+        return {"updated_squares": python_object.updated_squares}
     elif isinstance(python_object, TrumpEffect):
         data = {
             "duration": python_object.duration if not math.isinf(python_object.duration) else None,

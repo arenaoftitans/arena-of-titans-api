@@ -31,6 +31,7 @@ def get_global_game_message(game):
 def _get_global_game_state(game):
     return {
         "actions": [],
+        "board": game.board,
         "is_over": game.is_over,
         "players": {player.index: _get_public_player_state(player) for player in game.players},
         "winners": game.winners,
