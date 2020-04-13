@@ -27,7 +27,7 @@ from ..serializers import get_player_states_by_ids
 from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResponse, sanitize
 
 
-async def create_lobby(cache, request):
+async def create_lobby(request, cache):
     game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes).replace(b"=", b"").decode("ascii")
     request["game_id"] = game_id
     cache.init(game_id=game_id, player_id=request["player_id"])
@@ -36,10 +36,10 @@ async def create_lobby(cache, request):
         test=request.get("test", False), nb_slots=game_config["number_players"],
     )
 
-    return join_game(cache, request)
+    return join_game(request, cache)
 
 
-async def create_game(cache, request):
+async def create_game(request, cache):
     registered_number_players = await cache.number_taken_slots()
     submitted_player_descriptions = [
         player if player is not None and player.get("name", "") else None
@@ -81,8 +81,8 @@ async def _initialize_game(cache, submitted_player_descriptions):
     return WsResponse(send_to_each_players=get_player_states_by_ids(game))
 
 
-async def join_game(cache, request):
-    if not await _can_join(cache, request):
+async def join_game(request, cache):
+    if not await _can_join(request, cache):
         raise AotErrorToDisplay("cannot_join")
 
     cache.init(game_id=request["game_id"], player_id=request["player_id"])
@@ -105,13 +105,13 @@ async def join_game(cache, request):
     )
 
 
-async def _can_join(cache, request):
+async def _can_join(request, cache):
     return await cache.game_exists(request["game_id"]) and await cache.has_opened_slots(
         request["game_id"]
     )
 
 
-async def update_slot(cache, request):
+async def update_slot(request, cache):
     slot = request["slot"]
     if not await cache.slot_exists(slot):
         raise AotError("non-existent_slot")

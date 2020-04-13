@@ -22,9 +22,9 @@ from ..utils import AotError, AotErrorToDisplay, RequestTypes, WsResponse
 from .play_utils import get_square
 
 
-def view_possible_actions(game, request):
-    action = _get_action(game, request)
-    target = _get_target(game, request)
+def view_possible_actions(request, game):
+    action = _get_action(request, game)
+    target = _get_target(request, game)
 
     return WsResponse(
         send_to_current_player=[
@@ -39,14 +39,14 @@ def view_possible_actions(game, request):
     )
 
 
-def play_action(game, request):
-    action = _get_action(game, request)
+def play_action(request, game):
+    action = _get_action(request, game)
     target = None
     if request.get("cancel", False):
         game.cancel_special_action(action)
     else:
-        target = _get_target(game, request)
-        _play_special_action_on_target(game, request, action, target)
+        target = _get_target(request, game)
+        _play_special_action_on_target(request, game, action, target)
 
     if not game.active_player.has_special_actions:
         game.complete_special_actions()
@@ -92,7 +92,7 @@ def play_action(game, request):
     )
 
 
-def _get_action(game, request):
+def _get_action(request, game):
     action_name = request.get("special_action_name", None)
     action_color = request.get("special_action_color", None)
     target_index = request.get("target_index", None)
@@ -113,15 +113,15 @@ def _get_action(game, request):
         raise e
 
 
-def _get_target(game, request):
+def _get_target(request, game):
     target_index = request.get("target_index", None)
     return game.players[target_index]
 
 
-def _play_special_action_on_target(game, request, action, target):
+def _play_special_action_on_target(request, game, action, target):
     context = {}
     if action.require_target_square:
-        context["square"] = get_square(game, request)
+        context["square"] = get_square(request, game)
         context["board"] = game.board
         if context["square"] is None:
             raise AotErrorToDisplay("wrong_square")

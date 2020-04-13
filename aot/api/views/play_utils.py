@@ -18,7 +18,7 @@
 #
 
 
-def get_square(game, request):
+def get_square(request, game):
     x = request.get("x", None)
     y = request.get("y", None)
     return game.get_square(x, y)

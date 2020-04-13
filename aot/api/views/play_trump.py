@@ -26,14 +26,14 @@ from aot.game.trumps.exceptions import (
 from ..utils import AotError, AotErrorToDisplay, RequestTypes, WsResponse
 
 
-def play_trump(game, request):
+def play_trump(request, game):
     try:
-        trump = _get_trump(game, request)
+        trump = _get_trump(request, game)
     except IndexError:
         raise AotError("wrong_trump")
 
-    target = _get_trump_target(game, trump, request)
-    context = _get_trump_context(game, trump, request)
+    target = _get_trump_target(request, game, trump)
+    context = _get_trump_context(request, game)
 
     request_type = RequestTypes.PLAY_TRUMP
     try:
@@ -82,11 +82,11 @@ def play_trump(game, request):
     )
 
 
-def _get_trump(game, request):
+def _get_trump(request, game):
     return game.active_player.get_trump(request.get("name", None), request.get("color", None))
 
 
-def _get_trump_target(game, trump, request):
+def _get_trump_target(request, game, trump):
     target_index = request.get("target_index", None)
     if trump.must_target_player and target_index is None:
         raise AotError("missing_trump_target")
@@ -99,7 +99,7 @@ def _get_trump_target(game, trump, request):
         raise AotError("The target of this trump does not exist")
 
 
-def _get_trump_context(game, trump, request):
+def _get_trump_context(request, game):
     context = {
         "board": game.board,
     }

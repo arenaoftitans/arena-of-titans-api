@@ -21,8 +21,8 @@ from ..utils import AotErrorToDisplay, RequestTypes, WsResponse
 from .play_utils import get_square
 
 
-def view_possible_squares(game, request):
-    card = _get_card(game, request)
+def view_possible_squares(request, game):
+    card = _get_card(request, game)
     if card is None:
         raise AotErrorToDisplay("wrong_card")
 
@@ -34,7 +34,7 @@ def view_possible_squares(game, request):
     )
 
 
-def play_card(game, request):
+def play_card(request, game):
     # If this action completes the turn, it may not be the active player
     # once the card has been played.
     player_that_played_the_card = game.active_player
@@ -42,13 +42,13 @@ def play_card(game, request):
     if request.get("pass", False):
         game.pass_turn()
     elif request.get("discard", False):
-        card = _get_card(game, request)
+        card = _get_card(request, game)
         if card is None:
             raise AotErrorToDisplay("wrong_card")
         game.discard(card)
     else:
-        card = _get_card(game, request)
-        square = get_square(game, request)
+        card = _get_card(request, game)
+        square = get_square(request, game)
         if card is None:
             raise AotErrorToDisplay("wrong_card")
         elif square is None or not game.can_move(card, square):
@@ -95,7 +95,7 @@ def play_card(game, request):
     )
 
 
-def _get_card(game, request):
+def _get_card(request, game):
     name = request.get("card_name", None)
     color = request.get("card_color", None)
     return game.active_player.get_card(name, color)

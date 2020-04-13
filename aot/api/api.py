@@ -263,7 +263,7 @@ class Api:
         self._message["player_id"] = self.id
         self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-        response = self._lobby_request_types_to_views[self._rt](self._cache, self._message)
+        response = self._lobby_request_types_to_views[self._rt](self._message, self._cache)
 
         if self._rt in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
             # The cache was initiated with the proper game id we couldn't know before.
@@ -277,7 +277,7 @@ class Api:
             if self._is_this_player_turn(game):
                 request = self._message.get("play_request", None)
 
-                response = self._play_game_requests_to_views[self._rt](game, request)
+                response = self._play_game_requests_to_views[self._rt](request, game)
                 if game.active_player.is_ai:
                     future_message = asyncio.Future(loop=self._loop)
                     self._play_ai_after_timeout(game, future_message)
