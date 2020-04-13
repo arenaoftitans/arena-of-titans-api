@@ -23,6 +23,7 @@ from .square import Square, SquareSet
 class Board:
     def __init__(self, board_description):
         self._board = {}
+        self._updated_squares = []
         for square in board_description["squares"]:
             type_ = square["type"]
             color = board_description["squares-types-to-colors"].get(type_)
@@ -36,6 +37,11 @@ class Board:
                 is_arrival=square["is-arrival"],
                 is_departure=square["is-departure"],
             )
+
+    def change_color_of_square(self, x, y, color):
+        updated_square = self[x, y]
+        updated_square.color = color
+        self._updated_squares.append(updated_square)
 
     def free_all_squares(self):
         """Can be used in some tests to move outside the "normal" board on hidden squares."""
@@ -94,3 +100,8 @@ class Board:
     @property
     def aim(self):
         return [square for square in self._board.values() if square.is_arrival]
+
+    @property
+    def updated_squares(self) -> tuple:
+        """Tuple of square that were updated (eg changed color) since the start of the game."""
+        return tuple(self._updated_squares)

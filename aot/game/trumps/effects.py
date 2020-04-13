@@ -129,8 +129,7 @@ class CannotBeAffectedByTrumpsEffect(TrumpEffect):
 class ChangeSquareEffect(TrumpEffect):
     def apply(self):
         x, y = self._context["square"]["x"], self._context["square"]["y"]
-        square = self._context["board"][x, y]
-        square.color = self._context["square"]["color"]
+        self._context["board"].change_color_of_square(x, y, self._context["square"]["color"])
 
 
 class ModifyCardNumberMovesEffect(TrumpEffect):
