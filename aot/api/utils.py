@@ -88,7 +88,8 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     PLAY = ()
     VIEW_POSSIBLE_SQUARES = ()
     PLAY_TRUMP = ()
-    PLAYER_PLAYED = ()
+    GAME_UPDATED = ()
+    PLAYER_UPDATED = ()
     TRUMP_HAS_NO_EFFECT = ()
 
 

@@ -23,7 +23,7 @@ import uuid
 from ...config import config
 from ...game.config import GAME_CONFIGS
 from ..game_factory import create_game_for_players
-from ..serializers import get_player_states_by_ids
+from ..serializers import get_private_player_messages_by_ids
 from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResponse, sanitize
 
 
@@ -78,7 +78,7 @@ async def _initialize_game(cache, submitted_player_descriptions):
             player.is_connected = True
 
     await cache.save_game(game)
-    return WsResponse(send_to_each_players=get_player_states_by_ids(game))
+    return WsResponse(send_to_each_players=get_private_player_messages_by_ids(game))
 
 
 async def join_game(request, cache):

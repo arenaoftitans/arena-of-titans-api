@@ -23,7 +23,8 @@ from aot.game.trumps.exceptions import (
     TrumpHasNoEffectError,
 )
 
-from ..utils import AotError, AotErrorToDisplay, RequestTypes, WsResponse
+from ..serializers import get_global_game_message, get_private_player_state
+from ..utils import AotError, AotErrorToDisplay, WsResponse
 
 
 def play_trump(request, game):
@@ -35,50 +36,16 @@ def play_trump(request, game):
     target = _get_trump_target(request, game, trump)
     context = _get_trump_context(request, game)
 
-    request_type = RequestTypes.PLAY_TRUMP
     try:
         _play_trump_with_target(game, trump, target, context)
     except TrumpHasNoEffectError:
-        request_type = RequestTypes.TRUMP_HAS_NO_EFFECT
+        pass
     finally:
         game.add_action(game.active_player.last_action)
 
-    common_message = {
-        "rt": request_type,
-        "active_trumps": [
-            {
-                "player_index": game_player.index,
-                "player_name": game_player.name,
-                "trumps": game_player.trump_effects,
-            }
-            if game_player
-            else None
-            for game_player in game.players
-        ],
-        "player_index": game.active_player.index,
-        "target_index": target.index,
-        "trumps_statuses": game.active_player.trumps_statuses,
-        "can_power_be_played": game.active_player.can_power_be_played,
-        "last_action": {
-            "description": game.last_action.description,
-            "card": game.last_action.card,
-            "trump": game.last_action.trump,
-            "special_action": game.last_action.special_action,
-            "player_name": game.last_action.player_name,
-            "target_name": game.last_action.target_name,
-            "target_index": game.last_action.target_index,
-            "player_index": game.last_action.player_index,
-        },
-        "square": context.get("square"),
-    }
-    current_player_message = {
-        **common_message,
-        "gauge_value": game.active_player.gauge.value,
-        "power": game.active_player.power,
-    }
-
     return WsResponse(
-        send_to_all_others=[common_message], send_to_current_player=[current_player_message],
+        send_to_all=[get_global_game_message(game)],
+        send_to_current_player=[get_private_player_state(game.active_player)],
     )
 
 

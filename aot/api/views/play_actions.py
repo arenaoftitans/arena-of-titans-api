@@ -17,7 +17,7 @@
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from ..serializers import get_player_states_by_ids
+from ..serializers import get_global_game_message, get_private_player_messages_by_ids
 from ..utils import AotError, AotErrorToDisplay, RequestTypes, WsResponse
 from .play_utils import get_square
 
@@ -30,11 +30,13 @@ def view_possible_actions(request, game):
         send_to_current_player=[
             {
                 "rt": RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
-                "special_action_name": action.name,
-                "possible_squares": action.view_possible_squares(target, game.board)
-                if action.require_target_square
-                else [],
-            }
+                "request": {
+                    "special_action_name": action.name,
+                    "possible_squares": action.view_possible_squares(target, game.board)
+                    if action.require_target_square
+                    else [],
+                },
+            },
         ]
     )
 
@@ -51,43 +53,21 @@ def play_action(request, game):
     if not game.active_player.has_special_actions:
         game.complete_special_actions()
 
-    message_for_current_player = []
+    messages_for_current_player = []
     message_for_each_players = {}
     if game.active_player.has_special_actions:
-        message_for_current_player = [
+        messages_for_current_player = [
             {
                 "rt": RequestTypes.SPECIAL_ACTION_NOTIFY,
                 "special_action_name": game.active_player.name_next_special_action,
             }
         ]
     else:
-        message_for_each_players = get_player_states_by_ids(game)
+        message_for_each_players = get_private_player_messages_by_ids(game)
 
     WsResponse(
-        send_to_all=[
-            {
-                "rt": RequestTypes.SPECIAL_ACTION_PLAY,
-                "player_index": game.active_player.index,
-                "target_index": target.index if target else None,
-                "new_square": {
-                    "x": target.current_square.x,
-                    "y": target.current_square.y,
-                    "color": target.current_square.color,
-                },
-                "special_action_name": game.active_player.last_action.special_action.name,
-                "last_action": {
-                    "description": game.last_action.description,
-                    "card": game.last_action.card,
-                    "trump": game.last_action.trump,
-                    "special_action": game.last_action.special_action,
-                    "player_name": game.last_action.player_name,
-                    "target_name": game.last_action.target_name,
-                    "target_index": game.last_action.target_index,
-                    "player_index": game.last_action.player_index,
-                },
-            }
-        ],
-        send_to_current_player=message_for_current_player,
+        send_to_all=[get_global_game_message(game)],
+        send_to_current_player=messages_for_current_player,
         send_to_each_players=message_for_each_players,
     )
 
