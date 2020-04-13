@@ -131,17 +131,16 @@ async def update_slot(request, cache):
     if "player_name" in slot:
         slot["player_name"] = sanitize(slot["player_name"])
 
-    if await cache.slot_exists(slot):
-        await cache.update_slot(slot)
-        # The player_id is stored in the cache so we can know to which player which slot is
-        # associated. We don't pass this information to the frontend. If the slot is new, it
-        # doesn't have a player_id yet, so we have to check for its existence before attempting
-        # to delete it.
-        return WsResponse(
-            send_to_all=[
-                {
-                    "rt": RequestTypes.SLOT_UPDATED,
-                    "request": {"slots": await cache.get_slots(include_player_id=False)},
-                }
-            ]
-        )
+    await cache.update_slot(slot)
+    # The player_id is stored in the cache so we can know to which player which slot is
+    # associated. We don't pass this information to the frontend. If the slot is new, it
+    # doesn't have a player_id yet, so we have to check for its existence before attempting
+    # to delete it.
+    return WsResponse(
+        send_to_all=[
+            {
+                "rt": RequestTypes.SLOT_UPDATED,
+                "request": {"slots": await cache.get_slots(include_player_id=False)},
+            }
+        ]
+    )
