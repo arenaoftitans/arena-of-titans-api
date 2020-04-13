@@ -23,7 +23,7 @@ import uuid
 from ...config import config
 from ...game.config import GAME_CONFIGS
 from ..game_factory import create_game_for_players
-from ..serializers import get_private_player_messages_by_ids
+from ..serializers import get_global_game_message, get_private_player_messages_by_ids
 from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResponse, sanitize
 
 
@@ -52,7 +52,11 @@ async def create_game(request, cache):
         raise AotError("registered_different_description")
 
     await cache.game_has_started()
-    return await _initialize_game(cache, submitted_player_descriptions)
+    game = await _initialize_game(cache, submitted_player_descriptions)
+    return WsResponse(
+        send_to_all=[get_global_game_message(game)],
+        send_to_each_players=get_private_player_messages_by_ids(game),
+    )
 
 
 def _has_submitted_good_number_player_descriptions(number_players, players_description):
@@ -78,7 +82,7 @@ async def _initialize_game(cache, submitted_player_descriptions):
             player.is_connected = True
 
     await cache.save_game(game)
-    return WsResponse(send_to_each_players=get_private_player_messages_by_ids(game))
+    return game
 
 
 async def join_game(request, cache):
@@ -93,15 +97,23 @@ async def join_game(request, cache):
     return WsResponse(
         send_to_current_player=[
             {
-                "rt": RequestTypes.GAME_INITIALIZED,
-                "game_id": request["game_id"],
-                "player_id": request["player_id"],
-                "is_game_master": await cache.is_game_master(),
-                "index": index,
-                "slots": await cache.get_slots(include_player_id=False),
-                "api_version": config["version"],
+                "rt": RequestTypes.JOIN_GAME,
+                "request": {
+                    "game_id": request["game_id"],
+                    "player_id": request["player_id"],
+                    "is_game_master": await cache.is_game_master(),
+                    "index": index,
+                    "slots": await cache.get_slots(include_player_id=False),
+                    "api_version": config["version"],
+                },
             }
-        ]
+        ],
+        send_to_all=[
+            {
+                "rt": RequestTypes.SLOT_UPDATED,
+                "request": {"slots": await cache.get_slots(include_player_id=False)},
+            }
+        ],
     )
 
 
@@ -125,10 +137,11 @@ async def update_slot(request, cache):
         # associated. We don't pass this information to the frontend. If the slot is new, it
         # doesn't have a player_id yet, so we have to check for its existence before attempting
         # to delete it.
-        if "player_id" in slot:
-            del slot["player_id"]
-        response = {
-            "rt": RequestTypes.SLOT_UPDATED,
-            "slot": slot,
-        }
-        return WsResponse(send_to_all=[response])
+        return WsResponse(
+            send_to_all=[
+                {
+                    "rt": RequestTypes.SLOT_UPDATED,
+                    "request": {"slots": await cache.get_slots(include_player_id=False)},
+                }
+            ]
+        )
