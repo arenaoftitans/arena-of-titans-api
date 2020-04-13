@@ -288,3 +288,7 @@ class Cache:
         await self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY, self.dumps(game),
         )
+
+    @property
+    def game_id(self):
+        return self._game_id

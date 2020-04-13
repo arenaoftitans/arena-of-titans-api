@@ -23,7 +23,7 @@ from aot.game.trumps.exceptions import (
     TrumpHasNoEffectError,
 )
 
-from ..utils import AotError, AotErrorToDisplay, RequestTypes
+from ..utils import AotError, AotErrorToDisplay, RequestTypes, WsResponse
 
 
 def play_trump(game, request):
@@ -35,7 +35,51 @@ def play_trump(game, request):
     target = _get_trump_target(game, trump, request)
     context = _get_trump_context(game, trump, request)
 
-    return _play_trump_with_target(game, trump, target, context)
+    request_type = RequestTypes.PLAY_TRUMP
+    try:
+        _play_trump_with_target(game, trump, target, context)
+    except TrumpHasNoEffectError:
+        request_type = RequestTypes.TRUMP_HAS_NO_EFFECT
+    finally:
+        game.add_action(game.active_player.last_action)
+
+    common_message = {
+        "rt": request_type,
+        "active_trumps": [
+            {
+                "player_index": game_player.index,
+                "player_name": game_player.name,
+                "trumps": game_player.trump_effects,
+            }
+            if game_player
+            else None
+            for game_player in game.players
+        ],
+        "player_index": game.active_player.index,
+        "target_index": target.index,
+        "trumps_statuses": game.active_player.trumps_statuses,
+        "can_power_be_played": game.active_player.can_power_be_played,
+        "last_action": {
+            "description": game.last_action.description,
+            "card": game.last_action.card,
+            "trump": game.last_action.trump,
+            "special_action": game.last_action.special_action,
+            "player_name": game.last_action.player_name,
+            "target_name": game.last_action.target_name,
+            "target_index": game.last_action.target_index,
+            "player_index": game.last_action.player_index,
+        },
+        "square": context.get("square"),
+    }
+    current_player_message = {
+        **common_message,
+        "gauge_value": game.active_player.gauge.value,
+        "power": game.active_player.power,
+    }
+
+    return WsResponse(
+        send_to_all_others=[common_message], send_to_current_player=[current_player_message],
+    )
 
 
 def _get_trump(game, request):
@@ -82,11 +126,3 @@ def _play_trump_with_target(game, trump, target, context):
         raise AotErrorToDisplay(
             "max_number_trumps", {"num": target.MAX_NUMBER_AFFECTING_TRUMPS},
         )
-    except TrumpHasNoEffectError:
-        game.add_action(game.active_player.last_action)
-        rt = RequestTypes.TRUMP_HAS_NO_EFFECT
-    else:
-        game.add_action(game.active_player.last_action)
-        rt = RequestTypes.PLAY_TRUMP
-
-    return target, context, rt

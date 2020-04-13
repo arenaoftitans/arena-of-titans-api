@@ -18,18 +18,14 @@
 ################################################################################
 
 import asyncio
-import base64
 import json
-import uuid
 from contextlib import asynccontextmanager
 
 import daiquiri
 
 from ..config import config
-from ..game.config import GAME_CONFIGS
-from ..game.utils import get_time
+from ..game.utils import get_time, make_immutable
 from .cache import Cache
-from .game_factory import create_game_for_players
 from .utils import (
     AotError,
     AotErrorToDisplay,
@@ -37,9 +33,18 @@ from .utils import (
     MustNotSaveGameError,
     RequestTypes,
     WsResponse,
-    sanitize,
 )
-from .views import play_action, play_card, play_trump, view_possible_actions, view_possible_squares
+from .views import (
+    create_game,
+    create_lobby,
+    join_game,
+    play_action,
+    play_card,
+    play_trump,
+    update_slot,
+    view_possible_actions,
+    view_possible_squares,
+)
 
 
 class Api:
@@ -49,6 +54,23 @@ class Api:
     _clients_pending_disconnection = {}
     _clients_pending_reconnection = {}
     logger = daiquiri.getLogger(__name__)
+    _lobby_request_types_to_views = make_immutable(
+        {
+            RequestTypes.CREATE_LOBBY: create_lobby,
+            RequestTypes.JOIN_GAME: join_game,
+            RequestTypes.UPDATE_SLOT: update_slot,
+            RequestTypes.CREATE_GAME: create_game,
+        }
+    )
+    _play_game_requests_to_views = make_immutable(
+        {
+            RequestTypes.VIEW_POSSIBLE_SQUARES: view_possible_squares,
+            RequestTypes.PLAY: play_card,
+            RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS: view_possible_actions,
+            RequestTypes.SPECIAL_ACTION_PLAY: play_action,
+            RequestTypes.PLAY_TRUMP: play_trump,
+        }
+    )
 
     def __init__(self, *, default_id, loop):
         self._loop = loop
@@ -57,41 +79,30 @@ class Api:
         self._pending_ai = set()
         self._is_debug_mode_enabled = False
         self._cache = Cache()
+        self._utility_request_types_to_views = {
+            "test": self._test,
+            "info": self._info,
+        }
 
-    async def process_message(self, message):  # noqa: C901 (too complex)
-        self.logger.debug(f"Received from player {self._id} in game {self._game_id}: {message}")
+    async def process_message(self, message):
+        self.logger.debug(
+            f"Possessing message of player {self._id} in game {self._game_id}: {message}"
+        )
 
-        try:
-            self._message = message
-            self._rt = self._message.get("rt", "")
-            if "game_id" in self._message:
-                self._game_id = self._message["game_id"]
-                self._cache.init(game_id=self._game_id, player_id=self.id)
+        self._message = message
+        self._rt = self._message.get("rt", "")
 
-            response = ""
-            if self._rt == "test":
-                response = await self._test()
-            elif self._rt == "info":
-                response = await self._info()
-            elif self._rt not in RequestTypes:
-                raise AotError("unknown_request", {"rt": self._rt, "where": "on_message"})
-            elif self._is_reconnecting:
-                if await self._can_reconnect:
-                    response = await self._reconnect()
-                else:
-                    raise AotErrorToDisplay("cannot_join")
-            elif self._creating_new_game:
-                response = await self._create_new_game()
-            elif await self._creating_game:
-                response = await self._process_create_game_request()
-            else:
-                response = await self._process_play_request()
-        except AotError:
-            raise
-        except Exception:
-            raise
+        request_type = message.get("rt")
+        if request_type in self._utility_request_types_to_views:
+            return await self._utility_request_types_to_views[request_type]()
+        elif self._is_reconnecting and await self._can_reconnect:
+            return await self._reconnect()
+        elif request_type in self._lobby_request_types_to_views:
+            return await self._process_lobby_request()
+        elif request_type in self._play_game_requests_to_views:
+            return await self._process_play_request()
 
-        return response
+        raise AotErrorToDisplay("cannot_join")
 
     async def _info(self):
         return WsResponse(
@@ -108,7 +119,7 @@ class Api:
             return WsResponse(send_to_current_player=[{"success": True}])
 
     async def disconnect_player(self):
-        if await self._creating_game:
+        if await self._has_game_started:
             return await self._free_slot()
         else:
             return await self._disconnect_player_from_game()
@@ -164,7 +175,7 @@ class Api:
 
         message = None
 
-        if await self._creating_game:
+        if await self._has_game_started:
             try:
                 index = await self._cache.get_player_index()
             except IndexError:
@@ -228,25 +239,6 @@ class Api:
         self._clients_pending_reconnection_from_game.add(self.id)
         self._clients_pending_disconnection_from_game.discard(self.id)
 
-    async def _create_new_game(self):
-        self._game_id = (
-            base64.urlsafe_b64encode(uuid.uuid4().bytes).replace(b"=", b"").decode("ascii")
-        )
-        await self._initialize_cache(new_game=True)
-        response = await self._get_initialized_game_message(self.INDEX_FIRST_PLAYER)
-        return WsResponse(send_to_current_player=[response])
-
-    async def _initialize_cache(self, new_game=False):
-        self._cache.init(game_id=self._game_id, player_id=self._id)
-        if new_game:
-            game_config = GAME_CONFIGS["standard"]
-            await self._cache.create_new_game(
-                test=self._message.get("test", False), nb_slots=game_config["number_players"],
-            )
-        index = await self._affect_current_slot()
-        await self._cache.save_session(index)
-        return index
-
     async def _get_initialized_game_message(self, index):  # pragma: no cover
         initialized_game = {
             "rt": RequestTypes.GAME_INITIALIZED,
@@ -260,144 +252,32 @@ class Api:
 
         return initialized_game
 
-    async def _affect_current_slot(self):
-        player_name = sanitize(self._message.get("player_name", ""))
-        hero = self._message.get("hero", "")
-        return await self._cache.affect_next_slot(player_name, hero)
-
-    async def _process_create_game_request(self):
+    async def _process_lobby_request(self):
         if not await self._current_request_allowed:
             raise AotErrorToDisplay("game_master_request", {"rt": self._rt})
-        elif self._rt == RequestTypes.INIT_GAME:
-            if await self._can_join:
-                return await self._join()
-            else:
-                raise AotErrorToDisplay("cannot_join")
-        elif self._rt == RequestTypes.SLOT_UPDATED:
-            return await self._modify_slots()
-        elif self._rt == RequestTypes.CREATE_GAME:
-            return await self._create_game()
-        else:
-            raise AotError(
-                "unknown_request", {"rt": self._rt, "where": "process_create_game_request"},
-            )
 
-    async def _join(self):
-        index = await self._initialize_cache()
-        response = await self._get_initialized_game_message(index)
-        return WsResponse(
-            send_to_current_player=[response],
-            send_to_all_others=[
-                {"rt": RequestTypes.SLOT_UPDATED, "slot": response["slots"][index]}
-            ],
-        )
-
-    async def _modify_slots(self):
-        slot = self._message.get("slot", None)
-        if slot is not None and "player_name" in slot:
-            slot["player_name"] = sanitize(slot["player_name"])
-        if slot is None:
-            raise AotErrorToDisplay("no_slot")
-        elif await self._cache.slot_exists(slot):
-            await self._cache.update_slot(slot)
-            # The player_id is stored in the cache so we can know to which player which slot is
-            # associated. We don't pass this information to the frontend. If the slot is new, it
-            # doesn't have a player_id yet, so we have to check for its existance before attempting
-            # to delete it.
-            if "player_id" in slot:
-                del slot["player_id"]
-            response = {
-                "rt": RequestTypes.SLOT_UPDATED,
-                "slot": slot,
-            }
-            return WsResponse(send_to_all=[response])
-        else:
-            raise AotError("non-existent_slot")
-
-    async def _create_game(self):
-        number_players = await self._cache.number_taken_slots()
-        create_game_request = self._message.get("create_game_request", None)
-        if create_game_request is None:
-            raise AotError("no_request")
-        players_description = [
-            player if player is not None and player.get("name", "") else None
-            for player in create_game_request
-        ]
-
-        if not self._good_number_players_description(
-            number_players, players_description
-        ) or not self._good_number_player_registered(number_players):
-            raise AotError("registered_different_description")
-
-        await self._cache.game_has_started()
-        return await self._initialize_game(players_description)
-
-    def _good_number_player_registered(self, number_players):
-        game_config = GAME_CONFIGS["standard"]
-        return 2 <= number_players <= game_config["number_players"]
-
-    def _good_number_players_description(self, number_players, players_description):
-        return number_players == len([player for player in players_description if player])
-
-    async def _initialize_game(self, players_description):
-        slots = await self._cache.get_slots()
-        for player in players_description:
-            if player:
-                index = player["index"]
-                player["id"] = slots[index].get("player_id", None)
-                player["is_ai"] = slots[index]["state"] == "AI"
-
-        game = create_game_for_players(players_description)
-        game.game_id = self._game_id
         self._is_debug_mode_enabled = (
             self._message.get("debug", False) and config["api"]["allow_debug"]
         )
-        for player in game.players:
-            if player is not None:
-                player.is_connected = True
 
-        await self._cache.save_game(game)
-        return WsResponse(send_to_each_players=self._get_game_created_messages(game))
+        self._message["player_id"] = self.id
+        self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-    def _get_game_created_messages(self, game):
-        messages = {}
-        for player in game.players:
-            message = {
-                "rt": RequestTypes.CREATE_GAME,
-                "your_turn": game.active_player.id == player.id,
-                "next_player": 0,
-                "game_over": False,
-                "winners": [],
-                "players": [
-                    {
-                        "index": player.index,
-                        "name": player.name,
-                        "hero": player.hero,
-                        "square": {"x": player.current_square.x, "y": player.current_square.y},
-                    }
-                    if player
-                    else None
-                    for player in game.players
-                ],
-                "active_trumps": self._get_active_trumps_message(game),
-                "has_remaining_moves_to_play": player.has_remaining_moves_to_play,
-                "trumps_statuses": player.trumps_statuses,
-                "can_power_be_played": player.can_power_be_played,
-                "gauge_value": player.gauge.value,
-                "hand": [
-                    {"name": card.name, "color": card.color, "description": card.description}
-                    for card in player.hand
-                ],
-                "trumps": player.trumps,
-                "power": player.power,
-            }
-            messages[player.id] = [message]
-        return messages
+        response = self._lobby_request_types_to_views[self._rt](self._cache, self._message)
+
+        if self._rt in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
+            # The cache was initiated with the proper game id we couldn't know before.
+            # Save it now.
+            self._game_id = self._cache.game_id
+
+        return response
 
     async def _process_play_request(self):
         async with self._load_game() as game:
-            if self._is_player_id_correct(game):
-                response = await self._play_game(game)
+            if self._is_this_player_turn(game):
+                request = self._message.get("play_request", None)
+
+                response = self._play_game_requests_to_views[self._rt](game, request)
                 if game.active_player.is_ai:
                     future_message = asyncio.Future(loop=self._loop)
                     self._play_ai_after_timeout(game, future_message)
@@ -408,19 +288,14 @@ class Api:
             else:
                 # We have a not_your_turn error that is displayed sometimes
                 # without an action for the player. We add logs to understand why.
-                try:
-                    player = game.get_player_by_id(self.id)
-                    self.logger.warning(
-                        "not_your_turn",
-                        extra_data={
-                            "player": f"Player ({self.id}): {player.name}",
-                            "playload": json.dumps(self._message),
-                        },
-                    )
-                # This may happen if self.id is not a valid id.
-                # Since this is mostly for testing, we don't do anything about it.
-                except KeyError:
-                    pass
+                player = game.get_player_by_id(self.id)
+                self.logger.warning(
+                    "not_your_turn",
+                    extra_data={
+                        "player": f"Player ({self.id}): {player.name}",
+                        "playload": json.dumps(self._message),
+                    },
+                )
                 if self._message and self._message.get("auto", False):
                     # It's an automated message, probably from a timer. Raise an error to quit
                     # here but don't display it.
@@ -489,42 +364,8 @@ class Api:
             game, self._clients_pending_reconnection_from_game, is_connected=True,
         )
 
-    def _is_player_id_correct(self, game):
+    def _is_this_player_turn(self, game):
         return self.id is not None and self.id == game.active_player.id
-
-    async def _play_game(self, game):
-        play_request = self._message.get("play_request", None)
-        if play_request is None:
-            raise AotError("no_request")
-        elif self._rt == RequestTypes.VIEW_POSSIBLE_SQUARES:
-            return self._view_possible_squares(game, play_request)
-        elif self._rt == RequestTypes.PLAY:
-            return await self._play(game, play_request)
-        elif self._rt == RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS:
-            return await self._view_possible_actions(game, play_request)
-        elif self._rt == RequestTypes.SPECIAL_ACTION_PLAY:
-            return await self._play_special_action(game, play_request)
-        elif self._rt == RequestTypes.PLAY_TRUMP:
-            return await self._play_trump(game, play_request)
-        else:
-            raise AotError("unknown_request", {"rt": self._rt, "where": "play_game"})
-
-    def _view_possible_squares(self, game, play_request):
-        possible_squares = view_possible_squares(game, play_request)
-        return WsResponse(
-            send_to_current_player=[
-                {"rt": RequestTypes.VIEW_POSSIBLE_SQUARES, "possible_squares": possible_squares}
-            ]
-        )
-
-    async def _play(self, game, play_request):
-        this_player, has_special_actions = play_card(game, play_request)
-        play_messages = self._get_play_messages(game, this_player)
-        if has_special_actions:
-            play_messages.send_to_current_player.append(
-                self._get_notify_special_action_message(game.active_player.name_next_special_action)
-            )
-        return play_messages
 
     def _get_play_messages(self, game, this_player):  # pragma: no cover
         game.add_action(this_player.last_action)
@@ -614,71 +455,6 @@ class Api:
             for game_player in game.players
         ]
 
-    def _get_notify_special_action_message(self, special_actions_name):
-        return {
-            "rt": RequestTypes.SPECIAL_ACTION_NOTIFY,
-            "special_action_name": special_actions_name,
-        }
-
-    async def _view_possible_actions(self, game, play_request):
-        message = view_possible_actions(game, play_request)
-        message["rt"] = RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS
-        return WsResponse(send_to_current_player=message)
-
-    async def _play_special_action(self, game, play_request):
-        was_played, target = play_action(game, play_request)
-        response = WsResponse()
-        if was_played:
-            response.send_to_all.append(
-                self._get_player_played_special_action_message(game.active_player, target)
-            )
-
-        if game.active_player.has_special_actions:
-            response.send_to_current_player.append(
-                self._get_notify_special_action_message(game.active_player.name_next_special_action)
-            )
-        else:
-            game.complete_special_actions()
-            response.send_to_each_players.update(self._get_play_messages_for_all_players(game))
-        return response
-
-    def _get_player_played_special_action_message(self, player, target):  # pragma: no cover
-        return {
-            "rt": RequestTypes.SPECIAL_ACTION_PLAY,
-            "player_index": player.index,
-            "target_index": target.index,
-            "new_square": {
-                "x": target.current_square.x,
-                "y": target.current_square.y,
-                "color": target.current_square.color,
-            },
-            "special_action_name": player.last_action.special_action.name,
-            "last_action": self._get_action_message(player.last_action),
-        }
-
-    async def _play_trump(self, game, play_request):
-        target, context, rt = play_trump(game, play_request)
-
-        common_message = {
-            "rt": rt,
-            "active_trumps": self._get_active_trumps_message(game),
-            "player_index": game.active_player.index,
-            "target_index": target.index,
-            "trumps_statuses": game.active_player.trumps_statuses,
-            "can_power_be_played": game.active_player.can_power_be_played,
-            "last_action": self._get_action_message(game.active_player.last_action),
-            "square": context.get("square"),
-        }
-        current_player_message = {
-            **common_message,
-            "gauge_value": game.active_player.gauge.value,
-            "power": game.active_player.power,
-        }
-
-        return WsResponse(
-            send_to_all_others=[common_message], send_to_current_player=[current_player_message],
-        )
-
     @property
     def id(self):
         return self._id
@@ -700,12 +476,6 @@ class Api:
         return config["ai"]["delay"]
 
     @property
-    async def _can_join(self):
-        return await self._cache.game_exists(self._game_id) and await self._cache.has_opened_slots(
-            self._game_id
-        )
-
-    @property
     def _clients_pending_reconnection_from_game(self):
         return self._clients_pending_reconnection.setdefault(self._game_id, set())
 
@@ -714,20 +484,14 @@ class Api:
         return self._clients_pending_disconnection.setdefault(self._game_id, set())
 
     @property
-    async def _creating_game(self):
-        return not await self._cache.has_game_started()
-
-    @property
-    def _creating_new_game(self):
-        return self._game_id is None or (
-            self._rt == RequestTypes.INIT_GAME and "game_id" not in self._message
-        )
+    async def _has_game_started(self):
+        return await self._cache.has_game_started()
 
     @property
     async def _current_request_allowed(self):
         return await self._cache.is_game_master() or self._rt in (
             RequestTypes.SLOT_UPDATED,
-            RequestTypes.INIT_GAME,
+            RequestTypes.CREATE_LOBBY,
         )
 
     @property

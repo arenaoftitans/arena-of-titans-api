@@ -75,7 +75,9 @@ class WsResponse:
 
 
 class RequestTypes(metaclass=SimpleEnumMeta):
-    INIT_GAME = ()
+    CREATE_LOBBY = ()
+    JOIN_GAME = ()
+    UPDATE_SLOT = ()
     CREATE_GAME = ()
     GAME_INITIALIZED = ()
     SLOT_UPDATED = ()

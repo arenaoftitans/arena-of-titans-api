@@ -16,7 +16,8 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
-from ..utils import AotErrorToDisplay
+from ..serializers import get_player_states_by_ids
+from ..utils import AotErrorToDisplay, RequestTypes, WsResponse
 from .play_utils import get_square
 
 
@@ -26,7 +27,11 @@ def view_possible_squares(game, request):
         raise AotErrorToDisplay("wrong_card")
 
     possible_squares = game.view_possible_squares(card)
-    return possible_squares
+    return WsResponse(
+        send_to_current_player=[
+            {"rt": RequestTypes.VIEW_POSSIBLE_SQUARES, "possible_squares": possible_squares}
+        ]
+    )
 
 
 def play_card(game, request):
@@ -50,7 +55,44 @@ def play_card(game, request):
             raise AotErrorToDisplay("wrong_square")
         has_special_actions = game.play_card(card, square)
 
-    return player_that_played_the_card, has_special_actions
+    send_to_current_player = []
+    if has_special_actions:
+        send_to_current_player = [
+            {
+                "rt": RequestTypes.SPECIAL_ACTION_NOTIFY,
+                "special_action_name": game.active_player.name_next_special_action,
+            }
+        ]
+
+    return WsResponse(
+        send_to_current_player=send_to_current_player,
+        send_to_all=[
+            {
+                "rt": RequestTypes.PLAYER_PLAYED,
+                "player_index": player_that_played_the_card.index,
+                "new_square": {
+                    "x": player_that_played_the_card.current_square.x,
+                    "y": player_that_played_the_card.current_square.y,
+                },
+                "has_remaining_moves_to_play": player_that_played_the_card.has_remaining_moves_to_play,  # noqa: E501
+                "trumps_statuses": player_that_played_the_card.trumps_statuses,
+                "can_power_be_played": player_that_played_the_card.can_power_be_played,
+                "last_action": {
+                    "description": game.last_action.description,
+                    "card": game.last_action.card,
+                    "trump": game.last_action.trump,
+                    "special_action": game.last_action.special_action,
+                    "player_name": game.last_action.player_name,
+                    "target_name": game.last_action.target_name,
+                    "target_index": game.last_action.target_index,
+                    "player_index": game.last_action.player_index,
+                },
+                "game_over": game.is_over,
+                "winners": game.winners,
+            }
+        ],
+        send_to_each_players=get_player_states_by_ids(game),
+    )
 
 
 def _get_card(game, request):
