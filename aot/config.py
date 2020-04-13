@@ -22,7 +22,7 @@ import sys
 
 from environs import Env
 
-from .game.utils import make_immutable
+from .utils import make_immutable
 
 
 class Config:

@@ -33,7 +33,8 @@ from aot.game.trumps import (
     power_type_to_class,
     trump_type_to_class,
 )
-from aot.game.utils import remove_mappingproxies
+
+from ..utils import remove_mappingproxies
 
 logger = logging.getLogger(__name__)
 

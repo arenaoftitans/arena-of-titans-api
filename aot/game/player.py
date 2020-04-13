@@ -19,11 +19,11 @@
 
 import daiquiri
 
+from ..utils import get_time
 from . import trumps
 from .board import Square
 from .exceptions import NotYourTurnError
 from .trumps import exceptions as trumps_exceptions
-from .utils import get_time
 
 
 class LastAction:

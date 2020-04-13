@@ -27,7 +27,8 @@ import bleach
 from aot.game.board import Square
 from aot.game.trumps import Power
 from aot.game.trumps.effects import TrumpEffect
-from aot.game.utils import SimpleEnumMeta
+
+from ..utils import SimpleEnumMeta
 
 
 class AotError(Exception):

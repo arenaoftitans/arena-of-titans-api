@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
-from ..utils import SimpleEnumMeta
+from ...utils import SimpleEnumMeta
 
 
 class EffectTypes(metaclass=SimpleEnumMeta):

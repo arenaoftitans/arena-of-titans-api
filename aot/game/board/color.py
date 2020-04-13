@@ -19,7 +19,7 @@
 
 from ordered_set import OrderedSet
 
-from ..utils import SimpleEnumMeta
+from ...utils import SimpleEnumMeta
 
 
 class Color(metaclass=SimpleEnumMeta):

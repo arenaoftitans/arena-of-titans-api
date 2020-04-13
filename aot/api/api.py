@@ -24,7 +24,7 @@ from contextlib import asynccontextmanager
 import daiquiri
 
 from ..config import config
-from ..game.utils import get_time, make_immutable
+from ..utils import get_time, make_immutable
 from .cache import Cache
 from .utils import (
     AotError,
