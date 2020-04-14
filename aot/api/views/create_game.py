@@ -123,6 +123,26 @@ async def _can_join(request, cache):
     )
 
 
+async def free_slot(request, cache):
+    slots = await cache.get_slots()
+    slots = [slot for slot in slots if slot.get("player_id", None) == request["player_id"]]
+    if not slots:
+        return WsResponse()
+
+    slot = slots[0]
+    slot["state"] = SlotState.OPEN
+    await cache.update_slot(slot)
+
+    return WsResponse(
+        send_to_all=[
+            {
+                "rt": RequestTypes.SLOT_UPDATED,
+                "request": {"slots": await cache.get_slots(include_player_id=False)},
+            }
+        ]
+    )
+
+
 async def update_slot(request, cache):
     slot = request["slot"]
     if not await cache.slot_exists(slot):

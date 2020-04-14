@@ -17,7 +17,7 @@
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .create_game import create_game, create_lobby, join_game, update_slot
+from .create_game import create_game, create_lobby, free_slot, join_game, update_slot
 from .play_actions import play_action, view_possible_actions
 from .play_cards import play_card, view_possible_squares
 from .play_trump import play_trump
@@ -25,6 +25,7 @@ from .reconnect import reconnect_to_game, reconnect_to_lobby
 
 __all__ = [
     # Create game views.
+    free_slot.__name__,
     create_lobby.__name__,
     create_game.__name__,
     join_game.__name__,

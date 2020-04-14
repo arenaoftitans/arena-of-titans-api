@@ -26,6 +26,7 @@ import daiquiri
 from ..config import config
 from ..utils import get_time, make_immutable
 from .cache import Cache
+from .serializers import get_global_game_message
 from .utils import (
     AotError,
     AotErrorToDisplay,
@@ -37,6 +38,7 @@ from .utils import (
 from .views import (
     create_game,
     create_lobby,
+    free_slot,
     join_game,
     play_action,
     play_card,
@@ -121,47 +123,32 @@ class Api:
 
     async def disconnect_player(self):
         if await self._has_game_started:
-            return await self._free_slot()
-        else:
-            return await self._disconnect_player_from_game()
-
-    async def _free_slot(self):
-        slots = await self._cache.get_slots()
-        slots = [slot for slot in slots if slot.get("player_id", None) == self.id]
-        if slots:
-            slot = slots[0]
-            name = slot.get("player_name", None)
-            self.logger.debug(
-                f"Game n°{self._game_id}: slot for player n°{self.id} ({name}) was freed",
+            self.logger.debug(f"Freeing slot for player {self.id} in game {self.game_id}")
+            return await free_slot(
+                {"player_id": self.id, "game_id": self.game_id, "free": True}, self._cache
             )
-            self._message = {
-                "rt": RequestTypes.SLOT_UPDATED,
-                "slot": {"index": slot["index"], "state": "OPEN"},
-            }
-            return await self._modify_slots()
+
+        return await self._disconnect_player_from_game()
 
     async def _disconnect_player_from_game(self):
         async with self._load_game() as game:
-            if not game:
-                return
-
             player = game.get_player_by_id(self.id)
             self.logger.debug(
                 f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was "
                 "disconnected from the game",
             )
-            if not game.is_over and player == game.active_player:
-                player.is_connected = False
-                game.pass_turn()
-                message = self._get_play_messages(game, player)
-                if game.active_player.is_ai:
-                    future_message = asyncio.Future()
-                    self._play_ai_after_timeout(game, future_message)
-                    message.add_future_message(future_message)
-                return message
-            else:
+            if game.is_over or player != game.active_player:
                 self._append_to_clients_pending_disconnection()
                 raise MustNotSaveGameError
+
+            player.is_connected = False
+            game.pass_turn()
+            response = WsResponse(send_to_all=[get_global_game_message(game)])
+            if game.active_player.is_ai:
+                future_message = asyncio.Future()
+                self._play_ai_after_timeout(game, future_message)
+                response = response.add_future_message(future_message)
+            return response
 
     def _append_to_clients_pending_disconnection(self):
         self._clients_pending_disconnection_from_game.add(self.id)
@@ -186,7 +173,7 @@ class Api:
             if game.active_player.is_ai and self._game_id not in self._pending_ai:
                 future_message = asyncio.Future(loop=self._loop)
                 self._play_ai_after_timeout(game, future_message)
-                response.add_future_message(future_message)
+                response = response.add_future_message(future_message)
 
         return response
 
