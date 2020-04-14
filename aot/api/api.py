@@ -67,7 +67,7 @@ class Api:
     _play_game_requests_to_views = make_immutable(
         {
             RequestTypes.VIEW_POSSIBLE_SQUARES: view_possible_squares,
-            RequestTypes.PLAY: play_card,
+            RequestTypes.PLAY_CARD: play_card,
             RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS: view_possible_actions,
             RequestTypes.SPECIAL_ACTION_PLAY: play_action,
             RequestTypes.PLAY_TRUMP: play_trump,
@@ -343,7 +343,7 @@ class Api:
             elapsed_time = 0
 
         return {
-            "rt": RequestTypes.PLAY,
+            "rt": RequestTypes.PLAY_CARD,
             "your_turn": player.id == game.active_player.id,
             "on_last_line": player.on_last_line,
             "has_won": player.has_won,
