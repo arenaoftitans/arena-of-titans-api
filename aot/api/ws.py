@@ -162,6 +162,11 @@ class AotWs(WebSocketServerProtocol):
         self._clients.pop(self.id, None)
 
     async def _disconnect_player(self):
+        if self.id not in self._disconnect_timeouts:
+            return
+
+        # Remove expired timeout so it will never interfere with new disconnections.
+        self._disconnect_timeouts.pop(self.id)
         response = await self._api.disconnect_player()
         if response:
             await self._send_response(response)
@@ -170,8 +175,10 @@ class AotWs(WebSocketServerProtocol):
         if self.id not in self._disconnect_timeouts:
             return
 
-        self.logger.debug(f"Game n°{self._api.game_id}: cancel disconnect timeout for {self.id}",)
-        self._disconnect_timeouts[self.id].cancel()
+        # Remove canceled timeout so it will never interfere with new disconnections.
+        self.logger.debug(f"Game n°{self._api.game_id}: cancel disconnect timeout for {self.id}")
+        timeout = self._disconnect_timeouts.pop(self.id)
+        timeout.cancel()
 
     async def _send_to_all(self, messages, excluded_players=None):
         if excluded_players is None:
