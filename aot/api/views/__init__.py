@@ -21,6 +21,7 @@ from .create_game import create_game, create_lobby, join_game, update_slot
 from .play_actions import play_action, view_possible_actions
 from .play_cards import play_card, view_possible_squares
 from .play_trump import play_trump
+from .reconnect import reconnect_to_game, reconnect_to_lobby
 
 __all__ = [
     # Create game views.
@@ -34,4 +35,7 @@ __all__ = [
     play_card.__name__,
     view_possible_squares.__name__,
     play_trump.__name__,
+    # Reconnect.
+    reconnect_to_lobby.__name__,
+    reconnect_to_game.__name__,
 ]

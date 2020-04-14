@@ -41,6 +41,8 @@ from .views import (
     play_action,
     play_card,
     play_trump,
+    reconnect_to_game,
+    reconnect_to_lobby,
     update_slot,
     view_possible_actions,
     view_possible_squares,
@@ -94,14 +96,14 @@ class Api:
 
         if self._request_type in self._utility_request_types_to_views:
             return await self._utility_request_types_to_views[self._request_type]()
-        elif self._is_reconnecting and await self._can_reconnect:
-            return await self._reconnect()
+        elif self._request_type == RequestTypes.RECONNECT:
+            return await self._process_reconnect_request()
         elif self._request_type in self._lobby_request_types_to_views:
             return await self._process_lobby_request()
         elif self._request_type in self._play_game_requests_to_views:
             return await self._process_play_request()
 
-        raise AotErrorToDisplay("cannot_join")
+        raise AotErrorToDisplay("unknown_request")
 
     async def _info(self):
         return WsResponse(
@@ -165,91 +167,32 @@ class Api:
         self._clients_pending_disconnection_from_game.add(self.id)
         self._clients_pending_reconnection_from_game.discard(self.id)
 
-    async def _reconnect(self):
-        self._id = self._message["player_id"]
-        self._game_id = self._message["game_id"]
+    async def _process_reconnect_request(self):
+        if not await self._can_reconnect:
+            raise AotErrorToDisplay("cannot_join")
+
+        self._id = self._message["request"]["player_id"]
+        self._game_id = self._message["request"]["game_id"]
         self._cache.init(game_id=self._game_id, player_id=self.id)
 
-        self.logger.info(f"Reconnecting player {self.id} to game {self.game_id}")
+        self.logger.info(f"Trying to reconnect player {self.id} to game {self.game_id}")
 
-        message = None
+        if not await self._has_game_started:
+            return await reconnect_to_lobby(self._message["request"], self._cache)
 
-        if await self._has_game_started:
-            try:
-                index = await self._cache.get_player_index()
-            except IndexError:
-                # We were disconnected and we must register again
-                self._game_id = None
-                index = -1
-            finally:
-                message = await self._get_initialized_game_message(index)
-        else:
-            async with self._load_game(must_save=False) as game:
-                self._append_to_clients_pending_reconnection()
-                message = self._reconnect_to_game(game)
-                if game.active_player.is_ai and self._game_id not in self._pending_ai:
-                    self._play_ai_after_timeout(game)
+        async with self._load_game(must_save=False) as game:
+            self._append_to_clients_pending_reconnection()
+            response = reconnect_to_game(self._message["request"], game)
+            if game.active_player.is_ai and self._game_id not in self._pending_ai:
+                future_message = asyncio.Future(loop=self._loop)
+                self._play_ai_after_timeout(game, future_message)
+                response.add_future_message(future_message)
 
-        return WsResponse(send_to_current_player=[message])
-
-    def _reconnect_to_game(self, game):
-        player = [player for player in game.players if player and player.id == self.id][0]
-        self.logger.debug(
-            f"Game n°{self._game_id}: player n°{self.id} ({player.name}) was reconnected "
-            f"to the game",
-        )
-        message = self._get_play_message(player, game)
-
-        last_action = self._get_action_message(game.last_action)
-        if game.active_player.has_special_actions:
-            special_action = game.active_player.name_next_special_action
-        else:
-            special_action = None
-
-        message["reconnect"] = {
-            "players": [
-                {
-                    "index": player.index,
-                    "name": player.name,
-                    "square": player.current_square,
-                    "hero": player.hero,
-                }
-                if player
-                else None
-                for player in game.players
-            ],
-            "trumps": player.trumps,
-            "power": player.power,
-            "index": player.index,
-            "last_action": last_action,
-            "special_action_name": special_action,
-            "special_action_elapsed_time": get_time() - player.special_action_start_time,
-            "history": [
-                [self._get_action_message(action) for action in player.history] if player else None
-                for player in game.players
-            ],
-            "game_over": game.is_over,
-            "winners": game.winners,
-        }
-
-        return message
+        return response
 
     def _append_to_clients_pending_reconnection(self):
         self._clients_pending_reconnection_from_game.add(self.id)
         self._clients_pending_disconnection_from_game.discard(self.id)
-
-    async def _get_initialized_game_message(self, index):  # pragma: no cover
-        initialized_game = {
-            "rt": RequestTypes.GAME_INITIALIZED,
-            "game_id": self._game_id,
-            "player_id": self.id,
-            "is_game_master": await self._cache.is_game_master(),
-            "index": index,
-            "slots": await self._cache.get_slots(include_player_id=False),
-            "api_version": config["version"],
-        }
-
-        return initialized_game
 
     async def _process_lobby_request(self):
         if not await self._current_request_allowed:
@@ -493,14 +436,6 @@ class Api:
         return await self._cache.is_game_master() or self._request_type in (
             RequestTypes.SLOT_UPDATED,
             RequestTypes.CREATE_LOBBY,
-        )
-
-    @property
-    def _is_reconnecting(self):
-        return (
-            self._request_type == RequestTypes.INIT_GAME
-            and "player_id" in self._message
-            and "game_id" in self._message
         )
 
     @property

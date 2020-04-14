@@ -91,6 +91,7 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     GAME_UPDATED = ()
     PLAYER_UPDATED = ()
     TRUMP_HAS_NO_EFFECT = ()
+    RECONNECT = ()
 
 
 class SlotState(metaclass=SimpleEnumMeta):

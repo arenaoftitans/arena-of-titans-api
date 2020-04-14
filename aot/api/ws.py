@@ -92,6 +92,10 @@ class AotWs(WebSocketServerProtocol):
         if self.id == self._api.id:
             return
 
+        self.logger.info(
+            f"Player reconnected to an existing game. "
+            f"Its id was updated from {self.id} to {self._api.id}"
+        )
         self._clients.pop(self.id, None)
         self._id = self._api.id
         self._clients[self.id] = self

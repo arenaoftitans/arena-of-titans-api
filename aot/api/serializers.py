@@ -24,11 +24,11 @@ from .utils import RequestTypes
 def get_global_game_message(game):
     return {
         "rt": RequestTypes.GAME_UPDATED,
-        "request": _get_global_game_state(game),
+        "request": get_global_game_state(game),
     }
 
 
-def _get_global_game_state(game):
+def get_global_game_state(game):
     return {
         "actions": [],
         "board": game.board,
