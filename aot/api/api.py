@@ -23,9 +23,7 @@ from contextlib import asynccontextmanager
 
 import daiquiri
 
-from ..config import config
 from ..utils import get_time, make_immutable
-from .cache import Cache
 from .serializers import get_global_game_message
 from .utils import (
     AotError,
@@ -76,13 +74,13 @@ class Api:
         }
     )
 
-    def __init__(self, *, default_id, loop):
+    def __init__(self, *, default_id, loop, ai_delay, cache):
         self._loop = loop
         self._game_id = None
         self._id = default_id
         self._pending_ai = set()
-        self._is_debug_mode_enabled = False
-        self._cache = Cache()
+        self._cache = cache
+        self._ai_delay = ai_delay
         self._utility_request_types_to_views = {
             "test": self._test,
             "info": self._info,
@@ -185,10 +183,6 @@ class Api:
         if not await self._current_request_allowed:
             raise AotErrorToDisplay("game_master_request", {"rt": self._request_type})
 
-        self._is_debug_mode_enabled = (
-            self._message.get("debug", False) and config["api"]["allow_debug"]
-        )
-
         self._message["player_id"] = self.id
         self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
 
@@ -236,10 +230,10 @@ class Api:
 
     def _play_ai_after_timeout(self, game, future: asyncio.Future):
         if not game.is_over:
-            self.logger.debug(f"Game n°{self._game_id}: schedule play for AI in {self._api_delay}")
+            self.logger.debug(f"Game n°{self._game_id}: schedule play for AI in {self._ai_delay}")
             self._pending_ai.add(self._game_id)
             self._loop.call_later(
-                self._api_delay,
+                self._ai_delay,
                 lambda: asyncio.ensure_future(self._play_scheduled_ai(future), loop=self._loop),
             )
 
@@ -391,20 +385,12 @@ class Api:
         return self._id
 
     @property
-    def is_debug_mode_enabled(self):
-        return self._is_debug_mode_enabled
-
-    @property
     def game_id(self):
         return self._game_id
 
     @property
     async def player_ids(self):
         return await self._cache.get_players_ids()
-
-    @property
-    def _api_delay(self):
-        return config["ai"]["delay"]
 
     @property
     def _clients_pending_reconnection_from_game(self):

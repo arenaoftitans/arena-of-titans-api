@@ -23,7 +23,9 @@ import json
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerProtocol
 
+from ..config import config
 from .api import Api as AotApi
+from .cache import Cache
 from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse, to_json
 
 
@@ -70,7 +72,9 @@ class AotWs(WebSocketServerProtocol):
         self._id = self._wskey
         self._clients[self.id] = self
         self._loop = asyncio.get_event_loop()
-        self._api = AotApi(default_id=self.id, loop=self._loop)
+        self._api = AotApi(
+            default_id=self.id, loop=self._loop, cache=Cache(), ai_delay=config["ai"]["delay"],
+        )
 
     async def onMessage(self, payload, is_binary):
         message = json.loads(payload.decode("utf-8"))
@@ -208,7 +212,7 @@ class AotWs(WebSocketServerProtocol):
         await self.send_messages([message])
 
     async def _send_debug(self, message):
-        if self._api.is_debug_mode_enabled:
+        if config["api"]["allow_debug"]:
             await self._send_to_all([{"debug": message}])
 
     def _format_error(self, error):
