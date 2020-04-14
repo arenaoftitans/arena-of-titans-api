@@ -265,11 +265,11 @@ class Api:
     @asynccontextmanager
     async def _load_game(self, must_save=True):
         game = await self._cache.get_game()
-        self._disconnect_pending_players(game)
-        self._reconnect_pending_players(game)
 
         try:
             yield game
+            self._disconnect_pending_players(game)
+            self._reconnect_pending_players(game)
         except MustNotSaveGameError:
             self.logger.info("Action asked not to save the game.", exc_info=True)
         except Exception:
