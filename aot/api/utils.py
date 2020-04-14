@@ -80,7 +80,6 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     JOIN_GAME = ()
     UPDATE_SLOT = ()
     CREATE_GAME = ()
-    GAME_INITIALIZED = ()
     SLOT_UPDATED = ()
     SPECIAL_ACTION_NOTIFY = ()
     SPECIAL_ACTION_PLAY = ()
@@ -90,7 +89,6 @@ class RequestTypes(metaclass=SimpleEnumMeta):
     PLAY_TRUMP = ()
     GAME_UPDATED = ()
     PLAYER_UPDATED = ()
-    TRUMP_HAS_NO_EFFECT = ()
     RECONNECT = ()
 
 
