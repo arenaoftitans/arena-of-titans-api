@@ -29,7 +29,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from .api.ws import AotWs
 from .config import config
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 def setup_logging(debug=False):

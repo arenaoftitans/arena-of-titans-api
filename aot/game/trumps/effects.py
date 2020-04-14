@@ -19,15 +19,16 @@
 
 from __future__ import annotations
 
-import logging
 from abc import ABCMeta, abstractmethod
 from types import MappingProxyType
+
+import daiquiri
 
 from ..cards import Card
 from .constants import EffectTypes
 from .exceptions import TrumpHasNoEffectError
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 class TrumpEffect(metaclass=ABCMeta):

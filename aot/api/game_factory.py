@@ -20,6 +20,8 @@
 import logging
 import random
 
+import daiquiri
+
 from aot.game.board import Board, Color
 from aot.game.cards import Card, Deck
 from aot.game.config import GAME_CONFIGS
@@ -36,7 +38,7 @@ from aot.game.trumps import (
 
 from ..utils import remove_mappingproxies
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 def create_game_for_players(players_description, name="standard"):

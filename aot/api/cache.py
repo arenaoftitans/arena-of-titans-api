@@ -17,18 +17,18 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 import pickle  # noqa: S403 (bandit: pickle security issues)
 from copy import deepcopy
 from datetime import datetime
 
+import daiquiri
 from aredis import StrictRedis as Redis
 
 from ..config import config
 from .security import decode, encode
 from .utils import SlotState
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 class Cache:
