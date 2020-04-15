@@ -28,7 +28,6 @@ class Game:
     _actions = None
     _active_player = None
     _board = None
-    _game_id = None
     _index_first_player = 0
     _is_over = False
     _nb_turns = 0
@@ -37,11 +36,12 @@ class Game:
     _players_id_to_index = None
     _winners = []
 
-    def __init__(self, board, players):
+    def __init__(self, board, players, game_id=None):
         self._actions = []
         self._active_player = players[0]
         self._index_first_player = self._active_player.index
         self._board = board
+        self._game_id = game_id
         self._is_over = False
         self._players = players
         self._players_id_to_index = {
@@ -231,15 +231,6 @@ class Game:
     @property
     def game_id(self):  # pragma: no cover
         return self._game_id
-
-    @game_id.setter
-    def game_id(self, value):
-        if self._game_id is not None:  # pragma: no cover
-            self.LOGGER.warning(f"Changing game id for game {self._game_id} to {value}",)
-        self._game_id = value
-        for player in self.players:
-            if player:
-                player.game_id = value
 
     @property
     def is_over(self):

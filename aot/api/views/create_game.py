@@ -76,7 +76,7 @@ async def _initialize_game(cache, submitted_player_descriptions):
             player["id"] = slots[index].get("player_id", None)
             player["is_ai"] = slots[index]["state"] == SlotState.AI
 
-    game = create_game_for_players(submitted_player_descriptions)
+    game = create_game_for_players(submitted_player_descriptions, cache.game_id)
     for player in game.players:
         if player is not None:
             player.is_connected = True

@@ -95,6 +95,7 @@ class Player:
         board,
         deck,
         gauge,
+        game_id=None,
         available_trumps=None,
         hero="",
         is_ai=False,
@@ -107,6 +108,7 @@ class Player:
         self._is_ai = is_ai
         self._board = board
         self._gauge = gauge
+        self._game_id = game_id
 
         self._trump_effects = []
         self._aim = board.aim
@@ -465,10 +467,6 @@ class Player:
     @property
     def game_id(self):
         return self._game_id
-
-    @game_id.setter
-    def game_id(self, value):
-        self._game_id = value
 
     @property
     def gauge(self):

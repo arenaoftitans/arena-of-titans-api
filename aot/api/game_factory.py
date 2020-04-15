@@ -41,7 +41,7 @@ from ..utils import remove_mappingproxies
 logger = daiquiri.getLogger(__name__)
 
 
-def create_game_for_players(players_description, name="standard"):
+def create_game_for_players(players_description, game_id, name="standard"):
     config = GAME_CONFIGS[name]
 
     board = Board(config["board"])
@@ -60,6 +60,7 @@ def create_game_for_players(players_description, name="standard"):
                 board,
                 deck,
                 gauge,
+                game_id=game_id,
                 available_trumps=trumps,
                 hero=hero,
                 is_ai=player.get("is_ai", False),
