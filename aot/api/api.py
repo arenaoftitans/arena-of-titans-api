@@ -23,8 +23,8 @@ from contextlib import asynccontextmanager
 
 import daiquiri
 
-from ..utils import get_time, make_immutable
-from .serializers import get_global_game_message
+from ..utils import make_immutable
+from .serializers import get_global_game_message, get_private_player_messages_by_ids
 from .utils import (
     AotError,
     AotErrorToDisplay,
@@ -245,14 +245,17 @@ class Api:
         if game.active_player.is_ai:
             self.logger.debug("Playing AI.")
             this_player = game.active_player
-            debug_message = {"player": this_player.name, "hand": this_player.hand_for_debug}
             game.play_auto()
             future_message = None
             if game.active_player.is_ai:
                 future_message = self._schedule_play_ai(game)
 
-            play_messages = self._get_play_messages(game, this_player)
-            return play_messages.add_debug_message(debug_message).add_future_message(future_message)
+            return WsResponse(
+                send_to_all=[get_global_game_message(game)],
+                send_to_each_players=get_private_player_messages_by_ids(game),
+                send_debug=[{"player": this_player.name, "hand": this_player.hand_for_debug}],
+                future_message=future_message,
+            )
 
     @asynccontextmanager
     async def _load_game(self, must_save=True):
@@ -289,94 +292,6 @@ class Api:
 
     def _is_this_player_turn(self, game):
         return self.id is not None and self.id == game.active_player.id
-
-    def _get_play_messages(self, game, this_player):  # pragma: no cover
-        game.add_action(this_player.last_action)
-        return WsResponse(
-            send_to_all=[self._get_player_played_message(this_player, game)],
-            send_to_each_players=self._get_play_messages_for_all_players(game),
-        )
-
-    def _get_player_played_message(self, player, game):
-        return {
-            "rt": RequestTypes.PLAYER_PLAYED,
-            "player_index": player.index,
-            "new_square": {"x": player.current_square.x, "y": player.current_square.y},
-            "has_remaining_moves_to_play": player.has_remaining_moves_to_play,
-            "trumps_statuses": player.trumps_statuses,
-            "can_power_be_played": player.can_power_be_played,
-            "last_action": self._get_action_message(player.last_action),
-            "game_over": game.is_over,
-            "winners": game.winners,
-        }
-
-    def _get_action_message(self, action):  # pragma: no cover
-        if action is not None:
-            return {
-                "description": action.description,
-                "card": action.card,
-                "trump": action.trump,
-                "special_action": action.special_action,
-                "player_name": action.player_name,
-                "target_name": action.target_name,
-                "target_index": action.target_index,
-                "player_index": action.player_index,
-            }
-
-    def _get_play_messages_for_all_players(self, game):
-        messages = {}
-
-        for player in game.players:
-            if player is not None:
-                messages[player.id] = [self._get_play_message(player, game)]
-
-        return messages
-
-    def _get_play_message(self, player, game):
-        # Since between the request arrives (game.active_player.turn_start_time) and the time we
-        # get here some time has passed. Which means, the elapsed time sent to the frontend could
-        # be greater than 0 at the beginning of a turn.
-        elapsed_time = get_time() - game.active_player.turn_start_time
-        if elapsed_time < self.MIN_ELAPSED_TIME_TO_CONSIDER:
-            elapsed_time = 0
-
-        return {
-            "rt": RequestTypes.PLAY_CARD,
-            "your_turn": player.id == game.active_player.id,
-            "on_last_line": player.on_last_line,
-            "has_won": player.has_won,
-            "rank": player.rank,
-            "next_player": game.active_player.index,
-            "hand": [
-                {"name": card.name, "color": card.color, "description": card.description}
-                for card in player.hand
-            ],
-            "active_trumps": self._get_active_trumps_message(game),
-            "trump_target_indexes": [
-                player.index
-                for player in game.players
-                if player and player.can_be_targeted_by_trumps
-            ],
-            "has_remaining_moves_to_play": player.has_remaining_moves_to_play,
-            "trumps_statuses": player.trumps_statuses,
-            "can_power_be_played": player.can_power_be_played,
-            "gauge_value": player.gauge.value,
-            "elapsed_time": elapsed_time,
-            "nb_turns": game.nb_turns,
-            "power": player.power,
-        }
-
-    def _get_active_trumps_message(self, game):
-        return [
-            {
-                "player_index": game_player.index,
-                "player_name": game_player.name,
-                "trumps": game_player.trump_effects,
-            }
-            if game_player
-            else None
-            for game_player in game.players
-        ]
 
     @property
     def id(self):
