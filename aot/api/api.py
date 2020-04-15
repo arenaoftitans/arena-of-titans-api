@@ -143,9 +143,7 @@ class Api:
             game.pass_turn()
             response = WsResponse(send_to_all=[get_global_game_message(game)])
             if game.active_player.is_ai:
-                future_message = asyncio.Future()
-                self._play_ai_after_timeout(game, future_message)
-                response = response.add_future_message(future_message)
+                response = response.add_future_message(self._schedule_play_ai(game))
             return response
 
     def _append_to_clients_pending_disconnection(self):
@@ -169,9 +167,7 @@ class Api:
             self._append_to_clients_pending_reconnection()
             response = reconnect_to_game(self._message["request"], game)
             if game.active_player.is_ai and self._game_id not in self._pending_ai:
-                future_message = asyncio.Future(loop=self._loop)
-                self._play_ai_after_timeout(game, future_message)
-                response = response.add_future_message(future_message)
+                response = response.add_future_message(self._schedule_play_ai(game))
 
         return response
 
@@ -204,9 +200,7 @@ class Api:
 
                 response = self._play_game_requests_to_views[self._request_type](request, game)
                 if game.active_player.is_ai:
-                    future_message = asyncio.Future(loop=self._loop)
-                    self._play_ai_after_timeout(game, future_message)
-                    response = response.add_future_message(future_message)
+                    response = response.add_future_message(self._schedule_play_ai(game))
                 return response
             elif game.active_player.is_ai:
                 return self._play_ai(game)
@@ -228,14 +222,19 @@ class Api:
 
                 raise AotErrorToDisplay("not_your_turn")
 
-    def _play_ai_after_timeout(self, game, future: asyncio.Future):
-        if not game.is_over:
-            self.logger.debug(f"Game n°{self._game_id}: schedule play for AI in {self._ai_delay}")
-            self._pending_ai.add(self._game_id)
-            self._loop.call_later(
-                self._ai_delay,
-                lambda: asyncio.ensure_future(self._play_scheduled_ai(future), loop=self._loop),
-            )
+    def _schedule_play_ai(self, game):
+        if game.is_over:
+            self.logger.debug(f"Game n°{self.game_id} is over, not scheduling AI.")
+            return
+
+        self.logger.debug(f"Game n°{self._game_id}: schedule play for AI in {self._ai_delay}")
+        self._pending_ai.add(self._game_id)
+        future_message = asyncio.Future(loop=self._loop)
+        self._loop.call_later(
+            self._ai_delay,
+            lambda: asyncio.ensure_future(self._play_scheduled_ai(future_message), loop=self._loop),
+        )
+        return future_message
 
     async def _play_scheduled_ai(self, future: asyncio.Future):
         response = await self._process_play_request()
@@ -250,8 +249,7 @@ class Api:
             game.play_auto()
             future_message = None
             if game.active_player.is_ai:
-                future_message = asyncio.Future(loop=self._loop)
-                self._play_ai_after_timeout(game, future_message)
+                future_message = self._schedule_play_ai(game)
 
             play_messages = self._get_play_messages(game, this_player)
             return play_messages.add_debug_message(debug_message).add_future_message(future_message)
