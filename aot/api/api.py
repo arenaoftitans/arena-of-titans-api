@@ -226,9 +226,12 @@ class Api:
         if game.is_over:
             self.logger.debug(f"Game n°{self.game_id} is over, not scheduling AI.")
             return
+        elif self.game_id in self._pending_ai:
+            self.logger.debug(f"IA is already scheduled for game {self.game_id}")
+            return
 
         self.logger.debug(f"Game n°{self._game_id}: schedule play for AI in {self._ai_delay}")
-        self._pending_ai.add(self._game_id)
+        self._pending_ai.add(self.game_id)
         future_message = asyncio.Future(loop=self._loop)
         self._loop.call_later(
             self._ai_delay,
@@ -242,20 +245,23 @@ class Api:
 
     def _play_ai(self, game):
         self._pending_ai.discard(self._game_id)
-        if game.active_player.is_ai:
-            self.logger.debug("Playing AI.")
-            this_player = game.active_player
-            game.play_auto()
-            future_message = None
-            if game.active_player.is_ai:
-                future_message = self._schedule_play_ai(game)
+        if not game.active_player.is_ai:
+            self.logger.debug("It is not an AI turn, cannot play AI.")
+            return
 
-            return WsResponse(
-                send_to_all=[get_global_game_message(game)],
-                send_to_each_players=get_private_player_messages_by_ids(game),
-                send_debug=[{"player": this_player.name, "hand": this_player.hand_for_debug}],
-                future_message=future_message,
-            )
+        self.logger.debug("Playing AI.")
+        this_player = game.active_player
+        game.play_auto()
+        future_message = None
+        if game.active_player.is_ai:
+            future_message = self._schedule_play_ai(game)
+
+        return WsResponse(
+            send_to_all=[get_global_game_message(game)],
+            send_to_each_players=get_private_player_messages_by_ids(game),
+            send_debug=[{"player": this_player.name, "hand": this_player.hand_for_debug}],
+            future_message=future_message,
+        )
 
     @asynccontextmanager
     async def _load_game(self, must_save=True):
