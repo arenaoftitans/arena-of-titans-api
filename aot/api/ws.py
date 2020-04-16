@@ -26,7 +26,8 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol
 from ..config import config
 from .api import Api as AotApi
 from .cache import Cache
-from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse, to_json
+from .serializers import to_json
+from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse
 
 
 class AotWs(WebSocketServerProtocol):

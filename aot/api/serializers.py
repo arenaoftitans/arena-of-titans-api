@@ -16,8 +16,16 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
+
+import dataclasses
+import math
+
+from aot.game.board import Board, Square
+from aot.game.trumps import Power
+from aot.game.trumps.effects import TrumpEffect
+
 from ..config import config
-from ..utils import get_time
+from ..utils import SimpleEnumMeta, get_time
 from .utils import RequestTypes
 
 
@@ -97,3 +105,46 @@ def get_private_player_state(game, player):
             "power": player.power,
         },
     }
+
+
+def to_json(python_object):  # pragma: no cover
+    if isinstance(python_object, SimpleEnumMeta):
+        return python_object.value
+    elif isinstance(python_object, Square):
+        return {
+            "x": python_object.x,
+            "y": python_object.y,
+        }
+    elif isinstance(python_object, Board):
+        return {"updated_squares": python_object.updated_squares}
+    elif isinstance(python_object, TrumpEffect):
+        data = {
+            "duration": python_object.duration if not math.isinf(python_object.duration) else None,
+            "name": python_object.name,
+            "color": python_object.color,
+            "effect_type": python_object.effect_type,
+        }
+        return data
+    elif isinstance(python_object, (set, frozenset)):
+        return [to_json(element) for element in python_object]
+    elif dataclasses.is_dataclass(python_object):
+        # Our dataclasses may hold a reference to a class which we can't serialize into JSON.
+        trump_like = {
+            key: value
+            for key, value in dataclasses.asdict(python_object).items()
+            if not isinstance(value, type)
+        }
+        if isinstance(trump_like.get("trump_args"), dict):
+            trump_like = {
+                **trump_like,
+                **trump_like["trump_args"],
+            }
+            del trump_like["trump_args"]
+        if isinstance(python_object, Power):
+            trump_like["is_power"] = True
+            trump_like["passive"] = python_object.passive
+
+        return trump_like
+
+    # Normally, this is unreachable
+    raise TypeError(str(python_object) + " is not JSON serializable")  # pragma: no cover
