@@ -16,10 +16,11 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
-from ...utils import SimpleEnumMeta
+
+from enum import Enum
 
 
-class EffectTypes(metaclass=SimpleEnumMeta):
-    trump = ()
-    special_action = ()
-    power = ()
+class EffectTypes(Enum):
+    trump = "trump"
+    special_action = "special_action"
+    power = "power"

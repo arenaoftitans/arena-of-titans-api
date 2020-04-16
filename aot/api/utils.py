@@ -19,11 +19,10 @@
 
 import asyncio
 import dataclasses
+from enum import Enum
 from typing import Dict, List, Optional
 
 import bleach
-
-from ..utils import SimpleEnumMeta
 
 
 class AotError(Exception):
@@ -70,29 +69,29 @@ class WsResponse:
         return dataclasses.replace(self, future_message=future)
 
 
-class RequestTypes(metaclass=SimpleEnumMeta):
-    CREATE_LOBBY = ()
-    JOIN_GAME = ()
-    UPDATE_SLOT = ()
-    CREATE_GAME = ()
-    SLOT_UPDATED = ()
-    SPECIAL_ACTION_NOTIFY = ()
-    SPECIAL_ACTION_PLAY = ()
-    SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS = ()
-    PLAY_CARD = ()
-    VIEW_POSSIBLE_SQUARES = ()
-    PLAY_TRUMP = ()
-    GAME_UPDATED = ()
-    PLAYER_UPDATED = ()
-    RECONNECT = ()
+class RequestTypes(Enum):
+    CREATE_LOBBY = "CREATE_LOBBY"
+    JOIN_GAME = "JOIN_GAME"
+    UPDATE_SLOT = "UPDATE_SLOT"
+    CREATE_GAME = "CREATE_GAME"
+    SLOT_UPDATED = "SLOT_UPDATED"
+    SPECIAL_ACTION_NOTIFY = "SPECIAL_ACTION_NOTIFY"
+    SPECIAL_ACTION_PLAY = "SPECIAL_ACTION_PLAY"
+    SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS = "SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS"
+    PLAY_CARD = "PLAY_CARD"
+    VIEW_POSSIBLE_SQUARES = "VIEW_POSSIBLE_SQUARES"
+    PLAY_TRUMP = "PLAY_TRUMP"
+    GAME_UPDATED = "GAME_UPDATED"
+    PLAYER_UPDATED = "PLAYER_UPDATED"
+    RECONNECT = "RECONNECT"
 
 
-class SlotState(metaclass=SimpleEnumMeta):
-    OPEN = ()
-    CLOSED = ()
-    RESERVED = ()
-    TAKEN = ()
-    AI = ()
+class SlotState(Enum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    RESERVED = "RESERVED"
+    TAKEN = "TAKEN"
+    AI = "AI"
 
 
 def sanitize(string):

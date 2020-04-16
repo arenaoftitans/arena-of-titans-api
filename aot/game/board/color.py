@@ -17,12 +17,12 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from enum import Enum
+
 from ordered_set import OrderedSet
 
-from ...utils import SimpleEnumMeta
 
-
-class Color(metaclass=SimpleEnumMeta):
+class Color(Enum):
     BLACK = "BLACK"
     BLUE = "BLUE"
     RED = "RED"

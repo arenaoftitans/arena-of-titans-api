@@ -19,13 +19,14 @@
 
 import dataclasses
 import math
+from enum import Enum
 
 from aot.game.board import Board, Square
 from aot.game.trumps import Power
 from aot.game.trumps.effects import TrumpEffect
 
 from ..config import config
-from ..utils import SimpleEnumMeta, get_time
+from ..utils import get_time
 from .utils import RequestTypes
 
 
@@ -108,7 +109,7 @@ def get_private_player_state(game, player):
 
 
 def to_json(python_object):  # pragma: no cover
-    if isinstance(python_object, SimpleEnumMeta):
+    if isinstance(python_object, Enum):
         return python_object.value
     elif isinstance(python_object, Square):
         return {
