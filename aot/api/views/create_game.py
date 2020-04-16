@@ -148,9 +148,6 @@ async def update_slot(request, cache):
     if not await cache.slot_exists(slot):
         raise AotError("non-existent_slot")
 
-    if "player_name" in slot:
-        slot["player_name"] = sanitize(slot["player_name"])
-
     await cache.update_slot(slot)
     # The player_id is stored in the cache so we can know to which player which slot is
     # associated. We don't pass this information to the frontend. If the slot is new, it
