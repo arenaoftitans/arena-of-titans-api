@@ -19,7 +19,9 @@
 
 import daiquiri
 
+from .actions import Action, nothing_has_happened_action
 from .ai import find_cheapest_card, find_move_to_play
+from .trumps.exceptions import TrumpHasNoEffectError
 
 
 class Game:
@@ -69,18 +71,49 @@ class Game:
         return self._active_player.view_possible_squares(card)
 
     def play_card(self, card, square, check_move=True):
-        has_special_actions = self._active_player.play_card(card, square, check_move=check_move)
+        active_player = self._active_player
+
+        has_special_actions = active_player.play_card(card, square, check_move=check_move)
         if not has_special_actions:
             self._continue_game_if_enough_players()
+
+        self.add_action(Action(initiator=active_player, description="played_card", card=card))
 
         return has_special_actions
 
     def play_trump(self, trump, target, context):
-        self.active_player.play_trump(trump, target=target, context=context)
+        try:
+            self.active_player.play_trump(trump, target=target, context=context)
+        except TrumpHasNoEffectError:
+            self.add_action(
+                Action(
+                    initiator=self.active_player,
+                    target=target,
+                    description="played_trump_no_effect",
+                    trump=trump,
+                )
+            )
+        else:
+            self.add_action(
+                Action(
+                    initiator=self.active_player,
+                    target=target,
+                    description="played_trump",
+                    trump=trump,
+                )
+            )
 
     def play_special_action(self, action, target=None, context=None):
         context = context or {}
         self.active_player.play_special_action(action, target=target, context=context)
+        self.add_action(
+            Action(
+                initiator=self.active_player,
+                target=target,
+                description="played_special_action",
+                special_action=action,
+            )
+        )
 
     def cancel_special_action(self, action):
         self.active_player.cancel_special_action(action)
@@ -185,12 +218,16 @@ class Game:
             )
 
     def pass_turn(self):
-        self._active_player.pass_turn()
+        active_player = self._active_player
+        active_player.pass_turn()
         self._continue_game_if_enough_players()
+        self.add_action(Action(initiator=active_player, description="passed_turn"))
 
     def discard(self, card):
-        self._active_player.discard(card)
+        active_player = self._active_player
+        active_player.discard(card)
         self._continue_game_if_enough_players()
+        self.add_action(Action(initiator=active_player, description="discarded_card", card=card))
 
     def play_auto(self):
         if self.active_player.on_last_line or not self.active_player.has_remaining_moves_to_play:
@@ -239,9 +276,9 @@ class Game:
     @property
     def last_action(self):
         if len(self._actions) == 0:
-            return None
-        else:
-            return self._actions[-1]
+            return nothing_has_happened_action
+
+        return self._actions[-1]
 
     @property
     def nb_turns(self):

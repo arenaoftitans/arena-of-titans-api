@@ -107,5 +107,3 @@ def _play_special_action_on_target(request, game, action, target):
             raise AotErrorToDisplay("wrong_square")
 
     game.play_special_action(action, target=target, context=context)
-    last_action = game.active_player.last_action
-    game.add_action(last_action)

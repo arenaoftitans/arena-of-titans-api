@@ -20,7 +20,6 @@ from aot.game.trumps.exceptions import (
     GaugeTooLowToPlayTrumpError,
     MaxNumberAffectingTrumpsError,
     MaxNumberTrumpPlayedError,
-    TrumpHasNoEffectError,
 )
 
 from ..serializers import get_global_game_message, get_private_player_state
@@ -36,12 +35,7 @@ def play_trump(request, game):
     target = _get_trump_target(request, game, trump)
     context = _get_trump_context(request, game)
 
-    try:
-        _play_trump_with_target(game, trump, target, context)
-    except TrumpHasNoEffectError:
-        pass
-    finally:
-        game.add_action(game.active_player.last_action)
+    _play_trump_with_target(game, trump, target, context)
 
     return WsResponse(
         send_to_all=[get_global_game_message(game)],
