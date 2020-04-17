@@ -89,7 +89,7 @@ class Api:
 
     async def process_message(self, message):
         self.logger.debug(
-            f"Possessing message of player {self._id} in game {self._game_id}: {message}"
+            f"Processing message of player {self._id} in game {self._game_id}: {message}"
         )
 
         self._message = message
@@ -176,14 +176,15 @@ class Api:
         self._clients_pending_disconnection_from_game.discard(self.id)
 
     async def _process_lobby_request(self):
-        if not await self._current_request_allowed:
+        if not await self._is_lobby_request_allowed:
             raise AotErrorToDisplay("game_master_request", {"rt": self._request_type})
 
-        self._message["player_id"] = self.id
-        self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
+        request = self._message["request"]
+        request["player_id"] = self.id
+        request["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-        response = self._lobby_request_types_to_views[self._request_type](
-            self._message, self._cache
+        response = await self._lobby_request_types_to_views[self._request_type](
+            request, self._cache
         )
 
         if self._request_type in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
@@ -324,11 +325,8 @@ class Api:
         return await self._cache.has_game_started()
 
     @property
-    async def _current_request_allowed(self):
-        return await self._cache.is_game_master() or self._request_type in (
-            RequestTypes.SLOT_UPDATED,
-            RequestTypes.CREATE_LOBBY,
-        )
+    async def _is_lobby_request_allowed(self):
+        return await self._cache.is_game_master() or self._request_type != RequestTypes.CREATE_GAME
 
     @property
     async def _can_reconnect(self):

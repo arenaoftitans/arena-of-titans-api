@@ -70,12 +70,19 @@ class AotWs(WebSocketServerProtocol):
     _loop = None
     _id = None
 
+    def set_event_loop_for_testing(self, event_loop):
+        self._loop = event_loop
+
     async def onOpen(self):
         self._id = self._wskey
         self._clients[self.id] = self
-        self._loop = asyncio.get_event_loop()
+        if self._loop is None:
+            self._loop = asyncio.get_event_loop()
         self._api = AotApi(
-            default_id=self.id, loop=self._loop, cache=Cache(), ai_delay=config["ai"]["delay"],
+            default_id=self.id,
+            loop=self._loop,
+            cache=Cache(loop=self._loop),
+            ai_delay=config["ai"]["delay"],
         )
 
     async def onMessage(self, payload, is_binary):
@@ -141,24 +148,16 @@ class AotWs(WebSocketServerProtocol):
     async def send_messages(self, messages):
         sent_messages = []
         for message in messages:
-            sent_messages.append(self.sendMessage(message))
+            sent_messages.append(self._send_message(message))
         await asyncio.gather(*sent_messages)
 
-    async def sendMessage(
-        self, message, is_binary=False, fragment_size=None, sync=False, do_not_compress=False
-    ):
+    async def _send_message(self, message):
         if isinstance(message, dict):
             message = json.dumps(message, default=to_json)
         self.logger.debug(f"Sending to {self.id}: {message}")
         message = message.encode("utf-8")
         # Must not use await here: sendMessage in the base class is not a coroutine.
-        super().sendMessage(
-            message,
-            isBinary=is_binary,
-            fragmentSize=fragment_size,
-            sync=sync,
-            doNotCompress=do_not_compress,
-        )
+        self.sendMessage(message)
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
         self.logger.info(

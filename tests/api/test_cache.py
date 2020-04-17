@@ -52,6 +52,7 @@ def test_connect_tcp_socket(mocker):  # noqa: F811
         port=cfg["cache"]["port"],
         connect_timeout=cfg["cache"]["timeout"],
         stream_timeout=cfg["cache"]["timeout"],
+        loop=None,
     )
 
 
@@ -496,12 +497,12 @@ async def test_slot_exists(cache):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_get_slot_from_game_id(cache, cache_cls):  # noqa: F811
+async def test_get_slot_from_game_id(cache, cache_cls, mocker):  # noqa: F811
     slot = {
         "index": 0,
     }
     cache.lindex = AsyncMock(return_value=cache_cls.dumps(slot))
-    cache_cls._get_redis_instance = MagicMock(return_value=cache)
+    mocker.patch.object(cache_cls, "_get_redis_instance", MagicMock(return_value=cache))
 
     assert await cache_cls.get_slot_from_game_id(0, "game_id") == slot
     cache.lindex.assert_called_once_with("slots:game_id", 0)

@@ -28,7 +28,7 @@ from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResp
 
 
 async def create_lobby(request, cache):
-    game_id = base64.urlsafe_b64encode(uuid.uuid4().bytes).replace(b"=", b"").decode("ascii")
+    game_id = _create_game_id()
     request["game_id"] = game_id
     cache.init(game_id=game_id, player_id=request["player_id"])
     game_config = GAME_CONFIGS["standard"]
@@ -36,7 +36,11 @@ async def create_lobby(request, cache):
         test=request.get("test", False), nb_slots=game_config["number_players"],
     )
 
-    return join_game(request, cache)
+    return await join_game(request, cache)
+
+
+def _create_game_id():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes).replace(b"=", b"").decode("ascii")
 
 
 async def create_game(request, cache):
@@ -74,6 +78,7 @@ async def _initialize_game(cache, submitted_player_descriptions):
         if player:
             index = player["index"]
             player["id"] = slots[index].get("player_id", None)
+            player["hero"] = slots[index]["hero"]
             player["is_ai"] = slots[index]["state"] == SlotState.AI
 
     game = create_game_for_players(submitted_player_descriptions, cache.game_id)

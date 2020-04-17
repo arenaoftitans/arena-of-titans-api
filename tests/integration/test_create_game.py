@@ -51,6 +51,13 @@ def event_loop():
     loop.close()
 
 
+@pytest.fixture(scope="module")
+def create_new_cache_instance(event_loop):
+    """This is to prevent issues from interaction with the cache unit tests."""
+    config.setup_config()
+    Cache.create_new_instance(loop=event_loop)
+
+
 class TestCreateGame:
     game_master_id = "test-game-master-id"
     player_id = "player_id"
@@ -68,10 +75,8 @@ class TestCreateGame:
         cls.player_ws._wskey = cls.player_id
         cls.player_ws.sendMessage = AsyncMock()
 
-        config.setup_config()
-
     @pytest.fixture(scope="function", autouse=True)
-    def reset_send_message_calls(self, event_loop):
+    def reset_send_message_calls(self, event_loop, create_new_cache_instance):
         self.game_master_ws.set_event_loop_for_testing(event_loop)
         self.player_ws.set_event_loop_for_testing(event_loop)
 
