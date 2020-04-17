@@ -16,14 +16,17 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
+from aot.game.cards.exceptions import CardNotFound
+
 from ..serializers import get_global_game_message, get_private_player_messages_by_ids
 from ..utils import AotErrorToDisplay, RequestTypes, WsResponse
 from .play_utils import get_square
 
 
 def view_possible_squares(request, game):
-    card = _get_card(request, game)
-    if card is None:
+    try:
+        card = _get_card(request, game)
+    except CardNotFound:
         raise AotErrorToDisplay("wrong_card")
 
     possible_squares = game.view_possible_squares(card)
@@ -44,16 +47,20 @@ def play_card(request, game):
     if request.get("pass", False):
         game.pass_turn()
     elif request.get("discard", False):
-        card = _get_card(request, game)
-        if card is None:
+        try:
+            card = _get_card(request, game)
+        except CardNotFound:
             raise AotErrorToDisplay("wrong_card")
-        game.discard(card)
+        else:
+            game.discard(card)
     else:
-        card = _get_card(request, game)
-        square = get_square(request, game)
-        if card is None:
+        try:
+            card = _get_card(request, game)
+        except CardNotFound:
             raise AotErrorToDisplay("wrong_card")
-        elif square is None or not game.can_move(card, square):
+
+        square = get_square(request, game)
+        if square is None or not game.can_move(card, square):
             raise AotErrorToDisplay("wrong_square")
         has_special_actions = game.play_card(card, square)
 

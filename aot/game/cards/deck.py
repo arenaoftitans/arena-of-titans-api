@@ -22,6 +22,7 @@ import random
 
 from ..board import Color
 from .card import Card
+from .exceptions import CardNotFound
 
 
 class Deck:
@@ -110,8 +111,10 @@ class Deck:
             card for card in self._hand if card.name == card_name and card.color == card_color
         ]
 
-        if len(matching_cards) >= 1:
-            return matching_cards[0]
+        if len(matching_cards) != 1:
+            raise CardNotFound
+
+        return matching_cards[0]
 
     @property
     def graveyard(self):

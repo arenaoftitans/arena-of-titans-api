@@ -95,7 +95,7 @@ def _get_action(request, game):
 
 def _get_target(request, game):
     target_index = request.get("target_index", None)
-    return game.players[target_index]
+    return game.get_player_by_index(target_index)
 
 
 def _play_special_action_on_target(request, game, action, target):
