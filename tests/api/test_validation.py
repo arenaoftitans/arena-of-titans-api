@@ -62,3 +62,41 @@ def test_sanitize_player_name():
     )
 
     assert message["request"]["slot"]["player_name"] == "while(true)"
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        pytest.param(
+            {
+                "rt": "update_slot",
+                "request": {
+                    "slot": {
+                        "player_name": "<script></script>",
+                        "index": 0,
+                        "state": "taken",
+                        "player_id": "1",
+                    }
+                },
+            },
+            id="update_slot",
+        ),
+        pytest.param(
+            {
+                "rt": "join_game",
+                "request": {
+                    "game_id": "game_id",
+                    "player_id": "player_id",
+                    "hero": "kharliass",
+                    "player_name": "<p></p>",
+                },
+            },
+            id="update_slot",
+        ),
+    ],
+)
+def test_sanitize_empty_player_name(snapshot, message):
+    with pytest.raises(ValidationError) as e:
+        validate(message)
+
+    snapshot.assert_match(e.value.errors)

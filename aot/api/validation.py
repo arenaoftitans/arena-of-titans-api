@@ -76,6 +76,11 @@ def _to_color(value: str):
     return Color[value.upper()]
 
 
+def _force_non_empty_player_name_in_slot(field, value, error):
+    if value["state"] == SlotState.TAKEN and not value["player_name"]:
+        error(field, "'player_name' cannot be empty if slot is taken")
+
+
 _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
     {
         RequestTypes.CREATE_LOBBY: Validator(
@@ -91,6 +96,7 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                 "game_id": {"type": "string", "empty": False},
                 "player_id": {"type": "string", "empty": False},
                 "hero": {"type": "string", "allowed": _generate_heroes_list()},
+                "player_name": {"type": "string", "coerce": (str, sanitize), "empty": False},
             },
             require_all=True,
         ),
@@ -99,6 +105,7 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                 "slot": {
                     "type": "dict",
                     "require_all": True,
+                    "check_with": _force_non_empty_player_name_in_slot,
                     "schema": {
                         "player_name": {"type": "string", "coerce": (str, sanitize), "default": ""},
                         "index": {"type": "integer"},

@@ -24,7 +24,7 @@ from ...config import config
 from ...game.config import GAME_CONFIGS
 from ..game_factory import create_game_for_players
 from ..serializers import get_global_game_message, get_private_player_messages_by_ids
-from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResponse, sanitize
+from ..utils import AotError, AotErrorToDisplay, RequestTypes, SlotState, WsResponse
 
 
 async def create_lobby(request, cache):
@@ -90,8 +90,7 @@ async def join_game(request, cache):
         raise AotErrorToDisplay("cannot_join")
 
     cache.init(game_id=request["game_id"], player_id=request["player_id"])
-    player_name = sanitize(request["player_name"])
-    index = await cache.affect_next_slot(player_name, request["hero"])
+    index = await cache.affect_next_slot(request["player_name"], request["hero"])
     await cache.save_session(index)
 
     return WsResponse(

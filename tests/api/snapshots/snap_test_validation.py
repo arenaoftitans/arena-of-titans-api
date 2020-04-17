@@ -28,3 +28,15 @@ snapshots['test_validate_valid_message 1'] = {
     'player_id': 'test',
     'test': False
 }
+
+snapshots['test_sanitize_empty_player_name[update_slot0] 1'] = {
+    'slot': [
+        "'player_name' cannot be empty if slot is taken"
+    ]
+}
+
+snapshots['test_sanitize_empty_player_name[update_slot1] 1'] = {
+    'player_name': [
+        'empty values not allowed'
+    ]
+}
