@@ -79,9 +79,10 @@ class AotWs(WebSocketServerProtocol):
         )
 
     async def onMessage(self, payload, is_binary):
-        message = json.loads(payload.decode("utf-8"))
+        message = {}
 
         try:
+            message = json.loads(payload.decode("utf-8"))
             validated_message = validate(message)
             response = await self._api.process_message(validated_message)
             self._handle_id_change()
