@@ -42,6 +42,12 @@ def mocked_choices(a_list, weights=None, k=None):
     return a_list[:k]
 
 
+def mocked_sample_reversed(a_list: list, k: int):
+    new_list = a_list.copy()
+    new_list.reverse()
+    return new_list
+
+
 @pytest.fixture
 def board():
     return Board(TEST_CONFIG["board"])
@@ -88,11 +94,14 @@ def player2(mocker, board, deck):
 @pytest.fixture
 def game(mocker):
     mocker.patch("aot.api.game_factory.random.choices", mocked_choices)
+    # We reverse a stable list of cards. Since it is stable, the Assassin are always first. And they
+    # have special actions which makes them harder to handle in tests.
+    mocker.patch("aot.game.cards.deck.random.sample", mocked_sample_reversed)
     players_description = [
         {"name": "Player {}".format(i), "index": i, "id": i, "hero": "Ulya"}
         for i in range(TEST_CONFIG["number_players"])
     ]
-    g = create_game_for_players(players_description, name="test")
+    g = create_game_for_players(players_description, name="test", game_id="game_id")
     for player in g.players:
         player.is_connected = True
 

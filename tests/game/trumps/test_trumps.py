@@ -94,7 +94,7 @@ def test_affect_modify_card_colors(initiator, target):
     effect = trump.create_effect(initiator=initiator, target=target, context={})
     effect.apply()
 
-    target.modify_card_colors.assert_called_once_with({"BLACK"}, filter_=AnyFunction())
+    target.modify_card_colors.assert_called_once_with({Color.BLACK}, filter_=AnyFunction())
 
 
 def test_affect_modify_card_colors_with_filter(target, initiator):
@@ -109,7 +109,7 @@ def test_affect_modify_card_colors_with_filter(target, initiator):
     effect.apply()
 
     assert target.modify_card_colors.called
-    assert target.modify_card_colors.call_args[0][0] == {"BLACK"}
+    assert target.modify_card_colors.call_args[0][0] == {Color.BLACK}
     assert callable(target.modify_card_colors.call_args[1]["filter_"])
     filter_ = target.modify_card_colors.call_args[1]["filter_"]
     assert filter_(queen)

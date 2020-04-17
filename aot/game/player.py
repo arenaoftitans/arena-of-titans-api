@@ -113,7 +113,7 @@ class Player:
         return square in self._deck.view_possible_squares(card, self._current_square)
 
     def play_card(self, card, square, check_move=True):
-        if not card and check_move:
+        if card is None:
             return
         elif not self.has_remaining_moves_to_play:
             return

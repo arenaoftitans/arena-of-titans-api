@@ -508,7 +508,7 @@ def test_play_trump_target_type_board(board, player):  # noqa: F811
     square = {
         "x": 0,
         "y": 0,
-        "color": "blue",
+        "color": Color.BLUE,
     }
 
     assert player._board[0, 0].color == Color.RED

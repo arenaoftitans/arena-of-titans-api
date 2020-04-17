@@ -20,5 +20,5 @@
 from ..exceptions import GameError
 
 
-class CardNotFound(GameError):
+class CardNotFoundError(GameError):
     pass

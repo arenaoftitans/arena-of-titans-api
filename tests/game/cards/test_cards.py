@@ -28,7 +28,7 @@ from tests.factories import TeleportSpecialActionFactory
 
 CARD_DICT = {
     "number_movements": 1,
-    "color": "blue",
+    "color": Color.BLUE,
     "complementary_colors": set(),
     "name": "",
     "movements_types": [],
@@ -40,7 +40,7 @@ def edge_card_properties():
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("diagonal")
     card_properties["movements_types"].append("line")
-    card_properties["color"] = "all"
+    card_properties["color"] = Color.ALL
     return card_properties
 
 
@@ -49,7 +49,7 @@ def test_set_color_to_special_action():  # noqa: F811
         [TeleportSpecialActionFactory(trump_args={"name": "Teleport", "color": Color.RED})]
     )
 
-    card = Card(None, color="red", special_actions=actions)
+    card = Card(None, color=Color.RED, special_actions=actions)
 
     assert len(card.special_actions) == 1
     action = card.special_actions[0]
@@ -61,13 +61,13 @@ def test_line_card(board):  # noqa: F811
     card_properties["movements_types"].append("line")
 
     card = Card(board, **card_properties)
-    assert card.move(board[6, 9]) == {Square(5, 9, "BLUE")}
+    assert card.move(board[6, 9]) == {Square(5, 9, Color.BLUE)}
 
-    card_properties["color"] = "yellow"
+    card_properties["color"] = Color.YELLOW
     card = Card(board, **card_properties)
-    assert card.move(Square(9, 4, "YELLOW")) == {
-        Square(9, 5, "YELLOW"),
-        Square(8, 4, "YELLOW"),
+    assert card.move(Square(9, 4, Color.YELLOW)) == {
+        Square(9, 5, Color.YELLOW),
+        Square(8, 4, Color.YELLOW),
     }
 
 
@@ -75,16 +75,16 @@ def test_line_card_two_moves(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["number_movements"] = 2
     card_properties["movements_types"].append("line")
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
     board.free_all_squares()
 
     card = Card(board, **card_properties)
-    assert card.move(Square(0, 0, "RED")) == {
-        Square(0, 1, "RED"),
-        Square(1, 1, "RED"),
-        Square(0, 2, "RED"),
-        Square(x=1, y=0, color="RED"),
-        Square(x=2, y=0, color="RED"),
+    assert card.move(Square(0, 0, Color.RED)) == {
+        Square(0, 1, Color.RED),
+        Square(1, 1, Color.RED),
+        Square(0, 2, Color.RED),
+        Square(x=1, y=0, color=Color.RED),
+        Square(x=2, y=0, color=Color.RED),
     }
 
 
@@ -101,7 +101,7 @@ def test_line_card_over_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("line")
     card_properties["number_movements"] = 2
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
     board.free_all_squares()
 
     card = Card(board, **card_properties)
@@ -118,16 +118,16 @@ def test_diagonal_card(board):  # noqa: F811
     card_properties["movements_types"].append("diagonal")
 
     card = Card(board, **card_properties)
-    assert card.move(Square(5, 8, "RED")) == {
-        Square(x=6, y=9, color="BLUE"),
+    assert card.move(Square(5, 8, Color.RED)) == {
+        Square(x=6, y=9, color=Color.BLUE),
     }
 
     card_properties["number_movements"] = 2
     card = Card(board, **card_properties)
-    assert card.move(Square(2, 8, "RED")) == {
-        Square(x=4, y=8, color="BLUE"),
-        Square(x=3, y=7, color="BLUE"),
-        Square(x=2, y=6, color="BLUE"),
+    assert card.move(Square(2, 8, Color.RED)) == {
+        Square(x=4, y=8, color=Color.BLUE),
+        Square(x=3, y=7, color=Color.BLUE),
+        Square(x=2, y=6, color=Color.BLUE),
     }
 
 
@@ -139,7 +139,7 @@ def test_diagonal_card_occupied_square(board):  # noqa: F811
     board[31, 1].occupied = True
     board[1, 1].occupied = True
     board[0, 2].occupied = True
-    assert card.move(Square(0, 0, "BLUE")) == set()
+    assert card.move(Square(0, 0, Color.BLUE)) == set()
 
 
 def test_line_diagonal_card(board):  # noqa: F811
@@ -148,59 +148,59 @@ def test_line_diagonal_card(board):  # noqa: F811
     card_properties["movements_types"].append("line")
 
     card = Card(board, **card_properties)
-    assert card.move(Square(5, 8, "RED")) == {
-        Square(x=6, y=9, color="BLUE"),
-        Square(x=5, y=9, color="BLUE"),
-        Square(x=4, y=8, color="BLUE"),
+    assert card.move(Square(5, 8, Color.RED)) == {
+        Square(x=6, y=9, color=Color.BLUE),
+        Square(x=5, y=9, color=Color.BLUE),
+        Square(x=4, y=8, color=Color.BLUE),
     }
 
 
 def test_line_diagonal_card_two_moves(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["number_movements"] = 2
-    card_properties["complementary_colors"] = {"RED"}
+    card_properties["complementary_colors"] = {Color.RED}
     card_properties["movements_types"].append("diagonal")
     card_properties["movements_types"].append("line")
 
     card = Card(board, **card_properties)
-    assert card.move(Square(8, 2, "BLUE")) == {
-        Square(x=9, y=2, color="RED"),
-        Square(x=7, y=2, color="BLUE"),
-        Square(x=8, y=1, color="BLUE"),
-        Square(x=10, y=3, color="RED"),
-        Square(x=8, y=2, color="RED"),
-        Square(x=6, y=3, color="BLUE"),
+    assert card.move(Square(8, 2, Color.BLUE)) == {
+        Square(x=9, y=2, color=Color.RED),
+        Square(x=7, y=2, color=Color.BLUE),
+        Square(x=8, y=1, color=Color.BLUE),
+        Square(x=10, y=3, color=Color.RED),
+        Square(x=8, y=2, color=Color.RED),
+        Square(x=6, y=3, color=Color.BLUE),
     }
 
 
 def test_line_diagonal_card_two_moves2(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["number_movements"] = 2
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
     card_properties["movements_types"].append("diagonal")
     card_properties["movements_types"].append("line")
 
     card = Card(board, **card_properties)
-    assert card.move(Square(0, 7, "RED")) == {
-        Square(2, 8, "RED"),
-        Square(1, 5, "RED"),
-        Square(1, 6, "RED"),
-        Square(1, 7, "RED"),
+    assert card.move(Square(0, 7, Color.RED)) == {
+        Square(2, 8, Color.RED),
+        Square(1, 5, Color.RED),
+        Square(1, 6, Color.RED),
+        Square(1, 7, Color.RED),
     }
 
 
 def test_line_diagonal_card_two_moves3(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["number_movements"] = 2
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
     card_properties["movements_types"].append("diagonal")
     card_properties["movements_types"].append("line")
 
     card = Card(board, **card_properties)
-    assert card.move(Square(0, 8, "RED")) == {
-        Square(2, 8, "RED"),
-        Square(1, 7, "RED"),
-        Square(1, 6, "RED"),
+    assert card.move(Square(0, 8, Color.RED)) == {
+        Square(2, 8, Color.RED),
+        Square(1, 7, Color.RED),
+        Square(1, 6, Color.RED),
     }
 
 
@@ -208,22 +208,22 @@ def test_multiple_colors_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("diagonal")
     card_properties["movements_types"].append("line")
-    card_properties["color"] = "blue"
-    card_properties["complementary_colors"].add("red")
+    card_properties["color"] = Color.BLUE
+    card_properties["complementary_colors"].add(Color.RED)
 
     card = Card(board, **card_properties)
     assert card.move(board[6, 8]) == {
-        Square(x=5, y=7, color="RED"),
-        Square(x=6, y=9, color="BLUE"),
-        Square(x=5, y=9, color="BLUE"),
-        Square(x=6, y=7, color="RED"),
+        Square(x=5, y=7, color=Color.RED),
+        Square(x=6, y=9, color=Color.BLUE),
+        Square(x=5, y=9, color=Color.BLUE),
+        Square(x=6, y=7, color=Color.RED),
     }
 
 
 def test_knight_no_move(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("knight")
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
 
     card = Card(board, **card_properties)
     assert card.move(board[6, 8]) == set()
@@ -232,40 +232,40 @@ def test_knight_no_move(board):  # noqa: F811
 def test_knight_card(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("knight")
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
 
     # Up right
     card = Card(board, **card_properties)
     assert card.move(board[0, 8]) == {
-        Square(1, 6, "red"),
+        Square(1, 6, Color.RED),
     }
 
     # Up left
     assert card.move(board[3, 7]) == {
-        Square(1, 6, "red"),
+        Square(1, 6, Color.RED),
     }
 
     # Down left
     assert card.move(board[1, 6]) == {
-        Square(2, 8, "red"),
+        Square(2, 8, Color.RED),
     }
 
     # Down right
     assert card.move(board[2, 3]) == {
-        Square(x=1, y=5, color="RED"),
-        Square(x=4, y=4, color="RED"),
+        Square(x=1, y=5, color=Color.RED),
+        Square(x=4, y=4, color=Color.RED),
     }
 
 
 def test_knight_occupied_square(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card_properties["movements_types"].append("knight")
-    card_properties["color"] = "red"
+    card_properties["color"] = Color.RED
 
     board[0, 6].occupied = True
     card = Card(board, **card_properties)
     assert card.move(board[0, 8]) == {
-        Square(1, 6, "red"),
+        Square(1, 6, Color.RED),
     }
 
 
@@ -301,19 +301,19 @@ def test_revert_number_moves(board):  # noqa: F811
 def test_modify_colors(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card = Card(board, **card_properties)
-    assert card._colors == ColorSet(["BLUE"])
+    assert card._colors == ColorSet([Color.BLUE])
 
-    card.modify_colors({"RED"})
+    card.modify_colors({Color.RED})
 
-    assert card._colors == {"RED"}
+    assert card._colors == {Color.RED}
 
 
 def test_modify_colors(board):  # noqa: F811
     card_properties = deepcopy(CARD_DICT)
     card = Card(board, **card_properties)
-    assert card._colors == ColorSet(["BLUE"])
+    assert card._colors == ColorSet([Color.BLUE])
 
-    card.modify_colors({"ALL"})
+    card.modify_colors({Color.ALL})
 
     assert isinstance(card._colors, ColorSet)
     assert len(card._colors) == 4

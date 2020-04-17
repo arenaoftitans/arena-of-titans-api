@@ -25,6 +25,7 @@ import pytest
 
 from aot.api.cache import Cache
 from aot.api.security import decode
+from aot.api.utils import SlotState
 from aot.config import config
 
 
@@ -141,7 +142,7 @@ async def test_game_exists(cache, game):  # noqa: F811
 @pytest.mark.asyncio
 async def test_has_opened_slots(mocker, cache):  # noqa: F811
     cache._cache.lrange = AsyncMock(
-        return_value=dumps_list(cache, [{"state": "OPEN"}, {"state": "CLOSED"}]),
+        return_value=dumps_list(cache, [{"state": SlotState.OPEN}, {"state": SlotState.CLOSED}]),
     )
 
     assert await cache.has_opened_slots("game_id")
@@ -151,8 +152,8 @@ async def test_has_opened_slots(mocker, cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_get_slots_with_game_id(mocker, cache):  # noqa: F811
     slots = [
-        {"state": "OPEN", "player_id": "id0"},
-        {"state": "CLOSED", "player_id": "id1"},
+        {"state": SlotState.OPEN, "player_id": "id0"},
+        {"state": SlotState.CLOSED, "player_id": "id1"},
     ]
     cache._cache.lrange = AsyncMock(return_value=dumps_list(cache, slots))
 
@@ -165,8 +166,8 @@ async def test_get_slots_with_game_id(mocker, cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_get_slots_without_game_id(mocker, cache):  # noqa: F811
     slots = [
-        {"state": "OPEN", "player_id": "id0"},
-        {"state": "CLOSED", "player_id": "id1"},
+        {"state": SlotState.OPEN, "player_id": "id0"},
+        {"state": SlotState.CLOSED, "player_id": "id1"},
     ]
     cache._cache.lrange = AsyncMock(return_value=dumps_list(cache, slots))
 
@@ -179,8 +180,8 @@ async def test_get_slots_without_game_id(mocker, cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_get_slots_exclude_player_ids(cache):  # noqa: F811
     slots = [
-        {"state": "OPEN", "player_id": "id0"},
-        {"state": "CLOSED", "player_id": "id1"},
+        {"state": SlotState.OPEN, "player_id": "id0"},
+        {"state": SlotState.CLOSED, "player_id": "id1"},
     ]
     cache._cache.lrange = AsyncMock(return_value=dumps_list(cache, slots))
     for slot in slots:
@@ -241,8 +242,6 @@ async def test_is_test(cache):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_get_game(cache, game):  # noqa: F811
-    game.game_id = "game-id"
-
     cache._cache.hget = AsyncMock(return_value=cache.dumps(game))
     assert await cache.get_game() == game
     cache._cache.hget.assert_called_once_with("game:game_id", "game")
@@ -290,19 +289,23 @@ async def test_is_game_master(cache):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_number_taken_slots(cache):  # noqa: F811
-    slots = [{"state": "TAKEN"}, {"state": "OPEN"}, {"state": "AI"}]
+    slots = [{"state": SlotState.TAKEN}, {"state": SlotState.OPEN}, {"state": SlotState.AI}]
     cache.get_slots = AsyncMock(return_value=deepcopy(slots))
     assert await cache.number_taken_slots() == 2
 
 
 @pytest.mark.asyncio
 async def test_affect_next_slot(cache):  # noqa: F811
-    slots = [{"state": "TAKEN"}, {"state": "OPEN", "index": 1}, {"state": "AI"}]
+    slots = [
+        {"state": SlotState.TAKEN},
+        {"state": SlotState.OPEN, "index": 1},
+        {"state": SlotState.AI},
+    ]
     cache.get_slots = AsyncMock(return_value=deepcopy(slots))
     cache.update_slot = AsyncMock()
     slot = slots[1]
     slot["player_id"] = "player_id"
-    slot["state"] = "TAKEN"
+    slot["state"] = SlotState.TAKEN
     slot["player_name"] = "Player"
     slot["hero"] = "daemon"
 
@@ -313,7 +316,7 @@ async def test_affect_next_slot(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_free(cache):  # noqa: F811
     cache_slot = {
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
         "player_id": "player_id",
         "index": 0,
     }
@@ -322,10 +325,10 @@ async def test_update_slot_free(cache):  # noqa: F811
     slot = {
         "player_id": "player_id",
         "index": 0,
-        "state": "OPEN",
+        "state": SlotState.OPEN,
     }
     del cache_slot["player_id"]
-    cache_slot["state"] = "OPEN"
+    cache_slot["state"] = SlotState.OPEN
 
     await cache.update_slot(slot)
 
@@ -335,7 +338,7 @@ async def test_update_slot_free(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_close(cache):  # noqa: F811
     cache_slot = {
-        "state": "AI",
+        "state": SlotState.AI,
         "player_name": "AI 2",
         "index": 0,
     }
@@ -344,11 +347,11 @@ async def test_update_slot_close(cache):  # noqa: F811
     cache.is_game_master = AsyncMock(return_value=True)
     slot = {
         "index": 0,
-        "state": "CLOSED",
+        "state": SlotState.CLOSED,
         "player_name": "AI 2",
     }
     del cache_slot["player_name"]
-    cache_slot["state"] = "CLOSED"
+    cache_slot["state"] = SlotState.CLOSED
 
     await cache.update_slot(slot)
 
@@ -358,7 +361,7 @@ async def test_update_slot_close(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_open(cache):  # noqa: F811
     cache_slot = {
-        "state": "AI",
+        "state": SlotState.AI,
         "player_name": "AI 2",
         "index": 0,
     }
@@ -367,11 +370,11 @@ async def test_update_slot_open(cache):  # noqa: F811
     cache.is_game_master = AsyncMock(return_value=True)
     slot = {
         "index": 0,
-        "state": "OPEN",
+        "state": SlotState.OPEN,
         "player_name": "AI 2",
     }
     del cache_slot["player_name"]
-    cache_slot["state"] = "OPEN"
+    cache_slot["state"] = SlotState.OPEN
 
     await cache.update_slot(slot)
 
@@ -381,7 +384,7 @@ async def test_update_slot_open(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_update_not_game_master(cache):  # noqa: F811
     cache_slot = {
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
         "player_id": "player_id",
         "index": 0,
     }
@@ -391,7 +394,7 @@ async def test_update_slot_update_not_game_master(cache):  # noqa: F811
         "player_id": "player_id",
         "hero": "daemon",
         "index": 0,
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
     }
     cache_slot["hero"] = "daemon"
 
@@ -403,17 +406,17 @@ async def test_update_slot_update_not_game_master(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_update_game_master(cache):  # noqa: F811
     cache_slot = {
-        "state": "OPEN",
+        "state": SlotState.OPEN,
         "index": 0,
     }
     cache.get_slot = AsyncMock(return_value=deepcopy(cache_slot))
     cache._save_slot = AsyncMock()
     cache.is_game_master = AsyncMock(return_value=True)
     slot = {
-        "state": "AI",
+        "state": SlotState.AI,
         "index": 0,
     }
-    cache_slot["state"] = "AI"
+    cache_slot["state"] = SlotState.AI
 
     await cache.update_slot(slot)
 
@@ -423,17 +426,17 @@ async def test_update_slot_update_game_master(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_update_game_master_taken(cache):  # noqa: F811
     cache_slot = {
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
         "index": 0,
     }
     cache.get_slot = AsyncMock(return_value=deepcopy(cache_slot))
     cache._save_slot = AsyncMock()
     cache.is_game_master = AsyncMock(return_value=True)
     slot = {
-        "state": "AI",
+        "state": SlotState.AI,
         "index": 0,
     }
-    cache_slot["state"] = "AI"
+    cache_slot["state"] = SlotState.AI
 
     await cache.update_slot(slot)
 
@@ -443,18 +446,18 @@ async def test_update_slot_update_game_master_taken(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_update_slot_take(cache):  # noqa: F811
     cache_slot = {
-        "state": "OPEN",
+        "state": SlotState.OPEN,
         "index": 0,
     }
     cache.get_slot = AsyncMock(return_value=deepcopy(cache_slot))
     cache._save_slot = AsyncMock()
     slot = {
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
         "player_id": "player_id",
         "index": 0,
     }
     cache_slot["player_id"] = "player_id"
-    cache_slot["state"] = "TAKEN"
+    cache_slot["state"] = SlotState.TAKEN
 
     await cache.update_slot(slot)
 
@@ -464,7 +467,7 @@ async def test_update_slot_take(cache):  # noqa: F811
 @pytest.mark.asyncio
 async def test_save_slot(cache):  # noqa: F811
     slot = {
-        "state": "TAKEN",
+        "state": SlotState.TAKEN,
         "index": 0,
     }
     cache._cache.lset = AsyncMock()

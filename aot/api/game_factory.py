@@ -67,7 +67,7 @@ def create_game_for_players(players_description, game_id, name="standard"):
                 power=power,
             )
         players.append(player)
-    return Game(board, players)
+    return Game(board, players, game_id=game_id)
 
 
 def build_cards_list(config, board):
@@ -133,7 +133,7 @@ def _get_special_actions(description, color):
 def _get_additional_colors(color, additional_movements_color, complementary_colors):  # noqa: E503
     additional_colors = set()
     additional_colors.update([Color[col] for col in additional_movements_color])
-    additional_colors.update([Color[col] for col in complementary_colors.get(color, [])])
+    additional_colors.update([Color[col] for col in complementary_colors.get(color.name, [])])
     return additional_colors
 
 

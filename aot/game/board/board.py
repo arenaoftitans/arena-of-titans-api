@@ -17,7 +17,7 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .square import Square, SquareSet
+from .square import Color, Square, SquareSet
 
 
 class Board:
@@ -26,7 +26,7 @@ class Board:
         self._updated_squares = []
         for square in board_description["squares"]:
             type_ = square["type"]
-            color = board_description["squares-types-to-colors"].get(type_)
+            color = Color[board_description["squares-types-to-colors"].get(type_)]
             x = square["x"]
             y = square["y"]
             self._board[(x, y)] = Square(
@@ -67,9 +67,9 @@ class Board:
     def get_neighbors(self, square, movements_types=None):
         neighbors = set()
         if movements_types is None or "line" in movements_types:
-            neighbors.update(self.get_line_squares(square, ["all"]))
+            neighbors.update(self.get_line_squares(square, [Color.ALL]))
         if movements_types is None or "diagonal" in movements_types:
-            neighbors.update(self.get_diagonal_squares(square, ["all"]))
+            neighbors.update(self.get_diagonal_squares(square, [Color.ALL]))
         return neighbors
 
     def get_square_for_player_with_index(self, index):

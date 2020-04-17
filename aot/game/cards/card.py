@@ -59,7 +59,7 @@ class Card:
         }
 
         self._board = board
-        self._color = color if isinstance(color, Color) else Color[color]
+        self._color = color
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
         self._default_colors = set(self._colors)
