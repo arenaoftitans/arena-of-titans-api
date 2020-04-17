@@ -21,10 +21,9 @@
 
 
 import sys
-
 from base64 import b64decode
-from lxml import etree
 
+from lxml import etree
 
 NS = {
     "svg": "http://www.w3.org/2000/svg",
