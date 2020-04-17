@@ -2,12 +2,13 @@
 
 set -eu
 
-command="$1"
+readonly INSIDE_DOCKER=$(grep -q docker /proc/self/cgroup && echo true)
+readonly command="$1"
 # To be sure $@ will only contain the parameters of the command, not the command itself.
 shift
 
-# If we are already in a venv, run directly.
-if [[ -v VIRTUAL_ENV ]]; then
+# If we are already in a venv or if the are in docker, run directly.
+if [[ -v VIRTUAL_ENV || "${INSIDE_DOCKER}" == "true" ]]; then
     echo "Already in venv"
     ${command} "$@"
 
