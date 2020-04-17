@@ -1,0 +1,8 @@
+{
+    "request": {
+        "game_id": "test-game-id",
+        "hero": "Ulya",
+        "player_name": "Player name"
+    },
+    "rt": "join_game"
+}

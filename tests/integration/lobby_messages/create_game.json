@@ -1,0 +1,15 @@
+{
+    "request": {
+        "players": [
+            {
+                "index": 0,
+                "name": "Game master"
+            },
+            {
+                "index": 1,
+                "name": "Player"
+            }
+        ]
+    },
+    "rt": "create_game"
+}
