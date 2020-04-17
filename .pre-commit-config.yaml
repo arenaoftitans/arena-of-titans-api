@@ -26,18 +26,21 @@ repos:
             -   id: black
                 name: black
                 entry: ./scripts/ensure-runs-in-venv.sh
+                exclude: '/snapshots/.*\.py$'
                 args: [black, --line-length=100]
                 language: system
                 types: [python]
             -   id: flake8
                 name: flake8
                 entry: ./scripts/ensure-runs-in-venv.sh
+                exclude: '/snapshots/.*\.py$'
                 args: [flake8]
                 language: system
                 types: [python]
             -   id: license
                 name: license
                 entry: ./scripts/detect-license.sh
+                exclude: '/snapshots/.*\.py$'
                 language: system
                 types: [python]
             -   id: pytest

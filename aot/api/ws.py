@@ -26,7 +26,9 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol
 from ..config import config
 from .api import Api as AotApi
 from .cache import Cache
-from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse, to_json
+from .serializers import to_json
+from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse
+from .validation import ValidationError, validate
 
 
 class AotWs(WebSocketServerProtocol):
@@ -77,12 +79,17 @@ class AotWs(WebSocketServerProtocol):
         )
 
     async def onMessage(self, payload, is_binary):
-        message = json.loads(payload.decode("utf-8"))
+        message = {}
+
         try:
-            response = await self._api.process_message(message)
+            message = json.loads(payload.decode("utf-8"))
+            validated_message = validate(message)
+            response = await self._api.process_message(validated_message)
             self._handle_id_change()
         except AotError as e:
             await self._send_error(e, message)
+        except ValidationError as e:
+            await self._send_response(WsResponse(send_to_current_player=[{"errors": e.errors}]))
         except Exception:
             self.logger.exception("Unexpected error while processing message.")
         else:

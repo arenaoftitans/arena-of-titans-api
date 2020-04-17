@@ -19,16 +19,10 @@
 
 import asyncio
 import dataclasses
-import math
+from enum import Enum
 from typing import Dict, List, Optional
 
 import bleach
-
-from aot.game.board import Board, Square
-from aot.game.trumps import Power
-from aot.game.trumps.effects import TrumpEffect
-
-from ..utils import SimpleEnumMeta
 
 
 class AotError(Exception):
@@ -75,73 +69,30 @@ class WsResponse:
         return dataclasses.replace(self, future_message=future)
 
 
-class RequestTypes(metaclass=SimpleEnumMeta):
-    CREATE_LOBBY = ()
-    JOIN_GAME = ()
-    UPDATE_SLOT = ()
-    CREATE_GAME = ()
-    SLOT_UPDATED = ()
-    SPECIAL_ACTION_NOTIFY = ()
-    SPECIAL_ACTION_PLAY = ()
-    SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS = ()
-    PLAY_CARD = ()
-    VIEW_POSSIBLE_SQUARES = ()
-    PLAY_TRUMP = ()
-    GAME_UPDATED = ()
-    PLAYER_UPDATED = ()
-    RECONNECT = ()
+class RequestTypes(Enum):
+    CREATE_LOBBY = "CREATE_LOBBY"
+    JOIN_GAME = "JOIN_GAME"
+    UPDATE_SLOT = "UPDATE_SLOT"
+    CREATE_GAME = "CREATE_GAME"
+    SLOT_UPDATED = "SLOT_UPDATED"
+    SPECIAL_ACTION_NOTIFY = "SPECIAL_ACTION_NOTIFY"
+    SPECIAL_ACTION_PLAY = "SPECIAL_ACTION_PLAY"
+    SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS = "SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS"
+    PLAY_CARD = "PLAY_CARD"
+    VIEW_POSSIBLE_SQUARES = "VIEW_POSSIBLE_SQUARES"
+    PLAY_TRUMP = "PLAY_TRUMP"
+    GAME_UPDATED = "GAME_UPDATED"
+    PLAYER_UPDATED = "PLAYER_UPDATED"
+    RECONNECT = "RECONNECT"
 
 
-class SlotState(metaclass=SimpleEnumMeta):
-    OPEN = ()
-    CLOSED = ()
-    RESERVED = ()
-    TAKEN = ()
-    AI = ()
+class SlotState(Enum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    RESERVED = "RESERVED"
+    TAKEN = "TAKEN"
+    AI = "AI"
 
 
 def sanitize(string):
     return bleach.clean(string, tags=[], strip=True)
-
-
-def to_json(python_object):  # pragma: no cover
-    if isinstance(python_object, SimpleEnumMeta):
-        return python_object.value
-    elif isinstance(python_object, Square):
-        return {
-            "x": python_object.x,
-            "y": python_object.y,
-        }
-    elif isinstance(python_object, Board):
-        return {"updated_squares": python_object.updated_squares}
-    elif isinstance(python_object, TrumpEffect):
-        data = {
-            "duration": python_object.duration if not math.isinf(python_object.duration) else None,
-            "name": python_object.name,
-            "color": python_object.color,
-            "effect_type": python_object.effect_type,
-        }
-        return data
-    elif isinstance(python_object, (set, frozenset)):
-        return [to_json(element) for element in python_object]
-    elif dataclasses.is_dataclass(python_object):
-        # Our dataclasses may hold a reference to a class which we can't serialize into JSON.
-        trump_like = {
-            key: value
-            for key, value in dataclasses.asdict(python_object).items()
-            if not isinstance(value, type)
-        }
-        if isinstance(trump_like.get("trump_args"), dict):
-            trump_like = {
-                **trump_like,
-                **trump_like["trump_args"],
-            }
-            del trump_like["trump_args"]
-        if isinstance(python_object, Power):
-            trump_like["is_power"] = True
-            trump_like["passive"] = python_object.passive
-
-        return trump_like
-
-    # Normally, this is unreachable
-    raise TypeError(str(python_object) + " is not JSON serializable")  # pragma: no cover
