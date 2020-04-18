@@ -373,7 +373,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 0,
         'hand': [
             {
@@ -485,7 +485,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 0,
         'hand': [
             {
@@ -633,7 +633,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     }
                 ],
                 'can_power_be_played': False,
-                'elapsed_time': 14,
+                'elapsed_time': 10,
                 'gauge_value': 0,
                 'hand': [
                     {
@@ -756,7 +756,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     }
                 ],
                 'can_power_be_played': False,
-                'elapsed_time': 26,
+                'elapsed_time': 10,
                 'gauge_value': 0,
                 'hand': [
                     {
@@ -879,7 +879,7 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 93,
+        'elapsed_time': 10,
         'gauge_value': 1,
         'hand': [
             {
@@ -986,7 +986,7 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 93,
+        'elapsed_time': 10,
         'gauge_value': 0,
         'hand': [
             {
@@ -1103,7 +1103,7 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 1,
         'hand': [
             {
@@ -1215,7 +1215,7 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
             }
         ],
         'can_power_be_played': True,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 0,
         'hand': [
             {
@@ -1332,7 +1332,7 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 0,
         'hand': [
             {
@@ -1449,7 +1449,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
             }
         ],
         'can_power_be_played': False,
-        'elapsed_time': 0,
+        'elapsed_time': 10,
         'gauge_value': 1,
         'hand': [
             {

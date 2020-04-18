@@ -34,7 +34,11 @@ def view_possible_squares(request, game):
         send_to_current_player=[
             {
                 "rt": RequestTypes.VIEW_POSSIBLE_SQUARES,
-                "request": {"possible_squares": possible_squares},
+                "request": {
+                    "possible_squares": sorted(
+                        possible_squares, key=lambda square: (square.x, square.y),
+                    )
+                },
             }
         ]
     )

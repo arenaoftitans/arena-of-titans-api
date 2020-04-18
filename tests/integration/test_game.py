@@ -20,6 +20,7 @@
 import asyncio
 import json
 import logging
+import re
 import sys
 from os import path
 from unittest.mock import AsyncMock
@@ -103,7 +104,10 @@ class IntegrationTestsBase:
         for index, response_call in enumerate(send_message_mock.mock_calls):
             assert len(response_call.args) == 1
             assert response_call.kwargs == {}
-            response = json.loads(response_call.args[0])
+            response_message = re.sub(
+                r'"elapsed_time": \d+', '"elapsed_time": 10', response_call.args[0].decode("utf-8")
+            )
+            response = json.loads(response_message)
             snapshot.assert_match(response, f"{receiver}-{index}")
 
 
