@@ -11,4 +11,4 @@ lint:
 tests:
   stage: checks
   script:
-    - make CI_TESTS_TIMEOUT=5 ci
+    - make CI_TESTS_TIMEOUT=5 tests

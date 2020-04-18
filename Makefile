@@ -1,8 +1,6 @@
 -include Makefile.in
 
-INSIDE_DOCKER := $(shell grep -q docker /proc/self/cgroup && echo true)
 CONTAINER_NAME ?= aot-dev-api
-
 DK_EXEC_CMD ?= docker-compose exec ${CONTAINER_NAME}
 PRECOMMIT_CMD ?= pre-commit
 PYTHON_CMD ?= python3
@@ -25,12 +23,13 @@ help:
 	@echo "- deps: install or update dependencies in the docker container."
 	@echo "- dockerbuild: build the docker image for development. You must pass the VERSION variable."
 	@echo "- dockerpush: push the image. You must pass the VERSION variable."
-	@echo "- dev: launch API for dev. Will reload the API on file change."
+	@echo "- dkdev: launch API for dev. Will reload the API on file change."
 	@echo "- doc: create the doc."
-	@echo "- check: launch lint and testall."
+	@echo "- check: launch lint and tests."
+	@echo "- dkcheck: launch list and tests in docker."
 	@echo "- lint: launch flake8 in docker."
-	@echo "- runlint: launch flake8."
-	@echo "- test: launch unit tests with coverage report."
+	@echo "- tests: launch all tests with coverage report."
+	@echo "- tdd: launch unit tests in watch mode. The tests impacted by a change will be rerun on code change."
 
 
 .PHONY: dockerbuild
@@ -75,12 +74,8 @@ endif
 
 .PHONY: clean
 clean:
-	docker-compose down
-	rm -rf dist
+	docker-compose down || echo "docker-compose down failed. Maybe docker compose is not installed."
 	rm -rf .htmlcov
-	rm -rf .htmlcovapi
-	rm -rf Arena_of_Titans_API.egg-info
-	rm -rf .eggs
 	rm -rf .tmontmp
 	rm -rf .testmondata
 
@@ -92,13 +87,9 @@ clean-pyc-tests:
 
 .PHONY: deps
 deps:
-ifdef INSIDE_DOCKER
 	pip install -U pip
 	pip install pipenv
 	pipenv install --dev --deploy --system
-else
-	${DK_EXEC_CMD} make deps
-endif
 
 
 .PHONY: doc
@@ -106,57 +97,31 @@ doc:
 	cd doc && make html
 
 
-.PHONY: dev
-dev:
-ifdef INSIDE_DOCKER
-	@echo "Cannot be launched within docker, see command in docker compose to see what to do."
-	exit 1
-else
+.PHONY: dkdev
+dkdev:
 	docker-compose up
-endif
 
 
 .PHONY: check
-check: lint testall
+check: lint tests
 
 
-.PHONY: ci
-ci: test
+.PHONY: dkcheck
+dkcheck: clean-pyc-tests
+	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} lint
+	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} tests
 
 
 .PHONY: lint
 lint:
-ifdef INSIDE_DOCKER
-	make runlint
-else
-	${DK_EXEC_CMD} make lint
-endif
-
-
-.PHONY: runlint
-runlint:
 	${PRECOMMIT_CMD} run --all
 
 
-.PHONY: testall
-testall: test
-
-
-.PHONY: test
-test:
-ifdef INSIDE_DOCKER
+.PHONY: tests
+tests: clean-pyc-tests
 	CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} pytest --cov aot --cov-report html --cov-report term:skip-covered
-else
-	# Clean old pyc files for pytest to prevent errors if tests where run outside the container.
-	find tests -name \*.pyc -exec rm {} \;
-	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} test
-endif
 
 
 .PHONY: tdd
 tdd:
-ifdef INSIDE_DOCKER
-	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- tests --testmon
-else
-	${DK_EXEC_CMD} make tdd
-endif
+	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- tests --testmon -m 'not integration'
