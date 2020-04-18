@@ -99,7 +99,17 @@ class IntegrationTestsBase:
         with open(path_to_open, "r") as message_file:
             return json.load(message_file)
 
-    def assert_calls_for_send_message(self, send_message_mock, snapshot, nb_calls, receiver):
+    def assert_calls_for_player(self, snapshot, nb_calls):
+        self._assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls, "player"
+        )
+
+    def assert_calls_for_game_master(self, snapshot, nb_calls):
+        self._assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls, "game_master"
+        )
+
+    def _assert_calls_for_send_message(self, send_message_mock, snapshot, nb_calls, receiver):
         assert len(send_message_mock.mock_calls) == nb_calls
         for index, response_call in enumerate(send_message_mock.mock_calls):
             assert len(response_call.args) == 1
@@ -126,9 +136,7 @@ class TestCreateGame(IntegrationTestsBase):
 
         await self.game_master_ws.onMessage(self.get_message("create_lobby.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=2)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_create_lobby"])
@@ -138,12 +146,10 @@ class TestCreateGame(IntegrationTestsBase):
 
         await self.player_ws.onMessage(self.get_message("join_game.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
+        self.assert_calls_for_player(
+            snapshot, nb_calls=2,
         )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_join_game"])
@@ -151,12 +157,8 @@ class TestCreateGame(IntegrationTestsBase):
     async def test_update_slot(self, snapshot):
         await self.player_ws.onMessage(self.get_message("update_player_slot.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_update_slot"])
@@ -164,12 +166,8 @@ class TestCreateGame(IntegrationTestsBase):
     async def test_player_close_slot(self, snapshot):
         await self.player_ws.onMessage(self.get_message("close_slot.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_player_close_slot"])
@@ -177,12 +175,8 @@ class TestCreateGame(IntegrationTestsBase):
     async def test_game_master_close_slot(self, snapshot):
         await self.game_master_ws.onMessage(self.get_message("close_slot.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
+        self.assert_calls_for_player(snapshot, nb_calls=1)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_close_slot"])
@@ -190,12 +184,8 @@ class TestCreateGame(IntegrationTestsBase):
     async def test_player_create_game(self, snapshot):
         await self.player_ws.onMessage(self.get_message("create_game.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_player_create_game"])
@@ -205,12 +195,8 @@ class TestCreateGame(IntegrationTestsBase):
             self.get_message("create_game_missing_player.json"), is_binary=False
         )
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
+        self.assert_calls_for_player(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_create_game_missing_player"])
@@ -223,12 +209,8 @@ class TestCreateGame(IntegrationTestsBase):
 
         await self.game_master_ws.onMessage(self.get_message("create_game.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=2)
+        self.assert_calls_for_player(snapshot, nb_calls=2)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_create_game"])
@@ -254,9 +236,7 @@ class TestPlayGame(IntegrationTestsBase):
         await self.game_master_ws.onOpen()
         await self.game_master_ws.onMessage(self.get_message("reconnect.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
         assert self.game_master_ws.id == self.game_master_id
 
     @pytest.mark.integration
@@ -271,12 +251,8 @@ class TestPlayGame(IntegrationTestsBase):
         message["request"]["game_id"] = "toto"
         await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
         await self.player_ws.onClose(was_clean=True, code=1001, reason=None)
 
     @pytest.mark.integration
@@ -291,12 +267,8 @@ class TestPlayGame(IntegrationTestsBase):
         message["request"]["player_id"] = "toto"
         await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
         await self.player_ws.onClose(was_clean=True, code=1001, reason=None)
 
     @pytest.mark.integration
@@ -310,12 +282,8 @@ class TestPlayGame(IntegrationTestsBase):
         message["request"]["player_id"] = self.player_id
         await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player"])
@@ -325,12 +293,8 @@ class TestPlayGame(IntegrationTestsBase):
         message["request"]["player_id"] = self.player_id
         await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player_already_connected"])
@@ -338,12 +302,8 @@ class TestPlayGame(IntegrationTestsBase):
     async def test_play_card_not_your_turn(self, snapshot):
         await self.player_ws.onMessage(self.get_message("play_card.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=1)
+        self.assert_calls_for_game_master(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_your_turn"])
@@ -354,12 +314,8 @@ class TestPlayGame(IntegrationTestsBase):
 
         await self.game_master_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
+        self.assert_calls_for_player(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_in_hand"])
@@ -371,12 +327,8 @@ class TestPlayGame(IntegrationTestsBase):
 
         await self.game_master_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
+        self.assert_calls_for_player(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_in_hand"])
@@ -386,12 +338,8 @@ class TestPlayGame(IntegrationTestsBase):
             self.get_message("view_possible_squares.json"), is_binary=False
         )
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=1)
+        self.assert_calls_for_player(snapshot, nb_calls=0)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_view_possible_squares"])
@@ -399,12 +347,8 @@ class TestPlayGame(IntegrationTestsBase):
     async def test_play_card(self, snapshot):
         await self.game_master_ws.onMessage(self.get_message("play_card.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=2)
+        self.assert_calls_for_player(snapshot, nb_calls=2)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_play_card"])
@@ -412,12 +356,8 @@ class TestPlayGame(IntegrationTestsBase):
     async def test_discard_card(self, snapshot):
         await self.game_master_ws.onMessage(self.get_message("discard_card.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
-        )
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
-        )
+        self.assert_calls_for_game_master(snapshot, nb_calls=2)
+        self.assert_calls_for_player(snapshot, nb_calls=2)
 
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestPlayGame::test_discard_card"])
@@ -425,9 +365,5 @@ class TestPlayGame(IntegrationTestsBase):
     async def test_pass_turn(self, snapshot):
         await self.player_ws.onMessage(self.get_message("pass_turn.json"), is_binary=False)
 
-        self.assert_calls_for_send_message(
-            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
-        )
-        self.assert_calls_for_send_message(
-            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
-        )
+        self.assert_calls_for_player(snapshot, nb_calls=2)
+        self.assert_calls_for_game_master(snapshot, nb_calls=2)
