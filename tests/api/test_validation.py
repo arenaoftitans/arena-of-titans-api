@@ -39,7 +39,7 @@ def test_validate_invalid_messages(snapshot, message):
 
 def test_validate_valid_message(snapshot):
     validated = validate(
-        {"rt": "create_lobby", "request": {"game_id": "test", "player_id": "test"}}
+        {"rt": "create_lobby", "request": {"hero": "Arline", "player_name": "Game master"}}
     )
 
     assert validated["rt"] == RequestTypes.CREATE_LOBBY
@@ -52,10 +52,10 @@ def test_sanitize_player_name():
             "rt": "update_slot",
             "request": {
                 "slot": {
+                    "hero": "Arline",
                     "player_name": "<script>while(true)</script>",
                     "index": 0,
                     "state": "taken",
-                    "player_id": "1",
                 }
             },
         }
@@ -71,27 +71,14 @@ def test_sanitize_player_name():
             {
                 "rt": "update_slot",
                 "request": {
-                    "slot": {
-                        "player_name": "<script></script>",
-                        "index": 0,
-                        "state": "taken",
-                        "player_id": "1",
-                    }
+                    "slot": {"player_name": "<script></script>", "index": 0, "state": "taken"}
                 },
             },
             id="update_slot",
         ),
         pytest.param(
-            {
-                "rt": "join_game",
-                "request": {
-                    "game_id": "game_id",
-                    "player_id": "player_id",
-                    "hero": "kharliass",
-                    "player_name": "<p></p>",
-                },
-            },
-            id="update_slot",
+            {"rt": "join_game", "request": {"game_id": "game_id", "player_name": "<p></p>"}},
+            id="join_game",
         ),
     ],
 )

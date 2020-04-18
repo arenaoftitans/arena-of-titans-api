@@ -24,18 +24,22 @@ snapshots['test_validate_invalid_messages[wrong_request_type] 1'] = {
 }
 
 snapshots['test_validate_valid_message 1'] = {
-    'game_id': 'test',
-    'player_id': 'test',
+    'hero': 'Arline',
+    'player_name': 'Game master',
     'test': False
 }
 
-snapshots['test_sanitize_empty_player_name[update_slot0] 1'] = {
+snapshots['test_sanitize_empty_player_name[update_slot] 1'] = {
     'slot': [
+        "'hero' cannot be empty if slot is taken",
         "'player_name' cannot be empty if slot is taken"
     ]
 }
 
-snapshots['test_sanitize_empty_player_name[update_slot1] 1'] = {
+snapshots['test_sanitize_empty_player_name[join_game] 1'] = {
+    'hero': [
+        'required field'
+    ],
     'player_name': [
         'empty values not allowed'
     ]

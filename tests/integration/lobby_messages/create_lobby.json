@@ -1,0 +1,7 @@
+{
+    "request": {
+        "hero": "Arline",
+        "player_name": "Game master"
+    },
+    "rt": "create_lobby"
+}

@@ -26,6 +26,11 @@ class Board:
         self._updated_squares = []
         for square in board_description["squares"]:
             type_ = square["type"]
+            # This is an empty square, existing only to fill the board definition.
+            # Skipping.
+            if type_ is None:
+                continue
+
             color = Color[board_description["squares-types-to-colors"].get(type_)]
             x = square["x"]
             y = square["y"]

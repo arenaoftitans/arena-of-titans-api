@@ -1,0 +1,11 @@
+{
+    "request": {
+        "slot": {
+            "hero": "Djor",
+            "index": 1,
+            "player_name": "Player updated",
+            "state": "taken"
+        }
+    },
+    "rt": "update_slot"
+}

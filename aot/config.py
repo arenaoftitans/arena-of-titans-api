@@ -94,5 +94,9 @@ class Config:
             }
         )
 
+    @property
+    def is_testing(self):
+        return self._config["env"] == "pytest"
+
 
 config = Config()

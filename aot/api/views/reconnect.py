@@ -23,7 +23,7 @@ from ..utils import RequestTypes, WsResponse
 
 
 def reconnect_to_game(request, game):
-    player = [player for player in game.players if player and player.id == request["game_id"]][0]
+    player = [player for player in game.players if player and player.id == request["player_id"]][0]
 
     return WsResponse(
         send_to_current_player=[

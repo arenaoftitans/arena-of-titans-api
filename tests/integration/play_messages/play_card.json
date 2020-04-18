@@ -1,0 +1,9 @@
+{
+    "request": {
+        "card_color": "yellow",
+        "card_name": "Wizard",
+        "x": 5,
+        "y": 8
+    },
+    "rt": "play_card"
+}

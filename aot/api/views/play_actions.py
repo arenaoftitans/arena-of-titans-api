@@ -32,7 +32,10 @@ def view_possible_actions(request, game):
                 "rt": RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS,
                 "request": {
                     "special_action_name": action.name,
-                    "possible_squares": action.view_possible_squares(target, game.board)
+                    "possible_squares": sorted(
+                        action.view_possible_squares(target, game.board),
+                        key=lambda square: (square.x, square.y),
+                    )
                     if action.require_target_square
                     else [],
                 },

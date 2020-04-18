@@ -24,7 +24,6 @@ Contents:
 
    API
    classement
-   game_description
    hierarchy
    screen_size
 

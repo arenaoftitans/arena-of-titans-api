@@ -43,7 +43,7 @@ class ValidationError(Exception):
 def _generate_heroes_list():
     heroes = set()
     for cfg in GAME_CONFIGS.values():
-        heroes.update(cfg["powers"].keys())
+        heroes.update(hero.title() for hero in cfg["powers"].keys())
 
     return heroes
 
@@ -76,25 +76,26 @@ def _to_color(value: str):
     return Color[value.upper()]
 
 
-def _force_non_empty_player_name_in_slot(field, value, error):
-    if value["state"] == SlotState.TAKEN and not value["player_name"]:
+def _check_slot_is_complete(field, value, error):
+    if value["state"] == SlotState.TAKEN and not value.get("player_name"):
         error(field, "'player_name' cannot be empty if slot is taken")
+    if value["state"] == SlotState.TAKEN and not value.get("hero"):
+        error(field, "'hero' cannot be empty if slot is taken")
 
 
 _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
     {
         RequestTypes.CREATE_LOBBY: Validator(
             {
-                "game_id": {"type": "string", "empty": False},
-                "player_id": {"type": "string", "empty": False},
                 "test": {"type": "boolean", "default": False},
+                "player_name": {"type": "string", "coerce": (str, sanitize), "empty": False},
+                "hero": {"type": "string", "allowed": _generate_heroes_list()},
             },
             require_all=True,
         ),
         RequestTypes.JOIN_GAME: Validator(
             {
                 "game_id": {"type": "string", "empty": False},
-                "player_id": {"type": "string", "empty": False},
                 "hero": {"type": "string", "allowed": _generate_heroes_list()},
                 "player_name": {"type": "string", "coerce": (str, sanitize), "empty": False},
             },
@@ -105,12 +106,21 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                 "slot": {
                     "type": "dict",
                     "require_all": True,
-                    "check_with": _force_non_empty_player_name_in_slot,
+                    "check_with": _check_slot_is_complete,
                     "schema": {
-                        "player_name": {"type": "string", "coerce": (str, sanitize), "default": ""},
+                        "player_name": {
+                            "type": "string",
+                            "coerce": (str, sanitize),
+                            "default": "",
+                            "required": False,
+                        },
                         "index": {"type": "integer"},
                         "state": {"type": "slot_state", "coerce": (str, _to_slot_state)},
-                        "player_id": {"type": "string", "required": False},
+                        "hero": {
+                            "type": "string",
+                            "allowed": _generate_heroes_list(),
+                            "required": False,
+                        },
                     },
                 }
             },
@@ -125,7 +135,6 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                         "schema": {
                             "name": {"type": "string"},
                             "index": {"type": "integer", "min": 0},
-                            "id": {"type": "string", "nullable": True},
                             "is_ai": {"type": "boolean", "default": False},
                         },
                     },
@@ -159,10 +168,15 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
             {
                 "pass": {"type": "boolean", "default": False},
                 "discard": {"type": "boolean", "default": False},
-                "card_name": {"type": "string", "empty": False, "allowed": _generate_cards_list()},
-                "card_color": {"type": "color", "coerce": (str, _to_color)},
-                "x": {"type": "integer"},
-                "y": {"type": "integer"},
+                "card_name": {
+                    "type": "string",
+                    "empty": False,
+                    "allowed": _generate_cards_list(),
+                    "required": False,
+                },
+                "card_color": {"type": "color", "coerce": (str, _to_color), "required": False},
+                "x": {"type": "integer", "required": False},
+                "y": {"type": "integer", "required": False},
             },
             require_all=True,
         ),

@@ -24,15 +24,8 @@ from contextlib import asynccontextmanager
 import daiquiri
 
 from ..utils import make_immutable
-from .serializers import get_global_game_message, get_private_player_messages_by_ids
-from .utils import (
-    AotError,
-    AotErrorToDisplay,
-    AotFatalErrorToDisplay,
-    MustNotSaveGameError,
-    RequestTypes,
-    WsResponse,
-)
+from .serializers import get_global_game_message, get_private_player_messages_by_ids, to_json
+from .utils import AotError, AotErrorToDisplay, MustNotSaveGameError, RequestTypes, WsResponse
 from .views import (
     create_game,
     create_lobby,
@@ -89,7 +82,7 @@ class Api:
 
     async def process_message(self, message):
         self.logger.debug(
-            f"Possessing message of player {self._id} in game {self._game_id}: {message}"
+            f"Processing message of player {self._id} in game {self._game_id}: {message}"
         )
 
         self._message = message
@@ -176,14 +169,15 @@ class Api:
         self._clients_pending_disconnection_from_game.discard(self.id)
 
     async def _process_lobby_request(self):
-        if not await self._current_request_allowed:
+        if not await self._is_lobby_request_allowed:
             raise AotErrorToDisplay("game_master_request", {"rt": self._request_type})
 
-        self._message["player_id"] = self.id
-        self._message["index_first_player"] = self.INDEX_FIRST_PLAYER
+        request = self._message["request"]
+        request["player_id"] = self.id
+        request["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-        response = self._lobby_request_types_to_views[self._request_type](
-            self._message, self._cache
+        response = await self._lobby_request_types_to_views[self._request_type](
+            request, self._cache
         )
 
         if self._request_type in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
@@ -196,9 +190,9 @@ class Api:
     async def _process_play_request(self):
         async with self._load_game() as game:
             if self._is_this_player_turn(game):
-                request = self._message.get("play_request", None)
-
-                response = self._play_game_requests_to_views[self._request_type](request, game)
+                response = self._play_game_requests_to_views[self._request_type](
+                    self._message["request"], game
+                )
                 if game.active_player.is_ai:
                     response = response.add_future_message(self._schedule_play_ai(game))
                 return response
@@ -212,7 +206,7 @@ class Api:
                     "not_your_turn",
                     extra_data={
                         "player": f"Player ({self.id}): {player.name}",
-                        "playload": json.dumps(self._message),
+                        "playload": json.dumps(self._message, default=to_json),
                     },
                 )
                 if self._message and self._message.get("auto", False):
@@ -266,6 +260,9 @@ class Api:
     @asynccontextmanager
     async def _load_game(self, must_save=True):
         game = await self._cache.get_game()
+
+        if game is None:
+            raise AotError("game_does_not_exist")
 
         try:
             yield game
@@ -324,19 +321,13 @@ class Api:
         return await self._cache.has_game_started()
 
     @property
-    async def _current_request_allowed(self):
-        return await self._cache.is_game_master() or self._request_type in (
-            RequestTypes.SLOT_UPDATED,
-            RequestTypes.CREATE_LOBBY,
-        )
+    async def _is_lobby_request_allowed(self):
+        return await self._cache.is_game_master() or self._request_type != RequestTypes.CREATE_GAME
 
     @property
     async def _can_reconnect(self):
-        if self._message["player_id"] not in self._clients_pending_reconnection_from_game:
-            raise AotFatalErrorToDisplay("player_already_connected")
-
         return await self._cache.is_member_game(
-            self._message["game_id"], self._message["player_id"],
+            self._message["request"]["game_id"], self._message["request"]["player_id"],
         )
 
     @property

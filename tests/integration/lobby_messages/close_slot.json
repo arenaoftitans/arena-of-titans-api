@@ -1,0 +1,9 @@
+{
+    "request": {
+        "slot": {
+            "index": 2,
+            "state": "closed"
+        }
+    },
+    "rt": "update_slot"
+}

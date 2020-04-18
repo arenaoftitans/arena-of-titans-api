@@ -52,7 +52,11 @@ class Cache:
     _player_id = ""
 
     @classmethod
-    def _get_redis_instance(cls, new=False):
+    def create_new_instance(cls, loop=None):
+        cls._cache = cls._get_redis_instance(new=True, loop=loop)
+
+    @classmethod
+    def _get_redis_instance(cls, new=False, loop=None):
         if new:
             logger.info(f'Connecting to redis with connection infos: {config["cache"]}.')
             return Redis(
@@ -60,6 +64,7 @@ class Cache:
                 port=config["cache"]["port"],
                 connect_timeout=config["cache"]["timeout"],
                 stream_timeout=config["cache"]["timeout"],
+                loop=loop,
             )
         else:  # pragma: no cover
             if cls._cache is None:
@@ -76,8 +81,15 @@ class Cache:
         pickle_data = pickle.dumps(data)  # noqa: S301 (pickle usage)
         return encode(pickle_data)
 
-    def __init__(self):
-        self._cache = self._get_redis_instance()
+    @classmethod
+    async def clean_for_game(cls, game_id):
+        redis = cls._get_redis_instance()
+        await redis.delete(cls.SLOTS_KEY_TEMPLATE.format(game_id))
+        await redis.delete(cls.PLAYERS_KEY_TEMPLATE.format(game_id))
+        await redis.delete(cls.GAME_KEY_TEMPLATE.format(game_id))
+
+    def __init__(self, loop=None, new=False):
+        self._cache = self._get_redis_instance(loop=loop)
         self.TTL = config["cache"]["ttl"]
 
     async def test(self):

@@ -1,0 +1,7 @@
+{
+    "request": {
+        "game_id": "test-game-id",
+        "player_id": "test-game-master-id"
+    },
+    "rt": "reconnect"
+}

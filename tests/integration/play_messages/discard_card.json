@@ -1,0 +1,8 @@
+{
+    "request": {
+        "card_color": "red",
+        "card_name": "Wizard",
+        "discard": true
+    },
+    "rt": "play_card"
+}
