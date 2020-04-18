@@ -58,10 +58,11 @@ def create_new_cache_instance(event_loop):
     Cache.create_new_instance(loop=event_loop)
 
 
-class TestCreateGame:
+class IntegrationTestsBase:
     game_master_id = "test-game-master-id"
     player_id = "player_id"
     game_id = "test-game-id"
+    messages_folder = None
 
     @classmethod
     def setup_class(cls):
@@ -83,21 +84,31 @@ class TestCreateGame:
         self.game_master_ws.sendMessage.reset_mock()
         self.player_ws.sendMessage.reset_mock()
 
-    def _get_message(self, message_path):
+    def get_message(self, message_path):
         root = path.dirname(__file__)
-        messages_folder = "lobby_messages"
-        path_to_open = path.join(root, messages_folder, message_path)
+        path_to_open = path.join(root, self.messages_folder, message_path)
 
         with open(path_to_open, "rb") as message_file:
             return message_file.read()
 
-    def _assert_calls_for_send_message(self, send_message_mock, snapshot, nb_calls, receiver):
+    def get_message_as_dict(self, message_path):
+        root = path.dirname(__file__)
+        path_to_open = path.join(root, self.messages_folder, message_path)
+
+        with open(path_to_open, "r") as message_file:
+            return json.load(message_file)
+
+    def assert_calls_for_send_message(self, send_message_mock, snapshot, nb_calls, receiver):
         assert len(send_message_mock.mock_calls) == nb_calls
         for index, response_call in enumerate(send_message_mock.mock_calls):
             assert len(response_call.args) == 1
             assert response_call.kwargs == {}
             response = json.loads(response_call.args[0])
             snapshot.assert_match(response, f"{receiver}-{index}")
+
+
+class TestCreateGame(IntegrationTestsBase):
+    messages_folder = "lobby_messages"
 
     @pytest.mark.integration
     @pytest.mark.dependency()
@@ -109,9 +120,9 @@ class TestCreateGame:
         )
         await self.game_master_ws.onOpen()
 
-        await self.game_master_ws.onMessage(self._get_message("create_lobby.json"), is_binary=False)
+        await self.game_master_ws.onMessage(self.get_message("create_lobby.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
         )
 
@@ -121,12 +132,12 @@ class TestCreateGame:
     async def test_join_game(self, snapshot):
         await self.player_ws.onOpen()
 
-        await self.player_ws.onMessage(self._get_message("join_game.json"), is_binary=False)
+        await self.player_ws.onMessage(self.get_message("join_game.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
         )
 
@@ -134,14 +145,12 @@ class TestCreateGame:
     @pytest.mark.dependency(depends=["TestCreateGame::test_join_game"])
     @pytest.mark.asyncio
     async def test_update_slot(self, snapshot):
-        await self.player_ws.onMessage(
-            self._get_message("update_player_slot.json"), is_binary=False
-        )
+        await self.player_ws.onMessage(self.get_message("update_player_slot.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
         )
 
@@ -149,12 +158,12 @@ class TestCreateGame:
     @pytest.mark.dependency(depends=["TestCreateGame::test_update_slot"])
     @pytest.mark.asyncio
     async def test_player_close_slot(self, snapshot):
-        await self.player_ws.onMessage(self._get_message("close_slot.json"), is_binary=False)
+        await self.player_ws.onMessage(self.get_message("close_slot.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
         )
 
@@ -162,12 +171,12 @@ class TestCreateGame:
     @pytest.mark.dependency(depends=["TestCreateGame::test_player_close_slot"])
     @pytest.mark.asyncio
     async def test_game_master_close_slot(self, snapshot):
-        await self.game_master_ws.onMessage(self._get_message("close_slot.json"), is_binary=False)
+        await self.game_master_ws.onMessage(self.get_message("close_slot.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
         )
 
@@ -175,12 +184,12 @@ class TestCreateGame:
     @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_close_slot"])
     @pytest.mark.asyncio
     async def test_player_create_game(self, snapshot):
-        await self.player_ws.onMessage(self._get_message("create_game.json"), is_binary=False)
+        await self.player_ws.onMessage(self.get_message("create_game.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
         )
 
@@ -189,13 +198,13 @@ class TestCreateGame:
     @pytest.mark.asyncio
     async def test_game_master_create_game_missing_player(self, snapshot):
         await self.game_master_ws.onMessage(
-            self._get_message("create_game_missing_player.json"), is_binary=False
+            self.get_message("create_game_missing_player.json"), is_binary=False
         )
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
         )
 
@@ -208,11 +217,11 @@ class TestCreateGame:
         # And they have special actions which makes them harder to handle in tests.
         mocker.patch("aot.game.cards.deck.random.sample", mocked_sample_reversed)
 
-        await self.game_master_ws.onMessage(self._get_message("create_game.json"), is_binary=False)
+        await self.game_master_ws.onMessage(self.get_message("create_game.json"), is_binary=False)
 
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
         )
-        self._assert_calls_for_send_message(
+        self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
         )
