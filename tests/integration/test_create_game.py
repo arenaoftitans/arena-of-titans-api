@@ -225,3 +225,205 @@ class TestCreateGame(IntegrationTestsBase):
         self.assert_calls_for_send_message(
             self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
         )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_create_game"])
+    @pytest.mark.asyncio
+    async def test_disconnect(self):
+        assert len(AotWs._clients) == 2
+
+        await self.game_master_ws.onClose(was_clean=True, code=1001, reason=None)
+        await self.player_ws.onClose(was_clean=True, code=1001, reason=None)
+
+        assert len(AotWs._clients) == 0
+
+
+class TestPlayGame(IntegrationTestsBase):
+    messages_folder = "play_messages"
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestCreateGame::test_disconnect"])
+    @pytest.mark.asyncio
+    async def test_reconnect_game_master(self, snapshot):
+        self.game_master_ws._wskey = "tmp-key"
+
+        await self.game_master_ws.onOpen()
+        await self.game_master_ws.onMessage(self.get_message("reconnect.json"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
+        )
+        assert self.game_master_ws.id == self.game_master_id
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_game_master"])
+    @pytest.mark.asyncio
+    async def test_reconnect_player_wrong_game_id(self, snapshot):
+        self.player_ws._wskey = "tmp-key"
+
+        await self.player_ws.onOpen()
+
+        message = self.get_message_as_dict("reconnect.json")
+        message["request"]["game_id"] = "toto"
+        await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
+        )
+        await self.player_ws.onClose(was_clean=True, code=1001, reason=None)
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player_wrong_game_id"])
+    @pytest.mark.asyncio
+    async def test_reconnect_player_wrong_player_id(self, snapshot):
+        self.player_ws._wskey = "tmp-key"
+
+        await self.player_ws.onOpen()
+
+        message = self.get_message_as_dict("reconnect.json")
+        message["request"]["player_id"] = "toto"
+        await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
+        )
+        await self.player_ws.onClose(was_clean=True, code=1001, reason=None)
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player_wrong_player_id"])
+    @pytest.mark.asyncio
+    async def test_reconnect_player(self, snapshot):
+        self.player_ws._wskey = "tmp-key"
+        await self.player_ws.onOpen()
+
+        message = self.get_message_as_dict("reconnect.json")
+        message["request"]["player_id"] = self.player_id
+        await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player"])
+    @pytest.mark.asyncio
+    async def test_reconnect_player_already_connected(self, snapshot):
+        message = self.get_message_as_dict("reconnect.json")
+        message["request"]["player_id"] = self.player_id
+        await self.player_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_reconnect_player_already_connected"])
+    @pytest.mark.asyncio
+    async def test_play_card_not_your_turn(self, snapshot):
+        await self.player_ws.onMessage(self.get_message("play_card.json"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=1, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=0, receiver="game_master"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_your_turn"])
+    @pytest.mark.asyncio
+    async def test_play_card_not_in_hand(self, snapshot):
+        message = self.get_message_as_dict("play_card.json")
+        message["request"]["card_name"] = "Assassin"
+
+        await self.game_master_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
+        )
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_in_hand"])
+    @pytest.mark.asyncio
+    async def test_play_card_wrong_square(self, snapshot):
+        message = self.get_message_as_dict("play_card.json")
+        message["request"]["x"] = 0
+        message["request"]["y"] = 0
+
+        await self.game_master_ws.onMessage(json.dumps(message).encode("utf-8"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
+        )
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_play_card_not_in_hand"])
+    @pytest.mark.asyncio
+    async def test_view_possible_squares(self, snapshot):
+        await self.game_master_ws.onMessage(
+            self.get_message("view_possible_squares.json"), is_binary=False
+        )
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=1, receiver="game_master"
+        )
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=0, receiver="player"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_view_possible_squares"])
+    @pytest.mark.asyncio
+    async def test_play_card(self, snapshot):
+        await self.game_master_ws.onMessage(self.get_message("play_card.json"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
+        )
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_play_card"])
+    @pytest.mark.asyncio
+    async def test_discard_card(self, snapshot):
+        await self.game_master_ws.onMessage(self.get_message("discard_card.json"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
+        )
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
+        )
+
+    @pytest.mark.integration
+    @pytest.mark.dependency(depends=["TestPlayGame::test_discard_card"])
+    @pytest.mark.asyncio
+    async def test_pass_turn(self, snapshot):
+        await self.player_ws.onMessage(self.get_message("pass_turn.json"), is_binary=False)
+
+        self.assert_calls_for_send_message(
+            self.player_ws.sendMessage, snapshot, nb_calls=2, receiver="player"
+        )
+        self.assert_calls_for_send_message(
+            self.game_master_ws.sendMessage, snapshot, nb_calls=2, receiver="game_master"
+        )
