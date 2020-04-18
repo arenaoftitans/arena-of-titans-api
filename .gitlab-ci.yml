@@ -10,5 +10,7 @@ lint:
 
 tests:
   stage: checks
+  services:
+      - redis:latest
   script:
-    - make CI_TESTS_TIMEOUT=5 tests
+    - make CI_TESTS_TIMEOUT=5 CACHE_HOST=redis tests
