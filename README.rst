@@ -66,9 +66,7 @@ On Windows, download the last release from `MS Open Tech <https://github.com/MSO
 #. Please copy the configuration distributed with the API (``config.dist.toml``)
    into ``config.toml`` and modify its entry to match your needs.
 #. The API needs `redis <http://redis.io/>`_ to store its information. It must
-   be installed and running for the API to work.
-#. The API is design to run behind a nginx server. A sample nginx configuration
-   file is provided with the API: ``aot-api.dist.conf``.
+   be installed and running for the API to work. You can also user docker and docker-compose.
 
 
 Usage
@@ -76,7 +74,7 @@ Usage
 
 Use the ``make`` command to launch task. Tasks will be launched from the host within the docker container by default. Use ``make venvlint`` to run the linter from within a venv instead. Use ``make`` to view the list of possible targets and their description. Alternatively, you can use:
 
-- To launch the API in development mode (reload on modification): ``python3 aot/test_main.py``
+- To launch the API in development mode (reload on modification): ``python3 aot --reload``
 - To launch the unit tests with code coverage: ``pytest --cov``
 - To relaunch the unit tests on each modifications:
 

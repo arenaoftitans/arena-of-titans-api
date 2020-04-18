@@ -1,7 +1,0 @@
-{
-    "play_request": {
-        "card_color": "RED",
-        "card_name": "King"
-    },
-    "rt": "VIEW_POSSIBLE_SQUARES"
-}
