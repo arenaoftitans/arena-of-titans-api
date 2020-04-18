@@ -27,7 +27,14 @@ from ..config import config
 from .api import Api as AotApi
 from .cache import Cache
 from .serializers import to_json
-from .utils import AotError, AotErrorToDisplay, AotFatalError, WsResponse
+from .utils import (
+    AotError,
+    AotErrorToDisplay,
+    AotFatalError,
+    AotFatalErrorToDisplay,
+    RequestTypes,
+    WsResponse,
+)
 from .validation import ValidationError, validate
 
 
@@ -91,6 +98,7 @@ class AotWs(WebSocketServerProtocol):
         try:
             message = json.loads(payload.decode("utf-8"))
             validated_message = validate(message)
+            self._check_reconnect(validated_message)
             response = await self._api.process_message(validated_message)
             self._handle_id_change()
         except AotError as e:
@@ -102,6 +110,13 @@ class AotWs(WebSocketServerProtocol):
         else:
             self._cancel_disconnect_player()
             await self._send_response(response)
+
+    def _check_reconnect(self, validated_message):
+        if (
+            validated_message.get("rt") == RequestTypes.RECONNECT
+            and validated_message.get("request", {}).get("player_id") in self._clients
+        ):
+            raise AotFatalErrorToDisplay("player_already_connected")
 
     def _handle_id_change(self):
         # If the player reconnected, its id won't be _wskey (the id of the websocket) but the true
@@ -164,10 +179,14 @@ class AotWs(WebSocketServerProtocol):
             f"WS n°{self.id} was closed cleanly? {was_clean} with code {code} and reason {reason}",
         )
 
-        self._disconnect_timeouts[self.id] = self._loop.call_later(
-            self.DISCONNECTED_TIMEOUT_WAIT,
-            lambda: asyncio.ensure_future(self._disconnect_player()),
-        )
+        if config.is_testing:
+            self._disconnect_timeouts[self.id] = None
+            await self._disconnect_player()
+        else:
+            self._disconnect_timeouts[self.id] = self._loop.call_later(
+                self.DISCONNECTED_TIMEOUT_WAIT,
+                lambda: asyncio.ensure_future(self._disconnect_player()),
+            )
 
         self._clients.pop(self.id, None)
 
@@ -177,9 +196,14 @@ class AotWs(WebSocketServerProtocol):
 
         # Remove expired timeout so it will never interfere with new disconnections.
         self._disconnect_timeouts.pop(self.id)
-        response = await self._api.disconnect_player()
-        if response:
-            await self._send_response(response)
+
+        try:
+            response = await self._api.disconnect_player()
+        except AotError as e:
+            await self._send_error(e, {"rt": "reconnect"})
+        else:
+            if response:
+                await self._send_response(response)
 
     def _cancel_disconnect_player(self):
         if self.id not in self._disconnect_timeouts:
@@ -212,7 +236,7 @@ class AotWs(WebSocketServerProtocol):
         # Errors to display are sent to the user and are foreseen in the application.
         # No need to log them.
         if not isinstance(error, AotErrorToDisplay):
-            payload = json.dumps(received_message)
+            payload = json.dumps(received_message, default=to_json)
             self.logger.error(message["error"], extra_data={"payload": payload})
 
         await self.send_messages([message])
