@@ -38,7 +38,7 @@ def reconnect_to_game(request, game):
     )
 
 
-async def reconnect_to_lobby(cache, request):
+async def reconnect_to_lobby(request, cache):
     try:
         index = await cache.get_player_index()
     except IndexError:
@@ -46,7 +46,11 @@ async def reconnect_to_lobby(cache, request):
             send_to_current_player=[
                 {
                     "rt": RequestTypes.JOIN_GAME,
-                    "request": {"error": "cannot_join", "must_register_again": True},
+                    "request": {
+                        "error": "cannot_join",
+                        "must_register_again": True,
+                        "game_id": request["game_id"],
+                    },
                 }
             ]
         )

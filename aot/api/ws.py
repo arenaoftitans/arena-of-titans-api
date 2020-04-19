@@ -22,6 +22,7 @@ import json
 
 import daiquiri
 from autobahn.asyncio.websocket import WebSocketServerProtocol
+from autobahn.exception import Disconnected
 
 from ..config import config
 from .api import Api as AotApi
@@ -172,7 +173,10 @@ class AotWs(WebSocketServerProtocol):
         self.logger.debug(f"Sending to {self.id}: {message}")
         message = message.encode("utf-8")
         # Must not use await here: sendMessage in the base class is not a coroutine.
-        self.sendMessage(message)
+        try:
+            self.sendMessage(message)
+        except Disconnected:
+            self.logger.debug("Connection was closed, cannot send message.")
 
     async def onClose(self, was_clean, code, reason):  # pragma: no cover  # noqa: N802
         self.logger.info(
@@ -191,6 +195,7 @@ class AotWs(WebSocketServerProtocol):
         self._clients.pop(self.id, None)
 
     async def _disconnect_player(self):
+        self.logger.debug(f"Disconnecting player {self.id} from game {self._api.game_id}")
         if self.id not in self._disconnect_timeouts:
             return
 
@@ -200,7 +205,7 @@ class AotWs(WebSocketServerProtocol):
         try:
             response = await self._api.disconnect_player()
         except AotError as e:
-            await self._send_error(e, {"rt": "reconnect"})
+            await self._send_error(e, {"rt": "disconnect"})
         else:
             if response:
                 await self._send_response(response)

@@ -89,14 +89,22 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
             {
                 "test": {"type": "boolean", "default": False},
                 "player_name": {"type": "string", "coerce": (str, sanitize), "empty": False},
-                "hero": {"type": "string", "allowed": _generate_heroes_list()},
+                "hero": {
+                    "type": "string",
+                    "allowed": _generate_heroes_list(),
+                    "coerce": (str, str.title),
+                },
             },
             require_all=True,
         ),
         RequestTypes.JOIN_GAME: Validator(
             {
                 "game_id": {"type": "string", "empty": False},
-                "hero": {"type": "string", "allowed": _generate_heroes_list()},
+                "hero": {
+                    "type": "string",
+                    "allowed": _generate_heroes_list(),
+                    "coerce": (str, str.title),
+                },
                 "player_name": {"type": "string", "coerce": (str, sanitize), "empty": False},
             },
             require_all=True,
@@ -119,6 +127,7 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                         "hero": {
                             "type": "string",
                             "allowed": _generate_heroes_list(),
+                            "coerce": (str, str.title),
                             "required": False,
                         },
                     },
@@ -133,9 +142,8 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
                     "schema": {
                         "type": "dict",
                         "schema": {
-                            "name": {"type": "string"},
+                            "name": {"type": "string", "empty": True, "required": False},
                             "index": {"type": "integer", "min": 0},
-                            "is_ai": {"type": "boolean", "default": False},
                         },
                     },
                 }
@@ -221,7 +229,7 @@ def validate(message):
             "rt": {
                 "type": "request_type",
                 "coerce": (str, _to_request_type),
-                "allowed": _REQUEST_TYPE_TO_REQUEST_VALIDATOR.keys(),
+                "allowed": list(_REQUEST_TYPE_TO_REQUEST_VALIDATOR.keys()),
             },
             "request": {"type": "dict"},
         },

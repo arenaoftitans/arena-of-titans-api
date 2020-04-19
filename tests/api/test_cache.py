@@ -319,6 +319,7 @@ async def test_update_slot_free(cache):  # noqa: F811
     cache_slot = {
         "state": SlotState.TAKEN,
         "player_id": "player_id",
+        "player_name": "Test",
         "index": 0,
     }
     cache.get_slot = AsyncMock(return_value=deepcopy(cache_slot))
@@ -330,6 +331,7 @@ async def test_update_slot_free(cache):  # noqa: F811
     }
     del cache_slot["player_id"]
     cache_slot["state"] = SlotState.OPEN
+    cache_slot["player_name"] = ""
 
     await cache.update_slot(slot)
 

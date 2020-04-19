@@ -215,7 +215,11 @@ class TestCreateGame(IntegrationTestsBase):
     @pytest.mark.integration
     @pytest.mark.dependency(depends=["TestCreateGame::test_game_master_create_game"])
     @pytest.mark.asyncio
-    async def test_disconnect(self):
+    async def test_disconnect(self, mocker):
+        # Pretend the game has not started since it makes disconnection testing way easier.
+        mocker.patch.object(self.game_master_ws._api._cache, "has_game_started", return_value=False)
+        mocker.patch.object(self.player_ws._api._cache, "has_game_started", return_value=False)
+
         assert len(AotWs._clients) == 2
 
         await self.game_master_ws.onClose(was_clean=True, code=1001, reason=None)

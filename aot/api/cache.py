@@ -254,6 +254,7 @@ class Cache:
                 slot["player_id"] = self._player_id
             elif "player_id" in slot:
                 del slot["player_id"]
+                slot["player_name"] = ""
             await self._save_slot(slot)
         elif await self.is_game_master() and current_slot["state"] != SlotState.TAKEN:
             # If we are closing the slot, we remove the name of the previous player.

@@ -113,7 +113,7 @@ class Api:
             return WsResponse(send_to_current_player=[{"success": True}])
 
     async def disconnect_player(self):
-        if await self._has_game_started:
+        if not await self._has_game_started:
             self.logger.debug(f"Freeing slot for player {self.id} in game {self.game_id}")
             return await free_slot(
                 {"player_id": self.id, "game_id": self.game_id, "free": True}, self._cache
