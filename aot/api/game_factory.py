@@ -189,4 +189,10 @@ def _get_power(config, hero=None):
         power_cls = power_type_to_class[power_description["type"]]
         # We must create copies here, because mappingproxy objects cannot be pickled.
         power_args = remove_mappingproxies(power_description["args"])
+        if "color" in power_args["trump_args"]:
+            power_args["trump_args"]["color"] = Color[power_args["trump_args"]["color"]]
+        if "colors" in power_args["trump_args"]:
+            power_args["trump_args"]["colors"] = [
+                Color[color_name] for color_name in power_args["trump_args"]["colors"]
+            ]
         return power_cls(**power_args)
