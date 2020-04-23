@@ -98,6 +98,7 @@ class AotWs(WebSocketServerProtocol):
 
         try:
             message = json.loads(payload.decode("utf-8"))
+            self.logger.debug(f"Received message from {self.id}: {message}")
             validated_message = validate(message)
             self._check_reconnect(validated_message)
             response = await self._api.process_message(validated_message)

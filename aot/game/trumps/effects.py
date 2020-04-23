@@ -86,6 +86,10 @@ class TrumpEffect(metaclass=ABCMeta):
     def name(self):
         return self._trump.name
 
+    @property
+    def is_player_visible(self):
+        return self._trump.is_player_visible
+
     def __eq__(self, other: TrumpEffect):
         if self is other:
             return True

@@ -60,6 +60,7 @@ def _generate_trumps_list():
     trumps = set()
     for cfg in GAME_CONFIGS.values():
         trumps.update(trump["args"]["name"] for trump in cfg["trumps"])
+        trumps.update(power["args"]["trump_args"]["name"] for power in cfg["powers"].values())
 
     return trumps
 
@@ -73,6 +74,9 @@ def _to_slot_state(value: str):
 
 
 def _to_color(value: str):
+    if value is None:
+        return
+
     return Color[value.upper()]
 
 
@@ -152,21 +156,18 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
         ),
         RequestTypes.SPECIAL_ACTION_PLAY: Validator(
             {
+                "auto": {"type": "boolean", "default": False},
                 "cancel": {"type": "boolean", "default": False},
-                "target_index": {"type": "integer", "min": 0},
-                "x": {"type": "integer"},
-                "y": {"type": "integer"},
+                "target_index": {"type": "integer", "min": 0, "required": False},
+                "x": {"type": "integer", "required": False},
+                "y": {"type": "integer", "required": False},
+                "special_action_name": {"type": "string", "empty": False},
             },
             require_all=True,
         ),
         RequestTypes.SPECIAL_ACTION_VIEW_POSSIBLE_ACTIONS: Validator(
             {
                 "special_action_name": {"type": "string", "empty": False},
-                "special_action_color": {
-                    "type": "color",
-                    "coerce": (str, _to_color),
-                    "nullable": True,
-                },
                 "cancel": {"type": "boolean", "default": False},
                 "target_index": {"type": "integer", "min": 0},
             },
@@ -174,6 +175,7 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
         ),
         RequestTypes.PLAY_CARD: Validator(
             {
+                "auto": {"type": "boolean", "default": False},
                 "pass": {"type": "boolean", "default": False},
                 "discard": {"type": "boolean", "default": False},
                 "card_name": {
@@ -198,10 +200,16 @@ _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
         RequestTypes.PLAY_TRUMP: Validator(
             {
                 "name": {"type": "string", "empty": False, "allowed": _generate_trumps_list()},
-                "color": {"type": "color", "coerce": (str, _to_color), "nullable": True},
+                "color": {
+                    "type": "color",
+                    "coerce": (_to_color,),
+                    "nullable": True,
+                    "required": False,
+                },
                 "target_index": {"type": "integer", "min": 0},
                 "square": {
                     "type": "dict",
+                    "required": False,
                     "require_all": True,
                     "schema": {
                         "x": {"type": "integer"},

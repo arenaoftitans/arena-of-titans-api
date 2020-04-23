@@ -47,7 +47,6 @@ def view_possible_squares(request, game):
 def play_card(request, game):
     # If this action completes the turn, it may not be the active player
     # once the card has been played.
-    has_special_actions = False
     if request.get("pass", False):
         game.pass_turn()
     elif request.get("discard", False):
@@ -66,16 +65,9 @@ def play_card(request, game):
         square = get_square(request, game)
         if square is None or not game.can_move(card, square):
             raise AotErrorToDisplay("wrong_square")
-        has_special_actions = game.play_card(card, square)
+        game.play_card(card, square)
 
     send_to_current_player = []
-    if has_special_actions:
-        send_to_current_player = [
-            {
-                "rt": RequestTypes.SPECIAL_ACTION_NOTIFY,
-                "request": {"special_action_name": game.active_player.name_next_special_action},
-            }
-        ]
 
     return WsResponse(
         send_to_current_player=send_to_current_player,

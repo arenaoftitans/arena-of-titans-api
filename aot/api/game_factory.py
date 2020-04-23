@@ -140,6 +140,10 @@ def _get_additional_colors(color, additional_movements_color, complementary_colo
 def _get_trumps(description):
     trumps = []
     trump_cls = trump_type_to_class[description["type"]]
+    trump_args = description["args"].copy()
+    if trump_args.get("colors"):
+        trump_args["colors"] = {Color[color] for color in trump_args["colors"]}
+
     if description.get("repeat_for_each_color", False):
         for color in Color:
             if color == Color.ALL:

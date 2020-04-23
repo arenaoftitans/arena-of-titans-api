@@ -101,7 +101,7 @@ async def join_game(request, cache):
     return WsResponse(
         send_to_current_player=[
             {
-                "rt": RequestTypes.JOIN_GAME,
+                "rt": RequestTypes.JOINED_LOBBY,
                 "request": {
                     "game_id": request["game_id"],
                     "player_id": request["player_id"],

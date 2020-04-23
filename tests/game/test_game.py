@@ -243,11 +243,11 @@ def test_can_move(game):  # noqa: F811
 
 
 def test_actions(game):  # noqa: F811
-    assert len(game._actions) == 0
-    assert game.last_action is nothing_has_happened_action
+    assert len(game.actions) == 1
+    assert game.actions[0] is nothing_has_happened_action
     game.add_action("An action")
     assert len(game._actions) == 1
-    assert game.last_action == "An action"
+    assert game.actions[0] == "An action"
 
 
 def test_disconnect(game):  # noqa: F811

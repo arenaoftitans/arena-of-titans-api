@@ -41,6 +41,7 @@ class Trump:
     #: This is also used to force a trump to act against a CannotBeAffectedByTrumps.
     prevent_trumps_to_modify: Tuple[str] = ()
     apply_on_initiator: bool = False
+    is_player_visible: bool = True
 
     def create_effect(self, *, initiator, target, context, effect_type=EffectTypes.trump):
         return self.trump_effect_cls(

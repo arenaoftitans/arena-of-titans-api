@@ -274,11 +274,11 @@ class Game:
         return self._is_over
 
     @property
-    def last_action(self):
-        if len(self._actions) == 0:
-            return nothing_has_happened_action
+    def actions(self):
+        if not self._actions:
+            return (nothing_has_happened_action,)
 
-        return self._actions[-1]
+        return tuple(self._actions)
 
     @property
     def nb_turns(self):

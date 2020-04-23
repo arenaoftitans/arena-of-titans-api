@@ -22,7 +22,11 @@ from aot.game.trumps.exceptions import (
     MaxNumberTrumpPlayedError,
 )
 
-from ..serializers import get_global_game_message, get_private_player_state
+from ..serializers import (
+    get_global_game_message,
+    get_private_player_message,
+    get_private_player_messages_by_ids,
+)
 from ..utils import AotError, AotErrorToDisplay, WsResponse
 
 
@@ -39,7 +43,8 @@ def play_trump(request, game):
 
     return WsResponse(
         send_to_all=[get_global_game_message(game)],
-        send_to_current_player=[get_private_player_state(game.active_player)],
+        send_to_current_player=[get_private_player_message(game, game.active_player)],
+        send_to_each_players=get_private_player_messages_by_ids(game),
     )
 
 

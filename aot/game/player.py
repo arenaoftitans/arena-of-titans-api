@@ -195,6 +195,7 @@ class Player:
         self._number_moves_played = 0
         self._number_trumps_played = 0
         self._can_play = True
+        self._special_actions_names = []
         self._last_square_previous_turn = self._current_square
         self._enable_passive_power()
         self._enable_trumps()
@@ -450,6 +451,10 @@ class Player:
         self._is_connected = value
 
     @property
+    def is_visible(self):
+        return all(effect.is_player_visible for effect in self.trump_effects)
+
+    @property
     def on_aim_line(self):
         return self._current_square in self.aim
 
@@ -501,6 +506,9 @@ class Player:
 
     @property
     def name_next_special_action(self):
+        if not self._special_actions_names:
+            return
+
         return next(iter(self._special_actions_names))
 
     @property

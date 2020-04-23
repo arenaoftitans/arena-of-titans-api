@@ -175,6 +175,7 @@ STANDARD_CONFIG = {
                 "trump_args": {
                     "name": "Night mist",
                     "description": "Disappear from the board and cannot be targeted by other players.",  # noqa: E501
+                    "is_player_visible": False,
                     "trump_names": (),
                     "cost": 10,
                     "duration": 2,

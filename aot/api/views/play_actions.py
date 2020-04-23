@@ -57,18 +57,9 @@ def play_action(request, game):
         game.complete_special_actions()
 
     messages_for_current_player = []
-    message_for_each_players = {}
-    if game.active_player.has_special_actions:
-        messages_for_current_player = [
-            {
-                "rt": RequestTypes.SPECIAL_ACTION_NOTIFY,
-                "special_action_name": game.active_player.name_next_special_action,
-            }
-        ]
-    else:
-        message_for_each_players = get_private_player_messages_by_ids(game)
+    message_for_each_players = get_private_player_messages_by_ids(game)
 
-    WsResponse(
+    return WsResponse(
         send_to_all=[get_global_game_message(game)],
         send_to_current_player=messages_for_current_player,
         send_to_each_players=message_for_each_players,

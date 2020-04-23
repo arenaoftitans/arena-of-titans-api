@@ -38,7 +38,7 @@ snapshots['TestCreateGame.test_create_lobby game_master-0'] = {
             }
         ]
     },
-    'rt': 'JOIN_GAME'
+    'rt': 'JOINED_LOBBY'
 }
 
 snapshots['TestCreateGame.test_create_lobby game_master-1'] = {
@@ -102,7 +102,7 @@ snapshots['TestCreateGame.test_join_game player-0'] = {
             }
         ]
     },
-    'rt': 'JOIN_GAME'
+    'rt': 'JOINED_LOBBY'
 }
 
 snapshots['TestCreateGame.test_join_game player-1'] = {
@@ -359,16 +359,63 @@ snapshots['TestCreateGame.test_game_master_create_game_missing_player game_maste
 snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 6,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
                 ]
             }
         ],
@@ -404,13 +451,16 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 0,
+        'hero': 'Arline',
+        'id': 'test-game-master-id',
+        'index': 0,
+        'name': 'Game master',
         'on_last_line': False,
         'power': {
             'cost': 10,
             'description': 'Disappear from the board and cannot be targeted by other players.',
             'duration': 2,
+            'is_player_visible': False,
             'is_power': True,
             'must_target_player': False,
             'name': 'Night mist',
@@ -420,6 +470,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
             ]
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -438,16 +489,31 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
 snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
     'request': {
         'actions': [
+            {
+                'card': None,
+                'description': 'nothing-happened',
+                'initiator': None,
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 6,
                     'y': 7
@@ -456,6 +522,10 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -471,16 +541,69 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
 snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 8,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
                 ]
             }
         ],
@@ -516,8 +639,10 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 0,
+        'hero': 'Djor',
+        'id': 'player_id',
+        'index': 1,
+        'name': 'Player',
         'on_last_line': False,
         'power': {
             'cost': 0,
@@ -537,6 +662,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
             'trump_cost_delta': 2
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -555,16 +681,31 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
 snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
     'request': {
         'actions': [
+            {
+                'card': None,
+                'description': 'nothing-happened',
+                'initiator': None,
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 6,
                     'y': 7
@@ -573,6 +714,10 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -589,16 +734,31 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
     'request': {
         'game': {
             'actions': [
+                {
+                    'card': None,
+                    'description': 'nothing-happened',
+                    'initiator': None,
+                    'special_action': None,
+                    'target': None,
+                    'trump': None
+                }
             ],
             'board': {
                 'updated_squares': [
                 ]
             },
+            'current_player_index': 0,
+            'id': 'test-game-id',
             'is_over': False,
+            'nb_turns': 0,
             'players': {
                 '0': {
                     'active_trumps': [
                     ],
+                    'hero': 'Arline',
+                    'index': 0,
+                    'is_visible': True,
+                    'name': 'Game master',
                     'square': {
                         'x': 6,
                         'y': 7
@@ -607,6 +767,10 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                 '1': {
                     'active_trumps': [
                     ],
+                    'hero': 'Djor',
+                    'index': 1,
+                    'is_visible': True,
+                    'name': 'Player',
                     'square': {
                         'x': 6,
                         'y': 8
@@ -617,82 +781,130 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
             ]
         },
         'player': {
-            'request': {
-                'active_trumps': [
-                    {
-                        'player_index': 0,
-                        'player_name': 'Game master',
-                        'trumps': [
-                        ]
-                    },
-                    {
-                        'player_index': 1,
-                        'player_name': 'Player',
-                        'trumps': [
-                        ]
-                    }
-                ],
-                'can_power_be_played': False,
-                'elapsed_time': 10,
-                'gauge_value': 0,
-                'hand': [
-                    {
-                        'color': 'YELLOW',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'RED',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'BLUE',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'BLACK',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'YELLOW',
-                        'description': 'Move one square in line',
-                        'name': 'Warrior'
-                    }
-                ],
-                'has_remaining_moves_to_play': True,
-                'has_won': False,
-                'nb_turns': 0,
-                'next_player': 0,
-                'on_last_line': False,
-                'power': {
-                    'cost': 10,
-                    'description': 'Disappear from the board and cannot be targeted by other players.',
-                    'duration': 2,
-                    'is_power': True,
-                    'must_target_player': False,
-                    'name': 'Night mist',
-                    'passive': False,
-                    'trump_cost_delta': 0,
-                    'trump_names': [
+            'active_trumps': [
+            ],
+            'available_trumps': [
+                {
+                    'apply_on_initiator': False,
+                    'color': None,
+                    'colors': [
+                    ],
+                    'cost': 6,
+                    'delta_moves': -1,
+                    'description': 'Reduce the number of cards a player can play by 1.',
+                    'duration': 1,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Blizzard',
+                    'prevent_trumps_to_modify': [
                     ]
                 },
-                'rank': -1,
-                'trump_target_indexes': [
-                    0,
-                    1
-                ],
-                'trumps_statuses': [
-                    False,
-                    False,
-                    False,
-                    False
-                ],
-                'your_turn': True
+                {
+                    'apply_on_initiator': False,
+                    'color': 'BLACK',
+                    'colors': [
+                    ],
+                    'cost': 7,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
+                    'prevent_trumps_to_modify': [
+                    ]
+                },
+                {
+                    'apply_on_initiator': False,
+                    'color': 'BLUE',
+                    'colors': [
+                    ],
+                    'cost': 7,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
+                    'prevent_trumps_to_modify': [
+                    ]
+                },
+                {
+                    'apply_on_initiator': False,
+                    'color': 'RED',
+                    'colors': [
+                    ],
+                    'cost': 7,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
+                    'prevent_trumps_to_modify': [
+                    ]
+                }
+            ],
+            'can_power_be_played': False,
+            'elapsed_time': 10,
+            'gauge_value': 0,
+            'hand': [
+                {
+                    'color': 'YELLOW',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'RED',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'BLUE',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'BLACK',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'YELLOW',
+                    'description': 'Move one square in line',
+                    'name': 'Warrior'
+                }
+            ],
+            'has_remaining_moves_to_play': True,
+            'has_won': False,
+            'hero': 'Arline',
+            'id': 'test-game-master-id',
+            'index': 0,
+            'name': 'Game master',
+            'on_last_line': False,
+            'power': {
+                'cost': 10,
+                'description': 'Disappear from the board and cannot be targeted by other players.',
+                'duration': 2,
+                'is_player_visible': False,
+                'is_power': True,
+                'must_target_player': False,
+                'name': 'Night mist',
+                'passive': False,
+                'trump_cost_delta': 0,
+                'trump_names': [
+                ]
             },
-            'rt': 'PLAYER_UPDATED'
+            'rank': -1,
+            'special_action': None,
+            'trump_target_indexes': [
+                0,
+                1
+            ],
+            'trumps_statuses': [
+                False,
+                False,
+                False,
+                False
+            ],
+            'your_turn': True
         }
     },
     'rt': 'JOIN_GAME'
@@ -712,16 +924,31 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
     'request': {
         'game': {
             'actions': [
+                {
+                    'card': None,
+                    'description': 'nothing-happened',
+                    'initiator': None,
+                    'special_action': None,
+                    'target': None,
+                    'trump': None
+                }
             ],
             'board': {
                 'updated_squares': [
                 ]
             },
+            'current_player_index': 0,
+            'id': 'test-game-id',
             'is_over': False,
+            'nb_turns': 0,
             'players': {
                 '0': {
                     'active_trumps': [
                     ],
+                    'hero': 'Arline',
+                    'index': 0,
+                    'is_visible': True,
+                    'name': 'Game master',
                     'square': {
                         'x': 6,
                         'y': 7
@@ -730,6 +957,10 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                 '1': {
                     'active_trumps': [
                     ],
+                    'hero': 'Djor',
+                    'index': 1,
+                    'is_visible': True,
+                    'name': 'Player',
                     'square': {
                         'x': 6,
                         'y': 8
@@ -740,87 +971,140 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
             ]
         },
         'player': {
-            'request': {
-                'active_trumps': [
-                    {
-                        'player_index': 0,
-                        'player_name': 'Game master',
-                        'trumps': [
-                        ]
-                    },
-                    {
-                        'player_index': 1,
-                        'player_name': 'Player',
-                        'trumps': [
-                        ]
-                    }
-                ],
-                'can_power_be_played': False,
-                'elapsed_time': 10,
-                'gauge_value': 0,
-                'hand': [
-                    {
-                        'color': 'YELLOW',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'RED',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'BLUE',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'BLACK',
-                        'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
-                        'name': 'Wizard'
-                    },
-                    {
-                        'color': 'YELLOW',
-                        'description': 'Move one square in line',
-                        'name': 'Warrior'
-                    }
-                ],
-                'has_remaining_moves_to_play': True,
-                'has_won': False,
-                'nb_turns': 0,
-                'next_player': 0,
-                'on_last_line': False,
-                'power': {
-                    'cost': 0,
-                    'description': 'Your tower and fortress cannot be destroyed.',
-                    'enable_for_trumps': [
-                        'Fortress',
-                        'Tower'
+            'active_trumps': [
+            ],
+            'available_trumps': [
+                {
+                    'apply_on_initiator': False,
+                    'color': None,
+                    'colors': [
                     ],
-                    'is_power': True,
-                    'must_target_player': False,
-                    'name': 'Impassable',
-                    'passive': True,
+                    'cost': 8,
+                    'delta_moves': -1,
+                    'description': 'Reduce the number of cards a player can play by 1.',
+                    'duration': 1,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Blizzard',
+                    'prevent_trumps_to_modify': [
+                    ]
+                },
+                {
+                    'apply_on_initiator': False,
+                    'color': 'BLACK',
+                    'colors': [
+                    ],
+                    'cost': 9,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
                     'prevent_trumps_to_modify': [
                         'Force of nature',
                         'Ram'
-                    ],
-                    'trump_cost_delta': 2
+                    ]
                 },
-                'rank': -1,
-                'trump_target_indexes': [
-                    0,
-                    1
+                {
+                    'apply_on_initiator': False,
+                    'color': 'BLUE',
+                    'colors': [
+                    ],
+                    'cost': 9,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
+                    'prevent_trumps_to_modify': [
+                        'Force of nature',
+                        'Ram'
+                    ]
+                },
+                {
+                    'apply_on_initiator': False,
+                    'color': 'RED',
+                    'colors': [
+                    ],
+                    'cost': 9,
+                    'description': 'Prevent the player to move on some colors.',
+                    'duration': 2,
+                    'is_player_visible': True,
+                    'must_target_player': True,
+                    'name': 'Fortress',
+                    'prevent_trumps_to_modify': [
+                        'Force of nature',
+                        'Ram'
+                    ]
+                }
+            ],
+            'can_power_be_played': False,
+            'elapsed_time': 10,
+            'gauge_value': 0,
+            'hand': [
+                {
+                    'color': 'YELLOW',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'RED',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'BLUE',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'BLACK',
+                    'description': 'Move one squares in line or diagonal. Can move on a square of any color.',
+                    'name': 'Wizard'
+                },
+                {
+                    'color': 'YELLOW',
+                    'description': 'Move one square in line',
+                    'name': 'Warrior'
+                }
+            ],
+            'has_remaining_moves_to_play': True,
+            'has_won': False,
+            'hero': 'Djor',
+            'id': 'player_id',
+            'index': 1,
+            'name': 'Player',
+            'on_last_line': False,
+            'power': {
+                'cost': 0,
+                'description': 'Your tower and fortress cannot be destroyed.',
+                'enable_for_trumps': [
+                    'Fortress',
+                    'Tower'
                 ],
-                'trumps_statuses': [
-                    False,
-                    False,
-                    False,
-                    False
+                'is_power': True,
+                'must_target_player': False,
+                'name': 'Impassable',
+                'passive': True,
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
                 ],
-                'your_turn': False
+                'trump_cost_delta': 2
             },
-            'rt': 'PLAYER_UPDATED'
+            'rank': -1,
+            'special_action': None,
+            'trump_target_indexes': [
+                0,
+                1
+            ],
+            'trumps_statuses': [
+                False,
+                False,
+                False,
+                False
+            ],
+            'your_turn': False
         }
     },
     'rt': 'JOIN_GAME'
@@ -865,16 +1149,63 @@ snapshots['TestPlayGame.test_view_possible_squares game_master-0'] = {
 snapshots['TestPlayGame.test_play_card game_master-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 6,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
                 ]
             }
         ],
@@ -905,13 +1236,16 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 0,
+        'hero': 'Arline',
+        'id': 'test-game-master-id',
+        'index': 0,
+        'name': 'Game master',
         'on_last_line': False,
         'power': {
             'cost': 10,
             'description': 'Disappear from the board and cannot be targeted by other players.',
             'duration': 2,
+            'is_player_visible': False,
             'is_power': True,
             'must_target_player': False,
             'name': 'Night mist',
@@ -921,6 +1255,7 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
             ]
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -939,16 +1274,37 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
 snapshots['TestPlayGame.test_play_card game_master-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -957,6 +1313,10 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -972,16 +1332,69 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
 snapshots['TestPlayGame.test_play_card player-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 8,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
                 ]
             }
         ],
@@ -1017,8 +1430,10 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 0,
+        'hero': 'Djor',
+        'id': 'player_id',
+        'index': 1,
+        'name': 'Player',
         'on_last_line': False,
         'power': {
             'cost': 0,
@@ -1038,6 +1453,7 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
             'trump_cost_delta': 2
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -1056,16 +1472,37 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
 snapshots['TestPlayGame.test_play_card player-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -1074,6 +1511,10 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -1089,16 +1530,63 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
 snapshots['TestPlayGame.test_discard_card game_master-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 6,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
                 ]
             }
         ],
@@ -1134,13 +1622,16 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
         ],
         'has_remaining_moves_to_play': False,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 1,
+        'hero': 'Arline',
+        'id': 'test-game-master-id',
+        'index': 0,
+        'name': 'Game master',
         'on_last_line': False,
         'power': {
             'cost': 10,
             'description': 'Disappear from the board and cannot be targeted by other players.',
             'duration': 2,
+            'is_player_visible': False,
             'is_power': True,
             'must_target_player': False,
             'name': 'Night mist',
@@ -1150,6 +1641,7 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
             ]
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -1168,16 +1660,51 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
 snapshots['TestPlayGame.test_discard_card game_master-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': {
+                    'color': 'RED',
+                    'name': 'Wizard'
+                },
+                'description': 'discarded_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 1,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -1186,6 +1713,10 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -1201,16 +1732,69 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
 snapshots['TestPlayGame.test_discard_card player-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 8,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
                 ]
             }
         ],
@@ -1246,8 +1830,10 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 0,
-        'next_player': 1,
+        'hero': 'Djor',
+        'id': 'player_id',
+        'index': 1,
+        'name': 'Player',
         'on_last_line': False,
         'power': {
             'cost': 0,
@@ -1267,6 +1853,7 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
             'trump_cost_delta': 2
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -1285,16 +1872,51 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
 snapshots['TestPlayGame.test_discard_card player-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': {
+                    'color': 'RED',
+                    'name': 'Wizard'
+                },
+                'description': 'discarded_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 1,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 0,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -1303,6 +1925,10 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -1318,16 +1944,69 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
 snapshots['TestPlayGame.test_pass_turn player-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 8,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 9,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                    'Force of nature',
+                    'Ram'
                 ]
             }
         ],
@@ -1363,8 +2042,10 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 1,
-        'next_player': 0,
+        'hero': 'Djor',
+        'id': 'player_id',
+        'index': 1,
+        'name': 'Player',
         'on_last_line': False,
         'power': {
             'cost': 0,
@@ -1384,6 +2065,7 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
             'trump_cost_delta': 2
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -1402,16 +2084,62 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
 snapshots['TestPlayGame.test_pass_turn player-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': {
+                    'color': 'RED',
+                    'name': 'Wizard'
+                },
+                'description': 'discarded_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': None,
+                'description': 'passed_turn',
+                'initiator': {
+                    'index': 1,
+                    'name': 'Player'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 1,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -1420,6 +2148,10 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
@@ -1435,16 +2167,63 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
 snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
     'request': {
         'active_trumps': [
+        ],
+        'available_trumps': [
             {
-                'player_index': 0,
-                'player_name': 'Game master',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': None,
+                'colors': [
+                ],
+                'cost': 6,
+                'delta_moves': -1,
+                'description': 'Reduce the number of cards a player can play by 1.',
+                'duration': 1,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Blizzard',
+                'prevent_trumps_to_modify': [
                 ]
             },
             {
-                'player_index': 1,
-                'player_name': 'Player',
-                'trumps': [
+                'apply_on_initiator': False,
+                'color': 'BLACK',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'BLUE',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
+                ]
+            },
+            {
+                'apply_on_initiator': False,
+                'color': 'RED',
+                'colors': [
+                ],
+                'cost': 7,
+                'description': 'Prevent the player to move on some colors.',
+                'duration': 2,
+                'is_player_visible': True,
+                'must_target_player': True,
+                'name': 'Fortress',
+                'prevent_trumps_to_modify': [
                 ]
             }
         ],
@@ -1480,13 +2259,16 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
         ],
         'has_remaining_moves_to_play': True,
         'has_won': False,
-        'nb_turns': 1,
-        'next_player': 0,
+        'hero': 'Arline',
+        'id': 'test-game-master-id',
+        'index': 0,
+        'name': 'Game master',
         'on_last_line': False,
         'power': {
             'cost': 10,
             'description': 'Disappear from the board and cannot be targeted by other players.',
             'duration': 2,
+            'is_player_visible': False,
             'is_power': True,
             'must_target_player': False,
             'name': 'Night mist',
@@ -1496,6 +2278,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
             ]
         },
         'rank': -1,
+        'special_action': None,
         'trump_target_indexes': [
             0,
             1
@@ -1514,16 +2297,62 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
 snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
     'request': {
         'actions': [
+            {
+                'card': {
+                    'color': 'YELLOW',
+                    'name': 'Wizard'
+                },
+                'description': 'played_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': {
+                    'color': 'RED',
+                    'name': 'Wizard'
+                },
+                'description': 'discarded_card',
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            },
+            {
+                'card': None,
+                'description': 'passed_turn',
+                'initiator': {
+                    'index': 1,
+                    'name': 'Player'
+                },
+                'special_action': None,
+                'target': None,
+                'trump': None
+            }
         ],
         'board': {
             'updated_squares': [
             ]
         },
+        'current_player_index': 0,
+        'id': 'test-game-id',
         'is_over': False,
+        'nb_turns': 1,
         'players': {
             '0': {
                 'active_trumps': [
                 ],
+                'hero': 'Arline',
+                'index': 0,
+                'is_visible': True,
+                'name': 'Game master',
                 'square': {
                     'x': 5,
                     'y': 8
@@ -1532,6 +2361,10 @@ snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'hero': 'Djor',
+                'index': 1,
+                'is_visible': True,
+                'name': 'Player',
                 'square': {
                     'x': 6,
                     'y': 8
