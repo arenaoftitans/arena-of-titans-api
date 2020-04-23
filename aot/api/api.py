@@ -76,7 +76,7 @@ class Api:
         self._ai_delay = ai_delay
         self._utility_request_types_to_views = {
             RequestTypes.TEST: self._test,
-            "info": self._info,
+            RequestTypes.INFO: self._info,
         }
         self._message = {}
 

@@ -90,6 +90,7 @@ def _check_slot_is_complete(field, value, error):
 _REQUEST_TYPE_TO_REQUEST_VALIDATOR = make_immutable(
     {
         RequestTypes.TEST: Validator({}),
+        RequestTypes.INFO: Validator({}),
         RequestTypes.CREATE_LOBBY: Validator(
             {
                 "test": {"type": "boolean", "default": False},
