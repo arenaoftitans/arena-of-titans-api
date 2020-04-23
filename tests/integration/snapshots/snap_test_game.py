@@ -374,7 +374,8 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -388,7 +389,8 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -402,7 +404,8 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -416,7 +419,8 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -465,6 +469,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-0'] = {
             'must_target_player': False,
             'name': 'Night mist',
             'passive': False,
+            'require_square_target': False,
             'trump_cost_delta': 0,
             'trump_names': [
             ]
@@ -515,6 +520,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'RED',
                     'x': 6,
                     'y': 7
                 }
@@ -527,6 +533,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -556,7 +563,8 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -572,7 +580,8 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -588,7 +597,8 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -604,7 +614,8 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -659,6 +670,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-0'] = {
                 'Force of nature',
                 'Ram'
             ],
+            'require_square_target': False,
             'trump_cost_delta': 2
         },
         'rank': -1,
@@ -707,6 +719,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'RED',
                     'x': 6,
                     'y': 7
                 }
@@ -719,6 +732,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -760,6 +774,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'is_visible': True,
                     'name': 'Game master',
                     'square': {
+                        'color': 'RED',
                         'x': 6,
                         'y': 7
                     }
@@ -772,6 +787,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'is_visible': True,
                     'name': 'Player',
                     'square': {
+                        'color': 'YELLOW',
                         'x': 6,
                         'y': 8
                     }
@@ -797,7 +813,8 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'must_target_player': True,
                     'name': 'Blizzard',
                     'prevent_trumps_to_modify': [
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -811,7 +828,8 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'must_target_player': True,
                     'name': 'Fortress',
                     'prevent_trumps_to_modify': [
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -825,7 +843,8 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'must_target_player': True,
                     'name': 'Fortress',
                     'prevent_trumps_to_modify': [
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -839,7 +858,8 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                     'must_target_player': True,
                     'name': 'Fortress',
                     'prevent_trumps_to_modify': [
-                    ]
+                    ],
+                    'require_square_target': False
                 }
             ],
             'can_power_be_played': False,
@@ -888,6 +908,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                 'must_target_player': False,
                 'name': 'Night mist',
                 'passive': False,
+                'require_square_target': False,
                 'trump_cost_delta': 0,
                 'trump_names': [
                 ]
@@ -950,6 +971,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'is_visible': True,
                     'name': 'Game master',
                     'square': {
+                        'color': 'RED',
                         'x': 6,
                         'y': 7
                     }
@@ -962,6 +984,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'is_visible': True,
                     'name': 'Player',
                     'square': {
+                        'color': 'YELLOW',
                         'x': 6,
                         'y': 8
                     }
@@ -987,7 +1010,8 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'must_target_player': True,
                     'name': 'Blizzard',
                     'prevent_trumps_to_modify': [
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -1003,7 +1027,8 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'prevent_trumps_to_modify': [
                         'Force of nature',
                         'Ram'
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -1019,7 +1044,8 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'prevent_trumps_to_modify': [
                         'Force of nature',
                         'Ram'
-                    ]
+                    ],
+                    'require_square_target': False
                 },
                 {
                     'apply_on_initiator': False,
@@ -1035,7 +1061,8 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'prevent_trumps_to_modify': [
                         'Force of nature',
                         'Ram'
-                    ]
+                    ],
+                    'require_square_target': False
                 }
             ],
             'can_power_be_played': False,
@@ -1090,6 +1117,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                     'Force of nature',
                     'Ram'
                 ],
+                'require_square_target': False,
                 'trump_cost_delta': 2
             },
             'rank': -1,
@@ -1134,10 +1162,12 @@ snapshots['TestPlayGame.test_view_possible_squares game_master-0'] = {
     'request': {
         'possible_squares': [
             {
+                'color': 'RED',
                 'x': 5,
                 'y': 7
             },
             {
+                'color': 'YELLOW',
                 'x': 5,
                 'y': 8
             }
@@ -1164,7 +1194,8 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1178,7 +1209,8 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1192,7 +1224,8 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1206,7 +1239,8 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -1250,6 +1284,7 @@ snapshots['TestPlayGame.test_play_card game_master-0'] = {
             'must_target_player': False,
             'name': 'Night mist',
             'passive': False,
+            'require_square_target': False,
             'trump_cost_delta': 0,
             'trump_names': [
             ]
@@ -1306,6 +1341,7 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -1318,6 +1354,7 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -1347,7 +1384,8 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1363,7 +1401,8 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1379,7 +1418,8 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1395,7 +1435,8 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -1450,6 +1491,7 @@ snapshots['TestPlayGame.test_play_card player-0'] = {
                 'Force of nature',
                 'Ram'
             ],
+            'require_square_target': False,
             'trump_cost_delta': 2
         },
         'rank': -1,
@@ -1504,6 +1546,7 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -1516,6 +1559,7 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -1545,7 +1589,8 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1559,7 +1604,8 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1573,7 +1619,8 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1587,7 +1634,8 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -1636,6 +1684,7 @@ snapshots['TestPlayGame.test_discard_card game_master-0'] = {
             'must_target_player': False,
             'name': 'Night mist',
             'passive': False,
+            'require_square_target': False,
             'trump_cost_delta': 0,
             'trump_names': [
             ]
@@ -1706,6 +1755,7 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -1718,6 +1768,7 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -1747,7 +1798,8 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1763,7 +1815,8 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1779,7 +1832,8 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1795,7 +1849,8 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': True,
@@ -1850,6 +1905,7 @@ snapshots['TestPlayGame.test_discard_card player-0'] = {
                 'Force of nature',
                 'Ram'
             ],
+            'require_square_target': False,
             'trump_cost_delta': 2
         },
         'rank': -1,
@@ -1918,6 +1974,7 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -1930,6 +1987,7 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -1959,7 +2017,8 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1975,7 +2034,8 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -1991,7 +2051,8 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -2007,7 +2068,8 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
                 'prevent_trumps_to_modify': [
                     'Force of nature',
                     'Ram'
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -2062,6 +2124,7 @@ snapshots['TestPlayGame.test_pass_turn player-0'] = {
                 'Force of nature',
                 'Ram'
             ],
+            'require_square_target': False,
             'trump_cost_delta': 2
         },
         'rank': -1,
@@ -2141,6 +2204,7 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -2153,6 +2217,7 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
@@ -2182,7 +2247,8 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Blizzard',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -2196,7 +2262,8 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -2210,7 +2277,8 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             },
             {
                 'apply_on_initiator': False,
@@ -2224,7 +2292,8 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
                 'must_target_player': True,
                 'name': 'Fortress',
                 'prevent_trumps_to_modify': [
-                ]
+                ],
+                'require_square_target': False
             }
         ],
         'can_power_be_played': False,
@@ -2273,6 +2342,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-0'] = {
             'must_target_player': False,
             'name': 'Night mist',
             'passive': False,
+            'require_square_target': False,
             'trump_cost_delta': 0,
             'trump_names': [
             ]
@@ -2354,6 +2424,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
                 'is_visible': True,
                 'name': 'Game master',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 5,
                     'y': 8
                 }
@@ -2366,6 +2437,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
                 'is_visible': True,
                 'name': 'Player',
                 'square': {
+                    'color': 'YELLOW',
                     'x': 6,
                     'y': 8
                 }
