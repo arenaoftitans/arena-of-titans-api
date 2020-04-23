@@ -123,6 +123,7 @@ def to_json(python_object):  # noqa: C901 too complex
         return {
             "x": python_object.x,
             "y": python_object.y,
+            "color": python_object.color,
         }
     elif isinstance(python_object, Board):
         return {"updated_squares": python_object.updated_squares}
