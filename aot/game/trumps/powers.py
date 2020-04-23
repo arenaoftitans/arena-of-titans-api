@@ -39,6 +39,7 @@ class Power:
     trump_cost_delta: int = 0
     trump_args: dict = field(default_factory=dict)
     trump_cls: type = None
+    require_square_target: bool = False
 
     def allow_trump_to_affect(self, trump):
         return self.trump.allow_trump_to_affect(trump)
@@ -109,6 +110,7 @@ class CannotBeAffectedByTrumpsPower(Power):
 @dataclass(frozen=True)
 class ChangeSquarePower(Power):
     trump_cls: type = ChangeSquare
+    require_square_target: bool = True
 
 
 @dataclass(frozen=True)

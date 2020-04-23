@@ -42,6 +42,7 @@ class Trump:
     prevent_trumps_to_modify: Tuple[str] = ()
     apply_on_initiator: bool = False
     is_player_visible: bool = True
+    require_square_target: bool = False
 
     def create_effect(self, *, initiator, target, context, effect_type=EffectTypes.trump):
         return self.trump_effect_cls(
@@ -102,6 +103,7 @@ class CannotBeAffectedByTrumps(Trump):
 
 @dataclass(frozen=True)
 class ChangeSquare(Trump):
+    require_square_target: bool = True
     trump_effect_cls: type = effects.ChangeSquareEffect
 
 
