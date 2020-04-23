@@ -70,6 +70,7 @@ class WsResponse:
 
 
 class RequestTypes(Enum):
+    TEST = "TEST"
     CREATE_LOBBY = "CREATE_LOBBY"
     JOIN_GAME = "JOIN_GAME"
     JOINED_LOBBY = "JOINED_LOBBY"
