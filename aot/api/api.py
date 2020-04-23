@@ -209,7 +209,7 @@ class Api:
                         "playload": json.dumps(self._message, default=to_json),
                     },
                 )
-                if self._message and self._message.get("auto", False):
+                if self._message and self._message.get("request", {}).get("auto", False):
                     # It's an automated message, probably from a timer. Raise an error to quit
                     # here but don't display it.
                     raise AotError("not_your_turn")
