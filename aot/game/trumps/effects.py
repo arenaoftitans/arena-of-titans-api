@@ -194,6 +194,9 @@ class StealPowerEffect(TrumpEffect):
 
     def apply(self):
         stolen_power = self._context["stolen_power"]
+        if not stolen_power.passive:
+            stolen_power = stolen_power.cancel_cost()
+            self._context["stolen_power"] = stolen_power
         self._initiator.setup_new_power(stolen_power)
         if stolen_power.passive:
             self._initiator.play_trump(stolen_power, target=self._initiator, context=self._context)
