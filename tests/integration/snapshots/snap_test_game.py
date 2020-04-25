@@ -496,7 +496,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
         'actions': [
             {
                 'card': None,
-                'description': 'nothing-happened',
+                'description': 'nothing_happened',
                 'initiator': None,
                 'special_action': None,
                 'target': None,
@@ -695,7 +695,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
         'actions': [
             {
                 'card': None,
-                'description': 'nothing-happened',
+                'description': 'nothing_happened',
                 'initiator': None,
                 'special_action': None,
                 'target': None,
@@ -750,7 +750,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
             'actions': [
                 {
                     'card': None,
-                    'description': 'nothing-happened',
+                    'description': 'nothing_happened',
                     'initiator': None,
                     'special_action': None,
                     'target': None,
@@ -947,7 +947,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
             'actions': [
                 {
                     'card': None,
-                    'description': 'nothing-happened',
+                    'description': 'nothing_happened',
                     'initiator': None,
                     'special_action': None,
                     'target': None,

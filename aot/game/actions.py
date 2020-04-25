@@ -33,4 +33,4 @@ class Action:
     trump: Trump = None  # noqa: F821 undefined name
 
 
-nothing_has_happened_action = Action(initiator=None, description="nothing-happened")
+nothing_has_happened_action = Action(initiator=None, description="nothing_happened")
