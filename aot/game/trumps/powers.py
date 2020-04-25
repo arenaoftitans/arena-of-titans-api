@@ -67,6 +67,11 @@ class Power:
         trump_args["cost"] = 0
         return replace_frozen_field(self, trump_args=trump_args)
 
+    def set_duration_if_not_set(self, duration):
+        trump_args = self.trump_args.copy()
+        trump_args["duration"] = trump_args.get("duration", 0) or duration
+        return replace_frozen_field(self, trump_args=trump_args, passive=False)
+
     @property
     def apply_on_initiator(self):
         return self.trump.apply_on_initiator

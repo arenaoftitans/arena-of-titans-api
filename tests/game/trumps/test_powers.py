@@ -269,19 +269,17 @@ def test_steal_power_properties_no_stolen_power(steal_power_power):
     assert steal_power_power.trump.name == "Steal power"
 
 
-def test_immediately_apply_passive_power(
+def test_steal_passive_power(
     initiator, target, steal_power_power, passive_stolen_power
 ):  # noqa: F811
     target._power = passive_stolen_power
 
     initiator.init_turn()
-    initial_trump_cost = initiator.available_trumps[0].cost
 
     initiator.play_trump(
         steal_power_power, target=target, context={"stolen_power": passive_stolen_power}
     )
 
-    assert len(initiator.trump_effects) == 2
-    assert initiator.trump_effects[0].name == "Stolen power"
-    assert initiator.trump_effects[1].name == "Steal power"
-    assert initiator.available_trumps[0].cost == initial_trump_cost + 2
+    assert len(initiator.trump_effects) == 1
+    assert initiator.trump_effects[0].name == "Steal power"
+    assert not initiator.power.passive
