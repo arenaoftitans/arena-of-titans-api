@@ -125,4 +125,4 @@ tests: clean-pyc-tests
 
 .PHONY: tdd
 tdd:
-	"${PYTEST_WATCH_CMD}" aot --runner "${PYTEST_CMD}" -- tests --testmon -m 'not integration'
+	"${PYTEST_WATCH_CMD}" aot tests --runner "${PYTEST_CMD}" -- tests --testmon -m 'not integration'
