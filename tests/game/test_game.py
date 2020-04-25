@@ -20,23 +20,19 @@
 from unittest.mock import MagicMock
 
 from aot.game import Game, Player
+from aot.game.actions import nothing_has_happened_action
 from aot.game.board import Square
 
 
 def test_eq(board, player):  # noqa: F811
-    game1 = Game(board, [player])
-    game2 = Game(board, [player])
     other_obj = {}
 
-    assert not game1 == other_obj
-    assert game1 != game2
+    assert not Game(board, [player]) == other_obj
+    assert Game(board, [player]) != Game(board, [player])
 
-    game1.game_id = "game-id"
-    game2.game_id = "game-id"
-    assert game1 == game2
+    assert Game(board, [player], game_id="game_id") == Game(board, [player], game_id="game_id")
 
-    game2.game_id = "other-game-id"
-    assert game1 != game2
+    assert Game(board, [player], game_id="game_id") != Game(board, [player], game_id="game_id2")
 
 
 def test_game_creation(player):  # noqa: F811
@@ -68,36 +64,36 @@ def test_play_card_no_special_action(game):  # noqa: F811
 def test_game_one_player_left(game):  # noqa: F811
     game.active_player.play_card = MagicMock(return_value=None)
     for i in range(3):
-        game.players[i] = None
+        game._players[i] = None
     game.play_card(None, (0, 0), check_move=False)
     game.active_player.play_card.assert_called_once_with(None, (0, 0), check_move=False)
     assert game.is_over
 
 
 def test_play_turn_winning_player(game):  # noqa: F811
-    player1 = game.players[0]
-    player2 = game.players[1]
+    player1 = game._players[0]
+    player2 = game._players[1]
     player1_aim_square = player1.aim[0]
 
     assert player1 is game.active_player
-    game.play_card(None, player1_aim_square, check_move=False)
+    game.play_card(game.active_player.deck.first_card_in_hand, player1_aim_square, check_move=False)
     assert player1 is game.active_player
-    assert not game.players[0].has_won
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Same turn
     player1.can_play = False
-    game.play_card(None, player1_aim_square, check_move=False)
+    game.play_card(game.active_player.deck.first_card_in_hand, player1_aim_square, check_move=False)
     assert player2 is game.active_player
-    assert not game.players[0].has_won
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Play other players
     for i in range(4):
-        game.play_card(None, (0, i), check_move=False)
-        game.play_card(None, (i, 0), check_move=False)
+        game.play_card(game.active_player.deck.first_card_in_hand, (0, i), check_move=False)
+        game.play_card(game.active_player.deck.first_card_in_hand, (i, 0), check_move=False)
 
-    winner = game.players[0]
+    winner = game._players[0]
     assert game.active_player is not winner
     assert not game.is_over
     assert winner.has_won
@@ -105,21 +101,25 @@ def test_play_turn_winning_player(game):  # noqa: F811
 
 
 def test_move_last_line_before_winning(game):  # noqa: F811
-    game.play_card(None, game.players[0].aim[0], check_move=False)
-    assert not game.players[0].has_won
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[0], check_move=False
+    )
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Same turn
-    game.play_card(None, game.players[0].aim[1], check_move=False)
-    assert not game.players[0].has_won
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[1], check_move=False
+    )
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Play other players
     for i in range(8):
-        game.play_card(None, (0, i), check_move=False)
-        game.play_card(None, (i, 0), check_move=False)
+        game.play_card(game.active_player.deck.first_card_in_hand, (0, i), check_move=False)
+        game.play_card(game.active_player.deck.first_card_in_hand, (i, 0), check_move=False)
 
-    winner = game.players[0]
+    winner = game._players[0]
     assert game.active_player is not winner
     assert not game.is_over
     assert winner.has_won
@@ -127,21 +127,20 @@ def test_move_last_line_before_winning(game):  # noqa: F811
 
 
 def test_move_back_before_winning(game):  # noqa: F811
-    game.play_card(None, (16, 8), check_move=False)
-    assert not game.players[0].has_won
+    game.play_card(game.active_player.deck.first_card_in_hand, (16, 8), check_move=False)
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Same turn
-    game.play_card(None, (16, 7), check_move=False)
-    assert not game.players[0].has_won
+    game.play_card(game.active_player.deck.first_card_in_hand, (16, 7), check_move=False)
+    assert not game._players[0].has_won
     assert not game.is_over
 
     # Play other players
-    for i in range(8):
-        game.play_card(None, (0, i), check_move=False)
-        game.play_card(None, (i, 0), check_move=False)
+    for _ in range(8):
+        game.pass_turn()
 
-    player = game.players[0]  # noqa: 811
+    player = game._players[0]  # noqa: 811
     assert game.active_player is not player
     assert not game.is_over
     assert not player.has_won
@@ -149,44 +148,55 @@ def test_move_back_before_winning(game):  # noqa: F811
 
 def test_game_over(game):  # noqa: F811
     for i in range(2, 4):
-        game.players[i] = None
+        game._players[i] = None
 
     # Player 1
-    game.play_card(None, game.players[0].aim[0], check_move=False)
-    game.play_card(None, game.players[0].aim[0], check_move=False)
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[0], check_move=False
+    )
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[0], check_move=False
+    )
 
     # Player 2, game over
-    game.play_card(None, (0, 0), check_move=False)
-    game.play_card(None, (0, 0), check_move=False)
+    game.pass_turn()
 
-    assert game.players[0].has_won
+    assert game._players[0].has_won
     assert game.is_over
     assert len(game.winners) == 2
 
 
 def test_game_over_simultanous_winners(game):  # noqa: F811
     for i in range(2, 4):
-        game.players[i] = None
+        game._players[i] = None
 
     # Player 1
-    game.play_card(None, game.players[0].aim[0], check_move=False)
-    game.play_card(None, game.players[0].aim[0], check_move=False)
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[0], check_move=False
+    )
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[0].aim[0], check_move=False
+    )
 
     # Player 2, game over
-    game.play_card(None, game.players[1].aim[1], check_move=False)
-    game.play_card(None, game.players[1].aim[1], check_move=False)
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[1].aim[1], check_move=False
+    )
+    game.play_card(
+        game.active_player.deck.first_card_in_hand, game._players[1].aim[1], check_move=False
+    )
 
-    assert game.players[0].has_won
+    assert game._players[0].has_won
     assert game.is_over
     assert len(game.winners) == 2
 
 
 def test_play_missing_players(game):  # noqa: F811
-    game.players[1] = None
-    player3 = game.players[2]
+    game._players[1] = None
+    player3 = game._players[2]
 
-    game.play_card(None, (16, 8), check_move=False)
-    game.play_card(None, (16, 8), check_move=False)
+    game.play_card(game.active_player.deck.first_card_in_hand, (16, 8), check_move=False)
+    game.play_card(game.active_player.deck.first_card_in_hand, (16, 8), check_move=False)
     assert player3 is game.active_player
 
 
@@ -233,15 +243,15 @@ def test_can_move(game):  # noqa: F811
 
 
 def test_actions(game):  # noqa: F811
-    assert len(game._actions) == 0
-    assert game.last_action is None
+    assert len(game.actions) == 1
+    assert game.actions[0] is nothing_has_happened_action
     game.add_action("An action")
     assert len(game._actions) == 1
-    assert game.last_action == "An action"
+    assert game.actions[0] == "An action"
 
 
 def test_disconnect(game):  # noqa: F811
-    player0 = game.players[0]
+    player0 = game._players[0]
     assert player0 is game.active_player
     assert player0.is_connected
 
@@ -250,14 +260,14 @@ def test_disconnect(game):  # noqa: F811
 
 
 def test_has_enough_players_to_continue(game):  # noqa: F811
-    player1 = game.players[0]
+    player1 = game._players[0]
     assert player1 is game.active_player
 
     # AI player should be counted as not connected.
     player1._is_ai = True
     # Players that won shouldn't be counted as connected
-    game.players[1]._has_won = True
-    for player in game.players[2:]:  # noqa
+    game._players[1]._has_won = True
+    for player in game._players[2:]:  # noqa
         player.is_connected = False
         player._number_turns_passed_not_connected = float("inf")
 
@@ -265,9 +275,9 @@ def test_has_enough_players_to_continue(game):  # noqa: F811
 
 
 def test_only_one_player_connected(game):  # noqa: F811
-    last_player = game.players[-1]
+    last_player = game._players[-1]
 
-    for player in game.players[:-1]:  # noqa
+    for player in game._players[:-1]:  # noqa
         player.is_connected = False
 
     for _ in range(Player.MAX_NUMBER_TURN_EXPECTING_RECONNECT):
@@ -281,13 +291,13 @@ def test_only_one_player_connected(game):  # noqa: F811
 
 def test_continue_game_with_ai(game):  # noqa: F811
     game._has_enough_players_to_continue = MagicMock(return_value=True)
-    game._find_next_player = MagicMock(return_value=game.players[1])
-    game.players[1]._is_ai = True
+    game._find_next_player = MagicMock(return_value=game._players[1])
+    game._players[1]._is_ai = True
 
     game._continue_game_if_enough_players()
 
-    assert game.active_player is game.players[1]
-    assert game.players[1].is_ai
+    assert game.active_player is game._players[1]
+    assert game._players[1].is_ai
 
 
 def test_dont_increase_nb_turns_if_same_player(game):  # noqa: F811

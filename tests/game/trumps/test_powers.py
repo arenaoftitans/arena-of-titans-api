@@ -243,7 +243,7 @@ def test_cannot_be_selected_active_power_with_special_action(player, player2):  
 
 def test_steal_power_target_type_reflect_target_type_stolen_power(target, initiator):  # noqa: F811
     power = StealPowerPower(passive=True, trump_args={"name": "Steal"})
-    stolen_power = VoidPower(passive=False, trump_args={"name": "Stolen power"})
+    stolen_power = VoidPower(passive=False, trump_args={"name": "Stolen power", "cost": 10})
     initiator.init_turn()
     target._power = stolen_power
     initiator._available_trumps = power.setup(initiator._available_trumps)
@@ -253,7 +253,9 @@ def test_steal_power_target_type_reflect_target_type_stolen_power(target, initia
 
     assert len(initiator.trump_effects) == 1
     assert initiator.trump_effects[0].name == "Steal"
-    assert initiator.power == target.power
+    assert initiator.power.name == target.power.name
+    assert initiator.power.cost == 0
+    assert target.power.cost == 10
     assert initiator.power.name == "Stolen power"
 
 

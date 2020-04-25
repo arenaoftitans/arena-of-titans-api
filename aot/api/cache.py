@@ -17,18 +17,18 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 import pickle  # noqa: S403 (bandit: pickle security issues)
 from copy import deepcopy
 from datetime import datetime
 
+import daiquiri
 from aredis import StrictRedis as Redis
 
 from ..config import config
 from .security import decode, encode
 from .utils import SlotState
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 class Cache:
@@ -52,7 +52,11 @@ class Cache:
     _player_id = ""
 
     @classmethod
-    def _get_redis_instance(cls, new=False):
+    def create_new_instance(cls, loop=None):
+        cls._cache = cls._get_redis_instance(new=True, loop=loop)
+
+    @classmethod
+    def _get_redis_instance(cls, new=False, loop=None):
         if new:
             logger.info(f'Connecting to redis with connection infos: {config["cache"]}.')
             return Redis(
@@ -60,6 +64,7 @@ class Cache:
                 port=config["cache"]["port"],
                 connect_timeout=config["cache"]["timeout"],
                 stream_timeout=config["cache"]["timeout"],
+                loop=loop,
             )
         else:  # pragma: no cover
             if cls._cache is None:
@@ -76,8 +81,15 @@ class Cache:
         pickle_data = pickle.dumps(data)  # noqa: S301 (pickle usage)
         return encode(pickle_data)
 
-    def __init__(self):
-        self._cache = self._get_redis_instance(new=True)
+    @classmethod
+    async def clean_for_game(cls, game_id):
+        redis = cls._get_redis_instance()
+        await redis.delete(cls.SLOTS_KEY_TEMPLATE.format(game_id))
+        await redis.delete(cls.PLAYERS_KEY_TEMPLATE.format(game_id))
+        await redis.delete(cls.GAME_KEY_TEMPLATE.format(game_id))
+
+    def __init__(self, loop=None, new=False):
+        self._cache = self._get_redis_instance(loop=loop)
         self.TTL = config["cache"]["ttl"]
 
     async def test(self):
@@ -242,6 +254,7 @@ class Cache:
                 slot["player_id"] = self._player_id
             elif "player_id" in slot:
                 del slot["player_id"]
+                slot["player_name"] = ""
             await self._save_slot(slot)
         elif await self.is_game_master() and current_slot["state"] != SlotState.TAKEN:
             # If we are closing the slot, we remove the name of the previous player.
@@ -288,3 +301,7 @@ class Cache:
         await self._cache.hset(
             self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY, self.dumps(game),
         )
+
+    @property
+    def game_id(self):
+        return self._game_id

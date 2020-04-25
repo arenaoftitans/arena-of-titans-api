@@ -31,83 +31,83 @@ def test_get_wrong_squares(board):  # noqa: F811
 
 
 def test_square_coords(board):  # noqa: F811
-    assert board[0, 0] == Square(0, 0, "red")
-    assert board[7, 2] == Square(7, 2, "blue")
+    assert board[0, 0] == Square(0, 0, Color.RED)
+    assert board[7, 2] == Square(7, 2, Color.BLUE)
 
 
 def test_get_lines_squares(board):  # noqa: F811
-    assert board.get_line_squares(board[6, 8], {"blue"}) == {
-        Square(6, 9, "blue"),
+    assert board.get_line_squares(board[6, 8], {Color.BLUE}) == {
+        Square(6, 9, Color.BLUE),
     }
-    assert board.get_line_squares(board[6, 8], {"yellow"}) == {
-        Square(5, 8, "yellow"),
+    assert board.get_line_squares(board[6, 8], {Color.YELLOW}) == {
+        Square(5, 8, Color.YELLOW),
     }
 
 
 def test_get_line_squares_multiple_colors(board):  # noqa: F811
-    colors = {"red", "yellow"}
+    colors = {Color.RED, Color.YELLOW}
     assert board.get_line_squares(board[5, 7], colors) == {
-        Square(x=5, y=8, color="YELLOW"),
-        Square(x=6, y=7, color="RED"),
-        Square(x=5, y=6, color="RED"),
+        Square(x=5, y=8, color=Color.YELLOW),
+        Square(x=6, y=7, color=Color.RED),
+        Square(x=5, y=6, color=Color.RED),
     }
 
 
 def test_get_line_squares_all_colors(board):  # noqa: F811
-    assert board.get_line_squares(board[6, 8], {"all"}) == {
-        Square(x=6, y=9, color="BLUE"),
-        Square(x=6, y=7, color="RED"),
-        Square(x=7, y=8, color="RED"),
-        Square(x=5, y=8, color="YELLOW"),
+    assert board.get_line_squares(board[6, 8], {Color.ALL}) == {
+        Square(x=6, y=9, color=Color.BLUE),
+        Square(x=6, y=7, color=Color.RED),
+        Square(x=7, y=8, color=Color.RED),
+        Square(x=5, y=8, color=Color.YELLOW),
     }
 
 
 def test_get_diagonal_squares(board):  # noqa: F811
-    assert board.get_diagonal_squares(board[5, 7], {"all"}) == {
-        Square(x=4, y=6, color="BLACK"),
-        Square(x=4, y=8, color="BLUE"),
-        Square(x=6, y=6, color="RED"),
-        Square(x=6, y=8, color="YELLOW"),
+    assert board.get_diagonal_squares(board[5, 7], {Color.ALL}) == {
+        Square(x=4, y=6, color=Color.BLACK),
+        Square(x=4, y=8, color=Color.BLUE),
+        Square(x=6, y=6, color=Color.RED),
+        Square(x=6, y=8, color=Color.YELLOW),
     }
-    assert board.get_diagonal_squares(board[5, 7], {"blue"}) == {
-        Square(x=4, y=8, color="BLUE"),
+    assert board.get_diagonal_squares(board[5, 7], {Color.BLUE}) == {
+        Square(x=4, y=8, color=Color.BLUE),
     }
 
 
 def test_get_line_squares_occupied_square(board):  # noqa: F811test_find_move_to_play_same_cost
     board[0, 1].occupied = True
-    assert board.get_line_squares(board[0, 0], {"red"}) == {board[0, 1], board[1, 0]}
+    assert board.get_line_squares(board[0, 0], {Color.RED}) == {board[0, 1], board[1, 0]}
 
 
 def test_get_line_squares_arm(board):  # noqa: F811
     assert board.get_line_squares(board[0, 7], {"black"}) == set()
-    assert board.get_line_squares(board[3, 7], {"red"}) == set()
+    assert board.get_line_squares(board[3, 7], {Color.RED}) == set()
 
 
 def test_get_diagonal_squares_multiple_colors(board):  # noqa: F811
-    colors = {"blue", "yellow"}
+    colors = {Color.BLUE, Color.YELLOW}
     assert board.get_diagonal_squares(board[5, 7], colors) == {
-        Square(x=4, y=8, color="BLUE"),
-        Square(x=6, y=8, color="YELLOW"),
+        Square(x=4, y=8, color=Color.BLUE),
+        Square(x=6, y=8, color=Color.YELLOW),
     }
 
 
 def test_get_diagonal_squares_all_colors(board):  # noqa: F811
-    colors = {"all"}
+    colors = {Color.ALL}
     assert board.get_diagonal_squares(board[6, 8], colors) == {
-        Square(x=5, y=7, color="RED"),
-        Square(x=5, y=9, color="BLUE"),
-        Square(x=7, y=9, color="RED"),
-        Square(x=7, y=7, color="RED"),
+        Square(x=5, y=7, color=Color.RED),
+        Square(x=5, y=9, color=Color.BLUE),
+        Square(x=7, y=9, color=Color.RED),
+        Square(x=7, y=7, color=Color.RED),
     }
 
 
 def test_square_set_from_color():  # noqa: F811
-    assert Color["BLUE"] in SquareSet([Color["BLUE"]]).colors
+    assert Color.BLUE in SquareSet([Color.BLUE]).colors
 
 
 def test_color_set():  # noqa: F811
-    assert Color["BLUE"] in ColorSet([Color["BLUE"]])
+    assert Color.BLUE in ColorSet([Color.BLUE])
 
 
 def test_get_neighbors(board):  # noqa: F811

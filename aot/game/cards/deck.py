@@ -20,8 +20,8 @@
 import copy
 import random
 
-from ..board import Color
 from .card import Card
+from .exceptions import CardNotFoundError
 
 
 class Deck:
@@ -103,15 +103,14 @@ class Deck:
         return self._hand[0]
 
     def get_card(self, card_name, card_color):
-        if isinstance(card_color, str):
-            card_color = Color[card_color] if card_color in Color else None
-
         matching_cards = [
             card for card in self._hand if card.name == card_name and card.color == card_color
         ]
 
-        if len(matching_cards) >= 1:
-            return matching_cards[0]
+        if len(matching_cards) != 1:
+            raise CardNotFoundError
+
+        return matching_cards[0]
 
     @property
     def graveyard(self):

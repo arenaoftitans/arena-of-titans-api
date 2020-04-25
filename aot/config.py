@@ -22,7 +22,7 @@ import sys
 
 from environs import Env
 
-from .game.utils import make_immutable
+from .utils import make_immutable
 
 
 class Config:
@@ -73,6 +73,7 @@ class Config:
                     "allow_debug": self.env.bool("API_ALLOW_DEBUG", False),
                     # Binding to all interfaces, bandit don't allow this (#104)
                     "host": self.env.str("API_HOST", "0.0.0.0"),  # noqa: S104
+                    "min_elapsed_time_to_consider": 8,  # In seconds.
                     "ws_port": self.env.int("API_WS_PORT", 8181),
                 },
                 "ai": {"delay": self.env.int("AI_DELAY", 5)},
@@ -92,6 +93,10 @@ class Config:
                 "version": self.env.str("VERSION", "latest"),
             }
         )
+
+    @property
+    def is_testing(self):
+        return self._config["env"] == "pytest"
 
 
 config = Config()

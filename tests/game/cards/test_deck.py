@@ -19,7 +19,11 @@
 
 from unittest.mock import MagicMock
 
+import pytest
+
+from aot.game.board import Color
 from aot.game.cards import Card
+from aot.game.cards.exceptions import CardNotFoundError
 
 NUMBER_COLORS = 4
 NUMBER_CARD_TYPES = 7
@@ -27,14 +31,18 @@ NUMBER_CARDS_HAND = 5
 NUMBER_TOTAL_CARDS = NUMBER_CARD_TYPES * NUMBER_COLORS
 
 
-def test_get_card(deck):  # noqa: F811
+def test_get_card(deck):
     card = deck.first_card_in_hand
     assert card is deck.get_card(card.name, card.color)
-    assert deck.get_card("Azerty", "Black") is None
-    assert deck.get_card(None, "Black") is None
-    assert deck.get_card("King", "king") is None
-    assert deck.get_card("King", None) is None
-    assert deck.get_card(None, None) is None
+
+
+@pytest.mark.parametrize(
+    "card_name,card_color",
+    [("Azerty", Color.BLACK), (None, Color.BLACK), ("King", "king"), ("King", None), (None, None)],
+)
+def test_get_invalid_card(deck, card_name, card_color):
+    with pytest.raises(CardNotFoundError):
+        deck.get_card(card_name, card_color)
 
 
 def test_init_deck(deck):  # noqa: F811

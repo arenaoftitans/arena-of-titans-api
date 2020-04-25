@@ -59,7 +59,7 @@ class Card:
         }
 
         self._board = board
-        self._color = color if isinstance(color, Color) else Color[color]
+        self._color = color
         self._colors = ColorSet(complementary_colors)
         self._colors.add(color)
         self._default_colors = set(self._colors)
@@ -238,14 +238,6 @@ class Card:
     @property
     def is_knight(self):  # pragma: no cover
         return self._movements == [self._knight_move]
-
-    @property
-    def infos(self):
-        return {
-            "name": self.name,
-            "color": self.color,
-            "description": self.description,
-        }
 
     @property
     def movements_types(self):  # pragma: no cover

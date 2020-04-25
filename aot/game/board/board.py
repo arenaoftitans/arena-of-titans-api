@@ -17,15 +17,22 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .square import Square, SquareSet
+from .square import Color, Square, SquareSet
 
 
 class Board:
     def __init__(self, board_description):
         self._board = {}
+        self._updated_squares = []
         for square in board_description["squares"]:
             type_ = square["type"]
-            color = board_description["squares-types-to-colors"].get(type_)
+            try:
+                color = Color[board_description["squares-types-to-colors"].get(type_)]
+            except KeyError:
+                # This is an empty square, existing only to fill the board definition and to
+                # calculate some moves.
+                color = None
+
             x = square["x"]
             y = square["y"]
             self._board[(x, y)] = Square(
@@ -36,6 +43,11 @@ class Board:
                 is_arrival=square["is-arrival"],
                 is_departure=square["is-departure"],
             )
+
+    def change_color_of_square(self, x, y, color):
+        updated_square = self[x, y]
+        updated_square.color = color
+        self._updated_squares.append(updated_square)
 
     def free_all_squares(self):
         """Can be used in some tests to move outside the "normal" board on hidden squares."""
@@ -61,9 +73,9 @@ class Board:
     def get_neighbors(self, square, movements_types=None):
         neighbors = set()
         if movements_types is None or "line" in movements_types:
-            neighbors.update(self.get_line_squares(square, ["all"]))
+            neighbors.update(self.get_line_squares(square, [Color.ALL]))
         if movements_types is None or "diagonal" in movements_types:
-            neighbors.update(self.get_diagonal_squares(square, ["all"]))
+            neighbors.update(self.get_diagonal_squares(square, [Color.ALL]))
         return neighbors
 
     def get_square_for_player_with_index(self, index):
@@ -94,3 +106,8 @@ class Board:
     @property
     def aim(self):
         return [square for square in self._board.values() if square.is_arrival]
+
+    @property
+    def updated_squares(self) -> tuple:
+        """Tuple of square that were updated (eg changed color) since the start of the game."""
+        return tuple(self._updated_squares)

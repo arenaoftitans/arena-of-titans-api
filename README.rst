@@ -66,21 +66,19 @@ On Windows, download the last release from `MS Open Tech <https://github.com/MSO
 #. Please copy the configuration distributed with the API (``config.dist.toml``)
    into ``config.toml`` and modify its entry to match your needs.
 #. The API needs `redis <http://redis.io/>`_ to store its information. It must
-   be installed and running for the API to work.
-#. The API is design to run behind a nginx server. A sample nginx configuration
-   file is provided with the API: ``aot-api.dist.conf``.
+   be installed and running for the API to work. You can also user docker and docker-compose.
 
 
 Usage
 =====
 
-Use the ``make`` command to launch task. Tasks will be launched from the host within the docker container by default. Use ``make venvlint`` to run the linter from within a venv instead. Use ``make`` to view the list of possible targets and their description. Alternatively, you can use:
+Use the ``make`` command to launch task. Tasks will be launched in the local venv. See the ``DK_EXEC_CMD`` variable and the ``dkcheck`` target to view how to launch things in the container. Use ``make`` to view the list of possible targets and their description. Alternatively, you can use:
 
-- To launch the API in development mode (reload on modification): ``python3 aot/test_main.py``
-- To launch the unit tests with code coverage: ``pytest --cov``
+- To launch the API in development mode (reload on modification): ``python3 aot --reload``
+- To launch the unit tests with code coverage: ``make tests``
 - To relaunch the unit tests on each modifications:
 
-   - On Linux: ``ptw aot --runner py.test -- aot/test --testmon``
+   - On Linux: ``make tdd``
    - On Windows: ``ptw aot --runner py.test -- aot/test``
 
 .. note::
@@ -114,7 +112,7 @@ Update dependencies
 #. Run ``make VERSION=ver dockerbuild``. Version must be the two last digit of the year, two digits for the month and one digit for the build number. For instance: ``19.07.1`` for the 1st build of July 2019.
 #. Update the image version in ``docker-compose.yml``.
 #. Stop all the containers with ``docker-compose down`` and re-create them with ``docker-compose up -d``.
-#. Run the tests and lint *in the container* with ``make check``.
+#. Run the tests and lint *in the container* with ``make dkcheck``.
 #. Push the new image: ``make VERSION=ver dockerpush``.
 #. Commit and push the changes.
 

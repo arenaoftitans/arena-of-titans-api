@@ -17,12 +17,12 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from enum import Enum
+
 from ordered_set import OrderedSet
 
-from ..utils import SimpleEnumMeta
 
-
-class Color(metaclass=SimpleEnumMeta):
+class Color(Enum):
     BLACK = "BLACK"
     BLUE = "BLUE"
     RED = "RED"
@@ -48,16 +48,12 @@ class ColorSet(set):
         self.update(colors)
 
     def update(self, colors):
-        colors = [Color[color] if isinstance(color, str) else color for color in colors]
         if Color.ALL in colors:
             super().update(all_colors)
         else:
             super().update(colors)
 
     def add(self, color):
-        # To ease unit testing
-        if isinstance(color, str):  # pragma: no cover
-            color = Color[color]
         if color == Color.ALL:
             self.update([color])
         else:

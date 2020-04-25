@@ -20,6 +20,8 @@
 import logging
 import random
 
+import daiquiri
+
 from aot.game.board import Board, Color
 from aot.game.cards import Card, Deck
 from aot.game.config import GAME_CONFIGS
@@ -33,12 +35,13 @@ from aot.game.trumps import (
     power_type_to_class,
     trump_type_to_class,
 )
-from aot.game.utils import remove_mappingproxies
 
-logger = logging.getLogger(__name__)
+from ..utils import remove_mappingproxies
+
+logger = daiquiri.getLogger(__name__)
 
 
-def create_game_for_players(players_description, name="standard"):
+def create_game_for_players(players_description, game_id, name="standard"):
     config = GAME_CONFIGS[name]
 
     board = Board(config["board"])
@@ -57,13 +60,14 @@ def create_game_for_players(players_description, name="standard"):
                 board,
                 deck,
                 gauge,
+                game_id=game_id,
                 available_trumps=trumps,
                 hero=hero,
                 is_ai=player.get("is_ai", False),
                 power=power,
             )
         players.append(player)
-    return Game(board, players)
+    return Game(board, players, game_id=game_id)
 
 
 def build_cards_list(config, board):
@@ -95,7 +99,7 @@ def _get_cards_for_each_color(board, card_description, colors, number_cards_per_
     additional_movements_color = card_description.get("additional_movements_colors", [])
     complementary_colors = card_description.get("complementary_colors", {})
 
-    for color in colors:
+    for color in sorted(colors, key=lambda color: color.name):
         additional_colors = _get_additional_colors(
             color, additional_movements_color, complementary_colors
         )
@@ -129,13 +133,17 @@ def _get_special_actions(description, color):
 def _get_additional_colors(color, additional_movements_color, complementary_colors):  # noqa: E503
     additional_colors = set()
     additional_colors.update([Color[col] for col in additional_movements_color])
-    additional_colors.update([Color[col] for col in complementary_colors.get(color, [])])
+    additional_colors.update([Color[col] for col in complementary_colors.get(color.name, [])])
     return additional_colors
 
 
 def _get_trumps(description):
     trumps = []
     trump_cls = trump_type_to_class[description["type"]]
+    trump_args = description["args"].copy()
+    if trump_args.get("colors"):
+        trump_args["colors"] = {Color[color] for color in trump_args["colors"]}
+
     if description.get("repeat_for_each_color", False):
         for color in Color:
             if color == Color.ALL:
@@ -181,4 +189,10 @@ def _get_power(config, hero=None):
         power_cls = power_type_to_class[power_description["type"]]
         # We must create copies here, because mappingproxy objects cannot be pickled.
         power_args = remove_mappingproxies(power_description["args"])
+        if "color" in power_args["trump_args"]:
+            power_args["trump_args"]["color"] = Color[power_args["trump_args"]["color"]]
+        if "colors" in power_args["trump_args"]:
+            power_args["trump_args"]["colors"] = [
+                Color[color_name] for color_name in power_args["trump_args"]["colors"]
+            ]
         return power_cls(**power_args)

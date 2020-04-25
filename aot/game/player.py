@@ -19,33 +19,11 @@
 
 import daiquiri
 
+from ..utils import get_time
 from . import trumps
 from .board import Square
 from .exceptions import NotYourTurnError
 from .trumps import exceptions as trumps_exceptions
-from .utils import get_time
-
-
-class LastAction:
-    def __init__(
-        self,
-        description="",
-        special_action=None,
-        card=None,
-        trump=None,
-        player_name="",
-        player_index=None,
-        target_name="",
-        target_index=None,
-    ):
-        self.description = description
-        self.player_name = player_name
-        self.target_name = target_name
-        self.target_index = target_index
-        self.player_index = player_index
-        self.special_action = special_action
-        self.card = card
-        self.trump = trump
 
 
 class Player:
@@ -70,11 +48,9 @@ class Player:
     _current_square = None
     _deck = None
     _has_won = False
-    _history = None
     _id = ""
     _index = -1
     _is_ai = False
-    _last_action = None
     _last_square_previous_turn = None
     _name = ""
     _number_moves_to_play = 2
@@ -95,6 +71,7 @@ class Player:
         board,
         deck,
         gauge,
+        game_id=None,
         available_trumps=None,
         hero="",
         is_ai=False,
@@ -107,6 +84,7 @@ class Player:
         self._is_ai = is_ai
         self._board = board
         self._gauge = gauge
+        self._game_id = game_id
 
         self._trump_effects = []
         self._aim = board.aim
@@ -114,7 +92,6 @@ class Player:
         self._current_square.occupied = True
         self._deck = deck
         self._has_won = False
-        self._history = []
         self._number_moves_played = 0
         self._number_turns_passed_not_connected = 0
         self._power = power or trumps.VoidPower()
@@ -136,7 +113,7 @@ class Player:
         return square in self._deck.view_possible_squares(card, self._current_square)
 
     def play_card(self, card, square, check_move=True):
-        if not card and check_move:
+        if card is None:
             return
         elif not self.has_remaining_moves_to_play:
             return
@@ -149,18 +126,9 @@ class Player:
             self._deck.play(card)
             self.move(dest_square)
 
-        if card is not None:
-            self._gauge.move(start_square, dest_square, card)
-            self.last_action = LastAction(
-                description="played_card",
-                card=card.infos,
-                player_name=self.name,
-                player_index=self.index,
-            )
-        else:
-            self.last_action = LastAction(description="problem")
+        self._gauge.move(start_square, dest_square, card)
 
-        if card is not None and len(card.special_actions) > 0:
+        if len(card.special_actions) > 0:
             self.special_actions = card.special_actions
             self._special_action_start_time = get_time()
             return True
@@ -193,12 +161,6 @@ class Player:
 
     def discard(self, card):
         self._deck.play(card)
-        self.last_action = LastAction(
-            description="dicarded_card",
-            card=card.infos,
-            player_name=self.name,
-            player_index=self.index,
-        )
         self._complete_action()
 
     def pass_turn(self):
@@ -212,9 +174,6 @@ class Player:
                 f"from the game.",
             )
 
-        self.last_action = LastAction(
-            description="passed_turn", player_name=self.name, player_index=self.index
-        )
         self._can_play = False
         self._deck.init_turn()
 
@@ -236,6 +195,7 @@ class Player:
         self._number_moves_played = 0
         self._number_trumps_played = 0
         self._can_play = True
+        self._special_actions_names = []
         self._last_square_previous_turn = self._current_square
         self._enable_passive_power()
         self._enable_trumps()
@@ -294,18 +254,8 @@ class Player:
 
     def play_special_action(self, action, target, context):
         target._check_for_cannot_be_affected_by_trumps(action)
-
-        if target is not None:
-            action.create_effect(initiator=self, target=target, context=context).apply()
-            self._special_actions_names.remove(action.name.lower())
-            self.last_action = LastAction(
-                description="played_special_action",
-                special_action=action,
-                player_name=self.name,
-                target_name=target.name,
-                target_index=target.index,
-                player_index=self.index,
-            )
+        action.create_effect(initiator=self, target=target, context=context).apply()
+        self._special_actions_names.remove(action.name.lower())
 
     def cancel_special_action(self, action):
         self._special_actions_names.remove(action.name.lower())
@@ -377,14 +327,6 @@ class Player:
     def _end_play_trump(self, trump, *, target):
         self._number_trumps_played += 1
         self._gauge.play_trump(trump)
-        self.last_action = LastAction(
-            description="played_trump",
-            trump=trump,
-            player_name=self.name,
-            target_name=getattr(target, "name", None),
-            target_index=getattr(target, "index", None),
-            player_index=self.index,
-        )
         return trump
 
     def can_play_trump(self, trump):
@@ -466,10 +408,6 @@ class Player:
     def game_id(self):
         return self._game_id
 
-    @game_id.setter
-    def game_id(self, value):
-        self._game_id = value
-
     @property
     def gauge(self):
         return self._gauge
@@ -513,17 +451,12 @@ class Player:
         self._is_connected = value
 
     @property
-    def on_aim_line(self):
-        return self._current_square in self.aim
+    def is_visible(self):
+        return all(effect.is_player_visible for effect in self.trump_effects)
 
     @property
-    def last_action(self):  # pragma: no cover
-        return self._last_action
-
-    @last_action.setter
-    def last_action(self, value):
-        self._last_action = value
-        self._history.append(value)
+    def on_aim_line(self):
+        return self._current_square in self.aim
 
     @property
     def has_special_actions(self):
@@ -540,10 +473,6 @@ class Player:
     @property
     def has_won(self):
         return self._has_won
-
-    @property
-    def history(self):
-        return self._history
 
     @property
     def name(self):
@@ -577,6 +506,9 @@ class Player:
 
     @property
     def name_next_special_action(self):
+        if not self._special_actions_names:
+            return
+
         return next(iter(self._special_actions_names))
 
     @property

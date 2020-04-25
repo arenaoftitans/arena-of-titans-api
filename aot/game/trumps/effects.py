@@ -19,15 +19,16 @@
 
 from __future__ import annotations
 
-import logging
 from abc import ABCMeta, abstractmethod
 from types import MappingProxyType
+
+import daiquiri
 
 from ..cards import Card
 from .constants import EffectTypes
 from .exceptions import TrumpHasNoEffectError
 
-logger = logging.getLogger(__name__)
+logger = daiquiri.getLogger(__name__)
 
 
 class TrumpEffect(metaclass=ABCMeta):
@@ -85,6 +86,10 @@ class TrumpEffect(metaclass=ABCMeta):
     def name(self):
         return self._trump.name
 
+    @property
+    def is_player_visible(self):
+        return self._trump.is_player_visible
+
     def __eq__(self, other: TrumpEffect):
         if self is other:
             return True
@@ -129,8 +134,7 @@ class CannotBeAffectedByTrumpsEffect(TrumpEffect):
 class ChangeSquareEffect(TrumpEffect):
     def apply(self):
         x, y = self._context["square"]["x"], self._context["square"]["y"]
-        square = self._context["board"][x, y]
-        square.color = self._context["square"]["color"]
+        self._context["board"].change_color_of_square(x, y, self._context["square"]["color"])
 
 
 class ModifyCardNumberMovesEffect(TrumpEffect):
@@ -190,6 +194,9 @@ class StealPowerEffect(TrumpEffect):
 
     def apply(self):
         stolen_power = self._context["stolen_power"]
+        if not stolen_power.passive:
+            stolen_power = stolen_power.cancel_cost()
+            self._context["stolen_power"] = stolen_power
         self._initiator.setup_new_power(stolen_power)
         if stolen_power.passive:
             self._initiator.play_trump(stolen_power, target=self._initiator, context=self._context)

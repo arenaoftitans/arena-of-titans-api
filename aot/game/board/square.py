@@ -24,9 +24,6 @@ class Square:
     def __init__(self, x, y, color, is_occupied=False, is_arrival=False, is_departure=False):
         self._x = x
         self._y = y
-        # To ease testing
-        if isinstance(color, str):  # pragma: no cover
-            color = Color[color]
         self._color = color
         self._original_color = self._color
         self._occupied = is_occupied

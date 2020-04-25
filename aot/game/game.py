@@ -19,7 +19,9 @@
 
 import daiquiri
 
+from .actions import Action, nothing_has_happened_action
 from .ai import find_cheapest_card, find_move_to_play
+from .trumps.exceptions import TrumpHasNoEffectError
 
 
 class Game:
@@ -28,9 +30,7 @@ class Game:
     _actions = None
     _active_player = None
     _board = None
-    _game_id = None
     _index_first_player = 0
-    _is_debug = False
     _is_over = False
     _nb_turns = 0
     _next_rank_available = 1
@@ -38,11 +38,12 @@ class Game:
     _players_id_to_index = None
     _winners = []
 
-    def __init__(self, board, players):
+    def __init__(self, board, players, game_id=None):
         self._actions = []
         self._active_player = players[0]
         self._index_first_player = self._active_player.index
         self._board = board
+        self._game_id = game_id
         self._is_over = False
         self._players = players
         self._players_id_to_index = {
@@ -57,6 +58,9 @@ class Game:
     def add_action(self, action):
         self._actions.append(action)
 
+    def get_player_by_index(self, index):
+        return self._players[index]
+
     def get_player_by_id(self, player_id):
         player_index = self._players_id_to_index[player_id]
         player = self._players[player_index]
@@ -67,18 +71,49 @@ class Game:
         return self._active_player.view_possible_squares(card)
 
     def play_card(self, card, square, check_move=True):
-        has_special_actions = self._active_player.play_card(card, square, check_move=check_move)
+        active_player = self._active_player
+
+        has_special_actions = active_player.play_card(card, square, check_move=check_move)
         if not has_special_actions:
             self._continue_game_if_enough_players()
+
+        self.add_action(Action(initiator=active_player, description="played_card", card=card))
 
         return has_special_actions
 
     def play_trump(self, trump, target, context):
-        self.active_player.play_trump(trump, target=target, context=context)
+        try:
+            self.active_player.play_trump(trump, target=target, context=context)
+        except TrumpHasNoEffectError:
+            self.add_action(
+                Action(
+                    initiator=self.active_player,
+                    target=target,
+                    description="played_trump_no_effect",
+                    trump=trump,
+                )
+            )
+        else:
+            self.add_action(
+                Action(
+                    initiator=self.active_player,
+                    target=target,
+                    description="played_trump",
+                    trump=trump,
+                )
+            )
 
     def play_special_action(self, action, target=None, context=None):
         context = context or {}
         self.active_player.play_special_action(action, target=target, context=context)
+        self.add_action(
+            Action(
+                initiator=self.active_player,
+                target=target,
+                description="played_special_action",
+                special_action=action,
+            )
+        )
 
     def cancel_special_action(self, action):
         self.active_player.cancel_special_action(action)
@@ -183,12 +218,16 @@ class Game:
             )
 
     def pass_turn(self):
-        self._active_player.pass_turn()
+        active_player = self._active_player
+        active_player.pass_turn()
         self._continue_game_if_enough_players()
+        self.add_action(Action(initiator=active_player, description="passed_turn"))
 
     def discard(self, card):
-        self._active_player.discard(card)
+        active_player = self._active_player
+        active_player.discard(card)
         self._continue_game_if_enough_players()
+        self.add_action(Action(initiator=active_player, description="discarded_card", card=card))
 
     def play_auto(self):
         if self.active_player.on_last_line or not self.active_player.has_remaining_moves_to_play:
@@ -230,33 +269,16 @@ class Game:
     def game_id(self):  # pragma: no cover
         return self._game_id
 
-    @game_id.setter
-    def game_id(self, value):
-        if self._game_id is not None:  # pragma: no cover
-            self.LOGGER.warning(f"Changing game id for game {self._game_id} to {value}",)
-        self._game_id = value
-        for player in self.players:
-            if player:
-                player.game_id = value
-
-    @property
-    def is_debug(self):
-        return self._is_debug
-
-    @is_debug.setter
-    def is_debug(self, value):
-        self._is_debug = bool(value)
-
     @property
     def is_over(self):
         return self._is_over
 
     @property
-    def last_action(self):
-        if len(self._actions) == 0:
-            return None
-        else:
-            return self._actions[-1]
+    def actions(self):
+        if not self._actions:
+            return (nothing_has_happened_action,)
+
+        return tuple(self._actions)
 
     @property
     def nb_turns(self):
@@ -264,7 +286,11 @@ class Game:
 
     @property
     def players(self):
-        return self._players
+        for player in self._players:
+            # Some slots can be empty. To avoid issues with consumer code, we only return the actual
+            # players here.
+            if player is not None:
+                yield player
 
     @property
     def winners(self):

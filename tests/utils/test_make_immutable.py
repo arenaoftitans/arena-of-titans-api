@@ -21,7 +21,7 @@ from types import MappingProxyType
 
 import pytest
 
-from aot.game.utils import make_immutable
+from aot.utils import make_immutable
 
 
 def test_with_custom_objects():

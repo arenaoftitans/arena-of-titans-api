@@ -23,9 +23,10 @@ import pytest
 
 from aot.game.ai import distance_covered, find_cheapest_card, find_move_to_play
 from aot.game.ai.pathfinding import a_star
+from aot.game.board import Color
 from aot.game.cards import Card
 
-# Allow the tests timeout to be changed by a enviroment variable:
+# Allow the tests timeout to be changed by a environment variable:
 # in CI runners with small hardware it may take more than 1s to complete.
 if os.getenv("CI_TESTS_TIMEOUT"):
     # Don't use default value here since the variable can be set to an empty string.
@@ -179,7 +180,7 @@ def test_move_to_goal_same_distance_cheapest_card(board):  # noqa: F811
     # to evaluate the distance from board[19, 8] first for this test to be valid.
     goal_squares = [board[19, 8], board[18, 8], board[17, 8], board[16, 8]]
     card1 = Card(board, name="card1", movements_types=["line"], cost=800)
-    card2 = Card(board, name="card2", movements_types=["line"], color="blue", cost=600)
+    card2 = Card(board, name="card2", movements_types=["line"], color=Color.BLUE, cost=600)
     hand = [card1, card2]
 
     result = find_move_to_play(hand, board[16, 7], goal_squares, board)

@@ -1,0 +1,7 @@
+{
+    "request": {
+        "card_color": "yellow",
+        "card_name": "Wizard"
+    },
+    "rt": "view_possible_squares"
+}

@@ -17,7 +17,7 @@
 #  along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from ..utils import make_immutable
+from ...utils import make_immutable
 from .standard import STANDARD_CONFIG
 from .test import TEST_CONFIG
 

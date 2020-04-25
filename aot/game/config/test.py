@@ -132,7 +132,7 @@ TEST_CONFIG = {
             "args": {
                 "passive": True,
                 "trump_cost_delta": 2,
-                "args": {
+                "trump_args": {
                     "name": "Inveterate Ride",
                     "description": "Your knights can move on any colors",
                     "cost": 0,
