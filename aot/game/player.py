@@ -455,6 +455,10 @@ class Player:
         return all(effect.is_player_visible for effect in self.trump_effects)
 
     @property
+    def can_pawn_be_selected(self):
+        return self.is_visible and not self.has_won
+
+    @property
     def on_aim_line(self):
         return self._current_square in self.aim
 

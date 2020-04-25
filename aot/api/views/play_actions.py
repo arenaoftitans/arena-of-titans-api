@@ -99,5 +99,7 @@ def _play_special_action_on_target(request, game, action, target):
         context["board"] = game.board
         if context["square"] is None:
             raise AotErrorToDisplay("wrong_square")
+        elif not target.can_pawn_be_selected:
+            raise AotErrorToDisplay("unselectable_target")
 
     game.play_special_action(action, target=target, context=context)

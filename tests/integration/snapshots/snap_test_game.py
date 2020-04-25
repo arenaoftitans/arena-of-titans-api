@@ -515,6 +515,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -528,6 +529,7 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -714,6 +716,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -727,6 +730,7 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -769,6 +773,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                 '0': {
                     'active_trumps': [
                     ],
+                    'can_pawn_be_selected': True,
                     'hero': 'Arline',
                     'index': 0,
                     'is_visible': True,
@@ -782,6 +787,7 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                 '1': {
                     'active_trumps': [
                     ],
+                    'can_pawn_be_selected': True,
                     'hero': 'Djor',
                     'index': 1,
                     'is_visible': True,
@@ -966,6 +972,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                 '0': {
                     'active_trumps': [
                     ],
+                    'can_pawn_be_selected': True,
                     'hero': 'Arline',
                     'index': 0,
                     'is_visible': True,
@@ -979,6 +986,7 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                 '1': {
                     'active_trumps': [
                     ],
+                    'can_pawn_be_selected': True,
                     'hero': 'Djor',
                     'index': 1,
                     'is_visible': True,
@@ -1336,6 +1344,7 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -1349,6 +1358,7 @@ snapshots['TestPlayGame.test_play_card game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -1541,6 +1551,7 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -1554,6 +1565,7 @@ snapshots['TestPlayGame.test_play_card player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -1750,6 +1762,7 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -1763,6 +1776,7 @@ snapshots['TestPlayGame.test_discard_card game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -1969,6 +1983,7 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -1982,6 +1997,7 @@ snapshots['TestPlayGame.test_discard_card player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -2199,6 +2215,7 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -2212,6 +2229,7 @@ snapshots['TestPlayGame.test_pass_turn player-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,
@@ -2419,6 +2437,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
             '0': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Arline',
                 'index': 0,
                 'is_visible': True,
@@ -2432,6 +2451,7 @@ snapshots['TestPlayGame.test_pass_turn game_master-1'] = {
             '1': {
                 'active_trumps': [
                 ],
+                'can_pawn_be_selected': True,
                 'hero': 'Djor',
                 'index': 1,
                 'is_visible': True,

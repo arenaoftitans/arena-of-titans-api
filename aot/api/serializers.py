@@ -60,6 +60,7 @@ def _get_public_player_state(player):
         "index": player.index,
         "hero": player.hero,
         "is_visible": player.is_visible,
+        "can_pawn_be_selected": player.can_pawn_be_selected,
     }
 
 
