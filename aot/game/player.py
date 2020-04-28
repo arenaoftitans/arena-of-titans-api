@@ -390,7 +390,7 @@ class Player:
 
     @property
     def can_power_be_played(self):
-        return self.can_play_trump(self._power) if self._power else False
+        return self.can_play_trump(self.power)
 
     @property
     def current_square(self):
