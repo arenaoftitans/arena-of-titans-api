@@ -98,7 +98,7 @@ def game(mocker):
     # have special actions which makes them harder to handle in tests.
     mocker.patch("aot.game.cards.deck.random.sample", mocked_sample_reversed)
     players_description = [
-        {"name": "Player {}".format(i), "index": i, "id": i, "hero": "Ulya"}
+        {"name": "Player {}".format(i), "index": i, "id": i, "hero": "Garez"}
         for i in range(TEST_CONFIG["number_players"])
     ]
     g = create_game_for_players(players_description, name="test", game_id="game_id")

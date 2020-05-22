@@ -135,3 +135,6 @@ class Deck:
     @property
     def stock(self):
         return self._stock
+
+    def __iter__(self):
+        return iter(self._hand + self._stock)

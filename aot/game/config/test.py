@@ -130,15 +130,14 @@ TEST_CONFIG = {
         "garez": {
             "type": "ModifyCardColors",
             "args": {
-                "passive": True,
                 "trump_cost_delta": 2,
+                "passive": True,
                 "trump_args": {
                     "name": "Inveterate Ride",
                     "description": "Your knights can move on any colors",
                     "cost": 0,
                     "must_target_player": False,
-                    "extra_colors": ["ALL"],
-                    "remove_colors": [],
+                    "colors": ["ALL"],
                     "card_names": ["Knight"],
                 },
             },
