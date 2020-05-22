@@ -148,12 +148,10 @@ def to_json(python_object):  # noqa: C901 too complex
             "name": python_object.name,
             "color": python_object.color,
         }
-    elif isinstance(python_object, type):
-        return python_object.__name__
-    elif dataclasses.is_dataclass(python_object):
+    elif dataclasses.is_dataclass(python_object) and not isinstance(python_object, type):
         # Our dataclasses may hold a reference to a class which we can't serialize into JSON.
         trump_like = {
-            key: value
+            key: _remove_class_references(value)
             for key, value in dataclasses.asdict(python_object).items()
             if not isinstance(value, type)
         }
@@ -171,3 +169,14 @@ def to_json(python_object):  # noqa: C901 too complex
 
     # Normally, this is unreachable
     raise TypeError(str(python_object) + " is not JSON serializable")  # pragma: no cover
+
+
+def _remove_class_references(data):
+    if not isinstance(data, dict):
+        return data
+
+    return {
+        key: _remove_class_references(value)
+        for key, value in data.items()
+        if not isinstance(value, type)
+    }
