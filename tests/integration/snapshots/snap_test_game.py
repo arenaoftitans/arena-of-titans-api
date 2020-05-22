@@ -497,7 +497,10 @@ snapshots['TestCreateGame.test_game_master_create_game game_master-1'] = {
             {
                 'card': None,
                 'description': 'nothing_happened',
-                'initiator': None,
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
                 'special_action': None,
                 'target': None,
                 'trump': None
@@ -698,7 +701,10 @@ snapshots['TestCreateGame.test_game_master_create_game player-1'] = {
             {
                 'card': None,
                 'description': 'nothing_happened',
-                'initiator': None,
+                'initiator': {
+                    'index': 0,
+                    'name': 'Game master'
+                },
                 'special_action': None,
                 'target': None,
                 'trump': None
@@ -755,7 +761,10 @@ snapshots['TestPlayGame.test_reconnect_game_master game_master-0'] = {
                 {
                     'card': None,
                     'description': 'nothing_happened',
-                    'initiator': None,
+                    'initiator': {
+                        'index': 0,
+                        'name': 'Game master'
+                    },
                     'special_action': None,
                     'target': None,
                     'trump': None
@@ -954,7 +963,10 @@ snapshots['TestPlayGame.test_reconnect_player player-0'] = {
                 {
                     'card': None,
                     'description': 'nothing_happened',
-                    'initiator': None,
+                    'initiator': {
+                        'index': 0,
+                        'name': 'Game master'
+                    },
                     'special_action': None,
                     'target': None,
                     'trump': None

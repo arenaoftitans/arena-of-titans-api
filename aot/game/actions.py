@@ -32,5 +32,11 @@ class Action:
     card: Card = None  # noqa: F821 undefined name
     trump: Trump = None  # noqa: F821 undefined name
 
+    def replace_invalid_initiator(self, new_initiator):
+        if self.initiator is not None:
+            return self
+
+        return dataclasses.replace(self, initiator=new_initiator)
+
 
 nothing_has_happened_action = Action(initiator=None, description="nothing_happened")

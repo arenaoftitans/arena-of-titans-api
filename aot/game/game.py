@@ -276,7 +276,9 @@ class Game:
     @property
     def actions(self):
         if not self._actions:
-            return (nothing_has_happened_action,)
+            # Actions must have an initiator to avoid many display issues. Given the nothing one
+            # one to prevent them.
+            return (nothing_has_happened_action.replace_invalid_initiator(self.active_player),)
 
         return tuple(self._actions)
 

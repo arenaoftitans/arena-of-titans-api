@@ -244,7 +244,9 @@ def test_can_move(game):  # noqa: F811
 
 def test_actions(game):  # noqa: F811
     assert len(game.actions) == 1
-    assert game.actions[0] is nothing_has_happened_action
+    assert game.actions[0] == nothing_has_happened_action.replace_invalid_initiator(
+        game.active_player
+    )
     game.add_action("An action")
     assert len(game._actions) == 1
     assert game.actions[0] == "An action"
