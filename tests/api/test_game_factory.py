@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2015-2016 by Arena of Titans Contributors.
+# Copyright (C) 2015-2020 by Last Run Contributors.
 #
 # This file is part of Arena of Titans.
 #
