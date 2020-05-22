@@ -155,12 +155,7 @@ def to_json(python_object):  # noqa: C901 too complex
             for key, value in dataclasses.asdict(python_object).items()
             if not isinstance(value, type)
         }
-        if isinstance(trump_like.get("trump_args"), dict):
-            trump_like = {
-                **trump_like,
-                **trump_like["trump_args"],
-            }
-            del trump_like["trump_args"]
+        trump_like = _inline_trump_args(trump_like)
         if isinstance(python_object, Power):
             trump_like["is_power"] = True
             trump_like["passive"] = python_object.passive
@@ -180,3 +175,17 @@ def _remove_class_references(data):
         for key, value in data.items()
         if not isinstance(value, type)
     }
+
+
+def _inline_trump_args(data):
+    if not isinstance(data, dict):
+        return data
+
+    if "trump_args" in data:
+        data = {
+            **data,
+            **data["trump_args"],
+        }
+        del data["trump_args"]
+
+    return {key: _inline_trump_args(value) for key, value in data.items()}
