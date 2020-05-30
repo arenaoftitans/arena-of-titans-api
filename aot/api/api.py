@@ -78,32 +78,31 @@ class Api:
             RequestTypes.TEST: self._test,
             RequestTypes.INFO: self._info,
         }
-        self._message = {}
 
     async def process_message(self, message):
         self.logger.debug(
             f"Processing message of player {self._id} in game {self._game_id}: {message}"
         )
 
-        self._message = message
+        request_type = message.get("rt")
 
-        if self._request_type in self._utility_request_types_to_views:
-            return await self._utility_request_types_to_views[self._request_type]()
-        elif self._request_type == RequestTypes.RECONNECT:
-            return await self._process_reconnect_request()
-        elif self._request_type in self._lobby_request_types_to_views:
-            return await self._process_lobby_request()
-        elif self._request_type in self._play_game_requests_to_views:
-            return await self._process_play_request()
+        if request_type in self._utility_request_types_to_views:
+            return await self._utility_request_types_to_views[request_type](request_type, message)
+        elif request_type == RequestTypes.RECONNECT:
+            return await self._process_reconnect_request(request_type, message)
+        elif request_type in self._lobby_request_types_to_views:
+            return await self._process_lobby_request(request_type, message)
+        elif request_type in self._play_game_requests_to_views:
+            return await self._process_play_request(request_type, message)
 
         raise AotErrorToDisplay("unknown_request")
 
-    async def _info(self):
+    async def _info(self, request_type, message):
         return WsResponse(
             send_to_current_player=[await self._cache.info()], include_number_connected_clients=True
         )
 
-    async def _test(self):
+    async def _test(self, request_type, message):
         try:
             await self._cache.test()
         except Exception as e:
@@ -143,22 +142,22 @@ class Api:
         self._clients_pending_disconnection_from_game.add(self.id)
         self._clients_pending_reconnection_from_game.discard(self.id)
 
-    async def _process_reconnect_request(self):
-        if not await self._can_reconnect:
+    async def _process_reconnect_request(self, request_type, message):
+        if not await self._can_reconnect(message):
             raise AotErrorToDisplay("cannot_join")
 
-        self._id = self._message["request"]["player_id"]
-        self._game_id = self._message["request"]["game_id"]
+        self._id = message["request"]["player_id"]
+        self._game_id = message["request"]["game_id"]
         self._cache.init(game_id=self._game_id, player_id=self.id)
 
         self.logger.info(f"Trying to reconnect player {self.id} to game {self.game_id}")
 
         if not await self._has_game_started:
-            return await reconnect_to_lobby(self._message["request"], self._cache)
+            return await reconnect_to_lobby(message["request"], self._cache)
 
         async with self._load_game(must_save=False) as game:
             self._append_to_clients_pending_reconnection()
-            response = reconnect_to_game(self._message["request"], game)
+            response = reconnect_to_game(message["request"], game)
             if game.active_player.is_ai and self._game_id not in self._pending_ai:
                 response = response.add_future_message(self._schedule_play_ai(game))
 
@@ -168,31 +167,27 @@ class Api:
         self._clients_pending_reconnection_from_game.add(self.id)
         self._clients_pending_disconnection_from_game.discard(self.id)
 
-    async def _process_lobby_request(self):
-        if not await self._is_lobby_request_allowed:
-            raise AotErrorToDisplay("game_master_request", {"rt": self._request_type})
+    async def _process_lobby_request(self, request_type, message):
+        if not await self._is_lobby_request_allowed(request_type):
+            raise AotErrorToDisplay("game_master_request", {"rt": request_type})
 
-        request = self._message["request"]
+        request = message["request"]
         request["player_id"] = self.id
         request["index_first_player"] = self.INDEX_FIRST_PLAYER
 
-        response = await self._lobby_request_types_to_views[self._request_type](
-            request, self._cache
-        )
+        response = await self._lobby_request_types_to_views[request_type](request, self._cache)
 
-        if self._request_type in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
+        if request_type in (RequestTypes.CREATE_LOBBY, RequestTypes.JOIN_GAME):
             # The cache was initiated with the proper game id we couldn't know before.
             # Save it now.
             self._game_id = self._cache.game_id
 
         return response
 
-    async def _process_play_request(self):
+    async def _process_play_request(self, request_type, message):
         async with self._load_game() as game:
             if self._is_this_player_turn(game):
-                response = self._play_game_requests_to_views[self._request_type](
-                    self._message["request"], game
-                )
+                response = self._play_game_requests_to_views[request_type](message["request"], game)
                 if game.active_player.is_ai:
                     response = response.add_future_message(self._schedule_play_ai(game))
                 return response
@@ -206,10 +201,10 @@ class Api:
                     "not_your_turn",
                     extra_data={
                         "player": f"Player ({self.id}): {player.name}",
-                        "playload": json.dumps(self._message, default=to_json),
+                        "playload": json.dumps(message, default=to_json),
                     },
                 )
-                if self._message and self._message.get("request", {}).get("auto", False):
+                if message and message.get("request", {}).get("auto", False):
                     # It's an automated message, probably from a timer. Raise an error to quit
                     # here but don't display it.
                     raise AotError("not_your_turn")
@@ -229,12 +224,14 @@ class Api:
         future_message = asyncio.Future(loop=self._loop)
         self._loop.call_later(
             self._ai_delay,
-            lambda: asyncio.ensure_future(self._play_scheduled_ai(future_message), loop=self._loop),
+            lambda: asyncio.ensure_future(
+                self._play_scheduled_ai(future_message), loop=self._loop,
+            ),
         )
         return future_message
 
     async def _play_scheduled_ai(self, future: asyncio.Future):
-        response = await self._process_play_request()
+        response = await self._process_play_request(request_type="ai", message={})
         future.set_result(response)
 
     def _play_ai(self, game):
@@ -320,16 +317,10 @@ class Api:
     async def _has_game_started(self):
         return await self._cache.has_game_started()
 
-    @property
-    async def _is_lobby_request_allowed(self):
-        return await self._cache.is_game_master() or self._request_type != RequestTypes.CREATE_GAME
+    async def _is_lobby_request_allowed(self, request_type):
+        return await self._cache.is_game_master() or request_type != RequestTypes.CREATE_GAME
 
-    @property
-    async def _can_reconnect(self):
+    async def _can_reconnect(self, message):
         return await self._cache.is_member_game(
-            self._message["request"]["game_id"], self._message["request"]["player_id"],
+            message["request"]["game_id"], message["request"]["player_id"],
         )
-
-    @property
-    def _request_type(self):
-        return self._message.get("rt")
