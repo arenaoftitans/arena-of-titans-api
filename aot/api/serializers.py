@@ -42,7 +42,8 @@ def get_global_game_message(game):
 def get_global_game_state(game):
     return {
         "id": game.game_id,
-        "actions": game.actions,
+        # Limit the number of returned actions to prevent slowdown in the frontend.
+        "actions": game.actions[-30:],
         "board": game.board,
         "is_over": game.is_over,
         "current_player_index": game.active_player.index,
