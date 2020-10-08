@@ -130,7 +130,9 @@ class TestCreateGame(IntegrationTestsBase):
     async def test_create_lobby(self, mocker, snapshot):
         await Cache.clean_for_game(self.game_id)
         mocker.patch.object(
-            sys.modules["aot.api.views.create_game"], "_create_game_id", return_value=self.game_id,
+            sys.modules["aot.api.views.create_game"],
+            "_create_game_id",
+            return_value=self.game_id,
         )
         await self.game_master_ws.onOpen()
 
@@ -147,7 +149,8 @@ class TestCreateGame(IntegrationTestsBase):
         await self.player_ws.onMessage(self.get_message("join_game.json"), is_binary=False)
 
         self.assert_calls_for_player(
-            snapshot, nb_calls=2,
+            snapshot,
+            nb_calls=2,
         )
         self.assert_calls_for_game_master(snapshot, nb_calls=1)
 

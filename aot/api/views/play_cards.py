@@ -36,7 +36,8 @@ def view_possible_squares(request, game):
                 "rt": RequestTypes.VIEW_POSSIBLE_SQUARES,
                 "request": {
                     "possible_squares": sorted(
-                        possible_squares, key=lambda square: (square.x, square.y),
+                        possible_squares,
+                        key=lambda square: (square.x, square.y),
                     )
                 },
             }

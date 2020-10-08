@@ -86,9 +86,11 @@ def _play_trump_with_target(game, trump, target, context):
         raise AotError("gauge_too_low")
     except MaxNumberTrumpPlayedError:
         raise AotError(
-            "max_number_played_trumps", infos={"num": game.active_player.MAX_NUMBER_TRUMPS_PLAYED},
+            "max_number_played_trumps",
+            infos={"num": game.active_player.MAX_NUMBER_TRUMPS_PLAYED},
         )
     except MaxNumberAffectingTrumpsError:
         raise AotErrorToDisplay(
-            "max_number_trumps", {"num": target.MAX_NUMBER_AFFECTING_TRUMPS},
+            "max_number_trumps",
+            {"num": target.MAX_NUMBER_AFFECTING_TRUMPS},
         )

@@ -46,7 +46,9 @@ def main(debug=False, debug_aio=False):
 if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Start the AoT API")
     parser.add_argument(
-        "--debug", help="Start in debug mode", action="store_true",
+        "--debug",
+        help="Start in debug mode",
+        action="store_true",
     )
     parser.add_argument(
         "--debug-aio",

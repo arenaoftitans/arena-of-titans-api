@@ -225,7 +225,8 @@ class Api:
         self._loop.call_later(
             self._ai_delay,
             lambda: asyncio.ensure_future(
-                self._play_scheduled_ai(future_message), loop=self._loop,
+                self._play_scheduled_ai(future_message),
+                loop=self._loop,
             ),
         )
         return future_message
@@ -276,7 +277,9 @@ class Api:
 
     def _disconnect_pending_players(self, game):
         self._change_players_connection_status(
-            game, self._clients_pending_disconnection_from_game, is_connected=False,
+            game,
+            self._clients_pending_disconnection_from_game,
+            is_connected=False,
         )
 
     def _change_players_connection_status(self, game, player_ids, is_connected):
@@ -287,7 +290,9 @@ class Api:
 
     def _reconnect_pending_players(self, game):
         self._change_players_connection_status(
-            game, self._clients_pending_reconnection_from_game, is_connected=True,
+            game,
+            self._clients_pending_reconnection_from_game,
+            is_connected=True,
         )
 
     def _is_this_player_turn(self, game):
@@ -322,5 +327,6 @@ class Api:
 
     async def _can_reconnect(self, message):
         return await self._cache.is_member_game(
-            message["request"]["game_id"], message["request"]["player_id"],
+            message["request"]["game_id"],
+            message["request"]["player_id"],
         )

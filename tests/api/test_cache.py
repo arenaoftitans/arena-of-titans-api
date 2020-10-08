@@ -478,7 +478,9 @@ async def test_save_slot(cache):  # noqa: F811
     await cache._save_slot(slot)
 
     cache._cache.lset.assert_called_once_with(
-        "slots:game_id", 0, cache.dumps(slot),
+        "slots:game_id",
+        0,
+        cache.dumps(slot),
     )
 
 

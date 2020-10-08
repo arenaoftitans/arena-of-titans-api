@@ -167,7 +167,8 @@ class ModifyTrumpDurationsEffect(TrumpEffect):
             raise TrumpHasNoEffectError
 
         self._target.modify_trump_effects_durations(
-            self._trump.delta_duration, filter_=filter_,
+            self._trump.delta_duration,
+            filter_=filter_,
         )
 
 

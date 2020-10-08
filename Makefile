@@ -9,7 +9,7 @@ PYTEST_WATCH_CMD ?= ptw
 
 # Ci Related variables. Leave empty, set only for ci.
 CI_TESTS_TIMEOUT ?=
-CACHE_HOST ?=
+CACHE_HOST ?= '127.0.0.1'
 
 
 .PHONY: help
@@ -109,8 +109,8 @@ check: lint tests
 
 .PHONY: dkcheck
 dkcheck: clean-pyc-tests
-	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} CACHE_HOST=${CACHE_HOST} lint
-	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} CACHE_HOST=${CACHE_HOST} tests
+	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} CACHE_HOST='aot-redis' lint
+	${DK_EXEC_CMD} make CI_TESTS_TIMEOUT=${CI_TESTS_TIMEOUT} CACHE_HOST='aot-redis' tests
 
 
 .PHONY: lint

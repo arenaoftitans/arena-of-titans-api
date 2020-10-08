@@ -163,7 +163,9 @@ def test_prevent_trump_action(mocker, red_tower_trump):  # noqa: F811
         passive=True,
     )
     player = PlayerFactory(
-        power=impassable_power, available_trumps=TrumpsList([red_tower_trump]), gauge__value=40,
+        power=impassable_power,
+        available_trumps=TrumpsList([red_tower_trump]),
+        gauge__value=40,
     )
     player.init_turn()
     trump_to_play = player._available_trumps["Tower", Color.RED]
@@ -173,7 +175,8 @@ def test_prevent_trump_action(mocker, red_tower_trump):  # noqa: F811
 
     # Setup player 2
     force_of_nature_power = CannotBeAffectedByTrumpsPower(
-        passive=True, trump_args={"name": "Force of nature", "trump_names": ["Tower"]},
+        passive=True,
+        trump_args={"name": "Force of nature", "trump_names": ["Tower"]},
     )
     player2 = PlayerFactory(power=force_of_nature_power)
 

@@ -188,7 +188,9 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(
     """
     # Setup player.
     prevent_action_trump = PreventTrumpAction(
-        name="Impassable Trump", prevent_trumps_to_modify=["Ram"], enable_for_trumps=["Tower"],
+        name="Impassable Trump",
+        prevent_trumps_to_modify=["Ram"],
+        enable_for_trumps=["Tower"],
     )
     player._available_trumps = TrumpsList([red_fortress_trump])
     effect = prevent_action_trump.create_effect(initiator=player, target=player, context={})
@@ -198,7 +200,10 @@ def test_prevent_trump_action_dont_enable_on_relevant_trump(
     player.play_trump(fortress, target=player2, context={})
     # Setup trump to play.
     ram = ModifyTrumpDurations(
-        name="Ram", trump_names=("Tower", "Fortress"), duration=1, delta_duration=-1,
+        name="Ram",
+        trump_names=("Tower", "Fortress"),
+        duration=1,
+        delta_duration=-1,
     )
 
     ram.create_effect(initiator=player2, target=player2, context={}).apply()

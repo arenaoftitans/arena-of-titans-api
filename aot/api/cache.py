@@ -188,7 +188,8 @@ class Cache:
     async def _add_slot(self, slot):
         slot = deepcopy(slot)
         await self._cache.rpush(
-            self.SLOTS_KEY_TEMPLATE.format(self._game_id), self.dumps(slot),
+            self.SLOTS_KEY_TEMPLATE.format(self._game_id),
+            self.dumps(slot),
         )
 
     async def _max_number_slots_reached(self, nb_slots):
@@ -200,14 +201,17 @@ class Cache:
 
     async def get_game(self):
         game_data = await self._cache.hget(
-            self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY,
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.GAME_KEY,
         )
         if game_data:
             return self.loads(game_data)
 
     async def save_session(self, player_index):
         await self._cache.zadd(
-            self.PLAYERS_KEY_TEMPLATE.format(self._game_id), player_index, self._player_id,
+            self.PLAYERS_KEY_TEMPLATE.format(self._game_id),
+            player_index,
+            self._player_id,
         )
         await self._cache.expire(self.PLAYERS_KEY_TEMPLATE.format(self._game_id), self.TTL)
 
@@ -221,7 +225,8 @@ class Cache:
 
     async def is_game_master(self):
         game_master_id = await self._cache.hget(
-            self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_MASTER_KEY,
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.GAME_MASTER_KEY,
         )
         return game_master_id is not None and game_master_id.decode("utf-8") == self._player_id
 
@@ -288,18 +293,23 @@ class Cache:
 
     async def has_game_started(self):
         game_started = await self._cache.hget(
-            self.GAME_KEY_TEMPLATE.format(self._game_id), self.STARTED_KEY,
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.STARTED_KEY,
         )
         return game_started == self.GAME_STARTED
 
     async def game_has_started(self):
         await self._cache.hset(
-            self.GAME_KEY_TEMPLATE.format(self._game_id), self.STARTED_KEY, self.GAME_STARTED,
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.STARTED_KEY,
+            self.GAME_STARTED,
         )
 
     async def save_game(self, game):
         await self._cache.hset(
-            self.GAME_KEY_TEMPLATE.format(self._game_id), self.GAME_KEY, self.dumps(game),
+            self.GAME_KEY_TEMPLATE.format(self._game_id),
+            self.GAME_KEY,
+            self.dumps(game),
         )
 
     @property

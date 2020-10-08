@@ -33,7 +33,8 @@ async def create_lobby(request, cache):
     cache.init(game_id=game_id, player_id=request["player_id"])
     game_config = GAME_CONFIGS["standard"]
     await cache.create_new_game(
-        test=request.get("test", False), nb_slots=game_config["number_players"],
+        test=request.get("test", False),
+        nb_slots=game_config["number_players"],
     )
 
     return await join_game(request, cache)
