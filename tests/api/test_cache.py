@@ -260,7 +260,7 @@ async def test_save_session(cache):  # noqa: F811
     await cache.save_session(1)
 
     cache._cache.zadd.assert_called_once_with("players:game_id", 1, "player_id")
-    cache._cache.expire.call_count == 1
+    assert cache._cache.expire.call_count == 1
 
 
 @pytest.mark.asyncio

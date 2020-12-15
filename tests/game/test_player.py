@@ -498,7 +498,7 @@ def test_play_trump(player):  # noqa: F811
     player.init_turn()
     player.play_trump(trump, target=player, context={})
     assert player._gauge.can_play_trump.call_count == 2
-    player._gauge.play_trump.call_count == 2
+    assert player._gauge.play_trump.call_count == 2
     assert len(player.trump_effects) == 1
 
 
