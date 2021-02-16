@@ -39,6 +39,7 @@ class AotEventHandler(FileSystemEventHandler):
     EVENT_TYPE_DELETED = "deleted"
     EVENT_TYPE_CREATED = "created"
     EVENT_TYPE_MODIFIED = "modified"
+    EVENT_TYPE_CLOSED = "closed"
 
     def __init__(self):
         super().__init__()
@@ -60,6 +61,7 @@ class AotEventHandler(FileSystemEventHandler):
                 self.EVENT_TYPE_MOVED: self.on_moved,
                 self.EVENT_TYPE_CREATED: self.on_created,
                 self.EVENT_TYPE_DELETED: self.on_deleted,
+                self.EVENT_TYPE_CLOSED: self.on_closed,
             }
             event_type = event.event_type
             _method_map[event_type](event)
