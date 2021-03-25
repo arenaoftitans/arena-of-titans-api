@@ -108,7 +108,7 @@ Update dependencies
 
 #. If required, change the version requirements in the ``Pipfile``.
 #. Run ``pipenv update --dev`` to update the lock file for all dependencies.
-#. Run ``pipenv sync --dev`` to sync local virtual env (if you use it locally outside docker).
+#. Run ``pipenv sync --dev`` to sync local virtual env (if you use it locally outside docker).
 #. Run ``make check`` to be sure everything still works.
 #. Run ``make VERSION=ver dockerbuild``. Version must be the two last digit of the year, two digits for the month and one digit for the build number. For instance: ``19.07.1`` for the 1st build of July 2019.
 #. Update the image version in ``docker-compose.yml``.
