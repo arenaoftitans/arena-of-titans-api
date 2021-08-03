@@ -34,7 +34,7 @@ class AotError(Exception):
             self.infos = infos
 
 
-class AotErrorToDisplay(AotError):
+class AotErrorToDisplay(AotError):  # noqa: N818 exception should be named with an Error suffix.
     pass
 
 
@@ -43,7 +43,9 @@ class AotFatalError(AotError):
         super().__init__(msg, infos)
 
 
-class AotFatalErrorToDisplay(AotFatalError, AotErrorToDisplay):
+class AotFatalErrorToDisplay(  # noqa: N818 exception should be named with an Error suffix.
+    AotFatalError, AotErrorToDisplay
+):
     pass
 
 

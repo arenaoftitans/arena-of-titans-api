@@ -2,13 +2,22 @@
 
 set -eu
 
-readonly INSIDE_DOCKER=$(grep -q docker /proc/self/cgroup && echo true)
+function test-is-in-docker() {
+    if [[ -f /proc/self/cgroup ]] && grep -q docker /proc/self/cgroup; then
+        return 0
+    elif [[ -f /.dockerenv ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
 readonly command="$1"
 # To be sure $@ will only contain the parameters of the command, not the command itself.
 shift
 
 # If we are already in a venv or if the are in docker, run directly.
-if [[ -v VIRTUAL_ENV || "${INSIDE_DOCKER}" == "true" ]]; then
+if [[ -v VIRTUAL_ENV || test-is-in-docker ]]; then
     echo "Already in venv"
     ${command} "$@"
 
