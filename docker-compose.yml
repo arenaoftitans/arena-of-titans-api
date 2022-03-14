@@ -21,7 +21,7 @@ version: '3'
 
 services:
   aot-dev-api:
-    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:22.01.2
+    image: registry.gitlab.com/arenaoftitans/arena-of-titans-api/dev/aot-api:22.03.1
     command: ["python3", "-m", "aot", "--reload"]
     depends_on:
       - aot-redis
