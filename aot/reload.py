@@ -68,10 +68,10 @@ class AotEventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         super().on_any_event(event)
-        print("Reload: start", file=sys.stderr)  # noqa: T001
+        print("Reload: start", file=sys.stderr)  # noqa: T201
         self.stop_app()
         self.start_app()
-        print("Reload: done", file=sys.stderr)  # noqa: T001
+        print("Reload: done", file=sys.stderr)  # noqa: T201
 
     def start_app(self):
         self.app = Popen(["python3", "-m", "aot", "--debug"])  # noqa: S603,S607 (Popen usage)

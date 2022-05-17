@@ -41,7 +41,7 @@ def setup_logging(debug=False):
         level = logging.INFO
 
     if config["sentry_dsn"] is None:
-        print(  # noqa: T001
+        print(  # noqa: T201
             "Note: not loading sentry, no dsn configured.",
             file=sys.stderr,
         )

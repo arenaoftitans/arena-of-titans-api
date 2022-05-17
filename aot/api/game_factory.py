@@ -99,7 +99,7 @@ def _get_cards_for_each_color(board, card_description, colors, number_cards_per_
     additional_movements_color = card_description.get("additional_movements_colors", [])
     complementary_colors = card_description.get("complementary_colors", {})
 
-    for color in sorted(colors, key=lambda color: color.name):
+    for color in sorted(colors, key=lambda _color: _color.name):
         additional_colors = _get_additional_colors(
             color, additional_movements_color, complementary_colors
         )

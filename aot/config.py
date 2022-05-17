@@ -47,7 +47,7 @@ class Config:
         self.env = Env()
         self.env.read_env()
 
-        print(  # noqa: T001
+        print(  # noqa: T201
             "Using overridden values for",
             self.ENV_VARS.intersection(os.environ.keys()),
             file=sys.stderr,

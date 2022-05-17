@@ -20,6 +20,7 @@
 from unittest.mock import AsyncMock, MagicMock, PropertyMock
 
 import pytest
+import txaio
 
 from aot.api import Api
 from aot.api.cache import Cache
@@ -29,6 +30,8 @@ from aot.game.board import Board
 from aot.game.cards import Deck
 from aot.game.config import TEST_CONFIG
 from aot.game.trumps import Gauge
+
+txaio.use_asyncio()
 
 
 def aredis():

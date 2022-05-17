@@ -17,12 +17,17 @@
 # along with Arena of Titans. If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import argparse
-import logging
+# This is required for txaio to work so we can import functions from .run
+import txaio
 
-from .config import config
-from .reload import run_reload
-from .run import cleanup, setup_logging, startup
+txaio.use_asyncio()
+
+import argparse  # noqa: E402
+import logging  # noqa: E402
+
+from .config import config  # noqa: E402
+from .reload import run_reload  # noqa: E402
+from .run import cleanup, setup_logging, startup  # noqa: E402
 
 
 def main(debug=False, debug_aio=False):
